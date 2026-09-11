@@ -21,51 +21,73 @@ import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import { sequelize } from '../config/database.js';
 import { getEnabledGateways, getGatewayConfig, isGatewayEnabled } from '../services/payment/config.js';
+import {
+  gatewayReady,
+  getStripeClient,
+  getStripePublishableKey,
+  getGatewayRuntimeConfig,
+  UNCONFIGURED_MESSAGE,
+} from '../services/payment/dynamic.js';
+import systemConfig from '../services/systemConfig.service.js';
 
 const router = express.Router();
 
-// Initialize Stripe (graceful fallback if key not set)
-const stripe =
-  process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('your_')
-    ? new Stripe(process.env.STRIPE_SECRET_KEY)
-    : null;
+/**
+ * Dynamic Stripe client — resolved per request from the runtime SystemConfig
+ * (DB-backed, Redis-cached) with process.env as fallback. Null when unconfigured.
+ */
+async function stripe() {
+  return getStripeClient();
+}
 
 /* ══════════════════════════════════════════════════════════════════
  * GET /config — unified payment configuration for frontend
- * Shows which gateways are enabled + publishable keys
+ * Shows which gateways are enabled + publishable keys (runtime config)
  * ══════════════════════════════════════════════════════════════════ */
-router.get('/config', (req, res) => {
-  const enabledGateways = getEnabledGateways();
-  const paypalConfig = getGatewayConfig('paypal');
+router.get('/config', async (req, res, next) => {
+  try {
+    const enabledGateways = getEnabledGateways();
+    const stripeCfg = await getGatewayRuntimeConfig('stripe');
+    const paypalCfg = await getGatewayRuntimeConfig('paypal');
+    const publicCfg = await systemConfig.getPublicConfig();
 
-  res.json({
-    success: true,
-    defaultCurrency: (process.env.DEFAULT_CURRENCY || 'USD').toUpperCase(),
-    supportedCurrencies: ['USD','EUR','GBP','PKR','INR','AED','SAR','BRL','MXN','CAD','AUD','JPY'],
-    gateways: {
-      stripe: {
-        enabled: Boolean(stripe),
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
-        methods: ['visa', 'mastercard', 'amex', 'discover', 'apple_pay', 'google_pay'],
+    const currency = publicCfg?.currency || {};
+    const defaultCurrency = (currency.code || process.env.DEFAULT_CURRENCY || 'USD').toUpperCase();
+
+    res.json({
+      success: true,
+      configured: Boolean(stripeCfg.enabled || paypalCfg.enabled),
+      unconfiguredMessage: UNCONFIGURED_MESSAGE,
+      defaultCurrency,
+      supportedCurrencies: ['USD','EUR','GBP','PKR','INR','AED','SAR','BRL','MXN','CAD','AUD','JPY'],
+      business: publicCfg?.business || {},
+      gateways: {
+        stripe: {
+          enabled: stripeCfg.enabled,
+          publishableKey: stripeCfg.publishableKey || 'pk_test_placeholder',
+          methods: ['visa', 'mastercard', 'amex', 'discover', 'apple_pay', 'google_pay'],
+        },
+        paypal: {
+          enabled: paypalCfg.enabled,
+          clientId: paypalCfg.clientId || '',
+          mode: paypalCfg.mode || 'sandbox',
+        },
+        razorpay: {
+          enabled: isGatewayEnabled('razorpay'),
+          keyId: process.env.RAZORPAY_KEY_ID || '',
+        },
+        paddle: {
+          enabled: isGatewayEnabled('paddle'),
+          environment: process.env.PADDLE_ENV || 'sandbox',
+        },
       },
-      paypal: {
-        enabled: paypalConfig?.enabled || false,
-        clientId: process.env.PAYPAL_CLIENT_ID || '',
-        mode: process.env.PAYPAL_MODE || 'sandbox',
-      },
-      razorpay: {
-        enabled: isGatewayEnabled('razorpay'),
-        keyId: process.env.RAZORPAY_KEY_ID || '',
-      },
-      paddle: {
-        enabled: isGatewayEnabled('paddle'),
-        environment: process.env.PADDLE_ENV || 'sandbox',
-      },
-    },
-    supportedMethods: ['visa', 'mastercard', 'amex', 'paypal', 'stripe', 'paddle', 'cod'],
-    isLive: Boolean(stripe),
-    enabledGateways,
-  });
+      supportedMethods: ['visa', 'mastercard', 'amex', 'paypal', 'stripe', 'paddle', 'cod'],
+      isLive: Boolean(stripeCfg.enabled),
+      enabledGateways,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /* ══════════════════════════════════════════════════════════════════
@@ -101,8 +123,9 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
     let clientSecret = '';
     let paymentIntentId = '';
 
-    if (stripe) {
-      const paymentIntent = await stripe.paymentIntents.create({
+    const stripeClient = await stripe();
+    if (stripeClient) {
+      const paymentIntent = await stripeClient.paymentIntents.create({
         amount: amountInCents,
         currency: orderCurrency.toLowerCase(),
         metadata: {
@@ -114,6 +137,14 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
       clientSecret = paymentIntent.client_secret;
       paymentIntentId = paymentIntent.id;
     } else {
+      const { ok } = await gatewayReady('stripe');
+      if (!ok) {
+        return res.status(200).json({
+          success: false,
+          code: 'PAYMENT_UNCONFIGURED',
+          error: UNCONFIGURED_MESSAGE,
+        });
+      }
       paymentIntentId = `pi_mock_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       clientSecret = `${paymentIntentId}_secret_${Math.random().toString(36).substring(2, 8)}`;
     }
@@ -155,7 +186,8 @@ router.post('/confirm', protect, paymentLimiter, async (req, res, next) => {
     }
 
     const intent = await stripeService.verifyPaymentIntent(paymentIntentId);
-    if (stripe && !intent.succeeded) {
+    const stripeClient = await stripe();
+    if (stripeClient && !intent.succeeded) {
       await payment.update({ status: intent.status === 'failed' ? 'failed' : 'processing' });
       return res.status(400).json({
         success: false,
@@ -462,12 +494,13 @@ router.post('/refund', protect, authorize('admin'), paymentLimiter, async (req, 
     const refundAmount = amount || parseFloat(payment.amount);
 
     // Gateway-specific refund
+    const stripeClient = await stripe();
     if (payment.provider === 'paypal' && payment.stripePaymentIntentId) {
       await paypalService.refund({ paymentId: payment.stripePaymentIntentId, amount: refundAmount });
     } else if (payment.provider === 'paddle' && payment.gatewayPaymentId) {
       await paddleService.refund({ transactionId: payment.gatewayPaymentId, amount: refundAmount, reason });
-    } else if (stripe && payment.stripePaymentIntentId && !payment.stripePaymentIntentId.startsWith('pi_mock')) {
-      await stripe.refunds.create({
+    } else if (stripeClient && payment.stripePaymentIntentId && !payment.stripePaymentIntentId.startsWith('pi_mock')) {
+      await stripeClient.refunds.create({
         payment_intent: payment.stripePaymentIntentId,
         amount: Math.round(refundAmount * 100),
       });

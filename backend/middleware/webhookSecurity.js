@@ -9,6 +9,7 @@
 import Stripe from 'stripe';
 import WebhookEvent from '../models/WebhookEvent.js';
 import { getRedis } from '../services/cache/redis.client.js';
+import { getStripeClient, getStripeWebhookSecret } from '../services/payment/dynamic.js';
 
 const WEBHOOK_DEDUPE_TTL = 60 * 60 * 24; // 24h
 
@@ -19,12 +20,9 @@ const WEBHOOK_DEDUPE_TTL = 60 * 60 * 24; // 24h
 export function stripeWebhook(middlewareConfig = {}) {
   return async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const endpointSecret = (await getStripeWebhookSecret()) || process.env.STRIPE_WEBHOOK_SECRET;
 
-    let stripe = null;
-    if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('your_')) {
-      stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    }
+    const stripe = await getStripeClient();
 
     // Verify signature + validity
     if (stripe && endpointSecret && sig) {

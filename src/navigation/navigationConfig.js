@@ -69,6 +69,12 @@ export const dashboardNavLinks = [
         icon: 'Users',
         roles: ['admin'],
       },
+      {
+        label: 'Global System Settings',
+        href: '/admin/settings',
+        icon: 'Settings2',
+        roles: ['admin'],
+      },
     ],
   },
   {

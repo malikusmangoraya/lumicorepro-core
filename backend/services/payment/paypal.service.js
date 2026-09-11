@@ -1,13 +1,14 @@
 import { getGatewayConfig } from './config.js';
+import { getGatewayRuntimeConfig } from './dynamic.js';
 import logger from '../../utils/logger.js';
 
 class PayPalService {
   constructor() {
     const config = getGatewayConfig('paypal');
     this.enabled = config?.enabled || false;
-    this.clientId = process.env.PAYPAL_CLIENT_ID;
-    this.clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-    this.mode = process.env.PAYPAL_MODE || 'sandbox';
+    this.clientId = config?.clientId;
+    this.clientSecret = config?.clientSecret;
+    this.mode = config?.mode || 'sandbox';
     this.baseURL = this.mode === 'sandbox'
       ? 'https://api-m.sandbox.paypal.com'
       : 'https://api-m.paypal.com';
@@ -16,6 +17,22 @@ class PayPalService {
     this.supportedCurrencies = ['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy', 'sek', 'chf'];
     this.region = 'Global';
     this.icon = '🅿️';
+  }
+
+  /**
+   * Re-initialize credentials from runtime SystemConfig (called after the admin
+   * saves new keys). Keeps the singleton in sync without a restart.
+   */
+  async refresh() {
+    const cfg = await getGatewayRuntimeConfig('paypal');
+    this.clientId = cfg.clientId;
+    this.clientSecret = cfg.clientSecret;
+    this.mode = cfg.mode || 'sandbox';
+    this.baseURL = this.mode === 'sandbox'
+      ? 'https://api-m.sandbox.paypal.com'
+      : 'https://api-m.paypal.com';
+    this.enabled = !!cfg.enabled;
+    return { enabled: this.enabled };
   }
 
   async getAccessToken() {

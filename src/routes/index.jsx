@@ -9,6 +9,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import SetupGate from '../components/gates/SetupGate';
 
 // ── Eager pages (loaded immediately — small & critical) ───────────────────
 import Home from '../pages/Home';
@@ -24,6 +25,8 @@ const GalleryPage = lazy(() => import('../pages/Gallery'));
 
 const LoginPage = lazy(() => import('../pages/Login'));
 const RegisterPage = lazy(() => import('../pages/Register'));
+const SetupWizardPage = lazy(() => import('../pages/SetupWizard'));
+const GlobalSystemSettingsPage = lazy(() => import('../pages/GlobalSystemSettings'));
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy'));
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfService'));
 const RefundPolicyPage = lazy(() => import('../pages/RefundPolicy'));
@@ -227,7 +230,11 @@ const templateRoutes = [
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: (
+      <SetupGate>
+        <MainLayout />
+      </SetupGate>
+    ),
     errorElement: <ErrorBoundary />,
     children: [
       { index: true, element: <Home /> },
@@ -279,6 +286,24 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <RegisterPage />
+          </Suspense>
+        ),
+        errorElement: <ErrorBoundary />,
+      },
+      {
+        path: 'setup',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <SetupWizardPage />
+          </Suspense>
+        ),
+        errorElement: <ErrorBoundary />,
+      },
+      {
+        path: 'admin/settings',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <GlobalSystemSettingsPage />
           </Suspense>
         ),
         errorElement: <ErrorBoundary />,

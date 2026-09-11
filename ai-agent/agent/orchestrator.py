@@ -1068,6 +1068,18 @@ class AgentOrchestrator:
                             break
             phase_log["phase_6_code_generation"] = {"project_dir": project_dir, "ai_calls": ai_calls_count}
 
+            # ── Launch Pack (business-in-a-box stamping) ────────────────────
+            # Generates the niche production-seeder, non-technical SETUP_GUIDE.md
+            # and the self-hosted license/compliance notice into the project.
+            launch_report: Dict[str, Any] = {}
+            if project_dir:
+                try:
+                    from agent.launch_pack import generate_launch_pack
+                    launch_report = generate_launch_pack(project_dir, spec)
+                except Exception as lpk_err:
+                    agent_logger.warning(f"Launch Pack stamping skipped: {lpk_err}")
+            phase_log["phase_6_launch_pack"] = launch_report
+
             # ── Design Style Phase (phase 6b): art-direct the site + original assets ──
             # Runs right after code generation (content) and before verification
             # & layout-tuning phases — the defined integration point of the

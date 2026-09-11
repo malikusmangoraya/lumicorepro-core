@@ -76,6 +76,8 @@ import playbookRoutes from './routes/playbook.routes.js';
 import licenseRoutes from './routes/license.routes.js';
 import refundPolicyRoutes from './routes/refund-policy.js';
 import aiDisclosureRoutes from './routes/ai-disclosure.js';
+import settingsRoutes from './routes/settings.routes.js';
+import systemConfig from './services/systemConfig.service.js';
 import errorHandler, { notFound } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 import { swaggerOptions } from './config/swagger.js';
@@ -120,9 +122,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Connect to database
 connectDB();
 
-// Connect to Redis (graceful no-op fallback if unavailable)
+// Warm the runtime SystemConfig cache (DB → Redis → memory). Async, non-blocking;
+// if the DB is unreachable the service fails open and still serves requests.
 connectRedis().then((ok) => {
   logger.info(ok ? 'Redis connected' : 'Redis unavailable — using in-memory fallback');
+  systemConfig.refresh().then(() => {
+    logger.info('SystemConfig runtime cache warmed');
+  });
 });
 
 // Routes
@@ -150,6 +156,7 @@ app.use('/api/playbook', playbookRoutes);
 app.use('/api/license', licenseRoutes);
 app.use('/api/legal/refund-policy', refundPolicyRoutes);
 app.use('/api/legal/ai-disclosure', aiDisclosureRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check routes
 app.use('/api/health', healthRoutes);

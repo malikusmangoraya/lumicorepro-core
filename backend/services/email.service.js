@@ -7,23 +7,59 @@
  * best-effort delivery.
  */
 import nodemailer from 'nodemailer';
+import systemConfig from './systemConfig.service.js';
 
 let transporter = null;
 
-function getTransporter() {
-  if (transporter) return transporter;
+/**
+ * Load SMTP credentials from the runtime SystemConfig (DB-backed, cached)
+ * with process.env as the startup fallback. Called on every send attempt so
+ * the admin panel's saved credentials take effect without a restart.
+ */
+async function getSmtpConfig() {
+  const dbCfg = await systemConfig.get('smtp', null);
+  if (dbCfg && dbCfg.enabled && dbCfg.host && dbCfg.user && dbCfg.pass && !dbCfg.host.includes('your_')) {
+    return {
+      host: dbCfg.host,
+      port: dbCfg.port || 587,
+      secure: Boolean(dbCfg.secure) || dbCfg.port === 465,
+      user: dbCfg.user,
+      pass: dbCfg.pass,
+      fromName: dbCfg.fromName || '',
+      fromEmail: dbCfg.fromEmail || '',
+    };
+  }
+  const configured =
+    process.env.SMTP_HOST &&
+    process.env.SMTP_USER &&
+    process.env.SMTP_PASS &&
+    !process.env.SMTP_HOST.includes('your_');
+  if (!configured) return null;
+  return {
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: Number(process.env.SMTP_PORT) === 465,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+    fromName: '',
+    fromEmail: '',
+  };
+}
 
-  const configured = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
-  if (!configured) {
+async function getTransporter() {
+  const smtp = await getSmtpConfig();
+  if (!smtp) {
     transporter = null;
     return null;
   }
 
+  if (transporter) return transporter;
+
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    host: smtp.host,
+    port: smtp.port || 587,
+    secure: Boolean(smtp.secure),
+    auth: { user: smtp.user, pass: smtp.pass },
     pool: true,
     maxConnections: 3,
     rateDelta: 1000,
@@ -34,14 +70,21 @@ function getTransporter() {
 }
 
 const BRAND = process.env.APP_BRAND || 'Your App';
-const FROM = process.env.EMAIL_FROM || `"${BRAND}" <no-reply@${process.env.APP_DOMAIN || 'yourdomain.com'}>`;
+
+async function getFromAddress(business = null) {
+  const cfg = business || (await systemConfig.get('business', {}));
+  const smtp = await systemConfig.get('smtp', {});
+  const BizName = cfg.name || BRAND;
+  if (smtp.fromEmail) return `"${smtp.fromName || BizName}" <${smtp.fromEmail}>`;
+  return `"${BizName}" <${process.env.EMAIL_FROM_ADDRESS || 'no-reply@' + (process.env.APP_DOMAIN || 'yourdomain.com')}>`;
+}
 
 /**
  * Send an email. Returns { sent: boolean } — always resolves (never throws).
  */
 export async function sendEmail({ to, subject, html, text }) {
   try {
-    const tr = getTransporter();
+    const tr = await getTransporter();
     if (!tr) {
       // No SMTP configured — log the email content for dev/staging debugging.
       const { logger } = await import('../utils/logger.js');
@@ -49,7 +92,8 @@ export async function sendEmail({ to, subject, html, text }) {
       return { sent: false, dryRun: true };
     }
 
-    await tr.sendMail({ from: FROM, to, subject, html: html || text, text });
+    const from = await getFromAddress();
+    await tr.sendMail({ from, to, subject, html: html || text, text });
     return { sent: true };
   } catch (err) {
     const { logger } = await import('../utils/logger.js');

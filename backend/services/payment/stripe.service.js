@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { getGatewayConfig } from './config.js';
+import { getStripeClient, getStripePublishableKey } from './dynamic.js';
 import Payment from '../../models/Payment.js';
 import logger from '../../utils/logger.js';
 
@@ -7,12 +8,24 @@ class StripeService {
   constructor() {
     const config = getGatewayConfig('stripe');
     this.enabled = config?.enabled || false;
-    this.client = this.enabled ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+    this.client = config?.enabled ? new Stripe(config.secretKey) : null;
     this.name = 'Stripe';
     this.description = 'Credit card & digital wallet payments (Global)';
     this.supportedCurrencies = ['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy', 'inr', 'pkr', 'bdt', 'try', 'php', 'idr', 'myr', 'sgd'];
     this.region = 'Global';
     this.icon = '💳';
+  }
+
+  /**
+   * Re-initialize the client from runtime SystemConfig (called after the admin
+   * saves new keys). Keeps the singleton in sync without a restart.
+   */
+  async refresh() {
+    const client = await getStripeClient();
+    this.client = client;
+    this.enabled = !!client;
+    this.publishableKey = await getStripePublishableKey();
+    return { enabled: this.enabled };
   }
 
   async createPayment({ amount, currency = 'usd', orderId, description, metadata = {} }) {
@@ -96,6 +109,7 @@ class StripeService {
   }
 
   getPublicKey() {
+    if (this.publishableKey) return this.publishableKey;
     return process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder';
   }
 
