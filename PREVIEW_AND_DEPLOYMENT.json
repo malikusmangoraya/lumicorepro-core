@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "project": "LumiCorePro",
+    "generated": "2026-09-12",
+    "schema_version": "1.0.0",
+    "description": "Standalone deployment map. This project is 100% self-hosted: no SaaS licensing server, no telemetry backbone. Every path below is a placeholder that the buyer or CI fills with their own URLs/credentials."
+  },
+
+  "live_preview": {
+    "_note": "The AI agent compiles each generated site and stages a live preview. The Express API proxies those previews behind /api/ai/preview/:slug.",
+    "local_staging_url": "http://localhost:5173",
+    "production_preview_base": "https://YOUR-DOMAIN.com/api/ai/preview/:slug",
+    "stage_preview_command": "· Option A (Docker): docker compose up --build -d\n· Option B (Node):  cd backend && npm run dev  +  npm run dev",
+    "agent_preview_host": {
+      "env_key": "AI_AGENT_URL",
+      "default": "http://localhost:8000",
+      "route": "GET /api/ai/preview/:slug — first preview every generated run"
+    },
+    "privacy_note": "PREVIEW_URL subdomains are temporary staging artifacts, never production traffic."
+  },
+
+  "github_1_click_push": {
+    "_note": "Connect the local workspace to a Git repository, then one push publishes it.",
+    "steps": [
+      "gh repo create YOUR-USERNAME/lumicorepro --public --source=. --remote=origin --push",
+      "git add . && git commit -m \"chore: initial turnkey deployment\"",
+      "git push -u origin main"
+    ],
+    "workspace_mapping": {
+      "local_root": ".",
+      "backend_code": "backend/",
+      "frontend_code": "src/ + index.html + vite.config.js",
+      "ai_agent_code": "ai-agent/",
+      "infra": "docker-compose.yml · nginx/nginx.conf · Dockerfile.frontend"
+    },
+    "secrets_policy": "Ensure backend/.env, .env.local and any *.env with real secrets are git-ignored before pushing."
+  },
+
+  "multi_cloud_deploy": {
+    "frontend": {
+      "provider_primary": "Vercel",
+      "alt_provider": "Netlify",
+      "build_command": "npm run build",
+      "output_directory": "dist",
+      "install_command": "npm ci",
+      "env_vars": [
+        "VITE_API_URL=https://YOUR-BACKEND-DOMAIN",
+        "VITE_ENV=production",
+        "VITE_ENABLE_ANALYTICS=false"
+      ],
+      "route_config": "Vercel/Netlify SPA rewrites: every path → /index.html (present in vercel.json / _redirects if needed)."
+    },
+    "backend": {
+      "provider_primary": "Railway",
+      "alt_provider": "Render (Web Service)",
+      "root_directory": "backend",
+      "start_command": "npm start",
+      "healthcheck": "GET /api/health → 200",
+      "env_vars_required": ["DATABASE_URL", "JWT_SECRET", "JWT_REFRESH_SECRET"],
+      "env_vars_optional": ["REDIS_URL", "STRIPE_SECRET_KEY", "STRIPE_PUBLISHABLE_KEY", "PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "DEMO_MODE", "TURNSTILE_SECRET_KEY", "AI_AGENT_URL"],
+      "database": {
+        "provider": "Railway Postgres / Render Postgres / Neon",
+        "connection": "DATABASE_URL=postgres://USER:PASS@HOST:5432/DBNAME",
+        "schema_init": "Sequelize syncs tables on first boot (development) or via `node backend/scripts/apply-indexes.js` in production."
+      },
+      "websocket_note": "Socket.io needs sticky sessions or a single-instance backend in the free tier; Railway/Render handle this on their default single-replica plan."
+    },
+    "storage_and_extra": {
+      "uploads": "Backed by backend/uploads (ephemeral on PaaS) — mount a disk (Railway volume) or swap to Cloudinary (CLOUDINARY_* keys are already wired).",
+      "redis_optional": "If REDIS_URL is absent the app transparently falls back to an in-memory cache — compatible with Render free tier."
+    }
+  },
+
+  "workspace_to_repo_links": {
+    "_note": "Replace placeholders with the buyer's repo and cloud dashboards.",
+    "repo": {
+      "default_branch": "main",
+      "clone_https": "git clone https://github.com/YOUR-USERNAME/lumicorepro.git",
+      "clone_ssh": "git clone git@github.com:YOUR-USERNAME/lumicorepro.git",
+      "open_in_vscode": "code ./lumicorepro"
+    },
+    "dashboards": {
+      "github": "https://github.com/YOUR-USERNAME/lumicorepro",
+      "vercel": "https://vercel.com/dashboard",
+      "railway": "https://railway.app/dashboard",
+      "render": "https://dashboard.render.com"
+    },
+    "local_first_boot": [
+      "cp backend/.env.example backend/.env",
+      "cp .env.example .env.local",
+      "npm install",
+      "docker compose up --build -d   (or npm run dev:all)",
+      "Finish the Setup Wizard at http://localhost:5173"
+    ]
+  },
+
+  "quality_gates": {
+    "static": "node --check on every backend file · ESLint on frontend (npm run lint)",
+    "tests": "npm test (Vitest) · npm run test:backend (Jest 12 suites) · npm run test:e2e (Playwright)",
+    "build": "npm run build — production bundle must succeed",
+    "security": "secrets only in env files · inputs validated (express-validator/zod) · CORS whitelist · rate limits on auth/AI",
+    "performance": "route-level code-splitting · hash-cached static assets · SWR caching (5 min staleTime)",
+    "a11y": "WCAG 2.1 AA landmarks · keyboard navigation · prefers-reduced-motion · dark mode"
+  }
+}

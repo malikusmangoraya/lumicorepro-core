@@ -1,453 +1,236 @@
-# LumicorePro Core 🚀
+# LumiCorePro — Turnkey Business-in-a-Box
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Build](https://img.shields.io/github/actions/workflow/status/malikusmangoraya/lumicorepro-core/ci.yml)
-![Node](https://img.shields.io/badge/node-20+-green)
-![Tests](https://img.shields.io/badge/tests-292%20passed-brightgreen)
+> A complete, self-hosted web platform: **React 19 + Vite + Tailwind 3** frontend,
+> **Express + PostgreSQL + Redis** API, and a **Python FastAPI** AI agent —
+> orchestrated to deploy as one turnkey product, no SaaS lock-in.
 
-**AI-Powered Full-Stack Website Generator** — Build production-ready websites from a single natural language prompt.
+[![Built with React 19](https://img.shields.io/badge/React-19-61dafb)](https://react.dev)
+[![Express](https://img.shields.io/badge/Express-4-000)](https://expressjs.com)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com)
 
-LumicorePro Core is a modular React-based component library combined with a **9-phase AI agent pipeline** that automatically generates complete full-stack projects (React + Vite + Tailwind + Node.js + Express + PostgreSQL) tailored to **market demand and trending features**.
+---
 
-> **One prompt. Complete website. Market-optimized. Ready to deploy.**
->
-> **Enhanced v2.0** — More industries, robust pipeline, better AI integration, improved error recovery, and comprehensive component library.
+## 1. Project Overview
 
-## ✨ Features
+LumiCorePro ships as a **Business-in-a-Box**: a production-ready website and SaaS
+foundation you can brand, configure and take live yourself — entirely from the
+browser, without editing code.
 
-- **React 19** with Vite for fast development
-- **Tailwind CSS** for utility-first styling with premium glassmorphism theme
-- **React Router DOM** for client-side routing
-- **Dark/Light mode** with system preference detection
-- **Axios** for API communication
-- **Lucide React** icons
-- **Framer Motion** for smooth animations
-- **Recharts** for interactive data visualization
-- **Responsive design** (mobile-first)
-- **Context API** for global state management
-- **10+ Industry Website Templates** (E-commerce, SaaS, Healthcare, Education, Fitness, etc.)
-- **100+ Reusable Components** across all categories
-- **9-Phase AI Generation Pipeline** with market analysis
-- **Multi-AI Provider Support** (Gemini, DeepSeek, OpenRouter) with fallback chain
-- **Market Demand Analysis** — auto-injects trending features based on industry
-- **Competitive Benchmarking** — ROI scoring & industry comparison
-- **Quality Gates** — automated code quality evaluation
-- **Offline Mode** — works without AI API keys using local rules
-- **Enhanced Requirement Analysis** — supports 20+ industries (fintech, social media, fashion, electronics, automotive, legal, nonprofit, government, agriculture)
-- **Robust Pipeline** — per-phase error handling, recovery, and comprehensive logging
-- **AI-Driven Code Generation** — full component generation with security scanning
-- **Auto NPM Dependency Fixing** — detects missing packages and injects them automatically
-- **Design System Injection** — premium glassmorphism theme with Tailwind config
-- **Interactive Setup Wizard** — guided environment configuration
-- **Comprehensive Test Suite** — unit tests for all agent modules
+| Capability | Where |
+|---|---|
+| Marketing / landing pages + e-commerce, healthcare & fitness verticals | `src/pages`, `src/templates` |
+| User accounts: JWT auth, 2FA, OAuth (Google/GitHub), email verification | `backend/routes/auth.routes.js` |
+| Checkout: Stripe + PayPal (11 more gateways code-enabled) | `backend/routes/payment.routes.js` |
+| Real-time notifications (Socket.io) | `src/hooks/useSocket.js`, `backend/server.js` |
+| AI generation engine (Python agent, cost-protection, rate limits) | `ai-agent/`, `backend/routes/ai.routes.js` |
+| **No-code admin panel** — payments, SMTP, currency & branding set from the UI | `src/pages/GlobalSystemSettings.jsx`, `backend/routes/settings.routes.js` |
+| **Onboarding wizard** — first-run setup without a terminal | `src/pages/SetupWizard.jsx`, `backend/routes/settings.routes.js` |
+| Live-preview demo data (niche-aware seeder) | `backend/scripts/production-seed.js` |
+| Self-hosted licensing (HMAC, no SaaS call-home) | `backend/routes/license.routes.js` |
 
-## 🌐 Supported Website Types
-
-| Industry | Category | Features |
-|----------|----------|----------|
-| **E-Commerce** | Electronics, Fashion, Retail | Products, Cart, Checkout, Payments, Reviews |
-| **SaaS** | Software, Analytics | Dashboards, Pricing, Plans, Metrics |
-| **Business** | Corporate, Agency, Landing | Services, Portfolio, Team, Testimonials |
-| **Healthcare** | Medical, Clinic, Hospital | Appointments, Patient Portal, Doctor Profiles |
-| **Education** | LMS, Course Platform | Courses, Lessons, Progress Tracking |
-| **Food & Dining** | Restaurant, Cafe, Delivery | Menu, Online Ordering, Delivery Tracking |
-| **Fitness** | Gym, Training, Wellness | Classes, Scheduling, Membership Plans |
-| **Real Estate** | Property, Rentals | Listings, Search, Maps, Agent Profiles |
-| **Travel** | Agency, Tours, Vacation | Destinations, Booking, Itineraries |
-| **Portfolio** | Personal, Creative, Freelance | Projects, Skills, Contact Forms |
-| **Fintech** | Crypto, Trading, Banking | Wallet, Charts, Transactions, Security |
-| **Social Media** | Community, Networking | Profiles, Posts, Feed, Messaging |
-| **Automotive** | Cars, Dealerships | Vehicles, Test Drives, Financing |
-| **Non-Profit** | Charity, NGO | Donations, Events, Impact Stories |
-| **Job Board** | Recruitment, Careers | Job Listings, Applications, Employer Profiles |
-
-## 🤖 AI Agent Pipeline (9 Phases)
-
-The AI agent transforms any natural language prompt into a complete full-stack project through **9 sequential phases**:
+## 2. Architecture
 
 ```
-Prompt ─→ [1] Market Analysis ─→ Industry demand, competition, positioning
-          [2] Requirement Analysis ─→ AI + rule-based parsing, ambiguity detection
-          [3] Tech Stack Selection ─→ Frontend, Backend, Database matching
-          [4] Trending Features ─→ Auto-inject high-ROI market features
-          [5] Resource Assembly ─→ Template + Components + Assets + Backend
-          [6] Code Generation ─→ Project build, AI customization, NPM fix
-          [7] Quality Gates ─→ Structure validation, completeness scoring
-          [8] Improvements ─→ Missing features, enhancements, recommendations
-          [9] Competitive Benchmark ─→ ROI scoring, market comparison, ZIP delivery
-          ─→ Complete Full-Stack Project (ZIP + Deployment Guide)
+Browser (React SPA)
+   │  HTTPS
+   ▼
+Nginx (auth proxies, rate-limit zones, /uploads, /socket.io)
+   ├──► Frontend (Vite preview :5173)
+   └──► Backend (Express :5000)
+            │
+            ├── PostgreSQL (Sequelize ORM — users, products, orders…)
+            ├── Redis (config cache, sessions) + BullMQ (email/AI/report queues)
+            └── AI Agent (FastAPI :8000, Python — generation & live previews)
 ```
 
-### How Each Phase Works
+**Request flow:** `User → React → Hook/Context → Axios interceptor → Express route
+→ Sequelize/PostgreSQL (Redis cache) → typed JSON response`
 
-| Phase | Agent | Description | Fallback |
-|-------|-------|-------------|----------|
-| **1. Market Analysis** | `MarketAnalyzer` | Analyzes industry demand, competition, and customer segments | Static industry scoring |
-| **2. Requirement Analysis** | `RequirementAnalyzer` | Parses prompt, detects ambiguity, infers implicit features | Local keyword rules |
-| **3. Tech Stack** | `TechStackSelector` | Selects optimal frontend/backend/database stack | React + Express + PostgreSQL |
-| **4. Trending Features** | `TrendingFeaturesInjector` | Injects high-ROI features (social proof, AI chat, smart search) | Skips if no match |
-| **5. Resource Assembly** | `GenerationPlanner` | Plans template, components, assets, backend, database | Default template |
-| **6. Code Generation** | `ProjectBuilder` | Copies resources, fixes dependencies, injects design system | Minimal scaffold |
-| **7. Quality Verification** | `ProjectValidator` | Validates project structure, files, dependencies | Returns basic report |
-| **8. Improvements** | `ImprovementRecommender` | Recommends features, performance, security improvements | Static suggestions |
-| **9. Competitive Benchmark** | `CompetitiveBenchmark` | Market comparison, ROI score, delivery package | Basic benchmark |
+## 3. Run in 2 Minutes with Docker Compose
 
-> **No internet? No problem.** All phases have offline local fallbacks.
-
-## 📁 Project Structure
-
-```
-lumicorepro-core/
-├── src/                          # Frontend source
-│   ├── components/               # 100+ reusable React components
-│   │   ├── ui/                   # Buttons, Cards, Modals, etc.
-│   │   ├── common/               # Theme, Language, Layout helpers
-│   │   ├── navigation/           # Navbar, Footer, Sidebar, Breadcrumb
-│   │   ├── forms/                # Input, Select, Checkbox, etc.
-│   │   ├── ecommerce/            # ProductCard, Cart, Checkout
-│   │   ├── dashboard/            # Charts, DataTable, StatCards
-│   │   ├── ai/                   # ChatBox, ChatInput, MessageList
-│   │   ├── business/             # Hero, FeatureGrid, PricingCard
-│   │   ├── auth/                 # LoginForm, RegisterForm, OTP
-│   │   ├── layout/               # Page layout wrappers
-│   │   └── editor/               # Visual page editor
-│   ├── context/                  # React Context providers
-│   ├── hooks/                    # Custom React hooks
-│   ├── layouts/                  # Page layout templates
-│   ├── pages/                    # Route page components
-│   ├── routes/                   # Router configuration
-│   ├── services/                 # API communication layer
-│   ├── styles/                   # Global CSS & animations
-│   ├── templates/                # 10 industry website templates
-│   │   ├── business/             # Corporate template
-│   │   ├── ecommerce/            # Electronics templates (3 variants)
-│   │   ├── education/            # LMS template
-│   │   ├── fitness/              # Gym template
-│   │   ├── healthcare/           # Medical template
-│   │   ├── portfolio/            # Personal portfolio template
-│   │   ├── realestate/           # Property template
-│   │   ├── restaurant/           # Cafe template
-│   │   ├── travel/               # Agency template
-│   │   └── creative/             # Studio template
-│   └── icons/                    # SVG icon assets
-├── ai-agent/                     # AI generation engine
-│   ├── agent/                    # 15+ specialized agent modules
-│   ├── config/                   # Settings & provider config
-│   ├── database/                 # Agent memory database
-│   ├── providers/                # AI provider implementations
-│   └── utils/                    # Helpers, Logger, FileManager
-├── backend/                      # Express.js API
-├── backend-library/              # 4 backend base templates
-│   ├── ecommerce-base/           # E-commerce API
-│   ├── electronics-backend/      # Electronics API
-│   ├── saas-backend/             # SaaS API
-│   └── master-express-backend/   # Business/Contact API
-├── database/                     # Schema management
-│   └── schemas/                  # PostgreSQL schema files
-├── registry/                     # Local asset library
-│   ├── templates.json            # Template registry (10 templates)
-│   ├── components.json           # Component registry (40+ components)
-│   ├── backend-modules.json      # Backend base registry (4 backends)
-│   ├── images.json               # Image asset registry (20+ images)
-│   ├── icons.json                # Icon asset registry (14 icons)
-│   ├── animations.json           # Animation CSS registry (10 animations)
-│   └── trending-features.json    # Market trending features (7 features)
-├── generated-projects/           # AI-generated output directory
-├── project-rules/                # Development standards
-├── docs/                         # Documentation
-└── public/                       # Static assets
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm 9+
-- Python 3.9+ (for AI agent)
-
-### Installation (Frontend)
+**Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop) (or Docker + Compose plugin).
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd lumicorepro-core
+cp backend/.env.example backend/.env   # optional customization
+docker compose up --build -d
+```
 
-# Install dependencies
+| Service | URL |
+|---|---|
+| Frontend (Vite preview) | http://localhost:5173 |
+| Backend API | http://localhost:5000/api/health |
+| API docs (Swagger) | http://localhost:5000/api-docs |
+| Nginx reverse proxy (single entry) | http://localhost |
+
+Then open http://localhost:5173 — the **Setup Wizard** guides you through the
+admin account and business details in under five minutes. To prefill the site
+with production-style demo data:
+
+```bash
+# E-commerce:   PRODUCT_NICHE=ecommerce
+# Healthcare:   PRODUCT_NICHE=healthcare
+# Fitness:      PRODUCT_NICHE=fitness
+docker compose exec backend node backend/scripts/production-seed.js
+```
+
+### Local (no Docker)
+
+```bash
+# 1. Backend
+cd backend && npm install
+# copy backend/.env.example -> backend/.env  (DATABASE_URL, JWT_SECRET required)
+npm run dev                # API on :5000, login admin@example.com / Password123!
+
+# 2. Frontend (separate terminal)
 npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Start development server
-npm run dev
+cp .env.example .env.local
+npm run dev                # SPA on :5173
 ```
 
-### Installation (AI Agent)
-
-```bash
-# Setup Python environment
-cd ai-agent
-pip install -r requirements.txt
-
-# Initialize agent database
-python database/init_db.py
-
-# Configure AI provider (copy .env.example to .env)
-cp .env.example .env
-# Edit .env with your API keys
-```
-
-## AI Agent Usage
-
-### Generate a Project
-
-```bash
-cd ai-agent
-
-# Basic usage
-python main.py --prompt "Build me a premium electronics e-commerce store"
-
-# Interactive mode (asks for clarification if needed)
-python main.py --prompt "Build me a website" --interactive
-
-# Specify AI provider
-python main.py --prompt "SaaS dashboard with analytics" --provider gemini
-```
-
-### AI Provider Configuration
-
-Edit `ai-agent/.env`:
-
-```env
-# Choose provider: gemini | deepseek | openrouter
-AI_PROVIDER=gemini
-
-# Set your API key
-GEMINI_API_KEY=your_api_key_here
-
-# Model selection
-GEMINI_MODEL=gemini-2.5-flash
-```
-
-### Output
-
-Generated projects are saved in `generated-projects/` with:
-- **Frontend** (React + Vite + Tailwind)
-- **Backend** (Node.js + Express)
-- **Database** (PostgreSQL schema)
-- **INSTRUCTIONS.md** (step-by-step deployment guide)
-- **ZIP archive** (ready for deployment)
-
-The generated project receives:
-1. A **quality score** (0-100%) evaluating structure completeness
-2. **Improvement recommendations** (missing features, performance tips)
-3. A **competitive benchmark report** with ROI scoring
-4. A **deployment guide** (INSTRUCTIONS.md) with setup, DB migration, and cloud deployment steps
-
-## 🔧 Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-
-## ⚙️ Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_URL` | Backend API endpoint | `http://localhost:3001` |
-| `VITE_ENV` | Environment mode | `development` |
-| `VITE_ENABLE_MOCK_API` | Enable mock data | `true` |
-| `VITE_ENABLE_DARK_MODE` | Default dark mode | `true` |
-
-## 📚 Documentation
-
-### AI Agent System (Start Here)
-- [Quick Reference](docs/LUMICOREPRO_QUICK_REFERENCE.md) — Complete system overview
-- [Master Agent Prompt v3](docs/MASTER_AGENT_PROMPT_v3.md) — 9-phase AI generation
-- [Implementation Guide](docs/MASTER_AGENT_IMPLEMENTATION.md) — Integration architecture
-- [Executive Summary](docs/LUMICOREPRO_EXECUTIVE_SUMMARY.md) — 4-week launch plan
-- [System Prompt](docs/LUMICOREPRO_SYSTEM_PROMPT.md) — Quality standards
-- [Improvements Roadmap](docs/LUMICOREPRO_IMPROVEMENTS_ROADMAP.md) — Feature priorities
-
-### Architecture
-- [Phase 1 Guide](docs/PHASE_1_GUIDE.md) — Setup and installation
-- [Project Rules](project-rules/PROJECT_RULES.md) — Code standards
-- [Architecture](project-rules/ARCHITECTURE.md) — System design
-
-## 🏗️ Component Library
-
-### UI Components (26)
-Button, Card, Modal, Alert, Tabs, Dropdown, Progress, Spinner, Tooltip, Badge, Avatar, Breadcrumb, Pagination, Skeleton, Loading, Empty, Divider, IconButton, Accordion
-
-### E-Commerce Components (22)
-ProductCard, ProductGrid, ProductDetails, ProductImage, CartItem, CartSummary, CartEmpty, AddToCart, AddToWishlist, Checkout, OrderConfirmation, SearchProducts, CategoryFilter, PriceFilter, SortOptions, DiscountBadge, RatingStars, ReviewForm, QuantitySelector, ShippingInfo, ProductList, ProductReview
-
-### Dashboard Components (20)
-DashboardLayout, DashboardHeader, DashboardSidebar, StatCard, RevenueCard, PerformanceCard, AreaChart, BarChart, LineChart, PieChart, ChartCard, DataTable, DateRangeFilter, SearchBar, RecentOrders, ActivityFeed, FilterPanel, ExportButton, NotificationBell, UserProfile
-
-### Business Components (14)
-Hero, FeatureGrid, PricingCard, PricingGrid, Testimonial, TestimonialSlider, FAQItem, CTA, Team, TeamGrid, ServiceCard, Feature, PortfolioGrid, PortfolioItem
-
-### Auth Components (8)
-LoginForm, RegisterForm, ForgotPassword, ResetPassword, OTPInput, SocialLogin, AuthWrapper, ProtectedRoute
-
-### Navigation Components (9)
-Navbar, Footer, Sidebar, MobileMenu, Breadcrumb, TabNavigation, Stepper, TopMenu, VerticalMenu
-
-### AI Components (12)
-ChatBox, ChatInput, ChatMessage, MessageList, ModelSelector, TokenCounter, TypingIndicator, CopyButton, RegenerateButton, GenerationCard, HistoryPanel, PromptTemplates, UploadFile, AIResponse
-
-### Form Components (13)
-Input, Select, Textarea, Checkbox, Radio, Switch, DatePicker, TimePicker, RangeSlider, Rating, SearchInput, FileUpload, FormError, FormGroup
-
-### Layout Components (4)
-MainLayout, DashboardLayout, AuthLayout, BlogLayout
-
-## Security
-
-- Path traversal protection in all file operations
-- Code security scanning (blocks eval, exec, dangerous patterns)
-- Balanced syntax validation for generated code
-- AI response security audit before applying
-
-## 📊 AI Agent Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  AgentOrchestrator                   │
-│              (Master 9-Phase Pipeline)               │
-├────────────┬────────────┬────────────┬──────────────┤
-│ Phase 1-2  │ Phase 3-4  │ Phase 5    │ Phase 6      │
-│ Market +   │ Tech Stack │ Resource   │ Code         │
-│ Req Analysis│ Selection │ Assembly   │ Generation   │
-├────────────�────────────┴────────────┴──────────────┤
-│ Phase 7-9                                           │
-│ Quality Gates + Improvements + Competitive          │
-│ Benchmark + Delivery                                │
-└─────────────────────────────────────────────────────┘
-         │              │              │
-  ┌──────┴───┐  ┌──────┴───┐  ┌──────┴───┐
-  │AI Provider│  │Registry  │  │Local     │
-  │(Gemini/  │  │(Templates│  │Library   │
-  │DeepSeek) │  │ /Comp.)  │  │(Images / │
-  │           │  │          │  │ Icons)   │
-  └──────────┘  └──────────┘  └──────────┘
-```
-
-## 📦 Local Library
-
-| Resource | Count | Description |
-|----------|-------|-------------|
-| Templates | 10 | Industry-specific website templates |
-| Components | 100+ | Reusable React components |
-| Backend Bases | 4 | Express.js API templates |
-| DB Schemas | 10+ | PostgreSQL schema files |
-| Images | 20+ | HD product/hero images |
-| Icons | 14 | SVG icon assets (smartphone, laptop, headphones, smartwatch, TV, camera, speaker, gamepad, cart, heart, user, search, shield, truck) |
-| Animations | 10 | CSS animation classes (glow pulse, hover float, shimmer, glass fade, border rotate, bounce, ripple, gradient shift, cart bounce, particle float) |
-
-### Supported Industries
-
-| Industry | Description | Templates |
-|----------|-------------|-----------|
-| **Electronics E-Commerce** | Gadgets, smartphones, computers, accessories | Electronics Template 01/02/03 |
-| **Fashion** | Clothing, footwear, accessories | (upcoming) |
-| **SaaS/Business** | Enterprise dashboards, subscription platforms | SaaS Template, Corporate Template |
-| **Healthcare** | Medical clinics, patient portals, telemedicine | Medical Template |
-| **Education (LMS)** | Online courses, learning management | LMS Template |
-| **Fitness** | Gym, workout, personal trainer | Gym Template |
-| **Travel** | Tourism, booking, destinations | Agency Template |
-| **Real Estate** | Property listings, estate agencies | Property Template |
-| **Restaurant** | Café, food delivery, menus | Café Template |
-| **Portfolio** | Personal brand, resume, creative | Personal Portfolio Template |
-| **Creative/Agency** | Design agency, photography, art | Studio Template |
-| **Fintech** | Trading platforms, crypto, banking | (upcoming) |
-
-## � License
-
-MIT
-
----
-
-## ❓ FAQ
-
-**Q: Does the AI agent work without an internet connection?**  
-Yes! The agent has full offline fallback. All 9 phases can run using local rule-based analysis without any AI API keys. The quality is slightly higher with a provider connected, but the system remains fully functional offline.
-
-**Q: Which AI provider is recommended?**  
-Google Gemini (gemini-2.5-flash) provides the best balance of speed and quality. DeepSeek and OpenRouter are excellent alternatives if you prefer them.
-
-**Q: How long does project generation take?**  
-With AI provider: 30-90 seconds depending on prompt complexity.  
-Without AI provider (offline): 5-15 seconds.
-
-**Q: Can I customize the generated project?**  
-Absolutely! Every generated project is standard React + Vite + Express code. Open it in your IDE and modify freely. Each project includes a step-by-step `INSTRUCTIONS.md` deployment guide.
-
-**Q: What happens if the AI provider is down?**  
-The system automatically falls back through the provider chain (e.g., Gemini → DeepSeek → OpenRouter → Local). If all providers fail, it continues with local rule-based analysis.
-
-**Q: Can I add my own templates or components?**  
-Yes! Place templates in `src/templates/your-industry/` and register them in `registry/templates.json`. Similarly, add components to `src/components/` and `registry/components.json`.
-
-**Q: How do I run the generated project?**  
-Each generated project includes `INSTRUCTIONS.md` with step-by-step setup. In short:
-```bash
-cd frontend && npm install && npm run dev   # Frontend
-cd backend  && npm install && npm run dev   # Backend
-psql -U postgres -d lumicore_db -f database/schema.sql   # Database
-```
-
-**Q: What databases are supported?**  
-PostgreSQL is the primary supported database. The agent generates consolidated SQL schema files ready to run on PostgreSQL 14+.
-
----
-
-## 🐛 Troubleshooting
-
-### "Failed to load template" Error
-
-**Cause:** Template path mismatch between registry and filesystem.  
-**Fix:** Ensure `registry/templates.json` `file_path` values match actual directories under `src/templates/`. The agent will auto-fallback to the corporate template if no match is found.
-
-### "pip install -r requirements.txt" fails
-
-**Cause:** Missing Python or pip not installed.  
-**Fix:** Install Python 3.9+ from [python.org](https://python.org), then run:
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### "AI provider initialization failed"
-
-**Cause:** Invalid or missing API key.  
-**Fix:** Check `ai-agent/.env` has the correct API key for your chosen provider. The system will fallback to offline mode automatically.
-
-### "Template path not found" Warning
-
-**Cause:** The template specified in the registry doesn't exist on disk.  
-**Fix:** The agent auto-falls back to the corporate template. To add custom templates, place them in `src/templates/` and update `registry/templates.json`.
-
-### "Port already in use" Error
-
-**Cause:** Another process is using port 5173 (frontend) or 5000 (backend).  
-**Fix:** Run `lsof -i :5173` (Mac/Linux) or `netstat -ano | findstr :5173` (Windows) to find and kill the process.
-
-### Generated project is missing features
-
-**Cause:** The prompt was too vague or the feature wasn't in the registry.  
-**Fix:** Use more specific prompts like "Build an electronics e-commerce store with product filters, cart, checkout, customer reviews, and wishlist" to get better results. You can also run in `--interactive` mode for guided clarification.
-
-### "Module not found" errors in generated frontend
-
-**Cause:** Missing NPM dependencies.  
-**Fix:** The agent auto-fixes dependencies in Phase 6. If issues persist, run:
-```bash
-cd generated-projects/your-project/frontend
-npm install --force
-npm run dev
-```
+## 4. Environment Variables Reference
+
+The source of truth is **`backend/.env.example`** (backend) and **`.env.example`**
+(frontend). Required vs optional:
+
+**Required (server fails fast without them in production):**
+
+| Key | Purpose |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string (e.g. `postgres://postgres:postgres@localhost:5432/lumicorepro`) |
+| `JWT_SECRET` | Access-token signing secret (≥16 chars, random) |
+| `JWT_REFRESH_SECRET` | Refresh-token signing secret (≥16 chars, random) |
+
+**Standard optional keys (all have safe fallbacks):**
+
+| Key | Purpose | Fallback |
+|---|---|---|
+| `REDIS_URL` | Cache / sessions / queues | In-memory adapter (auto) |
+| `NODE_ENV` / `PORT` | Runtime mode / port | `development` / `5000` |
+| `FRONTEND_URL`, `ALLOWED_ORIGINS` | CORS | `http://localhost:5173` |
+| `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe | Friendly "payment unconfigured" response |
+| `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_MODE` | PayPal | Same graceful fallback |
+| `SMTP_*`, `EMAIL_FROM` | Email delivery | Logs-only mode |
+| `DEMO_MODE` | AI generation shortcut (zero provider quota) | `false` |
+| `TURNSTILE_SECRET_KEY` / `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile captcha | Disabled |
+| `AI_*` (`AI_DAILY_GEN_LIMIT`, `AI_MAX_TOKENS_*`, `AI_TOKEN_BUDGET`) | AI cost protection | Safe defaults |
+| `GEMINI_KEY` / `DEEPSEEK_API_KEY` / `OPENROUTER_API_KEY` | AI provider keys | Provider auto-select |
+| `LICENSE_SECRET` | Self-hosted license HMAC | Validity logged as unconfigured |
+| `DEFAULT_CURRENCY`, `DEFAULT_LOCALE`, `TZ` | i18n defaults | `USD`, `en`, `UTC` |
+
+> **Note:** Stripe/SMTP/currency/branding can also be entered at runtime via
+> **Admin → Global System Settings**; those values are read from the database
+> before any `process.env` fallback.
+
+## 5. API Endpoint Map
+
+All routes return `{ success, status, message, data, timestamp }`. Auth-protected
+routes require `Authorization: Bearer <JWT>`.
+
+### Auth — `/api/auth`
+| Method | Path | Body / notes |
+|---|---|---|
+| POST | `/register` | `{ name, email, password, role? }` + Turnstile token |
+| POST | `/login` | `{ email, password }` (+ optional captcha) |
+| POST | `/refresh` | `{ refreshToken }` (or cookie) → new access token |
+| POST | `/logout` | (token, blacklist) |
+| GET | `/profile` | current user (JWT) |
+| PUT | `/profile` | update name/phone/2FA prefs |
+| POST | `/verify-email/:token` | email verification |
+| POST | `/reset-password` | request reset email |
+| POST | `/reset-password/:token` | `{ password }` finalize reset |
+| POST | `/2fa/setup`, `/2fa/send-otp`, `/2fa/authenticator/setup` | 2FA flows |
+| GET | `/oauth/google`, `/oauth/github` | OAuth redirects |
+
+### Users & Admin — `/api/users`
+`GET /`, `GET /:id`, `PUT /:id`, `PUT /:id/preferences`, `PATCH /:id/status`
+(admin), `DELETE /:id` (admin), `GET /waitlist`,
+`POST /:id/approve-waitlist` (admin).
+
+### Products & Reviews — `/api/products`
+`GET /`, `GET /featured`, `GET /search`, `GET /categories`, `GET /:id`,
+`PUT /:id` (admin/vendor), `DELETE /:id` (admin/vendor), `GET /:id/reviews` —
+POST review `{ rating:1-5, comment }`.
+
+### Orders — `/api/orders`
+`GET /`, `GET /:id`, `POST /` `{ items, addressId, couponCode? }`,
+`PATCH /:id/status` (zod-validated, admin), `PATCH /:id/cancel`, `DELETE /:id` (admin).
+
+### Payments — `/api/payments` *(dynamic DB-config, 11+ gateways)*
+`GET /config` (public gateways + `configured` flag), `POST /checkout`,
+`POST /create-intent` (Stripe), `POST /confirm`, `POST /paypal/create-order`,
+`POST /paypal/capture`, `POST /webhook`, `POST /paypal/webhook`,
+`POST /refund`, `POST /portal`, `GET /invoice/:orderId`.
+Unconfigured gateways return a clean `PAYMENT_UNCONFIGURED` message instead of crashing.
+
+### Cart — `/api/cart`
+`GET /`, `GET /count`, `POST /` `{ productId, quantity }`, `PUT /items/:itemId`,
+`DELETE /items/:itemId`, `DELETE /`.
+
+### Coupons, Wishlist, Subscriptions, Plans
+- `/api/coupons`: `GET /`, create/update (admin), `DELETE /:id`
+- `/api/wishlist`: `GET /`, `POST /`, `DELETE /:productId`
+- `/api/subscriptions`: `GET /`, `PATCH /:id/cancel`, `DELETE /:id`
+- `/api/plans`: `GET /`, `POST /` (admin), `PATCH /:id` (admin), `DELETE /:id` (admin)
+
+### Booking (Healthcare vertical) — `/api/bookings`
+`GET /doctors`, `GET /doctors/:slug`, `GET /services`, `GET /slots`,
+`GET /` (own), `POST /`, `GET /:id`, `PATCH /:id/status`, `DELETE /:id`.
+
+### Analytics & Dashboard
+- `/api/analytics`: `GET /dashboard`, `/stats`, `/sales`, `/top-products`, `/revenue-report`, `/user-growth`, `/category-distribution`
+- `/api/dashboard`: `GET /stats`, `/charts/:type`, `/activity`, `/reports`
+
+### AI Generation — `/api/ai` *(rate-limited + daily quotas + token caps + circuit breaker)*
+`POST /generate`, `POST /generate/stream`, `POST /chat`, `POST /vision/analyze`,
+`POST /preview`, `GET /preview/:slug`, `POST /deploy`, `POST /deploy/domain`,
+`GET /runs/:runId`, `GET /download/:runId`, `GET /conversations`, `GET /usage`,
+`GET /spend-estimator`, `GET /my-quota`, `GET /models`, `GET /health`.
+
+### Settings (no-code admin) — `/api/settings`
+`GET /status` (public — drives onboarding redirect), `GET /public` (masked),
+`GET /system` (admin), `PUT /system` (admin — saves Stripe/PayPal/SMTP/currency/brand),
+`POST /setup` (single-use onboarding → `{ token, user }`).
+
+### Org & Collaboration — `/api/orgs`
+`GET /`, `GET /current`, `GET /permissions`, `GET /roles`, `POST /:id/select`,
+`PUT /:id`, `DELETE /:id`, `GET /:id/members`, member role update/remove.
+
+### Misc
+`/api/health`, `/api/health/detailed`, `/api/search` (+ `/autocomplete`, `/trending`),
+`/api/notifications` (CRUD + `/broadcast`), `/api/uploads` (single/multiple/delete),
+`/api/addresses` (CRUD), `/api/business` (`/analytics`, `/reports`, `/settings`),
+`/api/license` (`/validate`, `/issue`, `/metadata`), `/api/playbook`,
+`/api/legal/refund-policy`, `/api/legal/ai-disclosure`.
+
+### WebSocket (Socket.io, JWT-authed)
+Join `join-room`/`leave-room` with a room id (user/order/org). Namespaced events
+such as `notification`, `order:updated`, `order:created`.
+
+## 6. Development
+
+| Command | Action |
+|---|---|
+| `npm run dev` | Frontend (Vite :5173) |
+| `npm run dev:full` | Frontend + Backend |
+| `npm run dev:all` | Frontend + Backend + AI agent |
+| `npm run build` | Production frontend build |
+| `npm run lint` | ESLint (frontend) |
+| `npm test` | Vitest unit tests |
+| `npm run test:backend` | Jest (backend: 12 suites / 45 tests) |
+| `npm run test:e2e` | Playwright E2E |
+| `npm run agent` | Start Python AI agent |
+
+## 7. Production Checklist
+
+- [ ] `JWT_SECRET` / `JWT_REFRESH_SECRET` set to strong random values
+- [ ] `DATABASE_URL` points at the production PostgreSQL
+- [ ] Stripe/PayPal/SMTP keys entered via _Admin → Global System Settings_ (or env)
+- [ ] `NODE_ENV=production` (activates strict env validation + HTTPS-ready stack)
+- [ ] Place SSL certs in `nginx/ssl/` and expose :443
+- [ ] Run `npm test`, `npm run test:backend`, `npm run build` before every release
+
+## 8. Licensing
+
+Self-hosted license (HMAC-validated, `LICENSE_SECRET`) — this software is
+licensed for the buyer's own use and is **not** connected to any SaaS licensing
+server. See `LICENSE_NOTICE.txt` in generated projects.

@@ -1,21 +1,23 @@
-# ---- Base Node Stage ----
-FROM node:20-alpine AS base
+# Build stage — install deps and compile the production bundle
+FROM node:20-alpine AS build
+
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci
+
 COPY . .
-
-# ---- Development Stage (Default for docker-compose dev) ----
-FROM base AS development
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
-
-# ---- Production Build Stage ----
-FROM base AS build
 RUN npm run build
 
-# ---- Production Serve Stage ----
-FROM nginx:alpine AS production
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Runtime stage — serve the static build with Vite preview on :5173
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./
+COPY --from=build /app/node_modules ./node_modules
+
+EXPOSE 5173
+
+CMD ["npx", "vite", "preview", "--host", "--port", "5173"]

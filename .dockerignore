@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+.git
+.env
+.env.production
+.env.staging
+*.log
+logs
+coverage
+venv
+__pycache__
+e2e
+docs
+.vscode
+.idea
+uploads
