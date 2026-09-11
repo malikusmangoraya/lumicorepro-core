@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="hpBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#hpBg)"/>
+  <!-- Headband -->
+  <path d="M 280 300 A 130 130 0 0 1 520 300" fill="none" stroke="#38bdf8" stroke-width="16" stroke-linecap="round"/>
+  <!-- Ear Cups -->
+  <rect x="250" y="270" width="50" height="90" rx="20" fill="#0f172a" stroke="#06b6d4" stroke-width="4"/>
+  <rect x="500" y="270" width="50" height="90" rx="20" fill="#0f172a" stroke="#06b6d4" stroke-width="4"/>
+  <text x="400" y="440" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">ANC PRO HEADPHONES</text>
+  <text x="400" y="470" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle">Hi-Res Wireless Audio &bull; 40h Battery</text>
+</svg>

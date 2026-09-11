@@ -1,0 +1,63 @@
+export const agents = [
+  {
+    name: 'Sara Ahmed',
+    role: 'Senior Consultant',
+    area: 'DHA & Clifton',
+    deals: 142,
+    rating: 4.9,
+    sales: 'Rs 48 Cr',
+    specialty: 'Luxury Villas',
+  },
+  {
+    name: 'Usman Malik',
+    role: 'Leasing Specialist',
+    area: 'North Nazimabad',
+    deals: 98,
+    rating: 4.7,
+    sales: 'Rs 21 Cr',
+    specialty: 'Residential Rentals',
+  },
+  {
+    name: 'Ayesha Raza',
+    role: 'Investment Advisor',
+    area: 'Bahria Town',
+    deals: 121,
+    rating: 4.8,
+    sales: 'Rs 32 Cr',
+    specialty: 'Plots & Schemes',
+  },
+  {
+    name: 'Bilal Sheikh',
+    role: 'Commercial Expert',
+    area: 'Gulshan & Korangi',
+    deals: 76,
+    rating: 4.6,
+    sales: 'Rs 39 Cr',
+    specialty: 'Offices & Warehouses',
+  },
+  {
+    name: 'Fatima Noor',
+    role: 'First-time Buyer Coach',
+    area: 'Malir & Scheme 33',
+    deals: 88,
+    rating: 4.8,
+    sales: 'Rs 17 Cr',
+    specialty: 'Affordable Homes',
+  },
+  {
+    name: 'Hassan Javed',
+    role: 'Off-Plan Consultant',
+    area: 'Naya Nazimabad',
+    deals: 64,
+    rating: 4.5,
+    sales: 'Rs 25 Cr',
+    specialty: 'Off-Plan Projects',
+  },
+];
+
+export const stats = [
+  { label: 'Deals Closed', value: '589+' },
+  { label: 'Property Value Sold', value: 'Rs 182 Cr' },
+  { label: 'Avg. Response Time', value: '25 min' },
+  { label: 'Client Rating', value: '4.8 / 5' },
+];

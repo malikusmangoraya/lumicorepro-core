@@ -1,0 +1,73 @@
+export const doctors = [
+  {
+    name: 'Dr. Ayesha Siddiqui',
+    specialty: 'Cardiology',
+    img: 'doctor1',
+    exp: 14,
+    rating: 4.9,
+    patients: '12k+',
+    fee: 'Rs 2,500',
+    hospital: 'Cardio Wing — Tower B',
+    available: true,
+  },
+  {
+    name: 'Dr. Bilal Khan',
+    specialty: 'Internal Medicine',
+    img: 'doctor2',
+    exp: 11,
+    rating: 4.8,
+    patients: '9k+',
+    fee: 'Rs 1,500',
+    hospital: 'General OPD',
+    available: true,
+  },
+  {
+    name: 'Dr. Mariam Iqbal',
+    specialty: 'Pediatrics',
+    img: 'doctor3',
+    exp: 9,
+    rating: 4.9,
+    patients: '8k+',
+    fee: 'Rs 2,000',
+    hospital: 'Child Care Center',
+    available: true,
+  },
+  {
+    name: 'Dr. Hassan Ali',
+    specialty: 'Dermatology',
+    img: 'doctor4',
+    exp: 12,
+    rating: 4.7,
+    patients: '11k+',
+    fee: 'Rs 2,200',
+    hospital: 'Skin & Laser Clinic',
+    available: false,
+  },
+  {
+    name: 'Dr. Nadia Sheikh',
+    specialty: 'Gynecology',
+    img: 'doctor5',
+    exp: 16,
+    rating: 5.0,
+    patients: '15k+',
+    fee: 'Rs 2,800',
+    hospital: "Women's Pavilion",
+    available: true,
+  },
+];
+
+export const specialties = [
+  'All',
+  'Cardiology',
+  'Internal Medicine',
+  'Pediatrics',
+  'Dermatology',
+  'Gynecology',
+];
+
+export const stats = [
+  { label: 'Active Consultants', value: '120+' },
+  { label: 'Avg. Wait Time', value: '14 min' },
+  { label: 'Same-day Appointments', value: '68%' },
+  { label: 'Patient Rating', value: '4.8' },
+];

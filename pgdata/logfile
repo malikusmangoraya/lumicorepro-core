@@ -1,0 +1,11 @@
+2026-09-10 17:15:48.376 PKT [7356] LOG:  starting PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35228, 64-bit
+2026-09-10 17:15:48.391 PKT [7356] LOG:  listening on IPv6 address "::1", port 5432
+2026-09-10 17:15:48.391 PKT [7356] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2026-09-10 17:15:48.616 PKT [3312] LOG:  database system was shut down at 2026-09-10 17:15:18 PKT
+2026-09-10 17:15:48.636 PKT [7356] LOG:  database system is ready to accept connections
+2026-09-10 17:20:48.599 PKT [6952] LOG:  checkpoint starting: time
+2026-09-10 17:22:39.398 PKT [6952] LOG:  checkpoint complete: wrote 1026 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=109.878 s, sync=0.725 s, total=110.800 s; sync files=311, longest=0.009 s, average=0.003 s; distance=4969 kB, estimate=4969 kB; lsn=0/1CCDE68, redo lsn=0/1CCDDD8
+2026-09-10 17:30:48.518 PKT [6952] LOG:  checkpoint starting: time
+2026-09-10 17:31:08.912 PKT [6952] LOG:  checkpoint complete: wrote 184 buffers (1.1%), wrote 2 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=19.889 s, sync=0.468 s, total=20.395 s; sync files=186, longest=0.007 s, average=0.003 s; distance=1343 kB, estimate=4607 kB; lsn=0/1E1DAC8, redo lsn=0/1E1DA38
+2026-09-10 17:35:48.931 PKT [6952] LOG:  checkpoint starting: time
+2026-09-10 17:35:54.102 PKT [6952] LOG:  checkpoint complete: wrote 47 buffers (0.3%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=5.083 s, sync=0.053 s, total=5.171 s; sync files=13, longest=0.011 s, average=0.005 s; distance=360 kB, estimate=4182 kB; lsn=0/1E77B60, redo lsn=0/1E77B08

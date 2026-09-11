@@ -1,0 +1,63 @@
+export const instructors = [
+  {
+    name: 'Prof. Asad Mahmood',
+    dept: 'Mathematics',
+    exp: 15,
+    students: '40k+',
+    rating: 4.9,
+    courses: 6,
+    cert: 'PhD Mathematics',
+  },
+  {
+    name: 'Dr. Sana Tariq',
+    dept: 'Computer Science',
+    exp: 10,
+    students: '28k+',
+    rating: 4.8,
+    courses: 4,
+    cert: 'PhD CS · FAST',
+  },
+  {
+    name: 'Mr. Imran Farooq',
+    dept: 'Physics',
+    exp: 12,
+    students: '22k+',
+    rating: 4.7,
+    courses: 3,
+    cert: 'MPhil Physics',
+  },
+  {
+    name: 'Ms. Hina Aslam',
+    dept: 'Chemistry',
+    exp: 8,
+    students: '15k+',
+    rating: 4.9,
+    courses: 2,
+    cert: 'MSc Chemistry',
+  },
+  {
+    name: 'Mr. Danish Qureshi',
+    dept: 'English & OET',
+    exp: 9,
+    students: '31k+',
+    rating: 4.8,
+    courses: 5,
+    cert: 'CELTA',
+  },
+  {
+    name: 'Dr. Rimsha Noor',
+    dept: 'Data Science',
+    exp: 7,
+    students: '12k+',
+    rating: 4.9,
+    courses: 3,
+    cert: 'PhD AI',
+  },
+];
+
+export const stats = [
+  { label: 'Instructors', value: '120+' },
+  { label: 'Avg. Rating', value: '4.8' },
+  { label: 'Students Served', value: '1.2M+' },
+  { label: 'Languages', value: '4' },
+];

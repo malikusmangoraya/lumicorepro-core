@@ -1,0 +1,102 @@
+export const destinations = [
+  {
+    id: 1,
+    name: 'Hunza Valley',
+    country: 'Pakistan',
+    price: 'PKR 45,000',
+    duration: '7 Days',
+    rating: 4.9,
+    reviews: 1240,
+    type: 'Adventure',
+    badge: 'Trending',
+    season: 'May – Oct',
+  },
+  {
+    id: 2,
+    name: 'Bali, Indonesia',
+    country: 'Indonesia',
+    price: 'PKR 95,000',
+    duration: '10 Days',
+    rating: 4.8,
+    reviews: 980,
+    type: 'Beach',
+    badge: 'Popular',
+    season: 'Apr – Sep',
+  },
+  {
+    id: 3,
+    name: 'Istanbul, Turkey',
+    country: 'Turkey',
+    price: 'PKR 120,000',
+    duration: '8 Days',
+    rating: 4.9,
+    reviews: 2100,
+    type: 'Cultural',
+    badge: 'Hot',
+    season: 'Year-round',
+  },
+  {
+    id: 4,
+    name: 'Naran & Kaghan',
+    country: 'Pakistan',
+    price: 'PKR 28,000',
+    duration: '5 Days',
+    rating: 4.7,
+    reviews: 760,
+    type: 'Adventure',
+    badge: null,
+    season: 'Jun – Sep',
+  },
+  {
+    id: 5,
+    name: 'Dubai, UAE',
+    country: 'UAE',
+    price: 'PKR 85,000',
+    duration: '6 Days',
+    rating: 4.8,
+    reviews: 3400,
+    type: 'Luxury',
+    badge: 'Bestseller',
+    season: 'Oct – Apr',
+  },
+  {
+    id: 6,
+    name: 'Maldives Escape',
+    country: 'Maldives',
+    price: 'PKR 180,000',
+    duration: '7 Days',
+    rating: 4.9,
+    reviews: 890,
+    type: 'Beach',
+    badge: 'Luxury',
+    season: 'Nov – Apr',
+  },
+];
+
+export const tourTypes = ['All', 'Adventure', 'Beach', 'Cultural', 'Luxury'];
+
+export const stats = [
+  { label: 'Happy Travelers', value: '25,000+' },
+  { label: 'Destinations', value: '150+' },
+  { label: 'Tour Packages', value: '480+' },
+  { label: 'Years of Service', value: '15+' },
+];
+
+export const services = [
+  {
+    icon: 'plane',
+    title: 'Flight Booking',
+    text: 'Best fares on domestic & international flights.',
+  },
+  {
+    icon: 'hotel',
+    title: 'Hotel Reservations',
+    text: 'Handpicked hotels from budget to 5-star luxury.',
+  },
+  { icon: 'map', title: 'Custom Itineraries', text: 'Personalized travel plans by expert guides.' },
+  {
+    icon: 'shield',
+    title: 'Travel Insurance',
+    text: 'Full coverage for medical and trip cancellation.',
+  },
+];

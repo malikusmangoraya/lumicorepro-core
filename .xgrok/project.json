@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "setup": "integrated",
+  "languages": [
+    "JavaScript/TypeScript"
+  ],
+  "stacks": [
+    "Node.js",
+    "React/Next"
+  ],
+  "markers": [
+    "package.json"
+  ],
+  "packageName": "lumicorepro-core",
+  "suggestedRun": "npm run dev",
+  "createdAt": "2026-08-16T08:38:22.068Z",
+  "tool": "xgrok"
+}

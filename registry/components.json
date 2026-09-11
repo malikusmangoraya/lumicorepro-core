@@ -1,0 +1,1853 @@
+[
+  {
+    "name": "LoginForm",
+    "type": "component",
+    "category": "auth",
+    "tags": [
+      "login",
+      "auth",
+      "form",
+      "email",
+      "password",
+      "validation"
+    ],
+    "description": "User login form with input validation, password toggle, and social auth buttons.",
+    "file_path": "src/components/auth/LoginForm.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "auth",
+      "ecommerce",
+      "dashboard"
+    ],
+    "features": [
+      "email_login",
+      "remember_me",
+      "forgot_password"
+    ]
+  },
+  {
+    "name": "OTPInput",
+    "type": "component",
+    "category": "auth",
+    "tags": [
+      "otp",
+      "2fa",
+      "verification",
+      "security",
+      "code"
+    ],
+    "description": "Two-factor authentication 6-digit OTP code entry component.",
+    "file_path": "src/components/auth/OTPInput.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "auth",
+      "security"
+    ],
+    "features": [
+      "digit_autofocus",
+      "code_verify"
+    ]
+  },
+  {
+    "name": "RegisterForm",
+    "type": "component",
+    "category": "auth",
+    "tags": [
+      "register",
+      "signup",
+      "auth",
+      "form",
+      "user"
+    ],
+    "description": "Account registration form with name, email, password strength check, and agreement checkbox.",
+    "file_path": "src/components/auth/RegisterForm.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "auth",
+      "ecommerce"
+    ],
+    "features": [
+      "user_registration",
+      "password_validation"
+    ]
+  },
+  {
+    "name": "SocialLogin",
+    "type": "component",
+    "category": "auth",
+    "tags": [
+      "social",
+      "oauth",
+      "google",
+      "github",
+      "apple",
+      "auth"
+    ],
+    "description": "One-click OAuth social authentication buttons for Google, GitHub, and Apple.",
+    "file_path": "src/components/auth/SocialLogin.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "auth"
+    ],
+    "features": [
+      "google_login",
+      "github_login",
+      "apple_login"
+    ]
+  },
+  {
+    "name": "BlogGrid",
+    "type": "component",
+    "category": "blog",
+    "tags": [
+      "blog",
+      "articles",
+      "grid",
+      "cards",
+      "cms",
+      "magazine",
+      "news"
+    ],
+    "description": "Responsive blog post grid with category filter tabs, search, reading time estimate, author avatar, date, and featured post highlight. Supports lazy loading.",
+    "file_path": "src/components/common/BlogGrid.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "blog",
+      "news",
+      "education",
+      "business"
+    ],
+    "features": [
+      "category_filter",
+      "search",
+      "reading_time",
+      "author_avatar",
+      "featured_post",
+      "lazy_load",
+      "pagination"
+    ]
+  },
+  {
+    "name": "FeatureGrid",
+    "type": "component",
+    "category": "business",
+    "tags": [
+      "features",
+      "grid",
+      "cards",
+      "icons"
+    ],
+    "description": "3-column grid highlighting key product advantages with icons.",
+    "file_path": "src/components/business/FeatureGrid.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "business",
+      "saas"
+    ],
+    "features": [
+      "icon_cards",
+      "feature_descriptions"
+    ]
+  },
+  {
+    "name": "Hero",
+    "type": "component",
+    "category": "business",
+    "tags": [
+      "hero",
+      "banner",
+      "cta",
+      "landing",
+      "modern"
+    ],
+    "description": "High-impact hero section with title, subtitle, action buttons, and feature highlight image.",
+    "file_path": "src/components/business/Hero.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "business",
+      "ecommerce",
+      "saas"
+    ],
+    "features": [
+      "cta_buttons",
+      "headline",
+      "background_gradient"
+    ]
+  },
+  {
+    "name": "PricingCard",
+    "type": "component",
+    "category": "business",
+    "tags": [
+      "pricing",
+      "subscription",
+      "plan",
+      "saas"
+    ],
+    "description": "Subscription pricing plan card with feature checklist and purchase CTA.",
+    "file_path": "src/components/business/PricingCard.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "saas",
+      "business"
+    ],
+    "features": [
+      "tier_price",
+      "features_checklist",
+      "popular_badge"
+    ]
+  },
+  {
+    "name": "IconWrapper",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "icon",
+      "wrapper",
+      "lucide",
+      "svg",
+      "glow",
+      "badge",
+      "animated"
+    ],
+    "description": "Universal icon wrapper component supporting dynamic Lucide icon resolution, sizing, color variants, glow effects, and animated badges.",
+    "file_path": "src/components/common/IconWrapper.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "ui",
+      "header"
+    ],
+    "features": [
+      "dynamic_icon",
+      "glow_effect",
+      "badge_overlay",
+      "color_variants"
+    ]
+  },
+  {
+    "name": "Language",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "language",
+      "i18n",
+      "international",
+      "translation",
+      "flags"
+    ],
+    "description": "Multi-language selector supporting English, Spanish, French, German, Japanese, Arabic, and Urdu.",
+    "file_path": "src/components/common/Language.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "header",
+      "navbar"
+    ],
+    "features": [
+      "i18n_selector",
+      "flags_display",
+      "dropdown"
+    ]
+  },
+  {
+    "name": "LumicoreLogo",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "logo",
+      "brand",
+      "lumicore",
+      "emblem",
+      "header",
+      "watermark",
+      "3d",
+      "glow"
+    ],
+    "description": "Official LumicorePro 3D holographic brand logo & watermark emblem component for website headers and footers.",
+    "file_path": "src/components/common/LumicoreLogo.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "header",
+      "footer",
+      "ui"
+    ],
+    "features": [
+      "3d_hologram_emblem",
+      "brand_typography",
+      "glow_pulse",
+      "responsive_size"
+    ]
+  },
+  {
+    "name": "ThemeSwitcher",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "theme",
+      "darkmode",
+      "lightmode",
+      "toggle"
+    ],
+    "description": "Dark/Light mode theme toggle button.",
+    "file_path": "src/components/common/ThemeSwitcher.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "header"
+    ],
+    "features": [
+      "dark_light_toggle",
+      "css_class_switch"
+    ]
+  },
+  {
+    "name": "CountdownTimer",
+    "type": "component",
+    "category": "conversion",
+    "tags": [
+      "countdown",
+      "timer",
+      "urgency",
+      "fomo",
+      "sale",
+      "event",
+      "launch"
+    ],
+    "description": "Animated countdown timer for flash sales, event launches, and limited offers. Shows days/hours/minutes/seconds with flip animation. Sends callback on expiry.",
+    "file_path": "src/components/common/CountdownTimer.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "event",
+      "fitness",
+      "saas"
+    ],
+    "features": [
+      "days_hours_minutes_seconds",
+      "flip_animation",
+      "expiry_callback",
+      "persistent_end_date",
+      "sale_badge"
+    ]
+  },
+  {
+    "name": "WhatsAppFloat",
+    "type": "component",
+    "category": "conversion",
+    "tags": [
+      "whatsapp",
+      "chat",
+      "floating",
+      "sticky",
+      "support",
+      "contact",
+      "messaging"
+    ],
+    "description": "Sticky floating WhatsApp chat button with pulse animation, tooltip, and pre-filled message support. Converts 3-5x better than contact forms in South Asian & Middle Eastern markets.",
+    "file_path": "src/components/common/WhatsAppFloat.jsx",
+    "dependencies": [
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant",
+      "realestate",
+      "healthcare",
+      "fitness",
+      "business",
+      "general"
+    ],
+    "features": [
+      "sticky_position",
+      "pulse_animation",
+      "tooltip",
+      "prefilled_message",
+      "mobile_responsive",
+      "accessibility_aria_label"
+    ]
+  },
+  {
+    "name": "DashboardLayout",
+    "type": "component",
+    "category": "dashboard",
+    "tags": [
+      "dashboard",
+      "admin",
+      "sidebar",
+      "header",
+      "layout"
+    ],
+    "description": "Admin dashboard responsive container with collapsible navigation sidebar and top header.",
+    "file_path": "src/components/dashboard/DashboardLayout.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "admin",
+      "dashboard"
+    ],
+    "features": [
+      "sidebar_nav",
+      "header_profile",
+      "responsive"
+    ]
+  },
+  {
+    "name": "RecentOrders",
+    "type": "component",
+    "category": "dashboard",
+    "tags": [
+      "orders",
+      "table",
+      "admin",
+      "dashboard",
+      "status"
+    ],
+    "description": "Admin widget showing recent orders table with customer details, order status badge, and total amount.",
+    "file_path": "src/components/dashboard/RecentOrders.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "admin",
+      "ecommerce"
+    ],
+    "features": [
+      "orders_list",
+      "status_badge",
+      "view_details"
+    ]
+  },
+  {
+    "name": "RevenueCard",
+    "type": "component",
+    "category": "dashboard",
+    "tags": [
+      "revenue",
+      "analytics",
+      "metric",
+      "dashboard",
+      "chart"
+    ],
+    "description": "Key metric summary card displaying total revenue, growth percentage, and trend sparkline.",
+    "file_path": "src/components/dashboard/RevenueCard.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "dashboard",
+      "saas"
+    ],
+    "features": [
+      "total_revenue",
+      "growth_indicator"
+    ]
+  },
+  {
+    "name": "VideoHero",
+    "type": "component",
+    "category": "design",
+    "tags": [
+      "video",
+      "hero",
+      "background",
+      "autoplay",
+      "fullscreen",
+      "cinematic"
+    ],
+    "description": "Full-screen autoplay muted video background hero section with text overlay, gradient mask, and fallback image. Lazy loads video on desktop, uses image on mobile for performance.",
+    "file_path": "src/components/business/Hero.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "restaurant",
+      "fitness",
+      "creative",
+      "travel",
+      "event"
+    ],
+    "features": [
+      "autoplay_muted",
+      "poster_fallback",
+      "mobile_image_fallback",
+      "gradient_overlay",
+      "cta_overlay"
+    ]
+  },
+  {
+    "name": "CartEmpty",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "cart",
+      "empty",
+      "shopping",
+      "cta"
+    ],
+    "description": "Clean empty cart state banner with continue shopping button.",
+    "file_path": "src/components/ecommerce/CartEmpty.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "empty_state",
+      "shop_cta"
+    ]
+  },
+  {
+    "name": "CartItem",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "cart",
+      "item",
+      "quantity",
+      "price",
+      "remove"
+    ],
+    "description": "Individual cart item row with quantity increment/decrement buttons and remove trigger.",
+    "file_path": "src/components/ecommerce/CartItem.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "quantity_control",
+      "item_total",
+      "remove"
+    ]
+  },
+  {
+    "name": "CartSummary",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "cart",
+      "checkout",
+      "summary",
+      "price",
+      "taxes",
+      "total",
+      "currency"
+    ],
+    "description": "Shopping cart total summary panel supporting multi-currency conversion, taxes, and checkout CTA.",
+    "file_path": "src/components/ecommerce/CartSummary.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "subtotal",
+      "tax_calc",
+      "discount_code",
+      "checkout_btn",
+      "currency_conversion"
+    ]
+  },
+  {
+    "name": "CategoryFilter",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "category",
+      "filter",
+      "sidebar",
+      "navigation"
+    ],
+    "description": "Sidebar or top tab list for filtering products by category.",
+    "file_path": "src/components/ecommerce/CategoryFilter.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "category_select",
+      "count_badge"
+    ]
+  },
+  {
+    "name": "Checkout",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "checkout",
+      "payment",
+      "shipping",
+      "stripe",
+      "paypal",
+      "applepay",
+      "crypto"
+    ],
+    "description": "International multi-payment checkout supporting Stripe, PayPal, Apple Pay, and Web3 Crypto.",
+    "file_path": "src/components/ecommerce/Checkout.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shipping_form",
+      "stripe_payment",
+      "paypal_payment",
+      "apple_pay",
+      "crypto_web3",
+      "order_submit"
+    ]
+  },
+  {
+    "name": "DiscountBadge",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "discount",
+      "badge",
+      "sale",
+      "promo"
+    ],
+    "description": "Glowing promo discount badge tag for sales items.",
+    "file_path": "src/components/ecommerce/DiscountBadge.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "percentage_badge",
+      "glow_effect"
+    ]
+  },
+  {
+    "name": "OrderConfirmation",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "order",
+      "confirmation",
+      "receipt",
+      "success"
+    ],
+    "description": "Post-checkout order receipt and tracking status banner.",
+    "file_path": "src/components/ecommerce/OrderConfirmation.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "receipt",
+      "tracking_id",
+      "print_order"
+    ]
+  },
+  {
+    "name": "PriceFilter",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "price",
+      "range",
+      "slider",
+      "filter"
+    ],
+    "description": "Price range slider component for refining product results by min and max budget.",
+    "file_path": "src/components/ecommerce/PriceFilter.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "range_slider",
+      "min_max_input"
+    ]
+  },
+  {
+    "name": "ProductCard",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "product",
+      "card",
+      "electronics",
+      "price",
+      "rating",
+      "cart",
+      "modern"
+    ],
+    "description": "Reusable product card displaying image, title, price, discount badge, rating, and add-to-cart button.",
+    "file_path": "src/components/ecommerce/ProductCard.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "electronics",
+      "retail"
+    ],
+    "features": [
+      "price",
+      "discount",
+      "rating",
+      "add_to_cart",
+      "wishlist_toggle"
+    ]
+  },
+  {
+    "name": "ProductDetails",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "product",
+      "details",
+      "gallery",
+      "specs",
+      "buy"
+    ],
+    "description": "Comprehensive product details view with image gallery, specs table, and reviews.",
+    "file_path": "src/components/ecommerce/ProductDetails.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "electronics"
+    ],
+    "features": [
+      "gallery",
+      "specs",
+      "reviews",
+      "add_to_cart"
+    ]
+  },
+  {
+    "name": "ProductGrid",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "grid",
+      "product",
+      "responsive",
+      "catalog"
+    ],
+    "description": "Responsive grid layout displaying multiple product cards with loading states.",
+    "file_path": "src/components/ecommerce/ProductGrid.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "electronics"
+    ],
+    "features": [
+      "grid_layout",
+      "responsive",
+      "empty_state"
+    ]
+  },
+  {
+    "name": "QuantitySelector",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "quantity",
+      "stepper",
+      "plus",
+      "minus"
+    ],
+    "description": "Compact stepper input for adjusting item quantity.",
+    "file_path": "src/components/ecommerce/QuantitySelector.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "plus_minus_btn",
+      "max_stock_limit"
+    ]
+  },
+  {
+    "name": "RatingStars",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "rating",
+      "stars",
+      "reviews",
+      "score"
+    ],
+    "description": "Star rating indicator component supporting fractional ratings and review counts.",
+    "file_path": "src/components/ecommerce/RatingStars.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "star_icons",
+      "score_display"
+    ]
+  },
+  {
+    "name": "SearchProducts",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "search",
+      "filter",
+      "input",
+      "realtime",
+      "autocomplete"
+    ],
+    "description": "Interactive search input bar with category filter dropdown and instant auto-complete suggestions.",
+    "file_path": "src/components/ecommerce/SearchProducts.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "realtime_search",
+      "category_dropdown",
+      "clear_btn"
+    ]
+  },
+  {
+    "name": "ShippingInfo",
+    "type": "component",
+    "category": "ecommerce",
+    "tags": [
+      "shipping",
+      "delivery",
+      "trust",
+      "guarantee"
+    ],
+    "description": "Trust banner highlighting free shipping, 30-day warranty, and secure checkout.",
+    "file_path": "src/components/ecommerce/ShippingInfo.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "free_shipping_badge",
+      "warranty_badge"
+    ]
+  },
+  {
+    "name": "VisualPageEditor",
+    "type": "component",
+    "category": "editor",
+    "tags": [
+      "editor",
+      "visual",
+      "wysiwyg",
+      "builder",
+      "dragdrop",
+      "pagebuilder",
+      "live"
+    ],
+    "description": "Live visual page editor allowing visual drag-and-drop component editing, style inspection, and live preview without touching code.",
+    "file_path": "src/components/editor/VisualPageEditor.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "editor",
+      "builder",
+      "admin",
+      "ui"
+    ],
+    "features": [
+      "visual_editor",
+      "drag_drop",
+      "style_inspector",
+      "viewport_switcher",
+      "live_preview",
+      "code_export"
+    ]
+  },
+  {
+    "name": "NewsletterSignup",
+    "type": "component",
+    "category": "growth",
+    "tags": [
+      "newsletter",
+      "email",
+      "signup",
+      "mailchimp",
+      "klaviyo",
+      "lead",
+      "capture"
+    ],
+    "description": "Email newsletter signup component with inline and modal variants. Integrates with Mailchimp, Klaviyo, or custom API. Includes honeypot spam protection and double opt-in support.",
+    "file_path": "src/components/common/NewsletterSignup.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general",
+      "blog",
+      "ecommerce",
+      "saas"
+    ],
+    "features": [
+      "email_capture",
+      "honeypot_protection",
+      "double_optin",
+      "success_animation",
+      "inline_variant",
+      "popup_variant"
+    ]
+  },
+  {
+    "name": "CurrencySelector",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "currency",
+      "payment",
+      "conversion",
+      "international",
+      "money"
+    ],
+    "description": "Currency dropdown selector with real-time conversion rates and flag/icons for major world currencies.",
+    "file_path": "src/components/common/CurrencySelector.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "international",
+      "ecommerce",
+      "business"
+    ],
+    "features": [
+      "currency_dropdown",
+      "flag_icons",
+      "live_rates",
+      "auto_detect"
+    ]
+  },
+  {
+    "name": "DateLocalePicker",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "date",
+      "locale",
+      "timezone",
+      "format",
+      "calendar"
+    ],
+    "description": "Date/time picker with locale-aware formatting and timezone support.",
+    "file_path": "src/components/common/DateLocalePicker.jsx",
+    "dependencies": [
+      "lucide-react",
+      "date-fns"
+    ],
+    "compatible_categories": [
+      "international",
+      "dashboard",
+      "business"
+    ],
+    "features": [
+      "locale_formatting",
+      "timezone_selector",
+      "calendar_view",
+      "date_time_combined"
+    ]
+  },
+  {
+    "name": "FontSelector",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "font",
+      "typography",
+      "language",
+      "rtl",
+      "script"
+    ],
+    "description": "Font and script selector for international text rendering including RTL support.",
+    "file_path": "src/components/common/FontSelector.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "international",
+      "content",
+      "editor"
+    ],
+    "features": [
+      "latin_fonts",
+      "cjk_fonts",
+      "arabic_fonts",
+      "rtl_ltr_toggle",
+      "script_detection"
+    ]
+  },
+  {
+    "name": "HolidayCalendar",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "holiday",
+      "calendar",
+      "national",
+      "events",
+      "cultural"
+    ],
+    "description": "International holiday calendar with country-specific celebrations and cultural events.",
+    "file_path": "src/components/common/HolidayCalendar.jsx",
+    "dependencies": [
+      "lucide-react",
+      "date-fns"
+    ],
+    "compatible_categories": [
+      "international",
+      "travel",
+      "event"
+    ],
+    "features": [
+      "country_holidays",
+      "cultural_events",
+      "reminder_signup",
+      "calendar_export"
+    ]
+  },
+  {
+    "name": "LegalDisclaimer",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "legal",
+      "gdpr",
+      "privacy",
+      "compliance",
+      "terms"
+    ],
+    "description": "Regional legal disclaimers and compliance notices (GDPR, CCPA, regional requirements).",
+    "file_path": "src/components/common/LegalDisclaimer.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "international",
+      "business",
+      "ecommerce"
+    ],
+    "features": [
+      "gdpr_banners",
+      "ccpa_notices",
+      "consent_management",
+      "cookie_preferences"
+    ]
+  },
+  {
+    "name": "MeasurementConverter",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "measurement",
+      "converter",
+      "metric",
+      "imperial",
+      "units"
+    ],
+    "description": "Unit converter for metric/imperial systems supporting length, weight, temperature, and volume.",
+    "file_path": "src/components/common/MeasurementConverter.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "international",
+      "fitness",
+      "restaurant"
+    ],
+    "features": [
+      "metric_imperial",
+      "length_weight_temp",
+      "volume_converter",
+      "quick_preset"
+    ]
+  },
+  {
+    "name": "RegionalForm",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "form",
+      "address",
+      "country",
+      "regional",
+      "validation"
+    ],
+    "description": "International address form with country/state/city cascading dropdowns and regional validation.",
+    "file_path": "src/components/forms/RegionalForm.jsx",
+    "dependencies": [
+      "lucide-react",
+      "react-hook-form"
+    ],
+    "compatible_categories": [
+      "international",
+      "ecommerce",
+      "business"
+    ],
+    "features": [
+      "country_selector",
+      "state_city_cascade",
+      "postal_code_validation",
+      "phone_international"
+    ]
+  },
+  {
+    "name": "WorldClock",
+    "type": "component",
+    "category": "international",
+    "tags": [
+      "clock",
+      "timezone",
+      "world",
+      "time",
+      "schedule"
+    ],
+    "description": "Multi-timezone world clock widget showing current time in major cities.",
+    "file_path": "src/components/common/WorldClock.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "international",
+      "business",
+      "dashboard"
+    ],
+    "features": [
+      "multi_timezone",
+      "live_clock",
+      "city_selector",
+      "day_night_indicator"
+    ]
+  },
+  {
+    "name": "CookieConsent",
+    "type": "component",
+    "category": "legal",
+    "tags": [
+      "cookie",
+      "consent",
+      "gdpr",
+      "privacy",
+      "compliance",
+      "eu",
+      "uk"
+    ],
+    "description": "EU GDPR / UK PECR compliant cookie consent banner with accept, reject, and manage preferences modal. Stores user choice in localStorage. Required for international markets.",
+    "file_path": "src/components/common/CookieConsent.jsx",
+    "dependencies": [
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "general",
+      "ecommerce",
+      "saas",
+      "business"
+    ],
+    "features": [
+      "accept_reject_buttons",
+      "manage_preferences_modal",
+      "localStorage_persistence",
+      "cookie_categories",
+      "privacy_policy_link",
+      "animated_banner"
+    ]
+  },
+  {
+    "name": "MapEmbed",
+    "type": "component",
+    "category": "location",
+    "tags": [
+      "map",
+      "google-maps",
+      "location",
+      "address",
+      "embed",
+      "directions"
+    ],
+    "description": "Google Maps embed component with custom marker, business hours overlay, and Get Directions CTA. Falls back to static map image if API key not set.",
+    "file_path": "src/components/common/MapEmbed.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "restaurant",
+      "realestate",
+      "healthcare",
+      "event",
+      "business"
+    ],
+    "features": [
+      "google_maps_embed",
+      "custom_marker",
+      "business_hours",
+      "directions_cta",
+      "static_fallback"
+    ]
+  },
+  {
+    "name": "PWAInstallBanner",
+    "type": "component",
+    "category": "pwa",
+    "tags": [
+      "pwa",
+      "install",
+      "offline",
+      "mobile",
+      "banner",
+      "app"
+    ],
+    "description": "Smart PWA install prompt banner that appears after 30 seconds or 2 page views. Detects iOS/Android and shows platform-appropriate install instructions. Handles beforeinstallprompt event.",
+    "file_path": "src/components/common/PWAInstallBanner.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general",
+      "ecommerce",
+      "restaurant",
+      "healthcare"
+    ],
+    "features": [
+      "beforeinstallprompt",
+      "ios_safari_guide",
+      "android_chrome_guide",
+      "dismiss_cookie",
+      "offline_detection"
+    ]
+  },
+  {
+    "name": "PricingToggle",
+    "type": "component",
+    "category": "saas",
+    "tags": [
+      "pricing",
+      "toggle",
+      "monthly",
+      "annual",
+      "discount",
+      "saas",
+      "plans"
+    ],
+    "description": "Monthly/annual billing toggle with animated switch and savings badge. Shows 3 tiers with feature lists, popular badge, and CTA buttons.",
+    "file_path": "src/components/business/PricingCard.jsx",
+    "dependencies": [
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "saas",
+      "business",
+      "fitness",
+      "education"
+    ],
+    "features": [
+      "monthly_annual_toggle",
+      "savings_badge",
+      "popular_plan_highlight",
+      "feature_checklist",
+      "stripe_checkout_link"
+    ]
+  },
+  {
+    "name": "SEOMetaTags",
+    "type": "component",
+    "category": "seo",
+    "tags": [
+      "seo",
+      "meta",
+      "og",
+      "twitter",
+      "canonical",
+      "structured-data",
+      "json-ld"
+    ],
+    "description": "React Helmet-based SEO component injecting title, description, Open Graph, Twitter Card, canonical URL, hreflang, and JSON-LD structured data for every page.",
+    "file_path": "src/components/common/SEOMetaTags.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general",
+      "blog",
+      "ecommerce",
+      "business"
+    ],
+    "features": [
+      "og_tags",
+      "twitter_card",
+      "json_ld",
+      "canonical_url",
+      "hreflang",
+      "robots_meta"
+    ]
+  },
+  {
+    "name": "TestimonialCarousel",
+    "type": "component",
+    "category": "trust",
+    "tags": [
+      "testimonials",
+      "carousel",
+      "reviews",
+      "trust",
+      "social-proof",
+      "slider"
+    ],
+    "description": "Auto-rotating testimonial carousel with star ratings, avatar, company name, and optional video testimonial embed. Supports touch swipe on mobile.",
+    "file_path": "src/components/business/Hero.jsx",
+    "dependencies": [
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "general",
+      "saas",
+      "business",
+      "healthcare",
+      "fitness"
+    ],
+    "features": [
+      "auto_rotate",
+      "touch_swipe",
+      "star_rating",
+      "avatar",
+      "video_embed",
+      "dot_navigation"
+    ]
+  },
+  {
+    "name": "Accordion",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "accordion",
+      "ui",
+      "primitive"
+    ],
+    "description": "Expandable collapsible content sections with keyboard navigation.",
+    "file_path": "src/components/ui/Accordion.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "accordion_support"
+    ]
+  },
+  {
+    "name": "Alert",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "alert",
+      "ui",
+      "primitive"
+    ],
+    "description": "Informational messages for success, warning, danger and info states.",
+    "file_path": "src/components/ui/Alert.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "alert_support"
+    ]
+  },
+  {
+    "name": "Avatar",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "avatar",
+      "ui",
+      "primitive"
+    ],
+    "description": "User avatar with image fallback and size variants.",
+    "file_path": "src/components/ui/Avatar.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "avatar_support"
+    ]
+  },
+  {
+    "name": "Badge",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "badge",
+      "ui",
+      "primitive"
+    ],
+    "description": "Small status/label indicator with tone variants.",
+    "file_path": "src/components/ui/Badge.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "badge_support"
+    ]
+  },
+  {
+    "name": "Breadcrumb",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "breadcrumb",
+      "ui",
+      "primitive"
+    ],
+    "description": "Navigation trail showing the current page hierarchy.",
+    "file_path": "src/components/ui/Breadcrumb.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "breadcrumb_support"
+    ]
+  },
+  {
+    "name": "Button",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "button",
+      "ui",
+      "primitive"
+    ],
+    "description": "Styled button primitive with variant, size, loading and icon support.",
+    "file_path": "src/components/ui/Button.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "button_support"
+    ]
+  },
+  {
+    "name": "ButtonMotion",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "buttonmotion",
+      "ui",
+      "primitive"
+    ],
+    "description": "Framer Motion wrapper around Button with hover/tap motion presets.",
+    "file_path": "src/components/ui/ButtonMotion.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "buttonmotion_support"
+    ]
+  },
+  {
+    "name": "Card",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "card",
+      "ui",
+      "primitive"
+    ],
+    "description": "Surface card container with glass and elevation variants.",
+    "file_path": "src/components/ui/Card.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "card_support"
+    ]
+  },
+  {
+    "name": "Divider",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "divider",
+      "ui",
+      "primitive"
+    ],
+    "description": "Horizontal or vertical separator line.",
+    "file_path": "src/components/ui/Divider.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "divider_support"
+    ]
+  },
+  {
+    "name": "Dropdown",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "dropdown",
+      "ui",
+      "primitive"
+    ],
+    "description": "Menu dropdown with keyboard interaction and outside-click close.",
+    "file_path": "src/components/ui/Dropdown.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "dropdown_support"
+    ]
+  },
+  {
+    "name": "Empty",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "empty",
+      "ui",
+      "primitive"
+    ],
+    "description": "Empty-state placeholder with icon, title and action slot.",
+    "file_path": "src/components/ui/Empty.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "empty_support"
+    ]
+  },
+  {
+    "name": "IconButton",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "iconbutton",
+      "ui",
+      "primitive"
+    ],
+    "description": "Icon-only button with aria-label and tooltip support.",
+    "file_path": "src/components/ui/IconButton.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "iconbutton_support"
+    ]
+  },
+  {
+    "name": "Loading",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "loading",
+      "ui",
+      "primitive"
+    ],
+    "description": "Loading state wrapper with skeleton and spinner variants.",
+    "file_path": "src/components/ui/Loading.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "loading_support"
+    ]
+  },
+  {
+    "name": "Modal",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "modal",
+      "dialog",
+      "popup",
+      "overlay"
+    ],
+    "description": "Accessible pop-up modal dialog component with backdrop blur and escape key listener.",
+    "file_path": "src/components/ui/Modal.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "ui"
+    ],
+    "features": [
+      "backdrop_close",
+      "custom_header",
+      "animations"
+    ]
+  },
+  {
+    "name": "Pagination",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "pagination",
+      "ui",
+      "primitive"
+    ],
+    "description": "Paged navigation control with ellipsis support.",
+    "file_path": "src/components/ui/Pagination.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "pagination_support"
+    ]
+  },
+  {
+    "name": "Progress",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "progress",
+      "ui",
+      "primitive"
+    ],
+    "description": "Linear progress bar with determinate/indeterminate states.",
+    "file_path": "src/components/ui/Progress.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "progress_support"
+    ]
+  },
+  {
+    "name": "Skeleton",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "skeleton",
+      "ui",
+      "primitive"
+    ],
+    "description": "Shimmer placeholder skeleton for async content.",
+    "file_path": "src/components/ui/Skeleton.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "skeleton_support"
+    ]
+  },
+  {
+    "name": "Spinner",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "spinner",
+      "ui",
+      "primitive"
+    ],
+    "description": "Circular loading spinner with size variants.",
+    "file_path": "src/components/ui/Spinner.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "spinner_support"
+    ]
+  },
+  {
+    "name": "Tabs",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "tabs",
+      "ui",
+      "primitive"
+    ],
+    "description": "Tabbed panels with keyboard navigation.",
+    "file_path": "src/components/ui/Tabs.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "tabs_support"
+    ]
+  },
+  {
+    "name": "Tooltip",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "tooltip",
+      "ui",
+      "primitive"
+    ],
+    "description": "Accessible tooltip on hover and focus.",
+    "file_path": "src/components/ui/Tooltip.jsx",
+    "dependencies": [
+      "react",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general"
+    ],
+    "features": [
+      "tooltip_support"
+    ]
+  },
+  {
+    "name": "SocialShare",
+    "type": "component",
+    "category": "viral",
+    "tags": [
+      "share",
+      "social",
+      "whatsapp",
+      "facebook",
+      "twitter",
+      "linkedin",
+      "copy-link"
+    ],
+    "description": "Social share button group for WhatsApp, Facebook, Twitter/X, LinkedIn, and copy link. Tracks share events. Supports compact icon-only and full label variants.",
+    "file_path": "src/components/common/SocialShare.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "general",
+      "blog",
+      "ecommerce",
+      "creative",
+      "portfolio"
+    ],
+    "features": [
+      "whatsapp_share",
+      "facebook_share",
+      "twitter_share",
+      "linkedin_share",
+      "copy_link",
+      "share_count",
+      "native_web_share_api"
+    ]
+  }
+]

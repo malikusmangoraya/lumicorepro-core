@@ -1,0 +1,202 @@
+[
+  {
+    "id": "social_proof",
+    "name": "Social Proof System",
+    "category": "conversion",
+    "tags": ["ecommerce", "saas", "business", "general"],
+    "description": "Live purchase notifications, review highlights, and trust badges.",
+    "components": ["TestimonialSlider", "Testimonial"],
+    "roi_score": 95,
+    "priority": "critical"
+  },
+  {
+    "id": "loyalty_rewards",
+    "name": "Loyalty & Rewards Engine",
+    "category": "retention",
+    "tags": ["ecommerce", "fashion", "food", "restaurant", "fitness"],
+    "description": "Points, tiers, and redeemable rewards for repeat customers.",
+    "components": ["PricingCard", "FeatureGrid"],
+    "roi_score": 88,
+    "priority": "high"
+  },
+  {
+    "id": "ai_chat",
+    "name": "AI Shopping Assistant",
+    "category": "support",
+    "tags": ["ecommerce", "saas", "healthcare", "general"],
+    "description": "Context-aware AI chat for product discovery and customer support.",
+    "components": ["ChatBox", "ChatInput", "MessageList"],
+    "roi_score": 92,
+    "priority": "critical"
+  },
+  {
+    "id": "smart_search",
+    "name": "Smart Search & Autocomplete",
+    "category": "discovery",
+    "tags": ["ecommerce", "electronics", "fashion", "education", "travel"],
+    "description": "Instant search with filters, suggestions, and recent queries.",
+    "components": ["SearchBar", "CategoryFilter", "PriceFilter"],
+    "roi_score": 85,
+    "priority": "high"
+  },
+  {
+    "id": "personalization",
+    "name": "Personalized Recommendations",
+    "category": "conversion",
+    "tags": ["ecommerce", "electronics", "saas", "education"],
+    "description": "Trending, recently viewed, and category-based product suggestions.",
+    "components": ["ProductGrid", "ProductCard"],
+    "roi_score": 90,
+    "priority": "high"
+  },
+  {
+    "id": "wishlist_compare",
+    "name": "Wishlist & Product Compare",
+    "category": "engagement",
+    "tags": ["ecommerce", "electronics", "realestate", "travel"],
+    "description": "Save favorites and side-by-side spec comparison.",
+    "components": ["AddToWishlist", "ProductDetails"],
+    "roi_score": 78,
+    "priority": "medium"
+  },
+  {
+    "id": "analytics_dashboard",
+    "name": "Analytics Dashboard",
+    "category": "saas",
+    "tags": ["saas", "dashboard", "ecommerce", "business"],
+    "description": "Revenue, orders, and performance metrics with charts.",
+    "components": ["StatCard", "RevenueCard", "AreaChart", "DataTable"],
+    "roi_score": 87,
+    "priority": "high"
+  },
+  {
+    "id": "pwa_support",
+    "name": "Progressive Web App (PWA)",
+    "category": "performance",
+    "tags": ["general", "ecommerce", "restaurant", "healthcare", "saas"],
+    "description": "Offline support, install prompt, push notifications, and home screen icon. PWA boosts retention by 36% on mobile.",
+    "components": ["PWAInstallBanner"],
+    "roi_score": 91,
+    "priority": "critical"
+  },
+  {
+    "id": "i18n_multilingual",
+    "name": "Multi-Language / i18n Support",
+    "category": "international",
+    "tags": ["general", "ecommerce", "saas", "business", "travel", "healthcare"],
+    "description": "English, Urdu, Arabic (RTL), French, Spanish, German language switching with locale-based formatting.",
+    "components": ["Language"],
+    "roi_score": 89,
+    "priority": "critical"
+  },
+  {
+    "id": "cookie_consent",
+    "name": "GDPR Cookie Consent Banner",
+    "category": "legal",
+    "tags": ["general", "ecommerce", "saas", "business"],
+    "description": "EU GDPR / UK PECR compliant cookie consent with accept, reject, and manage preferences. Required for international markets.",
+    "components": ["CookieConsent"],
+    "roi_score": 82,
+    "priority": "high"
+  },
+  {
+    "id": "whatsapp_float",
+    "name": "WhatsApp Floating Chat Button",
+    "category": "conversion",
+    "tags": ["restaurant", "realestate", "healthcare", "fitness", "business", "general"],
+    "description": "Sticky floating WhatsApp button. Converts 3-5x better than contact forms in South Asian & Middle Eastern markets.",
+    "components": ["WhatsAppFloat"],
+    "roi_score": 94,
+    "priority": "critical"
+  },
+  {
+    "id": "push_notifications",
+    "name": "Web Push Notifications",
+    "category": "retention",
+    "tags": ["ecommerce", "saas", "blog", "news", "restaurant"],
+    "description": "Browser push notifications for order updates, promotions, and breaking news. 25% better retention than email.",
+    "components": ["PWAInstallBanner"],
+    "roi_score": 83,
+    "priority": "high"
+  },
+  {
+    "id": "video_hero",
+    "name": "Video Background Hero",
+    "category": "design",
+    "tags": ["restaurant", "fitness", "creative", "travel", "business", "event"],
+    "description": "Full-screen autoplay muted video background hero section with overlay text and CTA. Increases time-on-page by 88%.",
+    "components": ["VideoHero"],
+    "roi_score": 81,
+    "priority": "high"
+  },
+  {
+    "id": "countdown_timer",
+    "name": "Countdown Timer & Urgency",
+    "category": "conversion",
+    "tags": ["ecommerce", "event", "saas", "restaurant", "fitness"],
+    "description": "Flash sale countdown, event launch timer, limited offer expiry. Creates FOMO and lifts conversion by 9%.",
+    "components": ["CountdownTimer"],
+    "roi_score": 86,
+    "priority": "high"
+  },
+  {
+    "id": "exit_intent_popup",
+    "name": "Exit-Intent Popup",
+    "category": "conversion",
+    "tags": ["ecommerce", "saas", "business", "blog"],
+    "description": "Smart popup triggered on exit intent. Capture email, offer discount, or show lead magnet. Recovers 10-15% abandoning visitors.",
+    "components": ["Modal", "NewsletterSignup"],
+    "roi_score": 88,
+    "priority": "high"
+  },
+  {
+    "id": "newsletter_signup",
+    "name": "Email Newsletter & Lead Capture",
+    "category": "growth",
+    "tags": ["general", "ecommerce", "blog", "saas", "business"],
+    "description": "Inline and popup newsletter signup with Mailchimp/Klaviyo integration and double opt-in confirmation.",
+    "components": ["NewsletterSignup"],
+    "roi_score": 80,
+    "priority": "medium"
+  },
+  {
+    "id": "referral_program",
+    "name": "Referral & Affiliate Program",
+    "category": "growth",
+    "tags": ["ecommerce", "saas", "fitness", "education"],
+    "description": "Customer referral system with unique links, reward tracking, and affiliate dashboard. CAC reduced by 30-50%.",
+    "components": ["PricingCard"],
+    "roi_score": 84,
+    "priority": "medium"
+  },
+  {
+    "id": "live_chat",
+    "name": "Live Chat Support (Tawk.to / Crisp)",
+    "category": "support",
+    "tags": ["general", "ecommerce", "saas", "healthcare", "realestate"],
+    "description": "Real-time live chat widget with agent routing, offline messages, and chat history. 48% higher conversion for leads.",
+    "components": ["ChatBox"],
+    "roi_score": 87,
+    "priority": "high"
+  },
+  {
+    "id": "social_share",
+    "name": "Social Share & OG Tags",
+    "category": "viral",
+    "tags": ["general", "blog", "ecommerce", "creative", "portfolio"],
+    "description": "Open Graph / Twitter Card meta tags plus share buttons for WhatsApp, Facebook, Twitter, LinkedIn, and copy link.",
+    "components": ["SocialShare"],
+    "roi_score": 79,
+    "priority": "medium"
+  },
+  {
+    "id": "testimonial_carousel",
+    "name": "Animated Testimonial Carousel",
+    "category": "trust",
+    "tags": ["general", "saas", "business", "healthcare", "fitness", "education"],
+    "description": "Auto-rotating testimonials with star ratings, avatar, company logo, and video testimonial support.",
+    "components": ["TestimonialCarousel"],
+    "roi_score": 83,
+    "priority": "high"
+  }
+]

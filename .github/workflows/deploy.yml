@@ -1,0 +1,25 @@
+name: LumiCorePro Deployment Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  docker-publish:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build -t lumicorepro-backend:latest ./backend
+
+      - name: Build Frontend Docker Image
+        run: |
+          docker build -f Dockerfile.frontend -t lumicorepro-frontend:latest .

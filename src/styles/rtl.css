@@ -1,0 +1,306 @@
+/**
+ * LumicorePro — RTL (Right-to-Left) Stylesheet
+ * Applied when <html dir="rtl"> is set (Arabic, Urdu, Persian, Hebrew)
+ * 
+ * Usage in main.jsx or App.jsx:
+ *   import '@/styles/rtl.css';
+ * 
+ * Toggle RTL programmatically:
+ *   document.documentElement.setAttribute('dir', 'rtl');
+ *   document.documentElement.setAttribute('lang', 'ar');
+ */
+
+/* ── Global direction ───────────────────────────────────────────── */
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', 'Noto Naskh Arabic', sans-serif;
+}
+
+/* ── Arabic / Urdu font stack ───────────────────────────────────── */
+[dir='rtl'] .font-sans,
+[dir='rtl'] body {
+  font-family:
+    'Noto Naskh Arabic', 'Noto Kufi Arabic', 'IBM Plex Arabic', 'Segoe UI', Tahoma, Arial,
+    sans-serif;
+}
+
+[dir='rtl'] .font-display,
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3,
+[dir='rtl'] h4,
+[dir='rtl'] h5,
+[dir='rtl'] h6 {
+  font-family:
+    'Noto Naskh Arabic', 'Noto Kufi Arabic', 'IBM Plex Arabic', 'Segoe UI', Tahoma, Arial,
+    sans-serif;
+  letter-spacing: 0; /* Arabic doesn't use letter-spacing */
+}
+
+/* ── Flex direction mirrors ─────────────────────────────────────── */
+[dir='rtl'] .flex-row {
+  flex-direction: row-reverse;
+}
+[dir='rtl'] .items-start {
+  align-items: flex-end;
+}
+
+/* Only mirror layout flex — not content alignment */
+[dir='rtl'] nav .flex,
+[dir='rtl'] header .flex,
+[dir='rtl'] .navbar-flex {
+  flex-direction: row-reverse;
+}
+
+/* ── Spacing mirrors ────────────────────────────────────────────── */
+/* Tailwind margin/padding is physical by default — override logical sides */
+[dir='rtl'] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+[dir='rtl'] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+[dir='rtl'] .pl-4 {
+  padding-left: unset;
+  padding-right: 1rem;
+}
+[dir='rtl'] .pr-4 {
+  padding-right: unset;
+  padding-left: 1rem;
+}
+[dir='rtl'] .pl-6 {
+  padding-left: unset;
+  padding-right: 1.5rem;
+}
+[dir='rtl'] .pr-6 {
+  padding-right: unset;
+  padding-left: 1.5rem;
+}
+[dir='rtl'] .pl-8 {
+  padding-left: unset;
+  padding-right: 2rem;
+}
+[dir='rtl'] .pr-8 {
+  padding-right: unset;
+  padding-left: 2rem;
+}
+[dir='rtl'] .pl-10 {
+  padding-left: unset;
+  padding-right: 2.5rem;
+}
+[dir='rtl'] .pr-10 {
+  padding-right: unset;
+  padding-left: 2.5rem;
+}
+[dir='rtl'] .ml-2 {
+  margin-left: unset;
+  margin-right: 0.5rem;
+}
+[dir='rtl'] .mr-2 {
+  margin-right: unset;
+  margin-left: 0.5rem;
+}
+[dir='rtl'] .ml-3 {
+  margin-left: unset;
+  margin-right: 0.75rem;
+}
+[dir='rtl'] .mr-3 {
+  margin-right: unset;
+  margin-left: 0.75rem;
+}
+[dir='rtl'] .ml-4 {
+  margin-left: unset;
+  margin-right: 1rem;
+}
+[dir='rtl'] .mr-4 {
+  margin-right: unset;
+  margin-left: 1rem;
+}
+
+/* ── Gap mirrors ────────────────────────────────────────────────── */
+[dir='rtl'] .gap-x-2 {
+  column-gap: 0.5rem;
+}
+[dir='rtl'] .gap-x-4 {
+  column-gap: 1rem;
+}
+[dir='rtl'] .gap-x-6 {
+  column-gap: 1.5rem;
+}
+
+/* ── Border radius mirrors ──────────────────────────────────────── */
+[dir='rtl'] .rounded-l-lg {
+  border-radius: 0;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+[dir='rtl'] .rounded-r-lg {
+  border-radius: 0;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+[dir='rtl'] .rounded-l-xl {
+  border-radius: 0;
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}
+[dir='rtl'] .rounded-r-xl {
+  border-radius: 0;
+  border-top-left-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+}
+
+/* ── Icon & chevron mirrors ─────────────────────────────────────── */
+[dir='rtl'] .icon-arrow-right,
+[dir='rtl'] [data-icon='arrow-right'],
+[dir='rtl'] .lucide-arrow-right,
+[dir='rtl'] .lucide-chevron-right,
+[dir='rtl'] .lucide-chevron-left {
+  transform: scaleX(-1);
+}
+
+/* ── Form inputs ────────────────────────────────────────────────── */
+[dir='rtl'] input,
+[dir='rtl'] textarea,
+[dir='rtl'] select {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir='rtl'] input[type='email'],
+[dir='rtl'] input[type='url'],
+[dir='rtl'] input[type='tel'] {
+  direction: ltr; /* Email/URL/phone always LTR */
+  text-align: left;
+}
+
+[dir='rtl'] input[type='number'] {
+  direction: ltr;
+}
+
+/* Input icons: move from left to right */
+[dir='rtl'] .input-icon-left {
+  left: unset;
+  right: 0.875rem;
+}
+
+[dir='rtl'] .input-icon-right {
+  right: unset;
+  left: 0.875rem;
+}
+
+[dir='rtl'] .pl-10 > input,
+[dir='rtl'] input.pl-10 {
+  padding-left: 1rem;
+  padding-right: 2.5rem;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+[dir='rtl'] .sidebar-left {
+  left: unset;
+  right: 0;
+  border-left: none;
+  border-right: 1px solid hsl(var(--border));
+}
+
+[dir='rtl'] .sidebar-right {
+  right: unset;
+  left: 0;
+  border-right: none;
+  border-left: 1px solid hsl(var(--border));
+}
+
+/* ── Dropdown / popover ─────────────────────────────────────────── */
+[dir='rtl'] .dropdown-right {
+  right: unset;
+  left: 0;
+}
+
+[dir='rtl'] .dropdown-left {
+  left: unset;
+  right: 0;
+}
+
+/* ── Toast / notifications ──────────────────────────────────────── */
+[dir='rtl'] .toast-container {
+  left: 1rem;
+  right: unset;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+[dir='rtl'] ::-webkit-scrollbar {
+  left: 0;
+  right: unset;
+}
+
+/* ── Table ──────────────────────────────────────────────────────── */
+[dir='rtl'] table {
+  direction: rtl;
+}
+
+[dir='rtl'] th,
+[dir='rtl'] td {
+  text-align: right;
+}
+
+/* ── Breadcrumb separator ───────────────────────────────────────── */
+[dir='rtl'] .breadcrumb-separator {
+  transform: scaleX(-1);
+}
+
+/* ── List items ─────────────────────────────────────────────────── */
+[dir='rtl'] ul,
+[dir='rtl'] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+/* ── Navbar logo area ───────────────────────────────────────────── */
+[dir='rtl'] .brand-logo-wrapper {
+  flex-direction: row-reverse;
+}
+
+/* ── Code blocks — always LTR ───────────────────────────────────── */
+[dir='rtl'] code,
+[dir='rtl'] pre,
+[dir='rtl'] .font-mono {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+
+/* ── Animations — flip horizontal slide directions ─────────────── */
+[dir='rtl'] .animate-slide-in-left {
+  animation-name: slide-in-right-rtl;
+}
+[dir='rtl'] .animate-slide-in-right {
+  animation-name: slide-in-left-rtl;
+}
+
+@keyframes slide-in-right-rtl {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left-rtl {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ── Print ──────────────────────────────────────────────────────── */
+@media print {
+  [dir='rtl'] body {
+    direction: rtl;
+  }
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Glow Pulse Animation",
+    "type": "animation",
+    "category": "micro-interactions",
+    "industry": "electronics",
+    "tags": ["glow", "pulse", "cyan", "lighting", "smooth"],
+    "file_path": "src/styles/animations.css#glowPulse"
+  },
+  {
+    "name": "Hover Float Animation",
+    "type": "animation",
+    "category": "micro-interactions",
+    "industry": "general",
+    "tags": ["hover", "float", "card", "lift"],
+    "file_path": "src/styles/animations.css#hoverFloat"
+  },
+  {
+    "name": "Shimmer Wave Animation",
+    "type": "animation",
+    "category": "loaders",
+    "industry": "general",
+    "tags": ["shimmer", "skeleton", "loading", "wave"],
+    "file_path": "src/styles/animations.css#shimmerWave"
+  },
+  {
+    "name": "Glass Fade In Animation",
+    "type": "animation",
+    "category": "transitions",
+    "industry": "general",
+    "tags": ["glass", "fade", "entrance", "smooth"],
+    "file_path": "src/styles/animations.css#glassFadeIn"
+  },
+  {
+    "name": "Neon Border Rotate Animation",
+    "type": "animation",
+    "category": "micro-interactions",
+    "industry": "electronics",
+    "tags": ["neon", "border", "rotate", "gradient"],
+    "file_path": "src/styles/animations.css#neonBorderRotate"
+  },
+  {
+    "name": "Discount Badge Bounce Animation",
+    "type": "animation",
+    "category": "badges",
+    "industry": "ecommerce",
+    "tags": ["badge", "bounce", "discount", "sale"],
+    "file_path": "src/styles/animations.css#badgeBounce"
+  },
+  {
+    "name": "Interactive Button Ripple Animation",
+    "type": "animation",
+    "category": "buttons",
+    "industry": "general",
+    "tags": ["button", "ripple", "click", "pulse"],
+    "file_path": "src/styles/animations.css#buttonRipple"
+  },
+  {
+    "name": "Text Gradient Shift Animation",
+    "type": "animation",
+    "category": "typography",
+    "industry": "general",
+    "tags": ["text", "gradient", "shift", "color"],
+    "file_path": "src/styles/animations.css#textGradientShift"
+  },
+  {
+    "name": "Cart Icon Add Bounce Animation",
+    "type": "animation",
+    "category": "cart",
+    "industry": "ecommerce",
+    "tags": ["cart", "add", "bounce", "feedback"],
+    "file_path": "src/styles/animations.css#cartBounce"
+  },
+  {
+    "name": "Particle Float Background Animation",
+    "type": "animation",
+    "category": "backgrounds",
+    "industry": "general",
+    "tags": ["particle", "float", "ambient", "space"],
+    "file_path": "src/styles/animations.css#particleFloat"
+  }
+]

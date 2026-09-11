@@ -1,0 +1,1929 @@
+/* LumicorePro Core — 60 FPS GPU-Accelerated Hardware Animation Framework */
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 15px rgba(6, 182, 212, 0.2),
+      inset 0 0 15px rgba(6, 182, 212, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(6, 182, 212, 0.6),
+      inset 0 0 20px rgba(6, 182, 212, 0.3);
+  }
+}
+
+@keyframes hoverFloat {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes shimmerWave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes glassFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes neonBorderRotate {
+  0% {
+    border-color: #06b6d4;
+  }
+  33% {
+    border-color: #3b82f6;
+  }
+  66% {
+    border-color: #8b5cf6;
+  }
+  100% {
+    border-color: #06b6d4;
+  }
+}
+
+@keyframes badgeBounce {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@keyframes buttonRipple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(6, 182, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+  }
+}
+
+@keyframes textGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes cartBounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2) rotate(-8deg);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(0, -20px, 0) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(360deg);
+    opacity: 0.8;
+  }
+}
+
+/* 60 FPS GPU-Accelerated Utility Classes */
+.animate-glow-pulse {
+  will-change: box-shadow;
+  animation: glowPulse 3s infinite ease-in-out;
+}
+
+.animate-hover-float {
+  will-change: transform;
+  animation: hoverFloat 4s infinite ease-in-out;
+}
+
+.animate-shimmer {
+  will-change: background-position;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerWave 2s infinite;
+}
+
+.animate-glass-fade {
+  will-change: transform, opacity;
+  animation: glassFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-neon-border {
+  will-change: border-color;
+  animation: neonBorderRotate 4s infinite linear;
+}
+
+.animate-badge-bounce {
+  will-change: transform;
+  animation: badgeBounce 2s infinite ease-in-out;
+}
+
+.animate-button-ripple {
+  will-change: box-shadow;
+  animation: buttonRipple 2s infinite;
+}
+
+.animate-text-gradient {
+  will-change: background-position;
+  background-size: 200% 200%;
+  animation: textGradientShift 4s infinite ease;
+}
+
+.animate-cart-bounce {
+  will-change: transform;
+  animation: cartBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-particle {
+  will-change: transform, opacity;
+  animation: particleFloat 6s infinite ease-in-out;
+}
+
+/* 3D Perspective & GPU Acceleration Animations */
+@keyframes tilt3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(6deg) rotateY(-6deg) translate3d(0, -6px, 12px);
+  }
+}
+
+@keyframes depthPop3d {
+  0% {
+    transform: perspective(1000px) translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: perspective(1000px) translate3d(0, -10px, 20px) scale(1.03);
+  }
+}
+
+@keyframes cardFlip3d {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateY(180deg);
+  }
+}
+
+@keyframes hologramGlow3d {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 40px rgba(147, 51, 234, 0.2);
+    transform: perspective(1000px) rotateX(0deg);
+  }
+  50% {
+    box-shadow:
+      0 0 35px rgba(59, 130, 246, 0.7),
+      0 0 60px rgba(147, 51, 234, 0.5);
+    transform: perspective(1000px) rotateX(4deg);
+  }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.animate-tilt-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: tilt3d 5s infinite ease-in-out;
+}
+
+.animate-depth-pop-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.animate-depth-pop-3d:hover {
+  transform: perspective(1000px) translate3d(0, -10px, 20px) scale(1.03);
+}
+
+.animate-card-flip-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+
+.animate-hologram-glow-3d {
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  animation: hologramGlow3d 4s infinite ease-in-out;
+}
+
+/* ===== ADVANCED 3D ANIMATIONS ===== */
+
+@keyframes cubeRotateY {
+  0% {
+    transform: perspective(800px) rotateX(15deg) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateX(15deg) rotateY(360deg);
+  }
+}
+
+@keyframes cubeFloat3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: perspective(1000px) rotateX(12deg) rotateY(-5deg) translate3d(5px, -15px, 20px);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(8deg) rotateY(10deg) translate3d(-5px, -5px, 10px);
+  }
+  75% {
+    transform: perspective(1000px) rotateX(14deg) rotateY(5deg) translate3d(-3px, -12px, 15px);
+  }
+}
+
+@keyframes depthLayerFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(0) rotateY(0);
+  }
+  33% {
+    transform: translate3d(10px, -20px, 40px) rotateX(3deg) rotateY(-5deg);
+  }
+  66% {
+    transform: translate3d(-10px, -10px, 20px) rotateX(-2deg) rotateY(3deg);
+  }
+}
+
+@keyframes orbit3d {
+  0% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(0deg) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(360deg) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ribbonWave3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg) scaleX(1);
+  }
+  25% {
+    transform: perspective(800px) rotateY(15deg) scaleX(1.05);
+  }
+  50% {
+    transform: perspective(800px) rotateY(0deg) scaleX(1);
+  }
+  75% {
+    transform: perspective(800px) rotateY(-15deg) scaleX(1.05);
+  }
+  100% {
+    transform: perspective(800px) rotateY(0deg) scaleX(1);
+  }
+}
+
+@keyframes morph3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+  }
+  25% {
+    transform: perspective(1000px) rotateX(20deg) rotateY(20deg) scale3d(1.1, 0.9, 1.1);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+  50% {
+    transform: perspective(1000px) rotateX(40deg) rotateY(40deg) scale3d(0.9, 1.1, 0.9);
+    border-radius: 50%;
+  }
+  75% {
+    transform: perspective(1000px) rotateX(20deg) rotateY(60deg) scale3d(1.1, 0.9, 1.1);
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  }
+}
+
+@keyframes particleOrbit3d {
+  0% {
+    transform: perspective(800px) translate3d(120px, 0, 0) rotateY(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(800px) translate3d(-120px, 0, 0) rotateY(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes neonFlicker3d {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    transform: perspective(500px) rotateY(0deg) translateZ(0);
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #0fa,
+      0 0 82px #0fa,
+      0 0 92px #0fa;
+  }
+  20%,
+  24%,
+  55% {
+    transform: perspective(500px) rotateY(2deg) translateZ(10px);
+    text-shadow: none;
+  }
+}
+
+@keyframes glassMorphism3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(0) rotateY(0) translateZ(0);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.2),
+      inset 0 1px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(3deg) rotateY(-3deg) translateZ(15px);
+    box-shadow:
+      0 12px 48px rgba(59, 130, 246, 0.3),
+      inset 0 1px rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes springBounce3d {
+  0% {
+    transform: perspective(600px) scale3d(1, 1, 1) rotateX(0);
+  }
+  30% {
+    transform: perspective(600px) scale3d(0.8, 0.8, 0.8) rotateX(-10deg);
+  }
+  50% {
+    transform: perspective(600px) scale3d(1.15, 1.15, 1.15) rotateX(5deg);
+  }
+  70% {
+    transform: perspective(600px) scale3d(0.95, 0.95, 0.95) rotateX(-3deg);
+  }
+  85% {
+    transform: perspective(600px) scale3d(1.03, 1.03, 1.03) rotateX(1deg);
+  }
+  100% {
+    transform: perspective(600px) scale3d(1, 1, 1) rotateX(0);
+  }
+}
+
+/* ===== 3D UTILITY CLASSES ===== */
+
+.animate-cube-rotate {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: cubeRotateY 12s infinite linear;
+}
+
+.animate-cube-float-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: cubeFloat3d 8s infinite ease-in-out;
+}
+
+.animate-depth-float-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: depthLayerFloat 6s infinite ease-in-out;
+}
+
+.animate-orbit-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: orbit3d 8s infinite linear;
+}
+
+.animate-ribbon-wave-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: ribbonWave3d 4s infinite ease-in-out;
+}
+
+.animate-morph-3d {
+  will-change: transform, border-radius;
+  transform-style: preserve-3d;
+  animation: morph3d 10s infinite ease-in-out;
+}
+
+.animate-particle-orbit-3d {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  animation: particleOrbit3d 4s infinite linear;
+}
+
+.animate-neon-flicker-3d {
+  will-change: transform, text-shadow;
+  animation: neonFlicker3d 3s infinite;
+}
+
+.animate-glass-3d {
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  animation: glassMorphism3d 5s infinite ease-in-out;
+}
+
+.animate-spring-bounce-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: springBounce3d 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 3D transform utilities */
+.transform-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.depth-front {
+  transform: translateZ(30px);
+}
+
+.depth-middle {
+  transform: translateZ(15px);
+}
+
+.depth-back {
+  transform: translateZ(-15px);
+}
+
+/* Advanced 3D Animations */
+@keyframes spin3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg) rotateX(0deg);
+  }
+  25% {
+    transform: perspective(800px) rotateY(90deg) rotateX(15deg);
+  }
+  50% {
+    transform: perspective(800px) rotateY(180deg) rotateX(0deg);
+  }
+  75% {
+    transform: perspective(800px) rotateY(270deg) rotateX(-15deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg) rotateX(0deg);
+  }
+}
+
+@keyframes orbit3d {
+  0% {
+    transform: perspective(1200px) rotateX(60deg) rotateZ(0deg) translate3d(60px, 0, 0);
+  }
+  33.33% {
+    transform: perspective(1200px) rotateX(60deg) rotateZ(120deg) translate3d(60px, 0, 0);
+  }
+  66.66% {
+    transform: perspective(1200px) rotateX(60deg) rotateZ(240deg) translate3d(60px, 0, 0);
+  }
+  100% {
+    transform: perspective(1200px) rotateX(60deg) rotateZ(360deg) translate3d(60px, 0, 0);
+  }
+}
+
+@keyframes cubeRotate3d {
+  0% {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(600px) rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes depthZoom3d {
+  0%,
+  100% {
+    transform: perspective(1000px) translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: perspective(1000px) translate3d(0, -30px, 60px) scale(1.08);
+  }
+}
+
+@keyframes morphShape3d {
+  0%,
+  100% {
+    transform: perspective(800px) rotateX(10deg) rotateY(0deg) scaleY(1);
+    border-radius: 16px;
+  }
+  25% {
+    transform: perspective(800px) rotateX(0deg) rotateY(10deg) scaleY(1.05);
+    border-radius: 24px 16px;
+  }
+  50% {
+    transform: perspective(800px) rotateX(-10deg) rotateY(0deg) scaleY(0.95);
+    border-radius: 16px 24px;
+  }
+  75% {
+    transform: perspective(800px) rotateX(0deg) rotateY(-10deg) scaleY(1.05);
+    border-radius: 24px 16px;
+  }
+}
+
+@keyframes neonGlow3d {
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px rgba(6, 182, 212, 0.3),
+      0 0 10px rgba(6, 182, 212, 0.3),
+      0 0 20px rgba(6, 182, 212, 0.3),
+      0 0 40px rgba(6, 182, 212, 0.1);
+    transform: perspective(1000px) translateZ(0);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(139, 92, 246, 0.6),
+      0 0 20px rgba(139, 92, 246, 0.5),
+      0 0 40px rgba(139, 92, 246, 0.4),
+      0 0 80px rgba(139, 92, 246, 0.2);
+    transform: perspective(1000px) translateZ(30px);
+  }
+}
+
+@keyframes twistedTilt {
+  0% {
+    transform: perspective(600px) rotateX(5deg) rotateY(-5deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(600px) rotateX(-5deg) rotateY(5deg) rotateZ(2deg);
+  }
+  50% {
+    transform: perspective(600px) rotateX(5deg) rotateY(5deg) rotateZ(0deg);
+  }
+  75% {
+    transform: perspective(600px) rotateX(-5deg) rotateY(-5deg) rotateZ(-2deg);
+  }
+  100% {
+    transform: perspective(600px) rotateX(5deg) rotateY(-5deg) rotateZ(0deg);
+  }
+}
+
+@keyframes floatAndGlow {
+  0%,
+  100% {
+    transform: perspective(1000px) translate3d(0, 0, 0);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  }
+  50% {
+    transform: perspective(1000px) translate3d(0, -15px, 20px);
+    box-shadow:
+      0 0 30px rgba(139, 92, 246, 0.4),
+      0 10px 30px rgba(6, 182, 212, 0.2);
+  }
+}
+
+@keyframes parallaxLayer1 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 50px) scale(1);
+  }
+  25% {
+    transform: translate3d(5px, -5px, 60px) scale(1.02);
+  }
+  50% {
+    transform: translate3d(0, -10px, 70px) scale(1.04);
+  }
+  75% {
+    transform: translate3d(-5px, -5px, 60px) scale(1.02);
+  }
+}
+
+@keyframes parallaxLayer2 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 100px) scale(1);
+  }
+  25% {
+    transform: translate3d(10px, -10px, 110px) scale(1.05);
+  }
+  50% {
+    transform: translate3d(0, -20px, 120px) scale(1.1);
+  }
+  75% {
+    transform: translate3d(-10px, -10px, 110px) scale(1.05);
+  }
+}
+
+.animate-spin-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spin3d 8s infinite linear;
+}
+
+.animate-orbit-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: orbit3d 6s infinite linear;
+}
+
+.animate-cube-rotate-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: cubeRotate3d 10s infinite linear;
+}
+
+.animate-depth-zoom-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: depthZoom3d 4s infinite ease-in-out;
+}
+
+.animate-morph-shape-3d {
+  will-change: transform, border-radius;
+  transform-style: preserve-3d;
+  animation: morphShape3d 6s infinite ease-in-out;
+}
+
+.animate-neon-glow-3d {
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  animation: neonGlow3d 3s infinite ease-in-out;
+}
+
+.animate-twisted-tilt {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: twistedTilt 5s infinite ease-in-out;
+}
+
+.animate-float-glow {
+  will-change: transform, box-shadow;
+  transform-style: preserve-3d;
+  animation: floatAndGlow 4s infinite ease-in-out;
+}
+
+.animate-parallax-layer-1 {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: parallaxLayer1 7s infinite ease-in-out;
+}
+
+.animate-parallax-layer-2 {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: parallaxLayer2 9s infinite ease-in-out;
+}
+
+/* ============================================ */
+/* Advanced 3D Animations */
+/* ============================================ */
+
+/* 3D Cube Rotation */
+@keyframes cubeSpin3d {
+  0% {
+    transform: perspective(800px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(800px) rotateX(90deg) rotateY(90deg) rotateZ(45deg);
+  }
+  50% {
+    transform: perspective(800px) rotateX(180deg) rotateY(180deg) rotateZ(0deg);
+  }
+  75% {
+    transform: perspective(800px) rotateX(270deg) rotateY(270deg) rotateZ(-45deg);
+  }
+  100% {
+    transform: perspective(800px) rotateX(360deg) rotateY(360deg) rotateZ(0deg);
+  }
+}
+
+/* 3D Depth Layers */
+@keyframes depthLayers3d {
+  0%,
+  100% {
+    transform: perspective(1200px) rotateX(2deg) rotateY(-2deg) translate3d(0, 0, 0);
+    transform-style: preserve-3d;
+  }
+  25% {
+    transform: perspective(1200px) rotateX(-2deg) rotateY(4deg) translate3d(0, -4px, 20px);
+    transform-style: preserve-3d;
+  }
+  50% {
+    transform: perspective(1200px) rotateX(4deg) rotateY(2deg) translate3d(0, 0, 40px);
+    transform-style: preserve-3d;
+  }
+  75% {
+    transform: perspective(1200px) rotateX(-2deg) rotateY(-4deg) translate3d(0, 4px, 20px);
+    transform-style: preserve-3d;
+  }
+}
+
+/* 3D Morph Sphere */
+@keyframes morphSphere3d {
+  0%,
+  100% {
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+  }
+  25% {
+    border-radius: 58% 42% 30% 70% / 55% 45% 45% 55%;
+    transform: perspective(1000px) rotateX(90deg) rotateY(45deg) scale(1.05);
+  }
+  50% {
+    border-radius: 70% 30% 58% 42% / 45% 55% 55% 45%;
+    transform: perspective(1000px) rotateX(180deg) rotateY(90deg) scale(1);
+  }
+  75% {
+    border-radius: 30% 70% 42% 58% / 55% 55% 45% 45%;
+    transform: perspective(1000px) rotateX(270deg) rotateY(135deg) scale(1.05);
+  }
+}
+
+/* 3D Bounce with Perspective */
+@keyframes bounce3d {
+  0%,
+  100% {
+    transform: perspective(1000px) translate3d(0, 0, 0) rotateX(0deg);
+  }
+  30% {
+    transform: perspective(1000px) translate3d(0, -30px, 30px) rotateX(10deg);
+  }
+  50% {
+    transform: perspective(1000px) translate3d(0, 0, 10px) rotateX(0deg) scale(1.02);
+  }
+  70% {
+    transform: perspective(1000px) translate3d(0, -15px, 15px) rotateX(5deg);
+  }
+}
+
+/* 3D Ribbon Wave */
+@keyframes ribbon3d {
+  0% {
+    transform: perspective(1000px) translateY(0) rotateX(0deg) skewX(0deg);
+    transform-origin: center;
+  }
+  25% {
+    transform: perspective(1000px) translateY(-15px) rotateX(15deg) skewX(5deg);
+  }
+  50% {
+    transform: perspective(1000px) translateY(0) rotateX(0deg) skewX(0deg);
+  }
+  75% {
+    transform: perspective(1000px) translateY(15px) rotateX(-15deg) skewX(-5deg);
+  }
+  100% {
+    transform: perspective(1000px) translateY(0) rotateX(0deg) skewX(0deg);
+  }
+}
+
+/* 3D Glitch Effect */
+@keyframes glitch3d {
+  0%,
+  100% {
+    transform: perspective(1000px) translate3d(0, 0, 0);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }
+  20% {
+    transform: perspective(1000px) translate3d(-3px, 3px, 10px);
+    clip-path: polygon(0% 2%, 100% 1%, 100% 99%, 0% 98%);
+  }
+  40% {
+    transform: perspective(1000px) translate3d(3px, -3px, -10px);
+    clip-path: polygon(0% 1%, 100% 2%, 100% 98%, 0% 99%);
+  }
+  60% {
+    transform: perspective(1000px) translate3d(-2px, -2px, 5px);
+    clip-path: polygon(0% 3%, 100% 0%, 100% 100%, 0% 97%);
+  }
+  80% {
+    transform: perspective(1000px) translate3d(2px, 2px, -5px);
+    clip-path: polygon(0% 0%, 100% 3%, 100% 97%, 0% 100%);
+  }
+}
+
+/* 3D Fold Animation */
+@keyframes fold3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(0deg);
+    transform-origin: top;
+  }
+  50% {
+    transform: perspective(1000px) rotateX(180deg);
+    transform-origin: top;
+  }
+}
+
+/* 3D Scale Wave */
+@keyframes scaleWave3d {
+  0%,
+  100% {
+    transform: perspective(1200px) scale3d(1, 1, 1);
+  }
+  25% {
+    transform: perspective(1200px) scale3d(1.05, 0.98, 1.02);
+  }
+  50% {
+    transform: perspective(1200px) scale3d(1, 1, 1);
+  }
+  75% {
+    transform: perspective(1200px) scale3d(0.98, 1.05, 0.98);
+  }
+}
+
+/* 3D Orbital Motion */
+@keyframes orbit3d {
+  0% {
+    transform: perspective(1000px) rotateX(60deg) rotateZ(0deg) translate3d(0, 0, 60px)
+      rotateZ(0deg) rotateX(-60deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(60deg) rotateZ(360deg) translate3d(0, 0, 60px)
+      rotateZ(-360deg) rotateX(-60deg);
+  }
+}
+
+/* 3D Holographic Shift */
+@keyframes holoShift3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    filter: hue-rotate(0deg) brightness(1);
+  }
+  25% {
+    transform: perspective(1000px) rotateY(5deg) rotateX(3deg);
+    filter: hue-rotate(90deg) brightness(1.1);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    filter: hue-rotate(180deg) brightness(1);
+  }
+  75% {
+    transform: perspective(1000px) rotateY(-5deg) rotateX(-3deg);
+    filter: hue-rotate(270deg) brightness(1.1);
+  }
+}
+
+/* 3D Particle Explosion */
+@keyframes particleExplosion3d {
+  0% {
+    transform: perspective(1000px) translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(1000px) translate3d(var(--px, 0px), var(--py, -100px), 100px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* 3D Morph Blob */
+@keyframes blob3d {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: perspective(1000px) translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: perspective(1000px) translate3d(10px, -10px, 20px) rotate(90deg);
+  }
+  50% {
+    border-radius: 50% 50% 40% 60% / 40% 60% 60% 40%;
+    transform: perspective(1000px) translate3d(-10px, 0, 40px) rotate(180deg);
+  }
+  75% {
+    border-radius: 70% 30% 60% 40% / 60% 40% 40% 60%;
+    transform: perspective(1000px) translate3d(0, 10px, 20px) rotate(270deg);
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: perspective(1000px) translate3d(0, 0, 0) rotate(360deg);
+  }
+}
+
+/* 3D Parallax Layers */
+@keyframes parallax3d {
+  0%,
+  100% {
+    transform: perspective(1500px) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: perspective(1500px) translate3d(0, -12px, 50px);
+  }
+}
+
+/* Advanced 3D Utility Classes */
+.animate-cube-spin-3d {
+  animation: cubeSpin3d 10s infinite linear;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-depth-layers-3d {
+  animation: depthLayers3d 6s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-morph-sphere-3d {
+  animation: morphSphere3d 8s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: border-radius, transform;
+}
+
+.animate-bounce-3d {
+  animation: bounce3d 1.5s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-ribbon-3d {
+  animation: ribbon3d 3s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-glitch-3d {
+  animation: glitch3d 0.3s infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-fold-3d {
+  animation: fold3d 1s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-scale-wave-3d {
+  animation: scaleWave3d 2s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-orbit-3d {
+  animation: orbit3d 6s infinite linear;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-holo-shift-3d {
+  animation: holoShift3d 5s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.animate-particle-explosion-3d {
+  animation: particleExplosion3d 1.5s forwards ease-out;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.animate-blob-3d {
+  animation: blob3d 10s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: border-radius, transform;
+}
+
+.animate-parallax-3d {
+  animation: parallax3d 4s infinite ease-in-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ========================================
+   3D WebGL-Style CSS Animations
+   ======================================== */
+
+/* 3D Spinner */
+@keyframes spin3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+}
+.animate-spin-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spin3d 2s linear infinite;
+}
+
+/* 3D Cube Rotation */
+@keyframes cubeRotate3d {
+  0% {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(600px) rotateX(90deg) rotateY(90deg) rotateZ(90deg);
+  }
+  50% {
+    transform: perspective(600px) rotateX(180deg) rotateY(180deg) rotateZ(180deg);
+  }
+  75% {
+    transform: perspective(600px) rotateX(270deg) rotateY(270deg) rotateZ(270deg);
+  }
+  100% {
+    transform: perspective(600px) rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+  }
+}
+.animate-cube-rotate-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: cubeRotate3d 8s linear infinite;
+}
+
+/* 3D Wobble */
+@keyframes wobble3d {
+  0%,
+  100% {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(600px) rotateX(15deg) rotateY(15deg) rotateZ(10deg);
+  }
+  50% {
+    transform: perspective(600px) rotateX(0deg) rotateY(-15deg) rotateZ(-5deg);
+  }
+  75% {
+    transform: perspective(600px) rotateX(-15deg) rotateY(10deg) rotateZ(5deg);
+  }
+}
+.animate-wobble-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: wobble3d 3s ease-in-out infinite;
+}
+
+/* 3D Flip X */
+@keyframes flipX3d {
+  0% {
+    transform: perspective(800px) rotateX(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateX(360deg);
+  }
+}
+.animate-flip-x-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: flipX3d 2s linear infinite;
+}
+
+/* 3D Flip Y */
+@keyframes flipY3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+}
+.animate-flip-y-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: flipY3d 2s linear infinite;
+}
+
+/* 3D Scale Pulse */
+@keyframes scalePulse3d {
+  0%,
+  100% {
+    transform: perspective(600px) translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: perspective(600px) translate3d(0, 0, 20px) scale3d(1.15, 1.15, 1.15);
+  }
+}
+.animate-scale-pulse-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: scalePulse3d 2s ease-in-out infinite;
+}
+
+/* 3D Floating Sphere */
+@keyframes floatSphere3d {
+  0%,
+  100% {
+    transform: perspective(800px) translate3d(0, 0, 0) rotateX(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: perspective(800px) translate3d(20px, -30px, 30px) rotateX(45deg) rotateZ(90deg);
+  }
+  50% {
+    transform: perspective(800px) translate3d(0, -50px, 50px) rotateX(90deg) rotateZ(180deg);
+  }
+  75% {
+    transform: perspective(800px) translate3d(-20px, -30px, 30px) rotateX(135deg) rotateZ(270deg);
+  }
+}
+.animate-float-sphere-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: floatSphere3d 6s ease-in-out infinite;
+}
+
+/* 3D Roll */
+@keyframes roll3d {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateX(180deg) rotateZ(0deg);
+  }
+  40% {
+    transform: perspective(1000px) rotateX(360deg) rotateZ(180deg);
+  }
+  80% {
+    transform: perspective(1000px) rotateX(540deg) rotateZ(360deg);
+  }
+}
+.animate-roll-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: roll3d 3s ease-in-out infinite;
+}
+
+/* 3D Zoom */
+@keyframes zoomIn3d {
+  0% {
+    transform: perspective(600px) translate3d(0, 0, -300px) scale3d(0, 0, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(600px) translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+.animate-zoom-in-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: zoomIn3d 0.8s ease-out forwards;
+}
+
+/* 3D Perspective Roll In */
+@keyframes rollIn3d {
+  0% {
+    transform: perspective(1200px) translate3d(-100%, 0, 0) rotate3d(0, 0, 1, -120deg);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(1200px) translate3d(0, 0, 0) rotate3d(0, 0, 1, 0deg);
+    opacity: 1;
+  }
+}
+.animate-roll-in-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: rollIn3d 0.6s ease-out forwards;
+}
+
+/* 3D Perspective Side Fall */
+@keyframes sideFall3d {
+  0% {
+    transform: perspective(1200px) translate3d(0, 0, 0) rotate3d(0, 1, 0, 0deg);
+  }
+  100% {
+    transform: perspective(1200px) translate3d(100%, 0, 0) rotate3d(0, 1, 0, 60deg);
+  }
+}
+.animate-side-fall-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: sideFall3d 0.8s ease-out forwards;
+}
+
+/* 3D Morphing Border */
+@keyframes morphBorder3d {
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: perspective(800px) rotate3d(1, 1, 0, 0deg);
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: perspective(800px) rotate3d(1, 1, 0, 180deg);
+  }
+}
+.animate-morph-border-3d {
+  will-change: border-radius, transform;
+  transform-style: preserve-3d;
+  animation: morphBorder3d 8s ease-in-out infinite;
+}
+
+/* 3D Holographic Grid */
+@keyframes holoGrid3d {
+  0% {
+    transform: perspective(500px) rotateX(60deg) rotateZ(0deg) translateY(0);
+  }
+  100% {
+    transform: perspective(500px) rotateX(60deg) rotateZ(360deg) translateY(-50px);
+  }
+}
+.animate-holo-grid-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: holoGrid3d 10s linear infinite;
+}
+
+/* ========================================
+   3D Transform Utilities
+   ======================================== */
+.transform-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.transform-3d-flat {
+  transform-style: flat;
+}
+
+.properties-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.properties-backface {
+  backface-visibility: hidden;
+}
+
+.perspective-200 {
+  perspective: 200px;
+}
+.perspective-400 {
+  perspective: 400px;
+}
+.perspective-600 {
+  perspective: 600px;
+}
+.perspective-800 {
+  perspective: 800px;
+}
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+/* 3D Depth Layers */
+.depth-layer-1 {
+  transform: translateZ(10px);
+}
+.depth-layer-2 {
+  transform: translateZ(20px);
+}
+.depth-layer-3 {
+  transform: translateZ(30px);
+}
+.depth-layer-4 {
+  transform: translateZ(40px);
+}
+.depth-layer-5 {
+  transform: translateZ(50px);
+}
+
+/* 3D Hover Effects */
+.hover-3d-lift {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+.hover-3d-lift:hover {
+  transform: perspective(800px) translate3d(0, -10px, 20px) rotateX(5deg);
+}
+
+.hover-3d-tilt {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+.hover-3d-tilt:hover {
+  transform: perspective(800px) rotateX(10deg) rotateY(-10deg) scale3d(1.05, 1.05, 1.05);
+}
+
+.hover-3d-glow {
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+.hover-3d-glow:hover {
+  transform: perspective(600px) translate3d(0, 0, 10px);
+  box-shadow:
+    0 0 30px rgba(59, 130, 246, 0.5),
+    0 0 60px rgba(147, 51, 234, 0.3);
+}
+
+/* ========================================
+   Particle System Animations
+   ======================================== */
+@keyframes particleDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift-x, 100px), var(--drift-y, -200px), var(--drift-z, 50px))
+      scale(0);
+    opacity: 0;
+  }
+}
+
+.animate-particle-drift {
+  will-change: transform, opacity;
+  animation: particleDrift var(--duration, 3s) ease-out forwards;
+}
+
+/* 3D Star Field */
+@keyframes starTwinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale3d(1.5, 1.5, 1.5);
+  }
+}
+.animate-star-twinkle {
+  will-change: opacity, transform;
+  transform-style: preserve-3d;
+  animation: starTwinkle var(--twinkle-duration, 2s) ease-in-out infinite;
+}
+
+/* 3D Orbital Ring */
+@keyframes orbitalRing3d {
+  0% {
+    transform: perspective(1000px) rotateX(70deg) rotateZ(0deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(70deg) rotateZ(360deg);
+  }
+}
+.animate-orbital-ring-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: orbitalRing3d 4s linear infinite;
+}
+
+/* 3D DNA Helix */
+@keyframes dnaHelix3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+}
+.animate-dna-helix-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: dnaHelix3d 6s linear infinite;
+}
+
+/* ===== Enhanced 3D Animations ===== */
+
+@keyframes orbit3d {
+  0% {
+    transform: perspective(1000px) rotateX(60deg) rotateZ(0deg) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(60deg) rotateZ(360deg) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fold3d {
+  0% {
+    transform: perspective(1200px) rotateX(0deg);
+    transform-origin: top;
+  }
+  40% {
+    transform: perspective(1200px) rotateX(-180deg);
+    transform-origin: top;
+  }
+  60% {
+    transform: perspective(1200px) rotateX(0deg);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: perspective(1200px) rotateX(180deg);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes depthZoom3d {
+  0% {
+    transform: perspective(800px) translate3d(0, 0, -200px) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: perspective(800px) translate3d(0, 0, 50px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(800px) translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rotateCube3d {
+  0% {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: perspective(600px) rotateX(90deg) rotateY(90deg);
+  }
+  50% {
+    transform: perspective(600px) rotateX(180deg) rotateY(180deg);
+  }
+  75% {
+    transform: perspective(600px) rotateX(270deg) rotateY(270deg);
+  }
+  100% {
+    transform: perspective(600px) rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes wave3d {
+  0%,
+  100% {
+    transform: perspective(600px) rotateX(0deg) rotateZ(0deg) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: perspective(600px) rotateX(5deg) rotateZ(-3deg) translate3d(5px, -8px, 15px);
+  }
+  50% {
+    transform: perspective(600px) rotateX(0deg) rotateZ(0deg) translate3d(0, 0, 0);
+  }
+  75% {
+    transform: perspective(600px) rotateX(-5deg) rotateZ(3deg) translate3d(-5px, -8px, 15px);
+  }
+}
+
+@keyframes parallaxDepth3d {
+  0% {
+    transform: perspective(500px) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: perspective(500px) translate3d(0, -30px, 100px);
+  }
+}
+
+@keyframes spiralTwist3d {
+  0% {
+    transform: perspective(800px) rotateZ(0deg) rotateX(0deg) scale(1);
+  }
+  50% {
+    transform: perspective(800px) rotateZ(180deg) rotateX(20deg) scale(1.1);
+  }
+  100% {
+    transform: perspective(800px) rotateZ(360deg) rotateX(0deg) scale(1);
+  }
+}
+
+/* 3D Layer Depth Effects */
+@keyframes layerShift3d {
+  0%,
+  100% {
+    transform: perspective(1200px) translate3d(0, 0, 0);
+  }
+  33% {
+    transform: perspective(1200px) translate3d(10px, -5px, 30px);
+  }
+  66% {
+    transform: perspective(1200px) translate3d(-10px, 5px, 20px);
+  }
+}
+
+/* Enhanced utility classes */
+.animate-orbit-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: orbit3d 8s infinite linear;
+}
+
+.animate-fold-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: fold3d 2s ease-in-out;
+}
+
+.animate-depth-zoom-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: depthZoom3d 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-rotate-cube-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: rotateCube3d 12s infinite linear;
+}
+
+.animate-wave-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: wave3d 4s infinite ease-in-out;
+}
+
+.animate-parallax-depth-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: parallaxDepth3d 3s infinite ease-in-out;
+}
+
+.animate-spiral-twist-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spiralTwist3d 6s infinite ease-in-out;
+}
+
+.animate-layer-shift-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: layerShift3d 5s infinite ease-in-out;
+}
+
+/* 3D Transform Utilities */
+.transform-preserve-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.perspective-500 {
+  perspective: 500px;
+}
+.perspective-800 {
+  perspective: 800px;
+}
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.backface-visible {
+  backface-visibility: visible;
+}
+
+/* GPU-accelerated 3D ready */
+.gpu-3d {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ============================================
+   NEW 3D Animations — Depth, Rotation, Morphing
+   ============================================ */
+
+@keyframes spinY3d {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(360deg);
+  }
+}
+
+@keyframes spinX3d {
+  0% {
+    transform: perspective(800px) rotateX(0deg);
+  }
+  100% {
+    transform: perspective(800px) rotateX(360deg);
+  }
+}
+
+@keyframes orbitRing3d {
+  0% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(0deg) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(90deg) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(180deg) translate3d(0, 0, 0);
+  }
+  75% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(270deg) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: perspective(600px) rotateX(60deg) rotateZ(360deg) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes morphCube3d {
+  0%,
+  100% {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) scale(1);
+    border-radius: 12px;
+  }
+  25% {
+    transform: perspective(600px) rotateX(90deg) rotateY(45deg) scale(1.1);
+    border-radius: 50%;
+  }
+  50% {
+    transform: perspective(600px) rotateX(180deg) rotateY(90deg) scale(0.95);
+    border-radius: 12px;
+  }
+  75% {
+    transform: perspective(600px) rotateX(270deg) rotateY(135deg) scale(1.05);
+    border-radius: 30%;
+  }
+}
+
+@keyframes depthBounce3d {
+  0%,
+  100% {
+    transform: perspective(900px) translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: perspective(900px) translate3d(0, -15px, 40px) scale(1.06);
+  }
+}
+
+@keyframes neonGrid3d {
+  0% {
+    background-position: 0% 0%;
+    box-shadow: inset 0 0 30px rgba(6, 182, 212, 0.1);
+  }
+  50% {
+    background-position: 100% 100%;
+    box-shadow: inset 0 0 50px rgba(139, 92, 246, 0.15);
+  }
+  100% {
+    background-position: 0% 0%;
+    box-shadow: inset 0 0 30px rgba(6, 182, 212, 0.1);
+  }
+}
+
+@keyframes wave3d {
+  0%,
+  100% {
+    transform: perspective(500px) rotateX(0deg) translateY(0);
+  }
+  25% {
+    transform: perspective(500px) rotateX(3deg) translateY(-6px);
+  }
+  75% {
+    transform: perspective(500px) rotateX(-3deg) translateY(6px);
+  }
+}
+
+@keyframes explosion3d {
+  0% {
+    transform: perspective(800px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: perspective(800px) scale(1.3) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: perspective(800px) scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes scrollDepth3d {
+  0% {
+    transform: perspective(1200px) translateZ(-60px) scale(0.9) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(1200px) translateZ(0) scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hologramScan3d {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    clip-path: inset(0 0 0 0);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+  }
+}
+
+/* ============================================
+   3D Utility Classes
+   ============================================ */
+
+.animate-spin-y-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spinY3d 8s infinite linear;
+}
+
+.animate-spin-x-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spinX3d 8s infinite linear;
+}
+
+.animate-orbit-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: orbitRing3d 6s infinite linear;
+}
+
+.animate-morph-cube-3d {
+  will-change: transform, border-radius;
+  transform-style: preserve-3d;
+  animation: morphCube3d 8s infinite ease-in-out;
+}
+
+.animate-depth-bounce-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: depthBounce3d 3s infinite ease-in-out;
+}
+
+.animate-neon-grid-3d {
+  will-change: background-position, box-shadow;
+  animation: neonGrid3d 6s infinite ease-in-out;
+}
+
+.animate-wave-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: wave3d 4s infinite ease-in-out;
+}
+
+.animate-explosion-3d {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  animation: explosion3d 2s infinite ease-in-out;
+}
+
+.animate-scroll-depth-3d {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  animation: scrollDepth3d 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hologram-scan-3d {
+  will-change: clip-path, box-shadow;
+  animation: hologramScan3d 3s infinite ease-in-out;
+}
+
+/* Transform-style helpers */
+.transform-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.perspective-3d {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* ================================== */
+/* 3D KEYFRAMES (added)               */
+/* ================================== */
+
+@keyframes spin3d {
+  from {
+    transform: perspective(600px) rotateY(0deg);
+  }
+  to {
+    transform: perspective(600px) rotateY(360deg);
+  }
+}
+
+@keyframes explode3d {
+  0% {
+    transform: perspective(800px) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: perspective(800px) scale(1.15);
+    opacity: 0.7;
+  }
+  100% {
+    transform: perspective(800px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes parallaxLayer {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-12px, 8px, 30px) scale(1.02);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes morphBlob3d {
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70%/60% 30% 70% 40%;
+    transform: perspective(600px) rotate(0deg);
+  }
+  50% {
+    border-radius: 30% 60% 70% 40%/50% 60% 30% 60%;
+    transform: perspective(600px) rotate(180deg);
+  }
+}
+
+/* 3D Fly-in from bottom-up */
+@keyframes flyIn3d {
+  0% {
+    transform: perspective(800px) rotateX(30deg) translate3d(0, 120px, -200px);
+    opacity: 0;
+  }
+  100% {
+    transform: perspective(800px) rotateX(0) translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.animate-spin-3d {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: spin3d 6s infinite linear;
+}
+
+.animate-explode-3d {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  animation: explode3d 2s ease-in-out;
+}
+
+.animate-parallax-layer {
+  will-change: transform;
+  transform-style: preserve-3d;
+  animation: parallaxLayer 7s infinite ease-in-out;
+}
+
+.animate-morph-blob-3d {
+  will-change: border-radius, transform;
+  transform-style: preserve-3d;
+  animation: morphBlob3d 10s infinite ease-in-out;
+}
+
+.animate-fly-in-3d {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  animation: flyIn3d 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

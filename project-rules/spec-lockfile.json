@@ -1,0 +1,45 @@
+{
+  "contentHash": "8488cf44dc35bb151f0ae867a9539ce9f535b208853cde3f2d79002506f3badb",
+  "generatedAt": null,
+  "generator": "docs-as-rule-engine",
+  "model_baseline": [
+    "User",
+    "Product",
+    "Order",
+    "Payment",
+    "Cart",
+    "CartItem",
+    "Review",
+    "Wishlist",
+    "Address",
+    "Coupon",
+    "Subscription",
+    "Notification",
+    "AnalyticsEvent",
+    "Category"
+  ],
+  "rules": [
+    {
+      "id": "multitenancy",
+      "line": 76,
+      "mode": "required",
+      "scope": "schema",
+      "source": "BACKEND_SCHEMA_SPEC.md"
+    },
+    {
+      "id": "rbac",
+      "line": 80,
+      "mode": "required",
+      "scope": "schema",
+      "source": "BACKEND_SCHEMA_SPEC.md"
+    }
+  ],
+  "source_files": [
+    "PRD_MASTER_TEMPLATE.md",
+    "TRD_ENGINEERING_STANDARDS.md",
+    "UI_UX_DESIGN_TOKENS.md",
+    "BACKEND_SCHEMA_SPEC.md",
+    "SRS_SYSTEM_SPECIFICATIONS.md"
+  ],
+  "version": 1
+}

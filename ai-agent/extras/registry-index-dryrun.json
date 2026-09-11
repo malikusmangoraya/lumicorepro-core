@@ -1,0 +1,572 @@
+{
+  "categories": {
+    "CurrencySelector.jsx": 1,
+    "business": 3,
+    "common": 5,
+    "forms": 4,
+    "motion": 5,
+    "ui": 21
+  },
+  "components": [
+    {
+      "alias": "@/components/ui/Accordion.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Accordion.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Accordion",
+      "props": [],
+      "relative_path": "ui/Accordion.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Alert.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Alert.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Alert",
+      "props": [],
+      "relative_path": "ui/Alert.jsx",
+      "size_values": [],
+      "variant_values": [
+        "info",
+        "container",
+        "icon",
+        "Icon"
+      ]
+    },
+    {
+      "alias": "@/components/ui/Avatar.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Avatar.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Avatar",
+      "props": [],
+      "relative_path": "ui/Avatar.jsx",
+      "size_values": [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Badge.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Badge.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Badge",
+      "props": [],
+      "relative_path": "ui/Badge.jsx",
+      "size_values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "variant_values": [
+        "default",
+        "secondary",
+        "success",
+        "warning",
+        "danger",
+        "info",
+        "outline"
+      ]
+    },
+    {
+      "alias": "@/components/common/BrandLogo.jsx",
+      "category": "common",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\common\\BrandLogo.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "BrandLogo",
+      "props": [],
+      "relative_path": "common/BrandLogo.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Breadcrumb.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Breadcrumb.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Breadcrumb",
+      "props": [],
+      "relative_path": "ui/Breadcrumb.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Button.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Button.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Button",
+      "props": [],
+      "relative_path": "ui/Button.jsx",
+      "size_values": [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "variant_values": [
+        "primary",
+        "secondary",
+        "danger",
+        "success",
+        "warning",
+        "info",
+        "outline",
+        "ghost",
+        "link"
+      ]
+    },
+    {
+      "alias": "@/components/ui/ButtonMotion.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\ButtonMotion.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "ButtonMotion",
+      "props": [],
+      "relative_path": "ui/ButtonMotion.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Card.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Card.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Card",
+      "props": [],
+      "relative_path": "ui/Card.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/CurrencySelector.jsx",
+      "category": "CurrencySelector.jsx",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\CurrencySelector.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "CurrencySelector",
+      "props": [],
+      "relative_path": "CurrencySelector.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Divider.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Divider.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Divider",
+      "props": [],
+      "relative_path": "ui/Divider.jsx",
+      "size_values": [],
+      "variant_values": [
+        "solid",
+        "dashed",
+        "dotted"
+      ]
+    },
+    {
+      "alias": "@/components/ui/Dropdown.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Dropdown.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Dropdown",
+      "props": [],
+      "relative_path": "ui/Dropdown.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Empty.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Empty.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Empty",
+      "props": [],
+      "relative_path": "ui/Empty.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/common/ErrorBoundary.jsx",
+      "category": "common",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\common\\ErrorBoundary.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "ErrorBoundary",
+      "props": [],
+      "relative_path": "common/ErrorBoundary.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/business/FAQItem.jsx",
+      "category": "business",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\business\\FAQItem.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "FAQItem",
+      "props": [],
+      "relative_path": "business/FAQItem.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/common/Grid.jsx",
+      "category": "common",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\common\\Grid.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Grid",
+      "props": [],
+      "relative_path": "common/Grid.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/motion/HeroCanvas.jsx",
+      "category": "motion",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\motion\\HeroCanvas.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "HeroCanvas",
+      "props": [],
+      "relative_path": "motion/HeroCanvas.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/motion/HeroSection.jsx",
+      "category": "motion",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\motion\\HeroSection.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "HeroSection",
+      "props": [],
+      "relative_path": "motion/HeroSection.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/IconButton.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\IconButton.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "IconButton",
+      "props": [],
+      "relative_path": "ui/IconButton.jsx",
+      "size_values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "variant_values": [
+        "primary",
+        "secondary",
+        "ghost",
+        "outline",
+        "danger"
+      ]
+    },
+    {
+      "alias": "@/components/forms/Input.jsx",
+      "category": "forms",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\forms\\Input.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Input",
+      "props": [],
+      "relative_path": "forms/Input.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/common/LazyImage.jsx",
+      "category": "common",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\common\\LazyImage.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "LazyImage",
+      "props": [],
+      "relative_path": "common/LazyImage.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Loading.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Loading.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Loading",
+      "props": [],
+      "relative_path": "ui/Loading.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Modal.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Modal.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Modal",
+      "props": [],
+      "relative_path": "ui/Modal.jsx",
+      "size_values": [
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "full"
+      ],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Pagination.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Pagination.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Pagination",
+      "props": [],
+      "relative_path": "ui/Pagination.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/business/PricingCard.jsx",
+      "category": "business",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\business\\PricingCard.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "PricingCard",
+      "props": [],
+      "relative_path": "business/PricingCard.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/business/PricingGrid.jsx",
+      "category": "business",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\business\\PricingGrid.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "PricingGrid",
+      "props": [],
+      "relative_path": "business/PricingGrid.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Progress.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Progress.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Progress",
+      "props": [],
+      "relative_path": "ui/Progress.jsx",
+      "size_values": [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "variant_values": [
+        "primary",
+        "success",
+        "warning",
+        "danger",
+        "info"
+      ]
+    },
+    {
+      "alias": "@/components/motion/Reveal.jsx",
+      "category": "motion",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\motion\\Reveal.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Reveal",
+      "props": [],
+      "relative_path": "motion/Reveal.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/common/SEO.jsx",
+      "category": "common",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\common\\SEO.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "SEO",
+      "props": [],
+      "relative_path": "common/SEO.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/forms/Select.jsx",
+      "category": "forms",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\forms\\Select.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Select",
+      "props": [],
+      "relative_path": "forms/Select.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Skeleton.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Skeleton.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Skeleton",
+      "props": [],
+      "relative_path": "ui/Skeleton.jsx",
+      "size_values": [],
+      "variant_values": [
+        "text",
+        "circle",
+        "rect",
+        "card",
+        "button",
+        "avatar",
+        "image"
+      ]
+    },
+    {
+      "alias": "@/components/ui/Spinner.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Spinner.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Spinner",
+      "props": [],
+      "relative_path": "ui/Spinner.jsx",
+      "size_values": [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/motion/StaggerGroup.jsx",
+      "category": "motion",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\motion\\StaggerGroup.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "StaggerGroup",
+      "props": [
+        "children",
+        "className"
+      ],
+      "relative_path": "motion/StaggerGroup.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/forms/Switch.jsx",
+      "category": "forms",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\forms\\Switch.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Switch",
+      "props": [],
+      "relative_path": "forms/Switch.jsx",
+      "size_values": [
+        "sm"
+      ],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Table.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Table.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Table",
+      "props": [],
+      "relative_path": "ui/Table.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Tabs.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Tabs.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Tabs",
+      "props": [],
+      "relative_path": "ui/Tabs.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/forms/Textarea.jsx",
+      "category": "forms",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\forms\\Textarea.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Textarea",
+      "props": [],
+      "relative_path": "forms/Textarea.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/ui/Tooltip.jsx",
+      "category": "ui",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\ui\\Tooltip.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "Tooltip",
+      "props": [],
+      "relative_path": "ui/Tooltip.jsx",
+      "size_values": [],
+      "variant_values": []
+    },
+    {
+      "alias": "@/components/motion/Scene3D.jsx",
+      "category": "motion",
+      "file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\src\\components\\motion\\Scene3D.jsx",
+      "has_size": false,
+      "has_variant": false,
+      "name": "function",
+      "props": [],
+      "relative_path": "motion/Scene3D.jsx",
+      "size_values": [],
+      "variant_values": []
+    }
+  ],
+  "count": 39,
+  "generated_by": "ai-agent.agent.component_registry"
+}

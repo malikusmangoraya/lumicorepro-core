@@ -1,0 +1,48 @@
+export const properties = [
+  {
+    name: 'Corner Villa — DHA 6',
+    type: 'Villa',
+    location: 'DHA Phase 6, Karachi',
+    price: 'Rs 8.5 Cr',
+    area: '3,450 sq ft',
+    bedrooms: '5',
+    bathrooms: '6',
+    posh: true,
+    year: 2024,
+    plot: '1 Kanal',
+  },
+  {
+    name: 'Gulberg Duplex',
+    type: 'Duplex',
+    location: 'Gulberg 3, Lahore',
+    price: 'Rs 4.2 Cr',
+    area: '2,600 sq ft',
+    bedrooms: '4',
+    bathrooms: '4',
+    posh: false,
+    year: 2022,
+    plot: '10 Marla',
+  },
+  {
+    name: 'Penthouse — Ocean View',
+    type: 'Apartment',
+    location: 'Clifton Block 4, Karachi',
+    price: 'Rs 6.9 Cr',
+    area: '3,050 sq ft',
+    bedrooms: '3',
+    bathrooms: '3',
+    posh: true,
+    year: 2023,
+    plot: '—',
+  },
+];
+
+export const compareRows = [
+  { label: 'Price', key: 'price' },
+  { label: 'Area', key: 'area' },
+  { label: 'Bedrooms', key: 'bedrooms' },
+  { label: 'Bathrooms', key: 'bathrooms' },
+  { label: 'Plot Size', key: 'plot' },
+  { label: 'Year Built', key: 'year' },
+  { label: 'Type', key: 'type' },
+];

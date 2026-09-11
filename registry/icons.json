@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Smartphone Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["smartphone", "phone", "mobile", "electronics", "vector", "lucide"],
+    "file_path": "src/icons/smartphone.svg"
+  },
+  {
+    "name": "Laptop Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["laptop", "computer", "pc", "electronics", "vector", "lucide"],
+    "file_path": "src/icons/laptop.svg"
+  },
+  {
+    "name": "Headphones Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["headphones", "audio", "sound", "electronics", "vector", "lucide"],
+    "file_path": "src/icons/headphones.svg"
+  },
+  {
+    "name": "Smartwatch Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["smartwatch", "wearable", "watch", "electronics", "vector", "lucide"],
+    "file_path": "src/icons/smartwatch.svg"
+  },
+  {
+    "name": "Television Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["television", "tv", "screen", "display", "electronics"],
+    "file_path": "src/icons/television.svg"
+  },
+  {
+    "name": "Camera Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["camera", "photo", "video", "electronics"],
+    "file_path": "src/icons/camera.svg"
+  },
+  {
+    "name": "Speaker Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["speaker", "audio", "hifi", "sound", "electronics"],
+    "file_path": "src/icons/speaker.svg"
+  },
+  {
+    "name": "Gamepad Vector Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": ["gamepad", "gaming", "console", "controller", "electronics"],
+    "file_path": "src/icons/gamepad.svg"
+  },
+  {
+    "name": "Shopping Cart Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "general",
+    "tags": ["cart", "shopping", "ecommerce", "basket"],
+    "file_path": "src/icons/shopping-cart.svg"
+  },
+  {
+    "name": "Heart Wishlist Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "general",
+    "tags": ["wishlist", "heart", "favorite", "like"],
+    "file_path": "src/icons/heart.svg"
+  },
+  {
+    "name": "User Account Icon",
+    "type": "icon",
+    "category": "auth",
+    "industry": "general",
+    "tags": ["user", "account", "profile", "avatar"],
+    "file_path": "src/icons/user.svg"
+  },
+  {
+    "name": "Search Icon",
+    "type": "icon",
+    "category": "common",
+    "industry": "general",
+    "tags": ["search", "magnifying", "find"],
+    "file_path": "src/icons/search.svg"
+  },
+  {
+    "name": "Shield Check Trust Icon",
+    "type": "icon",
+    "category": "common",
+    "industry": "general",
+    "tags": ["shield", "security", "warranty", "trust"],
+    "file_path": "src/icons/shield-check.svg"
+  },
+  {
+    "name": "Truck Fast Shipping Icon",
+    "type": "icon",
+    "category": "ecommerce",
+    "industry": "general",
+    "tags": ["truck", "shipping", "delivery", "fast"],
+    "file_path": "src/icons/truck.svg"
+  }
+]

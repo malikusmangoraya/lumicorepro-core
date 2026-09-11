@@ -1,0 +1,48 @@
+# LumicorePro AI Agent — Python Dependencies
+# ============================================================
+# Install: pip install -r requirements.txt
+# ============================================================
+
+# ── Core ──────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+pydantic>=2.7.0
+requests>=2.31.0
+colorama>=0.4.6
+tabulate>=0.9.0
+
+# ── AI Providers ──────────────────────────────────────────────
+# Google Gemini (gemini-2.5-flash, gemini-1.5-pro)
+google-genai==1.10.0
+
+# OpenAI SDK — used by DeepSeek + OpenRouter (OpenAI-compatible APIs)
+openai==1.35.13
+
+# Anthropic Claude — claude-3-5-sonnet, claude-3-haiku, claude-3-opus
+# No SDK needed — uses requests directly (claude_provider.py)
+# Set ANTHROPIC_API_KEY in ai-agent/.env
+
+# Mistral AI — mistral-large, mistral-small, mixtral-8x7b
+# No SDK needed — uses requests directly (mistral_provider.py)
+# Set MISTRAL_API_KEY in ai-agent/.env
+
+# ── FastAPI WebSocket Server ───────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+websockets>=12.0
+httpx>=0.28.1
+
+# ── Security / Auth helpers ────────────────────────────────────
+# secrets, hashlib — stdlib (no extra install needed)
+python-multipart>=0.0.9     # for FastAPI file uploads
+
+# ── Internationalization helpers ───────────────────────────────
+# i18n JSON generation uses stdlib json + pathlib (no extra deps)
+# Currency data is self-contained in currency_localizer.py
+# Compliance docs use stdlib datetime + pathlib
+
+# ── Quality & Accessibility ────────────────────────────────────
+# WCAG static analysis uses stdlib re + pathlib (no extra deps)
+
+# ── Testing ────────────────────────────────────────────────────
+pytest==8.2.0
+pytest-asyncio==0.23.7

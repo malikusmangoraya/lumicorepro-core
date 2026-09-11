@@ -1,0 +1,2195 @@
+[
+  {
+    "name": "Modern Business Corporate",
+    "type": "template",
+    "category": "business",
+    "industry": "corporate",
+    "tags": [
+      "business",
+      "corporate",
+      "team",
+      "pricing",
+      "blog",
+      "services",
+      "contact",
+      "react",
+      "node",
+      "express"
+    ],
+    "description": "Complete modern corporate business website with sticky navbar, team grid, animated stats, pricing toggle, blog, and contact validation.",
+    "file_path": "src/templates/business/corporate-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business",
+      "corporate",
+      "agency"
+    ],
+    "features": [
+      "smooth_scroll",
+      "hero_unsplash",
+      "services_grid",
+      "team_hover",
+      "stats_counter",
+      "testimonial_carousel",
+      "pricing_toggle",
+      "blog_preview",
+      "contact_validation",
+      "jwt_auth"
+    ],
+    "rating": 4.9,
+    "id": "modern-business-corporate",
+    "sections_used": [
+      "Hero",
+      "ServicesGrid",
+      "PricingCard",
+      "Team",
+      "Testimonials",
+      "Contact",
+      "Stats",
+      "FAQ"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "corporate_memphis",
+      "editorial",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "E-commerce Store Master",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "ecommerce",
+      "store",
+      "products",
+      "cart",
+      "wishlist",
+      "checkout",
+      "stripe",
+      "reviews",
+      "react",
+      "express"
+    ],
+    "description": "Full-featured e-commerce store with product grid, category filter sidebar, detail modal, shopping cart, wishlist, checkout, and Stripe payments.",
+    "file_path": "src/templates/ecommerce/electronics/electronics-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "retail",
+      "electronics"
+    ],
+    "features": [
+      "category_sidebar",
+      "search_products",
+      "image_gallery_modal",
+      "cart_animations",
+      "wishlist",
+      "checkout_flow",
+      "order_dashboard",
+      "stripe_payments",
+      "postgresql_schema"
+    ],
+    "rating": 4.9,
+    "id": "e-commerce-store-master",
+    "sections_used": [
+      "Hero",
+      "ProductCard",
+      "CategoryFilter",
+      "CartSummary",
+      "Checkout",
+      "Testimonials",
+      "Newsletter",
+      "ShippingInfo"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "flat_design",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Real Estate Agency",
+    "type": "template",
+    "category": "realestate",
+    "industry": "property",
+    "tags": [
+      "realestate",
+      "property",
+      "listings",
+      "mortgage",
+      "house",
+      "map",
+      "agent",
+      "react",
+      "express"
+    ],
+    "description": "Real estate agency website with property search filters, house detail sliders, mortgage calculator, agent profiles, and appointment scheduling.",
+    "file_path": "src/templates/realestate/property-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate",
+      "property"
+    ],
+    "features": [
+      "property_search_filters",
+      "house_gallery_slider",
+      "mortgage_calculator",
+      "agent_profiles",
+      "virtual_tour_modal",
+      "favorites_system",
+      "whatsapp_float",
+      "map_embed"
+    ],
+    "rating": 4.9,
+    "id": "real-estate-agency",
+    "sections_used": [
+      "Hero",
+      "PropertySearch",
+      "ListingGrid",
+      "PropertyCard",
+      "Favorites",
+      "AgentProfiles",
+      "Contact",
+      "Testimonials"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "editorial",
+      "flat_design",
+      "organic"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Restaurant & Cafe",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "food",
+    "tags": [
+      "restaurant",
+      "cafe",
+      "menu",
+      "reservation",
+      "booking",
+      "food",
+      "chef",
+      "react",
+      "express"
+    ],
+    "description": "Restaurant & cafe website with food menu tabs, online reservation date/time picker, chef profiles, takeout order system, and WhatsApp ordering.",
+    "file_path": "src/templates/restaurant/cafe-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "features": [
+      "menu_category_tabs",
+      "table_reservation_form",
+      "chef_profiles",
+      "lightbox_gallery",
+      "takeout_ordering",
+      "reviews_carousel",
+      "whatsapp_float",
+      "loyalty_rewards"
+    ],
+    "rating": 4.9,
+    "id": "restaurant-cafe",
+    "sections_used": [
+      "Hero",
+      "MenuSection",
+      "Reservation",
+      "Chef",
+      "Gallery",
+      "Testimonials",
+      "Contact",
+      "Loyalty"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "organic",
+      "editorial",
+      "claymorphism",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Portfolio & Personal Brand",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "personal",
+    "tags": [
+      "portfolio",
+      "personal",
+      "brand",
+      "resume",
+      "skills",
+      "experience",
+      "timeline",
+      "react"
+    ],
+    "description": "Personal portfolio website with typing effect hero, skills progress bars, project grid with hover effects, work experience timeline, and downloadable resume.",
+    "file_path": "src/templates/portfolio/personal-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio",
+      "personal"
+    ],
+    "features": [
+      "typing_hero",
+      "skills_progress_bars",
+      "project_grid_hover",
+      "experience_timeline",
+      "download_resume_btn",
+      "social_share",
+      "visitor_analytics"
+    ],
+    "rating": 4.9,
+    "id": "portfolio-personal-brand",
+    "sections_used": [
+      "Hero",
+      "Skills",
+      "Projects",
+      "Experience",
+      "Resume",
+      "Testimonials",
+      "Contact",
+      "Social"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "editorial",
+      "swiss",
+      "neo_brutalism",
+      "organic"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Online Learning Platform (LMS)",
+    "type": "template",
+    "category": "education",
+    "industry": "edtech",
+    "tags": [
+      "education",
+      "elearning",
+      "courses",
+      "lms",
+      "video",
+      "quiz",
+      "certificates",
+      "react"
+    ],
+    "description": "E-learning LMS platform with course search, curriculum accordion, video player, instructor profiles, progress tracking, quiz system, and certificate generator.",
+    "file_path": "src/templates/education/lms-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education",
+      "edtech",
+      "saas"
+    ],
+    "features": [
+      "course_search",
+      "curriculum_accordion",
+      "video_player",
+      "quiz_system",
+      "certificate_download",
+      "subscription_plans",
+      "role_based_access",
+      "newsletter_signup"
+    ],
+    "rating": 4.9,
+    "id": "online-learning-platform-lms",
+    "sections_used": [
+      "Hero",
+      "CourseGrid",
+      "Curriculum",
+      "Instructors",
+      "Pricing",
+      "Testimonials",
+      "Contact",
+      "Newsletter"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "flat_design",
+      "bento_grid",
+      "corporate_memphis"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Medical & Healthcare Clinic",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "medical",
+    "tags": [
+      "medical",
+      "healthcare",
+      "clinic",
+      "doctors",
+      "appointments",
+      "patients",
+      "react"
+    ],
+    "description": "Healthcare clinic website with doctor profiles, specialty finder, online appointment booking slot picker, patient testimonials, and health tips blog.",
+    "file_path": "src/templates/healthcare/medical-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare",
+      "medical",
+      "clinic"
+    ],
+    "features": [
+      "medical_services_grid",
+      "doctor_specialty_finder",
+      "appointment_slot_picker",
+      "patient_testimonials",
+      "emergency_contact_bar",
+      "whatsapp_float"
+    ],
+    "rating": 4.9,
+    "id": "medical-healthcare-clinic",
+    "sections_used": [
+      "Hero",
+      "Services",
+      "Doctors",
+      "Appointments",
+      "Testimonials",
+      "Emergency",
+      "Contact",
+      "HealthTips"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "flat_design",
+      "aurora",
+      "organic"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Fitness & Gym Center",
+    "type": "template",
+    "category": "fitness",
+    "industry": "gym",
+    "tags": [
+      "fitness",
+      "gym",
+      "workout",
+      "trainers",
+      "classes",
+      "bmi",
+      "supplements",
+      "react"
+    ],
+    "description": "Fitness gym website with weekly class schedule calendar, certified trainer profiles, membership pricing plans, BMI calculator, supplement shop.",
+    "file_path": "src/templates/fitness/gym-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness",
+      "gym"
+    ],
+    "features": [
+      "class_weekly_calendar",
+      "trainer_certifications",
+      "membership_pricing",
+      "bmi_calculator",
+      "before_after_success",
+      "supplement_shop",
+      "countdown_timer"
+    ],
+    "rating": 4.9,
+    "id": "fitness-gym-center",
+    "sections_used": [
+      "Hero",
+      "Classes",
+      "Trainers",
+      "Pricing",
+      "BMI",
+      "Success",
+      "Contact",
+      "Shop"
+    ],
+    "compatible_styles": [
+      "neo_brutalism",
+      "flat_design",
+      "claymorphism",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Travel & Tourism Agency",
+    "type": "template",
+    "category": "travel",
+    "industry": "tourism",
+    "tags": [
+      "travel",
+      "tourism",
+      "tours",
+      "destinations",
+      "itinerary",
+      "booking",
+      "react"
+    ],
+    "description": "Travel agency website with destination cards, tour package pricing, day-by-day itinerary, booking system, currency converter, and travel guides.",
+    "file_path": "src/templates/travel/agency-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel",
+      "tourism"
+    ],
+    "features": [
+      "destination_cards",
+      "tour_itinerary_breakdown",
+      "booking_date_picker",
+      "currency_converter",
+      "travel_guides_blog",
+      "newsletter_signup"
+    ],
+    "rating": 4.9,
+    "id": "travel-tourism-agency",
+    "sections_used": [
+      "Hero",
+      "Destinations",
+      "Packages",
+      "Itinerary",
+      "Booking",
+      "Currency",
+      "Guides",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "aurora",
+      "organic",
+      "editorial",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Creative Agency & Studio",
+    "type": "template",
+    "category": "creative",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "agency",
+      "studio",
+      "portfolio",
+      "marquee",
+      "workflow",
+      "awards",
+      "react"
+    ],
+    "description": "Sleek creative studio website with animated preloader, portfolio showcase, category filters, client marquee, workflow steps, and awards section.",
+    "file_path": "src/templates/creative/studio-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative",
+      "agency",
+      "studio"
+    ],
+    "features": [
+      "animated_preloader",
+      "portfolio_category_filters",
+      "client_logos_marquee",
+      "workflow_process_steps",
+      "awards_showcase",
+      "social_share"
+    ],
+    "rating": 4.9,
+    "id": "creative-agency-studio",
+    "sections_used": [
+      "Hero",
+      "Portfolio",
+      "Workflow",
+      "Clients",
+      "Awards",
+      "Services",
+      "Contact",
+      "Social"
+    ],
+    "compatible_styles": [
+      "neo_brutalism",
+      "swiss",
+      "editorial",
+      "cyberpunk",
+      "bento_grid"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "SaaS Platform & Dashboard",
+    "type": "template",
+    "category": "saas",
+    "industry": "saas",
+    "tags": [
+      "saas",
+      "platform",
+      "dashboard",
+      "subscription",
+      "pricing",
+      "onboarding",
+      "analytics",
+      "react"
+    ],
+    "description": "Complete SaaS platform landing page + user dashboard with feature comparison, pricing tiers (monthly/annual), free trial CTA, user onboarding flow, and analytics widgets.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "saas",
+      "dashboard",
+      "business",
+      "startup"
+    ],
+    "features": [
+      "pricing_toggle",
+      "feature_comparison_table",
+      "onboarding_flow",
+      "usage_analytics",
+      "subscription_billing",
+      "stripe_payments",
+      "role_based_access",
+      "team_workspaces",
+      "api_key_management",
+      "pwa_support",
+      "i18n_multilingual"
+    ],
+    "rating": 4.9,
+    "id": "saas-platform-dashboard",
+    "sections_used": [
+      "Hero",
+      "Features",
+      "Pricing",
+      "Comparison",
+      "Dashboard",
+      "Integrations",
+      "Testimonials",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "glassmorphism",
+      "bento_grid",
+      "minimalism",
+      "aurora",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Blog & Online Magazine",
+    "type": "template",
+    "category": "blog",
+    "industry": "media",
+    "tags": [
+      "blog",
+      "magazine",
+      "articles",
+      "news",
+      "cms",
+      "seo",
+      "react",
+      "express"
+    ],
+    "description": "SEO-optimised blog and online magazine with category navigation, featured posts hero, article cards with reading time, author pages, and newsletter signup.",
+    "file_path": "src/templates/business/ServicesPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "blog",
+      "news",
+      "magazine",
+      "media"
+    ],
+    "features": [
+      "category_nav",
+      "featured_hero_post",
+      "article_card_grid",
+      "reading_time",
+      "author_profile",
+      "newsletter_signup",
+      "social_share",
+      "seo_meta_tags",
+      "rss_feed",
+      "related_posts",
+      "comment_system"
+    ],
+    "rating": 4.8,
+    "id": "blog-online-magazine",
+    "sections_used": [
+      "Hero",
+      "FeaturedPost",
+      "ArticleGrid",
+      "Category",
+      "Author",
+      "Newsletter",
+      "Social",
+      "Related"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "NGO & Nonprofit Organization",
+    "type": "template",
+    "category": "nonprofit",
+    "industry": "nonprofit",
+    "tags": [
+      "ngo",
+      "nonprofit",
+      "charity",
+      "donation",
+      "cause",
+      "impact",
+      "volunteer",
+      "react"
+    ],
+    "description": "Nonprofit organization website with mission section, impact counter stats, cause cards, volunteer signup form, donation CTA with payment integration, and donor recognition.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "nonprofit",
+      "charity",
+      "social"
+    ],
+    "features": [
+      "mission_hero",
+      "impact_counter_stats",
+      "cause_cards",
+      "volunteer_signup",
+      "donation_form",
+      "stripe_donations",
+      "donor_recognition_wall",
+      "newsletter_signup",
+      "social_proof"
+    ],
+    "rating": 4.8,
+    "id": "ngo-nonprofit-organization",
+    "sections_used": [
+      "Hero",
+      "Mission",
+      "Impact",
+      "Causes",
+      "Volunteers",
+      "Donate",
+      "Donors",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Event & Conference Website",
+    "type": "template",
+    "category": "event",
+    "industry": "events",
+    "tags": [
+      "event",
+      "conference",
+      "tickets",
+      "speakers",
+      "schedule",
+      "countdown",
+      "react"
+    ],
+    "description": "Event and conference website with countdown timer to event date, speaker profiles, session schedule/agenda, ticket purchase tiers, sponsor logos, and live stream embed.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "event",
+      "conference",
+      "seminar"
+    ],
+    "features": [
+      "countdown_timer",
+      "speaker_profiles",
+      "session_agenda",
+      "ticket_tiers",
+      "sponsor_logos_marquee",
+      "live_stream_embed",
+      "newsletter_signup",
+      "map_embed"
+    ],
+    "rating": 4.8,
+    "id": "event-conference-website",
+    "sections_used": [
+      "Hero",
+      "Countdown",
+      "Speakers",
+      "Schedule",
+      "Tickets",
+      "Sponsors",
+      "Venue",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Law Firm & Professional Services",
+    "type": "template",
+    "category": "lawfirm",
+    "industry": "legal",
+    "tags": [
+      "law",
+      "legal",
+      "attorney",
+      "firm",
+      "services",
+      "contact",
+      "professional",
+      "react"
+    ],
+    "description": "Professional law firm website with practice area cards, attorney profiles, case results, client testimonials, free consultation booking, and live chat for lead capture.",
+    "file_path": "src/templates/business/ServicesPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "legal",
+      "professional",
+      "services"
+    ],
+    "features": [
+      "practice_area_cards",
+      "attorney_profiles",
+      "case_results_stats",
+      "client_testimonials",
+      "consultation_booking",
+      "live_chat",
+      "newsletter_signup",
+      "trust_badges"
+    ],
+    "rating": 4.8,
+    "id": "law-firm-professional-services",
+    "sections_used": [
+      "Hero",
+      "PracticeAreas",
+      "Attorneys",
+      "Results",
+      "CaseStudies",
+      "Testimonials",
+      "Consultation",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Multi-Language Content Platform",
+    "type": "template",
+    "category": "international",
+    "industry": "multilingual",
+    "tags": [
+      "i18n",
+      "multilingual",
+      "translation",
+      "content",
+      "blog",
+      "news",
+      "global",
+      "react"
+    ],
+    "description": "International content platform with full i18n support, language switching, RTL layout support, and automatic content translation workflows.",
+    "file_path": "src/templates/ai/global-content-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion",
+      "i18next",
+      "react-i18next"
+    ],
+    "compatible_categories": [
+      "international",
+      "content",
+      "blog",
+      "media"
+    ],
+    "features": [
+      "language_switcher",
+      "rtl_support",
+      "auto_translation",
+      "localization",
+      "cultural_adaptation",
+      "multi_currency_display",
+      "regional_content_filter"
+    ],
+    "rating": 4.9,
+    "id": "multi-language-content-platform",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Global E-commerce Marketplace",
+    "type": "template",
+    "category": "international",
+    "industry": "ecommerce",
+    "tags": [
+      "marketplace",
+      "global",
+      "currency",
+      "shipping",
+      "international",
+      "payments",
+      "react"
+    ],
+    "description": "International marketplace with multi-currency support, international shipping calculator, regional payment methods, and local language store views.",
+    "file_path": "src/templates/ecommerce/marketplace-global-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "ecommerce",
+      "marketplace"
+    ],
+    "features": [
+      "multi_currency",
+      "international_shipping",
+      "local_payments",
+      "language_selector",
+      "regional_pricing",
+      "customs_calculator",
+      "global_search"
+    ],
+    "rating": 4.9,
+    "id": "global-e-commerce-marketplace",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Regional Service Directory",
+    "type": "template",
+    "category": "international",
+    "industry": "directory",
+    "tags": [
+      "directory",
+      "services",
+      "local",
+      "business",
+      "listings",
+      "map",
+      "reviews",
+      "react"
+    ],
+    "description": "Local business directory with geo-location services, English/Arabic/Hindi support, regional business categories, and review system.",
+    "file_path": "src/templates/business/directory-regional-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "business",
+      "directory"
+    ],
+    "features": [
+      "geo_search",
+      "local_businesses",
+      "multi_language_ui",
+      "rating_system",
+      "opening_hours_local",
+      "directions_integration",
+      "category_browse"
+    ],
+    "rating": 4.9,
+    "id": "regional-service-directory",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Cross-Border Education Hub",
+    "type": "template",
+    "category": "international",
+    "industry": "education",
+    "tags": [
+      "education",
+      "global",
+      "courses",
+      "study_abroad",
+      "certificates",
+      "video",
+      "react"
+    ],
+    "description": "International education platform supporting multiple languages, global student enrollment, timezone-aware scheduling, and region-specific course catalogs.",
+    "file_path": "src/templates/education/global-education-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "education",
+      "lms"
+    ],
+    "features": [
+      "multi_language_courses",
+      "timezone_scheduler",
+      "regional_catalogs",
+      "study_visa_info",
+      "global_instructors",
+      "cross_border_payments",
+      "certificate_verification"
+    ],
+    "rating": 4.9,
+    "id": "cross-border-education-hub",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Multinational Travel Booking",
+    "type": "template",
+    "category": "international",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "booking",
+      "flights",
+      "hotels",
+      "currency",
+      "visas",
+      "react"
+    ],
+    "description": "International travel booking platform with multi-currency pricing, visa requirement checker, passport information, and local language support.",
+    "file_path": "src/templates/travel/international-booking-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "travel",
+      "booking"
+    ],
+    "features": [
+      "visa_checker",
+      "passport_info",
+      "multi_currency_prices",
+      "local_language",
+      "flight_hotel_car",
+      "travel_insurance",
+      "emergency_contact"
+    ],
+    "rating": 4.9,
+    "id": "multinational-travel-booking",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Global Food Delivery Platform",
+    "type": "template",
+    "category": "international",
+    "industry": "food",
+    "tags": [
+      "food",
+      "delivery",
+      "restaurant",
+      "menu",
+      "payment",
+      "local",
+      "react"
+    ],
+    "description": "International food delivery platform supporting multiple languages, local cuisines, regional payment methods, and dietary preference localization.",
+    "file_path": "src/templates/restaurant/global-delivery-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "restaurant",
+      "food"
+    ],
+    "features": [
+      "local_restaurants",
+      "multi_language_menus",
+      "dietary_filters",
+      "regional_payments",
+      "delivery_tracking",
+      "cuisine_categories",
+      "reviews_ratings"
+    ],
+    "rating": 4.9,
+    "id": "global-food-delivery-platform",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "International Healthcare Portal",
+    "type": "template",
+    "category": "international",
+    "industry": "healthcare",
+    "tags": [
+      "healthcare",
+      "medical",
+      "telemedicine",
+      "appointments",
+      "medical_tourism",
+      "react"
+    ],
+    "description": "Global healthcare portal with multilingual patient interface, international medical records, telemedicine scheduling across timezones, and medical tourism packages.",
+    "file_path": "src/templates/healthcare/global-health-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "international",
+      "healthcare",
+      "medical"
+    ],
+    "features": [
+      "multi_language_portal",
+      "telemedicine",
+      "medical_records",
+      "appointment_timezone",
+      "medical_tourism",
+      "insurance_international",
+      "health_certificate"
+    ],
+    "rating": 4.9,
+    "id": "international-healthcare-portal",
+    "sections_used": [
+      "Hero",
+      "LanguageSwitcher",
+      "Currency",
+      "RegionalContent",
+      "Payments",
+      "Shipping",
+      "Support",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "International E-commerce Global Store",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "international",
+    "tags": [
+      "ecommerce",
+      "global",
+      "multilingual",
+      "currency",
+      "shipping",
+      "international",
+      "react"
+    ],
+    "description": "Global e-commerce template with multi-currency support, international shipping calculator, language switcher, and localization features for worldwide customers.",
+    "file_path": "src/templates/ecommerce/international-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion",
+      "i18next"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "international",
+      "global"
+    ],
+    "features": [
+      "multi_currency",
+      "language_switcher",
+      "international_shipping",
+      "localization",
+      "global_payment_methods",
+      "region_specific_content"
+    ],
+    "rating": 4.9,
+    "id": "international-e-commerce-global-store",
+    "sections_used": [
+      "Hero",
+      "ProductCard",
+      "CategoryFilter",
+      "CartSummary",
+      "Checkout",
+      "Testimonials",
+      "Newsletter",
+      "ShippingInfo"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "flat_design",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Multilingual Blog Platform",
+    "type": "template",
+    "category": "blog",
+    "industry": "media",
+    "tags": [
+      "blog",
+      "multilingual",
+      "i18n",
+      "translation",
+      "articles",
+      "global",
+      "react"
+    ],
+    "description": "International blog platform with automatic translation, RTL support, regional content management, and multi-language SEO optimization.",
+    "file_path": "src/templates/business/ServicesPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion",
+      "i18next"
+    ],
+    "compatible_categories": [
+      "blog",
+      "media",
+      "multilingual"
+    ],
+    "features": [
+      "automatic_translation",
+      "rtl_support",
+      "multi_language_seo",
+      "regional_content",
+      "language_detection",
+      "translation_memory"
+    ],
+    "rating": 4.8,
+    "id": "multilingual-blog-platform",
+    "sections_used": [
+      "Hero",
+      "FeaturedPost",
+      "ArticleGrid",
+      "Category",
+      "Author",
+      "Newsletter",
+      "Social",
+      "Related"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "bento_grid",
+      "neumorphism",
+      "flat_design",
+      "claymorphism",
+      "skeuomorphism",
+      "cyberpunk",
+      "corporate_memphis",
+      "editorial",
+      "swiss",
+      "aurora",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Global SaaS International Platform",
+    "type": "template",
+    "category": "saas",
+    "industry": "saas",
+    "tags": [
+      "saas",
+      "international",
+      "platform",
+      "global",
+      "enterprise",
+      "api",
+      "react"
+    ],
+    "description": "Enterprise SaaS platform with internationalization, multi-tenant support, GDPR compliance, global CDN integration, and regional data centers.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion",
+      "i18next"
+    ],
+    "compatible_categories": [
+      "saas",
+      "enterprise",
+      "international"
+    ],
+    "features": [
+      "internationalization",
+      "multi_tenant",
+      "gdpr_compliance",
+      "global_cdn",
+      "regional_data_centers",
+      "compliance_dashboard",
+      "api_rate_limiting"
+    ],
+    "rating": 4.9,
+    "id": "global-saas-international-platform",
+    "sections_used": [
+      "Hero",
+      "Features",
+      "Pricing",
+      "Comparison",
+      "Dashboard",
+      "Integrations",
+      "Testimonials",
+      "Contact"
+    ],
+    "compatible_styles": [
+      "glassmorphism",
+      "bento_grid",
+      "minimalism",
+      "aurora",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "International Education Platform",
+    "type": "template",
+    "category": "education",
+    "industry": "edtech",
+    "tags": [
+      "education",
+      "international",
+      "languages",
+      "courses",
+      "global",
+      "students",
+      "react"
+    ],
+    "description": "International education platform with language learning tools, cultural exchange features, global student community, and adaptive learning for different regions.",
+    "file_path": "src/templates/education/lms-template-01",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion",
+      "i18next"
+    ],
+    "compatible_categories": [
+      "education",
+      "international",
+      "languages"
+    ],
+    "features": [
+      "language_learning",
+      "cultural_exchange",
+      "global_community",
+      "adaptive_learning",
+      "multi_language_courses",
+      "regional_certifications"
+    ],
+    "rating": 4.8,
+    "id": "international-education-platform",
+    "sections_used": [
+      "Hero",
+      "CourseGrid",
+      "Curriculum",
+      "Instructors",
+      "Pricing",
+      "Testimonials",
+      "Contact",
+      "Newsletter"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "flat_design",
+      "bento_grid",
+      "corporate_memphis"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.8,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Premium Affordable Business Suite",
+    "type": "template",
+    "category": "business",
+    "industry": "saas",
+    "tags": [
+      "saas",
+      "business",
+      "landing",
+      "dashboard",
+      "subscription",
+      "pricing",
+      "analytics",
+      "react"
+    ],
+    "description": "Premium-quality business template at competitive pricing with complete landing page, admin dashboard, user management, subscription billing, and analytics dashboard.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business",
+      "saas",
+      "startup"
+    ],
+    "features": [
+      "premium_design",
+      "affordable_pricing",
+      "complete_landing",
+      "admin_dashboard",
+      "user_management",
+      "subscription_billing",
+      "analytics",
+      "pwa_support"
+    ],
+    "rating": 4.9,
+    "id": "premium-affordable-business-suite",
+    "sections_used": [
+      "Hero",
+      "ServicesGrid",
+      "PricingCard",
+      "Team",
+      "Testimonials",
+      "Contact",
+      "Stats",
+      "FAQ"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "corporate_memphis",
+      "editorial",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "quality_score": 4.9,
+    "complexity": "medium",
+    "industries_secondary": [],
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto"
+  },
+  {
+    "name": "Creative Agency Studio Premium",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "agency",
+      "creative",
+      "studio"
+    ],
+    "description": "Full creative agency website with showcasing portfolio, process, team, and pricing packages.",
+    "file_path": "src/templates/agency/creative-agency-01",
+    "features": [
+      "portfolio_showcase",
+      "process_steps",
+      "client_logos",
+      "team_grid",
+      "pricing_packages",
+      "contact_form"
+    ],
+    "complexity": "medium",
+    "quality_score": 4.8,
+    "id": "creative-agency-studio-premium",
+    "sections_used": [
+      "Hero",
+      "Services",
+      "PortfolioShowcase",
+      "ProcessSteps",
+      "ClientLogos",
+      "Team",
+      "PricingPackages",
+      "ContactForm",
+      "Testimonials"
+    ],
+    "compatible_styles": [
+      "neo_brutalism",
+      "swiss",
+      "editorial",
+      "cyberpunk",
+      "bento_grid"
+    ],
+    "conversion_optimized": true,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Gym & Coaching Brand",
+    "type": "template",
+    "category": "gym",
+    "industry": "fitness",
+    "tags": [
+      "gym",
+      "fitness",
+      "coaching"
+    ],
+    "description": "Gym & personal coaching site with class schedule, trainer profiles, membership plans, and BMI calculator.",
+    "file_path": "src/templates/gym/gym-coaching-01",
+    "features": [
+      "class_schedule",
+      "trainer_profiles",
+      "membership_plans",
+      "bmi_calculator",
+      "success_stories",
+      "supplement_shop"
+    ],
+    "complexity": "medium",
+    "quality_score": 4.7,
+    "id": "gym-coaching-brand",
+    "sections_used": [
+      "Hero",
+      "ClassSchedule",
+      "TrainerProfiles",
+      "MembershipPlans",
+      "BMICalculator",
+      "SuccessStories",
+      "SupplementShop",
+      "ContactInfo",
+      "Testimonials"
+    ],
+    "compatible_styles": [
+      "neo_brutalism",
+      "flat_design",
+      "claymorphism",
+      "organic",
+      "retro_futurism"
+    ],
+    "conversion_optimized": true,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Podcast & Show Platform",
+    "type": "template",
+    "category": "podcast",
+    "industry": "media",
+    "tags": [
+      "podcast",
+      "audio",
+      "show"
+    ],
+    "description": "Podcast platform with episode player, show listings, guest profiles, and subscribe CTAs.",
+    "file_path": "src/templates/podcast/podcast-01",
+    "features": [
+      "audio_player",
+      "episode_grid",
+      "guest_profiles",
+      "subscribe_cta",
+      "sponsor_strip",
+      "ratings"
+    ],
+    "complexity": "low",
+    "quality_score": 4.6,
+    "id": "podcast-show-platform",
+    "sections_used": [
+      "Hero",
+      "LatestEpisodes",
+      "AudioPlayer",
+      "ShowListings",
+      "GuestProfiles",
+      "SubscribeCTA",
+      "SponsorStrip",
+      "ContactInfo",
+      "Ratings"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "aurora",
+      "neo_brutalism",
+      "bento_grid"
+    ],
+    "conversion_optimized": true,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Newsletter Publication",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "media",
+    "tags": [
+      "newsletter",
+      "email",
+      "publication"
+    ],
+    "description": "Email newsletter publication with issue archive, topics, and subscribe form.",
+    "file_path": "src/templates/newsletter/newsletter-01",
+    "features": [
+      "issue_archive",
+      "topics",
+      "subscribe_form",
+      "previous_issue",
+      "social_links"
+    ],
+    "complexity": "low",
+    "quality_score": 4.5,
+    "id": "newsletter-publication",
+    "sections_used": [
+      "Hero",
+      "IssueArchive",
+      "FeaturedTopics",
+      "PreviousIssue",
+      "SubscribeForm",
+      "SocialLinks",
+      "Testimonials",
+      "ContactInfo"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "editorial",
+      "swiss",
+      "flat_design"
+    ],
+    "conversion_optimized": false,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Vendor Marketplace",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "ecommerce",
+    "tags": [
+      "marketplace",
+      "vendor",
+      "multi-vendor"
+    ],
+    "description": "Multi-vendor marketplace with vendor onboarding, featured vendors, ratings, and trust badges.",
+    "file_path": "src/templates/marketplace/marketplace-01",
+    "features": [
+      "vendor_onboarding",
+      "featured_vendors",
+      "category_grid",
+      "reviews",
+      "payments",
+      "trust_badges"
+    ],
+    "complexity": "high",
+    "quality_score": 4.8,
+    "id": "vendor-marketplace",
+    "sections_used": [
+      "Hero",
+      "VendorOnboarding",
+      "FeaturedVendors",
+      "CategoryGrid",
+      "RatingReviews",
+      "PaymentMethods",
+      "TrustBadges",
+      "SupportPanel"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "neo_brutalism",
+      "flat_design",
+      "retro_futurism"
+    ],
+    "conversion_optimized": false,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Insurance Provider",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "insurance",
+      "plans",
+      "quote"
+    ],
+    "description": "Insurance provider with plans, coverage details, instant quote, claims, and agent locator.",
+    "file_path": "src/templates/insurance/insurance-01",
+    "features": [
+      "insurance_plans",
+      "coverage_details",
+      "instant_quote",
+      "claims_process",
+      "agent_locator"
+    ],
+    "complexity": "medium",
+    "quality_score": 4.7,
+    "id": "insurance-provider",
+    "sections_used": [
+      "Hero",
+      "InsurancePlans",
+      "CoverageDetails",
+      "InstantQuote",
+      "ClaimsProcess",
+      "NetworkPartners",
+      "AgentLocator",
+      "Testimonials"
+    ],
+    "compatible_styles": [
+      "minimalism",
+      "glassmorphism",
+      "corporate_memphis",
+      "flat_design"
+    ],
+    "conversion_optimized": true,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Automotive Dealer",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "automotive",
+      "dealership",
+      "cars"
+    ],
+    "description": "Automotive dealership with vehicle inventory, trade-in, finance calculator, and service scheduling.",
+    "file_path": "src/templates/automotive/automotive-01",
+    "features": [
+      "vehicle_inventory",
+      "vehicle_cards",
+      "trade_in",
+      "finance_calculator",
+      "service_schedule",
+      "reviews"
+    ],
+    "complexity": "high",
+    "quality_score": 4.8,
+    "id": "automotive-dealer",
+    "sections_used": [
+      "Hero",
+      "VehicleInventory",
+      "VehicleCardGrid",
+      "TradeInAppraisal",
+      "FinanceCalculator",
+      "ServiceSchedule",
+      "CustomerReviews",
+      "Testimonials"
+    ],
+    "compatible_styles": [
+      "neo_brutalism",
+      "retro_futurism",
+      "flat_design",
+      "minimalism"
+    ],
+    "conversion_optimized": false,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  },
+  {
+    "name": "Wedding & Events",
+    "type": "template",
+    "category": "wedding",
+    "industry": "events",
+    "tags": [
+      "wedding",
+      "events",
+      "couple"
+    ],
+    "description": "Wedding and events site with couple story, timeline, gallery, venues, vendors, RSVP, and registry.",
+    "file_path": "src/templates/wedding/wedding-01",
+    "features": [
+      "couple_story",
+      "event_timeline",
+      "gallery",
+      "venues",
+      "vendors",
+      "rsvp",
+      "registry"
+    ],
+    "complexity": "medium",
+    "quality_score": 4.7,
+    "id": "wedding-events",
+    "sections_used": [
+      "HeroCouple",
+      "OurStory",
+      "EventTimeline",
+      "PhotoGallery",
+      "VenueVendors",
+      "RegistryGifts",
+      "RSVPForm",
+      "TravelInfo"
+    ],
+    "compatible_styles": [
+      "organic",
+      "claymorphism",
+      "editorial",
+      "flat_design",
+      "retro_futurism"
+    ],
+    "conversion_optimized": true,
+    "preview_screenshot": "auto-generated per style variant",
+    "last_updated": "auto",
+    "industries_secondary": []
+  }
+]

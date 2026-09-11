@@ -1,3 +1,7 @@
+# Environment files
+.env
+.env.local
+
 # Logs
 logs
 *.log
@@ -7,18 +11,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
 *.local
+coverage/
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+.vscode/
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# File history
+.history/
+
+# AI Agent Database & Logs
+ai-agent/.env
+ai-agent/database/*.db
+ai-agent/logs/
+generated-projects/
+

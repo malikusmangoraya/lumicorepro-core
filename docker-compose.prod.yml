@@ -1,0 +1,196 @@
+# ============================================================
+# LumicorePro — Production Docker Compose
+# ============================================================
+# Usage:
+#   cp .env.example .env.production
+#   docker-compose -f docker-compose.prod.yml up -d --build
+#
+# Includes: Nginx (SSL termination), Frontend, Backend, PostgreSQL,
+#           Redis, Certbot (auto-renew Let's Encrypt)
+# ============================================================
+
+version: "3.9"
+
+x-restart: &default-restart
+  restart: unless-stopped
+
+x-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: lumicorepro-db
+    <<: [*default-restart, *default-logging]
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-lumicorepro_db}
+      POSTGRES_USER:     ${POSTGRES_USER:-lumicore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?DB password required}
+      PGDATA:            /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"          # Bind to loopback only — not public
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lumicore} -d ${POSTGRES_DB:-lumicorepro_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - lumicore-net
+
+  # ── Redis (caching + session + Bull queues) ─────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: lumicorepro-redis
+    <<: [*default-restart, *default-logging]
+    command: redis-server --requirepass ${REDIS_PASSWORD:?Redis password required} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lumicore-net
+
+  # ── Backend API ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: lumicorepro-api
+    <<: [*default-restart, *default-logging]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV:             production
+      PORT:                 5000
+      MONGODB_URI:          ${MONGODB_URI}
+      DATABASE_URL:         postgresql://${POSTGRES_USER:-lumicore}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lumicorepro_db}
+      JWT_SECRET:           ${JWT_SECRET:?JWT secret required}
+      JWT_EXPIRES_IN:       ${JWT_EXPIRES_IN:-7d}
+      STRIPE_SECRET_KEY:    ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET:${STRIPE_WEBHOOK_SECRET}
+      REDIS_URL:            redis://:${REDIS_PASSWORD}@redis:6379
+      SENTRY_DSN:           ${SENTRY_DSN}
+      FRONTEND_URL:         ${FRONTEND_URL:-https://lumicorepro.com}
+      CORS_ORIGIN:          ${FRONTEND_URL:-https://lumicorepro.com}
+      SMTP_HOST:            ${SMTP_HOST}
+      SMTP_PORT:            ${SMTP_PORT:-587}
+      SMTP_USER:            ${SMTP_USER}
+      SMTP_PASS:            ${SMTP_PASS}
+      FROM_EMAIL:           ${FROM_EMAIL:-noreply@lumicorepro.com}
+    expose:
+      - "5000"
+    volumes:
+      - backend_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - lumicore-net
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ── Frontend (Nginx serving built React app) ────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL:       ${VITE_API_URL:-https://api.lumicorepro.com}
+        VITE_STRIPE_KEY:    ${STRIPE_PUBLISHABLE_KEY}
+        VITE_APP_ENV:       production
+    container_name: lumicorepro-web
+    <<: [*default-restart, *default-logging]
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "80"
+    networks:
+      - lumicore-net
+
+  # ── Nginx Reverse Proxy + SSL Termination ───────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: lumicorepro-nginx
+    <<: [*default-restart, *default-logging]
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl/certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    networks:
+      - lumicore-net
+
+  # ── Certbot (Let's Encrypt auto-renewal) ───────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: lumicorepro-certbot
+    volumes:
+      - ./ssl/certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done"
+    networks:
+      - lumicore-net
+
+  # ── Adminer (DB GUI — disable in strict production) ─────────────
+  adminer:
+    image: adminer:4-standalone
+    container_name: lumicorepro-adminer
+    restart: "no"
+    profiles: ["debug"]          # Only starts with: --profile debug
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    networks:
+      - lumicore-net
+
+volumes:
+  postgres_data:    { name: lumicorepro-postgres }
+  redis_data:       { name: lumicorepro-redis }
+  backend_uploads:  { name: lumicorepro-uploads }
+  certbot_www:      { name: lumicorepro-certbot-www }
+
+networks:
+  lumicore-net:
+    driver: bridge
+    name: lumicorepro-network

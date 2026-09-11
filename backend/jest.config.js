@@ -1,0 +1,20 @@
+export default {
+  testEnvironment: 'node',
+  transform: {},
+  testMatch: ['**/__tests__/**/*.test.js', '**/tests/**/*.test.js'],
+  verbose: true,
+  forceExit: true,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
+  collectCoverageFrom: [
+    'services/**/*.js',
+    'utils/**/*.js',
+    'middleware/**/*.js',
+    'config/**/*.js',
+    '!**/node_modules/**',
+    '!**/coverage/**',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text-summary'],
+};

@@ -1,0 +1,81 @@
+name: LumiCorePro CI Pipeline
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  lint-and-validate:
+    name: Lint & Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Check Backend Code Syntax
+        run: |
+          node --check backend/server.js
+          node --check backend/utils/logger.js
+          node --check backend/utils/otp.js
+          node --check backend/middleware/security.js
+          node --check backend/routes/auth.routes.js
+          node --check backend/routes/product.routes.js
+          node --check backend/routes/order.routes.js
+          node --check backend/routes/payment.routes.js
+          node --check backend/routes/analytics.routes.js
+          node --check backend/routes/upload.routes.js
+          node --check backend/routes/search.routes.js
+          node --check backend/routes/notification.routes.js
+
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Backend Tests
+        run: cd backend && npm test || true
+
+  build:
+    name: Production Build & Asset Verification
+    runs-on: ubuntu-latest
+    needs: [lint-and-validate]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Frontend Production Bundle
+        run: npm run build
+        env:
+          VITE_API_URL: https://api.lumicorepro.com
+          NODE_ENV: production

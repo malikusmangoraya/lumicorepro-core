@@ -1,0 +1,2847 @@
+[
+  {
+    "name": "iPhone 15 Pro Titanium HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "smartphone",
+      "apple",
+      "iphone",
+      "flagship",
+      "mobile",
+      "phone",
+      "hd",
+      "5g"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Samsung Galaxy S24 Ultra HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "smartphone",
+      "samsung",
+      "galaxy",
+      "android",
+      "mobile",
+      "phone",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "MacBook Pro M3 Max Silver HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "laptop",
+      "macbook",
+      "apple",
+      "computer",
+      "pc",
+      "hd",
+      "m3"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Asus ROG Strix Gaming Laptop HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "laptop",
+      "gaming",
+      "asus",
+      "rog",
+      "rtx",
+      "pc",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Sony WH-1000XM5 ANC Headphones HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "headphones",
+      "sony",
+      "audio",
+      "wireless",
+      "anc",
+      "sound",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "AirPods Max Space Gray HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "headphones",
+      "apple",
+      "airpods",
+      "audio",
+      "wireless",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Apple Watch Ultra 2 Titanium HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "smartwatch",
+      "apple",
+      "watch",
+      "wearables",
+      "fitness",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Garmin Fenix 7 Pro Multisport Watch HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "smartwatch",
+      "garmin",
+      "wearables",
+      "fitness",
+      "gps",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Sony A7 IV Full Frame Camera HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "camera",
+      "sony",
+      "mirrorless",
+      "4k",
+      "photography",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "DJI Mavic 3 Pro 4K Drone HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "drone",
+      "dji",
+      "mavic",
+      "4k",
+      "aerial",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Nvidia GeForce RTX 4090 GPU HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "gpu",
+      "nvidia",
+      "rtx",
+      "graphics",
+      "pc",
+      "hardware",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "PS5 Slim Console & DualSense HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "ps5",
+      "playstation",
+      "console",
+      "gamepad",
+      "gaming",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "RGB Mechanical Gaming Keyboard HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "keyboard",
+      "mechanical",
+      "rgb",
+      "peripherals",
+      "gaming",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Logitech MX Master 3S Ergonomic Mouse HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "mouse",
+      "logitech",
+      "ergonomic",
+      "peripherals",
+      "productivity",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Meta Quest 3 VR Headset HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "vr",
+      "virtualreality",
+      "meta",
+      "quest",
+      "headset",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "JBL Boombox 3 Bluetooth Speaker HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "speaker",
+      "jbl",
+      "audio",
+      "bluetooth",
+      "hifi",
+      "sound",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Amazon Echo Studio Smart Hub HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "smarthome",
+      "echo",
+      "alexa",
+      "speaker",
+      "hub",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1543512214-318c7553f230?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "65 Inch OLED 4K Smart TV HD",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "electronics",
+    "tags": [
+      "tv",
+      "television",
+      "oled",
+      "4k",
+      "screen",
+      "display",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "SaaS Executive Analytics Dashboard HD",
+    "type": "image",
+    "category": "saas",
+    "industry": "software",
+    "tags": [
+      "saas",
+      "dashboard",
+      "analytics",
+      "ui",
+      "charts",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Crypto Trading Terminal Portal HD",
+    "type": "image",
+    "category": "fintech",
+    "industry": "crypto",
+    "tags": [
+      "fintech",
+      "crypto",
+      "trading",
+      "bitcoin",
+      "blockchain",
+      "hd"
+    ],
+    "file_path": "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1000&auto=format&fit=crop"
+  },
+  {
+    "name": "Chip",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai"
+    ],
+    "tags": [
+      "chip"
+    ],
+    "file_path": "src/assets/images/ai/chip.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai"
+    ],
+    "tags": [
+      "code"
+    ],
+    "file_path": "src/assets/images/ai/code.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Data",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai"
+    ],
+    "tags": [
+      "data"
+    ],
+    "file_path": "src/assets/images/ai/data.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai"
+    ],
+    "tags": [
+      "hero"
+    ],
+    "file_path": "src/assets/images/ai/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Robot",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai"
+    ],
+    "tags": [
+      "robot"
+    ],
+    "file_path": "src/assets/images/ai/robot.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "City",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace",
+      "city"
+    ],
+    "file_path": "src/assets/images/business/city.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Corporate Hero",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace",
+      "hero"
+    ],
+    "file_path": "src/assets/images/business/corporate-hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Executive",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/executive.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Growth",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/growth.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace",
+      "hero"
+    ],
+    "file_path": "src/assets/images/business/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Meeting",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/meeting.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Office Team",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/office-team.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Office",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/office.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "saas",
+      "agency"
+    ],
+    "tags": [
+      "team",
+      "meeting",
+      "office",
+      "corporate",
+      "growth",
+      "office",
+      "executive",
+      "workspace"
+    ],
+    "file_path": "src/assets/images/business/team.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Artwork Design",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "artwork",
+      "design"
+    ],
+    "file_path": "src/assets/images/creative/artwork-design.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "hero"
+    ],
+    "file_path": "src/assets/images/creative/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project1",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "project1"
+    ],
+    "file_path": "src/assets/images/creative/project1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project2",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "project2"
+    ],
+    "file_path": "src/assets/images/creative/project2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project3",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "project3"
+    ],
+    "file_path": "src/assets/images/creative/project3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project4",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "project4"
+    ],
+    "file_path": "src/assets/images/creative/project4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team1",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "team1"
+    ],
+    "file_path": "src/assets/images/creative/team1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team2",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "team2"
+    ],
+    "file_path": "src/assets/images/creative/team2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team3",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "team3"
+    ],
+    "file_path": "src/assets/images/creative/team3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team4",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio"
+    ],
+    "tags": [
+      "studio",
+      "team",
+      "agency",
+      "creative",
+      "art",
+      "team4"
+    ],
+    "file_path": "src/assets/images/creative/team4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "software",
+    "industries": [
+      "software",
+      "saas",
+      "dashboard"
+    ],
+    "tags": [
+      "analytics",
+      "dashboard",
+      "user",
+      "hero"
+    ],
+    "file_path": "src/assets/images/dashboard/analytics.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "software",
+    "industries": [
+      "software",
+      "saas",
+      "dashboard"
+    ],
+    "tags": [
+      "analytics",
+      "dashboard",
+      "user",
+      "hero"
+    ],
+    "file_path": "src/assets/images/dashboard/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "User1",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "software",
+    "industries": [
+      "software",
+      "saas",
+      "dashboard"
+    ],
+    "tags": [
+      "analytics",
+      "dashboard",
+      "user",
+      "hero",
+      "user1"
+    ],
+    "file_path": "src/assets/images/dashboard/user1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "User2",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "software",
+    "industries": [
+      "software",
+      "saas",
+      "dashboard"
+    ],
+    "tags": [
+      "analytics",
+      "dashboard",
+      "user",
+      "hero",
+      "user2"
+    ],
+    "file_path": "src/assets/images/dashboard/user2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "User3",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "software",
+    "industries": [
+      "software",
+      "saas",
+      "dashboard"
+    ],
+    "tags": [
+      "analytics",
+      "dashboard",
+      "user",
+      "hero",
+      "user3"
+    ],
+    "file_path": "src/assets/images/dashboard/user3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "hero"
+    ],
+    "file_path": "src/assets/images/ecommerce/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Iphone Pro",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "pro"
+    ],
+    "file_path": "src/assets/images/ecommerce/iphone-pro.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Macbook Pro",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "pro"
+    ],
+    "file_path": "src/assets/images/ecommerce/macbook-pro.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product1",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product1"
+    ],
+    "file_path": "src/assets/images/ecommerce/product1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product2",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product2"
+    ],
+    "file_path": "src/assets/images/ecommerce/product2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product3",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product3"
+    ],
+    "file_path": "src/assets/images/ecommerce/product3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product4",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product4"
+    ],
+    "file_path": "src/assets/images/ecommerce/product4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product5",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product5"
+    ],
+    "file_path": "src/assets/images/ecommerce/product5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product6",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product6"
+    ],
+    "file_path": "src/assets/images/ecommerce/product6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product7",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product7"
+    ],
+    "file_path": "src/assets/images/ecommerce/product7.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product8",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "product8"
+    ],
+    "file_path": "src/assets/images/ecommerce/product8.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Sony Headphones",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "shopping"
+    ],
+    "tags": [
+      "product",
+      "iphone",
+      "macbook",
+      "headphones",
+      "laptop",
+      "phone",
+      "watch",
+      "camera",
+      "shopping",
+      "sony"
+    ],
+    "file_path": "src/assets/images/ecommerce/sony-headphones.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course1",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course1"
+    ],
+    "file_path": "src/assets/images/education/course1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course2",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course2"
+    ],
+    "file_path": "src/assets/images/education/course2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course3",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course3"
+    ],
+    "file_path": "src/assets/images/education/course3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course4",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course4"
+    ],
+    "file_path": "src/assets/images/education/course4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course5",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course5"
+    ],
+    "file_path": "src/assets/images/education/course5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Course6",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "course6"
+    ],
+    "file_path": "src/assets/images/education/course6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online",
+      "hero"
+    ],
+    "file_path": "src/assets/images/education/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Online Course",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online"
+    ],
+    "file_path": "src/assets/images/education/online-course.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Student Library",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online"
+    ],
+    "file_path": "src/assets/images/education/student-library.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Student",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "student",
+      "course",
+      "library",
+      "learning",
+      "online"
+    ],
+    "file_path": "src/assets/images/education/student.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Class1",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "class1"
+    ],
+    "file_path": "src/assets/images/fitness/class1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Class2",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "class2"
+    ],
+    "file_path": "src/assets/images/fitness/class2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Gym Workout",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal"
+    ],
+    "file_path": "src/assets/images/fitness/gym-workout.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Gym1",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "gym1"
+    ],
+    "file_path": "src/assets/images/fitness/gym1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Gym2",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "gym2"
+    ],
+    "file_path": "src/assets/images/fitness/gym2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "hero"
+    ],
+    "file_path": "src/assets/images/fitness/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Personal Trainer",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal"
+    ],
+    "file_path": "src/assets/images/fitness/personal-trainer.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Trainer1",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "trainer1"
+    ],
+    "file_path": "src/assets/images/fitness/trainer1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Trainer2",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "trainer2"
+    ],
+    "file_path": "src/assets/images/fitness/trainer2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Trainer3",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "trainer3"
+    ],
+    "file_path": "src/assets/images/fitness/trainer3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Trainer4",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym"
+    ],
+    "tags": [
+      "gym",
+      "trainer",
+      "workout",
+      "class",
+      "personal",
+      "trainer4"
+    ],
+    "file_path": "src/assets/images/fitness/trainer4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor Consult",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor-consult.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor1",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor1"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor2",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor2"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor3",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor3"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor4",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor4"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor5",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor5"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doctor6",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "doctor6"
+    ],
+    "file_path": "src/assets/images/healthcare/doctor6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "hero"
+    ],
+    "file_path": "src/assets/images/healthcare/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hospital",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient"
+    ],
+    "file_path": "src/assets/images/healthcare/hospital.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Modern Hospital",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "doctor",
+      "hospital",
+      "medical",
+      "consult",
+      "patient",
+      "modern"
+    ],
+    "file_path": "src/assets/images/healthcare/modern-hospital.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Avatar",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar"
+    ],
+    "file_path": "src/assets/images/portfolio/avatar.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar"
+    ],
+    "file_path": "src/assets/images/portfolio/code.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Designer Portrait",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar",
+      "portrait"
+    ],
+    "file_path": "src/assets/images/portfolio/designer-portrait.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Developer Workspace",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar"
+    ],
+    "file_path": "src/assets/images/portfolio/developer-workspace.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar",
+      "hero"
+    ],
+    "file_path": "src/assets/images/portfolio/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project1",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar",
+      "project1"
+    ],
+    "file_path": "src/assets/images/portfolio/project1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project2",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar",
+      "project2"
+    ],
+    "file_path": "src/assets/images/portfolio/project2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Project3",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar",
+      "project3"
+    ],
+    "file_path": "src/assets/images/portfolio/project3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Workspace",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "workspace",
+      "portfolio",
+      "project",
+      "code",
+      "developer",
+      "designer",
+      "avatar"
+    ],
+    "file_path": "src/assets/images/portfolio/workspace.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Agent",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home"
+    ],
+    "file_path": "src/assets/images/realestate/agent.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "hero"
+    ],
+    "file_path": "src/assets/images/realestate/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Interior",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home"
+    ],
+    "file_path": "src/assets/images/realestate/interior.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Luxury Villa",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "luxury"
+    ],
+    "file_path": "src/assets/images/realestate/luxury-villa.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Modern House",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "modern"
+    ],
+    "file_path": "src/assets/images/realestate/modern-house.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Prop1",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "prop1"
+    ],
+    "file_path": "src/assets/images/realestate/prop1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Prop2",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "prop2"
+    ],
+    "file_path": "src/assets/images/realestate/prop2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Prop3",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "prop3"
+    ],
+    "file_path": "src/assets/images/realestate/prop3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Prop4",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "prop4"
+    ],
+    "file_path": "src/assets/images/realestate/prop4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Prop5",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property"
+    ],
+    "tags": [
+      "house",
+      "villa",
+      "property",
+      "interior",
+      "agent",
+      "home",
+      "prop5"
+    ],
+    "file_path": "src/assets/images/realestate/prop5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Chef",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior"
+    ],
+    "file_path": "src/assets/images/restaurant/chef.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish1",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish1"
+    ],
+    "file_path": "src/assets/images/restaurant/dish1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish1 Test",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish1",
+      "test"
+    ],
+    "file_path": "src/assets/images/restaurant/dish1_test.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish2",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish2"
+    ],
+    "file_path": "src/assets/images/restaurant/dish2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish3",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish3"
+    ],
+    "file_path": "src/assets/images/restaurant/dish3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish4",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish4"
+    ],
+    "file_path": "src/assets/images/restaurant/dish4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish5",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish5"
+    ],
+    "file_path": "src/assets/images/restaurant/dish5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish6",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "dish6"
+    ],
+    "file_path": "src/assets/images/restaurant/dish6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fine Dining",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "fine"
+    ],
+    "file_path": "src/assets/images/restaurant/fine-dining.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Gourmet Dish",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "gourmet"
+    ],
+    "file_path": "src/assets/images/restaurant/gourmet-dish.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior",
+      "hero"
+    ],
+    "file_path": "src/assets/images/restaurant/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Interior",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "cafe",
+      "food"
+    ],
+    "tags": [
+      "dish",
+      "chef",
+      "dining",
+      "food",
+      "restaurant",
+      "interior"
+    ],
+    "file_path": "src/assets/images/restaurant/interior.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Beach Resort",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight"
+    ],
+    "file_path": "src/assets/images/travel/beach-resort.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest1",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest1"
+    ],
+    "file_path": "src/assets/images/travel/dest1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest2",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest2"
+    ],
+    "file_path": "src/assets/images/travel/dest2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest3",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest3"
+    ],
+    "file_path": "src/assets/images/travel/dest3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest4",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest4"
+    ],
+    "file_path": "src/assets/images/travel/dest4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest5",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest5"
+    ],
+    "file_path": "src/assets/images/travel/dest5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dest6",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "dest6"
+    ],
+    "file_path": "src/assets/images/travel/dest6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "hero"
+    ],
+    "file_path": "src/assets/images/travel/hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Mountain Tour",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight"
+    ],
+    "file_path": "src/assets/images/travel/mountain-tour.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Plane",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "hotel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "destination",
+      "resort",
+      "beach",
+      "mountain",
+      "tour",
+      "flight",
+      "plane"
+    ],
+    "file_path": "src/assets/images/travel/plane.jpg",
+    "width": 0,
+    "height": 0
+  }
+]

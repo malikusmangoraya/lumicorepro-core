@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" fill="none">
+  <polygon points="24,4 40,13.5 40,32.5 24,42 8,32.5 8,13.5" fill="#2dd4bf"/>
+  <polygon points="24,12 34,17.5 34,28.5 24,34 14,28.5 14,17.5" fill="#0f172a" opacity="0.95"/>
+  <polygon points="24,19 29,22 29,28 24,31 19,28 19,22" fill="#2dd4bf"/>
+  <text x="54" y="32" font-family="'Syne','Outfit',system-ui,sans-serif" font-weight="800" font-size="22" letter-spacing="-0.5" fill="#ffffff">Lumicore<tspan fill="#2dd4bf">Pro</tspan></text>
+</svg>

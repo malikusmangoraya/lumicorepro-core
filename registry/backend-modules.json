@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Master Express.js & MongoDB API Base",
+    "type": "backend",
+    "category": "business",
+    "tags": ["node", "express", "mongodb", "mongoose", "rest", "jwt", "nodemailer", "contact", "newsletter", "auth"],
+    "description": "Master Node.js & Express.js REST API with Mongoose MongoDB models for User Auth, Contact Messages, and Newsletter Subscriptions.",
+    "file_path": "backend-library/master-express-backend",
+    "modules": ["auth", "users", "contact", "newsletter", "nodemailer", "admin", "jwt", "security"],
+    "dependencies": ["express", "cors", "dotenv", "helmet", "express-rate-limit", "mongoose", "jsonwebtoken", "bcryptjs", "nodemailer"]
+  },
+  {
+    "name": "Electronics E-Commerce Express API",
+    "type": "backend",
+    "category": "electronics",
+    "tags": ["node", "express", "postgresql", "rest", "jwt", "electronics", "payments", "stripe", "paypal"],
+    "description": "Node.js Express REST API for Electronics E-Commerce with Stripe/PayPal payment routes, specs, products, cart, orders, and reviews.",
+    "file_path": "backend-library/electronics-backend",
+    "modules": ["auth", "users", "products", "specs", "categories", "cart", "wishlist", "orders", "payments", "reviews", "admin", "inventory"],
+    "dependencies": ["express", "cors", "dotenv", "helmet", "express-rate-limit", "pg", "jsonwebtoken", "bcryptjs"]
+  },
+  {
+    "name": "SaaS Enterprise Express API Base",
+    "type": "backend",
+    "category": "saas",
+    "tags": ["node", "express", "postgresql", "rest", "saas", "subscriptions", "analytics", "stripe"],
+    "description": "Node.js Express REST API for SaaS Enterprise platforms with subscription tiers, event analytics, and user account management.",
+    "file_path": "backend-library/saas-backend",
+    "modules": ["auth", "users", "subscriptions", "plans", "analytics", "webhooks", "billing", "admin"],
+    "dependencies": ["express", "cors", "dotenv", "helmet", "express-rate-limit", "pg", "jsonwebtoken", "bcryptjs"]
+  },
+  {
+    "name": "E-Commerce Modular Base API",
+    "type": "backend",
+    "category": "ecommerce",
+    "tags": ["node", "express", "postgresql", "rest", "jwt", "ecommerce", "cart", "orders"],
+    "description": "Production Node.js Express server base with modular controllers, routes, middleware, and services.",
+    "file_path": "backend-library/ecommerce-base",
+    "modules": ["auth", "users", "products", "categories", "cart", "wishlist", "orders", "payments", "reviews", "admin", "inventory"],
+    "dependencies": ["express", "cors", "dotenv", "helmet", "express-rate-limit", "pg", "jsonwebtoken", "bcryptjs"]
+  },
+  {
+    "name": "SaaS Subscription & Billing API",
+    "type": "backend",
+    "category": "saas",
+    "tags": ["node", "express", "stripe", "subscriptions", "billing", "webhooks", "metered", "freemium", "saas"],
+    "description": "Full-featured SaaS billing API with Stripe Subscriptions, metered billing, usage tracking, plan upgrades/downgrades, invoice PDFs, and Stripe webhook handling.",
+    "file_path": "backend-library/saas-backend",
+    "modules": ["stripe_subscriptions", "metered_billing", "plan_management", "invoice_pdf", "stripe_webhooks", "usage_tracking", "team_seats", "coupon_codes"],
+    "dependencies": ["express", "stripe", "pg", "jsonwebtoken", "bcryptjs", "pdfkit", "nodemailer", "helmet", "express-rate-limit"]
+  },
+  {
+    "name": "Blog & CMS API (Headless)",
+    "type": "backend",
+    "category": "blog",
+    "tags": ["node", "express", "blog", "cms", "headless", "markdown", "slug", "seo", "rss", "postgresql"],
+    "description": "Headless CMS API for blogs and magazines. Supports posts, categories, tags, authors, comments, search, SEO meta, sitemap generation, and RSS feed endpoint.",
+    "file_path": "backend-library/master-express-backend",
+    "modules": ["posts", "categories", "tags", "authors", "comments", "search", "seo_meta", "sitemap", "rss_feed", "media_upload", "draft_publish"],
+    "dependencies": ["express", "pg", "jsonwebtoken", "bcryptjs", "multer", "sharp", "rss", "slugify", "marked", "helmet", "express-rate-limit"]
+  },
+  {
+    "name": "Multi-Tenant SaaS Backend",
+    "type": "backend",
+    "category": "saas",
+    "tags": ["multi-tenant", "saas", "workspaces", "teams", "rbac", "isolated", "enterprise", "node", "postgresql"],
+    "description": "Enterprise multi-tenant backend with isolated workspace schemas, team management, Role-Based Access Control (RBAC), tenant onboarding, audit logs, and white-label support.",
+    "file_path": "backend-library/saas-backend",
+    "modules": ["tenant_isolation", "workspace_management", "team_invites", "rbac_permissions", "audit_logs", "white_label_config", "tenant_billing", "data_export"],
+    "dependencies": ["express", "pg", "jsonwebtoken", "bcryptjs", "helmet", "express-rate-limit", "ioredis", "bull", "nodemailer"]
+  },
+  {
+    "name": "API Gateway & Microservices Base",
+    "type": "backend",
+    "category": "gateway",
+    "tags": ["api-gateway", "microservices", "rate-limit", "auth", "proxy", "logging", "node", "express"],
+    "description": "Production-grade API Gateway with JWT auth middleware, per-route rate limiting, request logging, service proxying, health check endpoints, and OpenAPI documentation.",
+    "file_path": "backend-library/master-express-backend",
+    "modules": ["jwt_middleware", "rate_limiter", "request_logger", "service_proxy", "health_check", "openapi_docs", "cors_manager", "ip_whitelist"],
+    "dependencies": ["express", "http-proxy-middleware", "jsonwebtoken", "express-rate-limit", "morgan", "swagger-ui-express", "helmet", "express-validator"]
+  },
+  {
+    "name": "Restaurant & Food Delivery API",
+    "type": "backend",
+    "category": "restaurant",
+    "tags": ["restaurant", "food", "menu", "orders", "delivery", "rider", "node", "postgresql", "whatsapp"],
+    "description": "Restaurant & food delivery API with menu management, real-time order tracking via WebSocket, rider assignment, table reservations, loyalty points, and WhatsApp notification integration.",
+    "file_path": "backend-library/ecommerce-base",
+    "modules": ["menu_management", "order_tracking_ws", "rider_assignment", "table_reservations", "loyalty_points", "whatsapp_notify", "kitchen_display", "promo_codes"],
+    "dependencies": ["express", "pg", "ws", "jsonwebtoken", "bcryptjs", "nodemailer", "twilio", "helmet", "express-rate-limit"]
+  },
+  {
+    "name": "Healthcare Appointment API",
+    "type": "backend",
+    "category": "healthcare",
+    "tags": ["healthcare", "doctors", "appointments", "teleconsult", "prescriptions", "node", "postgresql"],
+    "description": "Healthcare backend with doctor availability slots, appointment booking with confirmation emails, video consultation session management, digital prescriptions, and patient records.",
+    "file_path": "backend-library/master-express-backend",
+    "modules": ["doctor_profiles", "availability_slots", "appointment_booking", "teleconsult_sessions", "digital_prescriptions", "patient_records", "medical_reports", "sms_reminders"],
+    "dependencies": ["express", "pg", "jsonwebtoken", "bcryptjs", "nodemailer", "twilio", "helmet", "express-rate-limit", "multer"]
+  }
+]

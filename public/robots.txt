@@ -1,0 +1,10 @@
+# User-agent directives
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /templates/dashboard/
+Disallow: /login
+Disallow: /register
+
+# Sitemap location
+Sitemap: https://lumicorepro.com/sitemap.xml
