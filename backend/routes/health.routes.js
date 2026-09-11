@@ -30,8 +30,8 @@ router.get('/', (req, res) => {
  *     tags: [Health]
  */
 router.get('/detailed', async (req, res) => {
-  let dbStatus = 'unknown';
-  let databaseInfo = { status: 'unknown', host: 'unknown', name: 'postgres' };
+  let dbStatus;
+  let databaseInfo;
 
   try {
     const isConnected = await sequelize.authenticate();
@@ -66,8 +66,8 @@ router.get('/detailed', async (req, res) => {
   const isHealthy = dbStatus === 'connected';
 
   // Redis check
-  let redisStatus = 'unknown';
-  let redisMode = 'unknown';
+  let redisStatus;
+  let redisMode;
   try {
     const client = getRedis();
     redisMode = client?.isMemory ? 'in-memory-fallback' : 'connected';

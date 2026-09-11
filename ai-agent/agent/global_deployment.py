@@ -301,12 +301,12 @@ jobs:
 
     def _build_github_deploy(self, project_name: str, platform: str) -> str:
         platform_step = {
-            "vercel":      "    - name: Deploy to Vercel\n      uses: amondnet/vercel-action@v25\n      with:\n        vercel-token: ${{ secrets.VERCEL_TOKEN }}\n        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}\n        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}\n        vercel-args: '--prod'",
-            "railway":     "    - name: Deploy to Railway\n      run: npx railway up\n      env:\n        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}",
-            "render":      "    - name: Trigger Render Deploy\n      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}",
-            "digitalocean":"    - name: Deploy to DigitalOcean\n      uses: digitalocean/app_action@v1\n      with:\n        token: ${{ secrets.DIGITALOCEAN_TOKEN }}",
-            "aws":         "    - name: Deploy to AWS ECS\n      run: aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER }} --service ${{ secrets.AWS_ECS_SERVICE }} --force-new-deployment",
-        }.get(platform, "    - name: Deploy\n      run: echo 'Configure deploy step for your platform'")
+            "vercel":      "      - name: Deploy to Vercel\n        uses: amondnet/vercel-action@v25\n        with:\n          vercel-token: ${{ secrets.VERCEL_TOKEN }}\n          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}\n          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}\n          vercel-args: '--prod'",
+            "railway":     "      - name: Deploy to Railway\n        run: npx railway up\n        env:\n          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}",
+            "render":      "      - name: Trigger Render Deploy\n        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}",
+            "digitalocean":"      - name: Deploy to DigitalOcean\n        uses: digitalocean/app_action@v1\n        with:\n          token: ${{ secrets.DIGITALOCEAN_TOKEN }}",
+            "aws":         "      - name: Deploy to AWS ECS\n        run: aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER }} --service ${{ secrets.AWS_ECS_SERVICE }} --force-new-deployment",
+        }.get(platform, "      - name: Deploy\n        run: echo 'Configure deploy step for your platform'")
 
         return f"""# GitHub Actions — Deploy Pipeline
 # Platform: {self.PLATFORMS.get(platform, {}).get('name', platform)}

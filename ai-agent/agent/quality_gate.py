@@ -201,23 +201,34 @@ class DevOpsQualityGate:
         )
 
     async def lint_project(self, project_dir: str) -> CommandResult:
-        """ESLint pass with a dedicated config so generated files are truly checked."""
-        targets = self._lint_targets(project_dir)
-        if not targets:
+        """ESLint pass with a dedicated config so generated files are truly checked.
+
+        On Windows, expanding every file to its own argv entry blows past the
+        ~32k command-line limit for backend-bearing projects ('The command line
+        is too long.'). Passing the project directory as a single target lets
+        ESLint resolve/expand the file set internally while the shared flat
+        config still applies its `files`/`ignores` globs.
+        """
+        relative_dirs: List[str] = []
+        for cand in (project_dir, os.path.join(project_dir, "frontend")):
+            if os.path.isdir(cand):
+                rel = _posix(os.path.relpath(cand, self.repo_root))
+                if rel not in relative_dirs:
+                    relative_dirs.append(rel)
+        if not relative_dirs:
             return CommandResult(
-                command=f"eslint ({len(targets)} files)",
+                command=f"eslint ({project_dir})",
                 returncode=0,
                 stdout="No lintable files found.",
                 stderr="",
             )
-        relative = [_posix(os.path.relpath(p, self.repo_root)) for p in targets]
         npx_bin = self.npx or "npx"
         return await self.run_command(
             [
                 npx_bin, "eslint",
                 "--no-config-lookup",
                 "--config", _posix(os.path.relpath(self.eslint_config, self.repo_root)),
-                *relative,
+                *relative_dirs,
             ],
             cwd=self.repo_root,
         )

@@ -72,7 +72,6 @@ const TAX_RATES = {
   'KR': { rate: 10, type: 'VAT', name: 'South Korea' },
   'HK': { rate: 0, type: 'VAT', name: 'Hong Kong', note: 'No VAT' },
   'TW': { rate: 5, type: 'VAT', name: 'Taiwan' },
-  'TH': { rate: 7, type: 'VAT', name: 'Thailand' },
 
   // Americas
   'CA': { rate: 5, type: 'GST', name: 'Canada', note: 'PST/HST varies 5-15%' },
@@ -123,8 +122,8 @@ export const calculateTax = ({ amount, country, state = null, billingAddress = n
     };
   }
 
-  let taxRate = 0;
-  let taxType = 'NONE';
+  let taxRate;
+  let taxType;
   let note = '';
   let isInclusive = false;
 
