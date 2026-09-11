@@ -56,11 +56,11 @@ class ProjectBuilder:
     }
 
     PACKAGE_VERSION_MAP = {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
         "react-router-dom": "^6.22.0",
-        "lucide-react": "^0.344.0",
-        "framer-motion": "^11.0.0",
+        "lucide-react": "^1.31.0",
+        "framer-motion": "^11.18.2",
         "recharts": "^2.12.0",
         "axios": "^1.6.7",
         "tailwindcss": "^3.4.1",
@@ -144,18 +144,18 @@ class ProjectBuilder:
                     "preview": "vite preview"
                 },
                 "dependencies": {
-                    "react": "^18.2.0",
-                    "react-dom": "^18.2.0",
+                    "react": "^19.2.8",
+                    "react-dom": "^19.2.8",
                     "react-router-dom": "^6.22.0",
-                    "lucide-react": "^0.344.0",
-                    "framer-motion": "^11.0.0",
-                    "i18next": "^23.10.0",
-                    "react-i18next": "^14.0.0",
+                    "lucide-react": "^1.31.0",
+                    "framer-motion": "^11.18.2",
+                    "i18next": "^25.0.0",
+                    "react-i18next": "^16.0.0",
                     "axios": "^1.6.0"
                 },
                 "devDependencies": {
-                    "@vitejs/plugin-react": "^4.2.0",
-                    "vite": "^5.1.0",
+                    "@vitejs/plugin-react": "^6.0.4",
+                    "vite": "^8.2.0",
                     "tailwindcss": "^3.4.0",
                     "autoprefixer": "^10.4.0",
                     "postcss": "^8.4.0"

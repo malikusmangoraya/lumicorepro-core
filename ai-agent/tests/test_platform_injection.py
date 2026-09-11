@@ -136,6 +136,34 @@ class PlatformInjectionTest(unittest.TestCase):
         self.assertIn("Custom", app)
         self.assertNotIn("AppWithProviders", app)
 
+    def test_provider_wraps_function_export_shape(self):
+        # Many templates root the app as `export default function App() {...}`;
+        # the provider wrap must handle that shape too (state_topology gate).
+        _write(self.tree.src_path("App.jsx"),
+               "import React from 'react';\n\nexport default function App() {\n  return <div className=\"x\" />;\n}\n")
+        platform_injection.generate(self._spec("portfolio"), self.tmp, MODE_CLIENT_STATIC)
+        app = _read(self.tree.src_path("App.jsx"))
+        self.assertIn("import AppProviders from './lib/AppProviders';", app)
+        self.assertIn("export default function AppWithProviders()", app)
+        self.assertIn("<AppProviders>", app)
+        self.assertIn("<App />", app)
+        self.assertIn("function App() {", app)
+
+    def test_react19_peer_compat_bumps(self):
+        # Bumping react to 19 must also bump peer-sensitive deps, otherwise a
+        # fresh `npm install` fails ERESOLVE (lucide-react/plugin-react peers).
+        _write(os.path.join(self.tmp, "frontend", "package.json"),
+               '{"name":"trd","dependencies":{"react":"^18.2.0","react-dom":"^18.2.0",'
+               '"lucide-react":"^0.344.0","i18next":"^23.10.0","react-i18next":"^14.0.0"},'
+               '"devDependencies":{"@vitejs/plugin-react":"^4.2.0","vite":"^5.4.0","tailwindcss":"^3.4.1"}}')
+        platform_injection.generate(self._spec("portfolio"), self.tmp, MODE_CLIENT_STATIC)
+        pkg = self.tree.pkg()
+        deps, dev = pkg["dependencies"], pkg["devDependencies"]
+        self.assertEqual(deps["lucide-react"], "^1.31.0")
+        self.assertEqual(deps["i18next"], "^25.0.0")
+        self.assertEqual(deps["react-i18next"], "^16.0.0")
+        self.assertEqual(dev["@vitejs/plugin-react"], "^6.0.4")
+
     # ── 3. Optimization budgets (lazy layouts + CLS) ───────────────────────
     def test_lazy_layouts_use_react_lazy(self):
         platform_injection.generate(self._spec("portfolio"), self.tmp, MODE_CLIENT_STATIC)

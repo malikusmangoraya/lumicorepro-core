@@ -39,6 +39,14 @@ PIN_QUERY = "^5.59.0"
 PIN_ZUSTAND = "^5.0.0"
 PIN_VITE = "^8.2.0"
 PIN_TAILWIND = "^3.4.7"
+# Peer-sensitive pins: when React is bumped to 19 the ecosystem companions
+# must follow, otherwise a fresh `npm install` fails ERESOLVE and the DevOps
+# quality gate blocks the ZIP (lucide-react <0.417 and react-i18next <15 only
+# peer against React <=18; @vitejs/plugin-react <5 peers against Vite <=6).
+PIN_LUCIDE = "^1.31.0"
+PIN_I18NEXT = "^25.0.0"
+PIN_REACT_I18NEXT = "^16.0.0"
+PIN_PLUGIN_REACT = "^6.0.4"
 
 # Files that collectively define the canonical backend blueprint
 # (paths relative to <project>/backend).
@@ -98,6 +106,17 @@ class PlatformInjection:
         if "react" in deps or "react-dom" in deps:
             set_pin(deps, "react", PIN_REACT)
             set_pin(deps, "react-dom", PIN_REACT_DOM)
+            # React 19 peer-compatibility: bump ecosystem companions that only
+            # historically peer against React <=18, otherwise fresh installs
+            # fail ERESOLVE before the quality gate can even build.
+            if "lucide-react" in deps:
+                set_pin(deps, "lucide-react", PIN_LUCIDE)
+            if "i18next" in deps:
+                set_pin(deps, "i18next", PIN_I18NEXT)
+            if "react-i18next" in deps:
+                set_pin(deps, "react-i18next", PIN_REACT_I18NEXT)
+        if "@vitejs/plugin-react" in dev:
+            set_pin(dev, "@vitejs/plugin-react", PIN_PLUGIN_REACT)
 
         set_pin(deps, "@tanstack/react-query", PIN_QUERY)
         set_pin(deps, "zustand", PIN_ZUSTAND)
@@ -231,7 +250,7 @@ export default useAppStore;
         }
 
     def _wrap_provider(self, src: str) -> Optional[str]:
-        """Replace `export default App;` with a provider-wrapped default export."""
+        """Replace the default export with a provider-wrapped default export."""
         app_path = os.path.join(src, "App.jsx")
         if not os.path.isfile(app_path):
             return None
@@ -239,38 +258,41 @@ export default useAppStore;
         if _MARKER in content:
             return None  # already wrapped
 
-        lines = content.splitlines()
-        out: list = []
-        replaced = False
-        for line in lines:
-            stripped = line.strip()
-            if not replaced and stripped == "export default App;":
-                out.append("export default function AppWithProviders() {")
-                out.append("  return (")
-                out.append("    <AppProviders>")
-                out.append("      <App />")
-                out.append("    </AppProviders>")
-                out.append("  );")
-                out.append("}")
-                replaced = True
-            else:
-                out.append(line)
+        wrapper = (
+            "export default function AppWithProviders() {\n"
+            "  return (\n"
+            "    <AppProviders>\n"
+            "      <App />\n"
+            "    </AppProviders>\n"
+            "  );\n"
+            "}\n"
+        )
 
-        if not replaced:
+        # Templates export the app root as either `export default App;` (const/
+        # named component) or `export default function App() { ... }`. Wrap both
+        # shapes; leaving either untouched silently fails the Enterprise
+        # Architect state_topology gate.
+        if "export default App;" in content:
+            body = content.replace("export default App;", wrapper, 1)
+        elif re.search(r"export default function App\b", content):
+            body = re.sub(
+                r"export default function App(?=\b)",
+                wrapper.replace("\n}\n", "\n}\n\nfunction App", 1),
+                content,
+                count=1,
+            )
+        else:
             return None  # unknown template shape — skip silently
 
         # Inject the AppProviders import after the first import line.
         import_line = f"import AppProviders from './lib/AppProviders'; // {_MARKER}\n"
-        if replaced:
-            text = "\n".join(out)
-            if "import AppProviders" not in text:
-                idx = text.index("import ")
-                nl = text.index("\n", idx)
-                text = text[: nl + 1] + import_line + text[nl + 1:]
-            # No raw-text markers may leak into module scope.
-            FileManager.write_file(app_path, text)
-            return app_path
-        return None
+        if "import AppProviders" not in body:
+            idx = body.index("import ")
+            nl = body.index("\n", idx)
+            body = body[: nl + 1] + import_line + body[nl + 1:]
+        # No raw-text markers may leak into module scope.
+        FileManager.write_file(app_path, body)
+        return app_path
 
     # ── 3. Optimization (React.lazy layouts + CLS safety) ──────────────────
     def _inject_lazy_layouts(self, project_dir: str) -> Dict[str, Any]:

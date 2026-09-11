@@ -517,12 +517,12 @@ class ComplianceGenerator:
  * CookieConsent — __MODEL_UPPER__ consent banner (project template).
  * Region: __REGION__ | Regulations: __REG_CODES__
  * Mount once in App.jsx: <CookieConsent />
- * Reads the category model from ../config/cookie-config.js.
+ * Reads the category model from ../../config/cookie-config.js.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import ButtonMotion from '@/components/ui/ButtonMotion';
-import { COOKIE_CONFIG, hasConsent, saveConsent } from '../config/cookie-config';
+import { COOKIE_CONFIG, hasConsent, saveConsent } from '../../config/cookie-config';
 
 const styles = {
   overlay: {
@@ -537,9 +537,9 @@ const styles = {
   card: {
     width: '100%',
     maxWidth: 640,
-    background: 'var(--color-surface, #ffffff)',
-    color: 'var(--color-fg, #0f172a)',
-    border: '1px solid var(--color-border, #e2e8f0)',
+    background: 'rgb(var(--t-canvas))',
+    color: 'rgb(var(--t-canvas-text))',
+    border: '1px solid rgba(var(--t-glass-border), 0.6)',
     borderRadius: 12,
     boxShadow: '0 12px 32px rgba(2, 6, 23, 0.25)',
     padding: '1.25rem',
@@ -558,9 +558,9 @@ const styles = {
     cursor: 'pointer',
     marginInlineEnd: '0.5rem',
   },
-  primary: { background: '#0d9488', color: '#ffffff' },
-  secondary: { background: 'var(--color-muted, #e2e8f0)', color: '#1e293b' },
-  link: { color: '#0d9488' },
+  primary: { background: 'rgb(var(--t-primary))', color: 'rgb(var(--t-canvas))' },
+  secondary: { background: 'rgba(var(--t-muted), 0.12)', color: 'rgb(var(--t-canvas-text))' },
+  link: { color: 'rgb(var(--t-primary))' },
 };
 
 export default function CookieConsent() {

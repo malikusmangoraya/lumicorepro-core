@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check, Languages } from 'lucide-react';
+import ButtonMotion from '../ui/ButtonMotion';
 import { cn } from '../../utils';
 
 const languages = [
@@ -52,10 +53,12 @@ export default function Language({ currentLang = 'en', onLanguageChange, classNa
 
   return (
     <div ref={menuRef} className={`relative inline-block text-left ${className || ''}`}>
-      <button
+      <ButtonMotion
+        variant="ghost"
+        size="sm"
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center gap-2 border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg text-xs font-medium text-foreground transition"
+        className="gap-2 border border-border bg-background px-3 text-xs text-foreground"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Change language, current: ${selected.name}`}
@@ -70,7 +73,7 @@ export default function Language({ currentLang = 'en', onLanguageChange, classNa
           )}
           aria-hidden="true"
         />
-      </button>
+      </ButtonMotion>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-lg z-50 py-1">
@@ -89,18 +92,21 @@ export default function Language({ currentLang = 'en', onLanguageChange, classNa
           <ul role="listbox" className="max-h-72 overflow-y-auto">
             {filtered.map((lang) => (
               <li key={lang.code} role="option" aria-selected={lang.code === currentLang}>
-                <button
+                <ButtonMotion
+                  variant="ghost"
+                  size="xs"
                   type="button"
+                  fullWidth
+                  className={`justify-start text-left ${
+                    lang.code === currentLang
+                      ? 'text-primary font-bold bg-primary/5'
+                      : 'text-foreground'
+                  }`}
                   onClick={() => {
                     onLanguageChange?.(lang.code);
                     setIsOpen(false);
                     setQuery('');
                   }}
-                  className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-muted transition ${
-                    lang.code === currentLang
-                      ? 'text-primary font-bold bg-primary/5'
-                      : 'text-foreground'
-                  }`}
                   dir={lang.dir}
                 >
                   <span className="text-base leading-none">{lang.flag}</span>
@@ -113,7 +119,7 @@ export default function Language({ currentLang = 'en', onLanguageChange, classNa
                   {lang.code === currentLang && (
                     <Check className="w-3 h-3 text-primary shrink-0" aria-hidden="true" />
                   )}
-                </button>
+                </ButtonMotion>
               </li>
             ))}
             {filtered.length === 0 && (

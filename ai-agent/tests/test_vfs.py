@@ -95,6 +95,46 @@ class TestProjectVFS(unittest.TestCase):
         self.assertEqual(lines[7], "SIX")
         self.assertNotIn("line6", lines)
 
+    def test_new_file_hunk_on_existing_target_replaces_not_appends(self):
+        # A model emitting a `/dev/null` (new-file) diff for a file that already
+        # exists intends a full rewrite. Append would duplicate the component
+        # (the CookieConsent corruption bug) — must REPLACE wholesale.
+        vfs = self._vfs()
+        diff = (
+            "diff --git a/frontend/src/Home.jsx b/frontend/src/Home.jsx\n"
+            "new file mode 100644\n"
+            "--- /dev/null\n"
+            "+++ b/frontend/src/Home.jsx\n"
+            "@@ -0,0 +3 @@\n"
+            "+export default function Home() {\n"
+            "+  return <section>Replacement</section>;\n"
+            "+}\n"
+        )
+        vfs.apply_unified_diff(diff)
+        updated = vfs.read("frontend/src/Home.jsx")
+        self.assertIn("Replacement", updated)
+        self.assertEqual(updated.count("export default function Home"), 1)
+        self.assertNotIn("<h1>Hi</h1>", updated)
+        self.assertEqual(len([l for l in updated.splitlines() if l.strip()]), 3)
+
+    def test_all_add_zero_hunk_on_existing_target_rewrites(self):
+        # Weaker models reuse the new-file `@@ -0,0 +N @@` all-add shape under a
+        # plain "modified" header — same rewrite intent, never append.
+        vfs = self._vfs()
+        diff = _diff(
+            "frontend/src/Home.jsx",
+            "frontend/src/Home.jsx",
+            "@@ -0,0 +2 @@\n"
+            "+export default function Home() {\n"
+            "+  return <main>V2</main>;\n"
+            "+}\n",
+        )
+        vfs.apply_unified_diff(diff)
+        updated = vfs.read("frontend/src/Home.jsx")
+        self.assertIn("V2", updated)
+        self.assertEqual(updated.count("export default function Home"), 1)
+        self.assertNotIn("<h1>Hi</h1>", updated)
+
     def test_new_file_creation(self):
         vfs = self._vfs()
         diff = (

@@ -135,11 +135,19 @@ class ProjectVFS:
             new_path, old_path, body = section
             try:
                 hunks = self._parse_hunks(body)
+                # A `--- /dev/null` section declares a NEW file. When the target
+                # already exists on disk the model intends a full rewrite, not an
+                # append — appending duplicates the component and corrupts the
+                # module (its classic anchor, as seen in CookieConsent.jsx).
+                creation_intent = bool(
+                    old_path and old_path.rstrip("/").endswith("dev/null")
+                )
                 current = self._apply_to_file_snapshot(
                     new_path or old_path,
                     new_path == "/dev/null",
                     hunks,
                     result,
+                    creation_intent=creation_intent,
                 )
                 if current is not None:
                     self._files[new_path or old_path] = current
@@ -217,10 +225,30 @@ class ProjectVFS:
         is_new_file: bool,
         hunks: List[Dict[str, Any]],
         result: Dict[str, Any],
+        creation_intent: bool = False,
     ) -> Optional[str]:
         rel = _posix(rel)
-        if is_new_file:
-            original: List[str] = []
+        # New-file intent on an existing target replaces the file wholesale with
+        # the diff's added lines (git semantics n=0;h=new). An append here is
+        # what previously doubled CookieConsent + broke App.jsx wiring. The same
+        # all-add `@@ -0,0 +1,N @@` shape is also emitted by weaker models under
+        # a "modified" header — treat that as a rewrite intent too.
+        rewrite_intent = creation_intent or bool(
+            hunks
+            and all(h["old_pos"] <= 0 and all(op == "+" for op, _ in h["ops"]) for h in hunks)
+        )
+        if rewrite_intent and self._files.get(rel):
+            # Filter to the added lines for a clean full rewrite.
+            added: List[str] = [
+                text for hunk in hunks for op, text in hunk["ops"] if op == "+"
+            ]
+            if added:
+                original: Optional[List[str]] = list(added)
+                hunks = []
+            else:
+                original = (self._files.get(rel) or "").splitlines()
+        elif is_new_file:
+            original: Optional[List[str]] = []
         else:
             original = (self._files.get(rel) or "").splitlines()
         if original is None:

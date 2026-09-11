@@ -192,7 +192,7 @@ export const ANALYTICS_CONFIG = {{
   options: {{
     debug:            import.meta.env.DEV,
     respectDoNotTrack: true,
-    cookieless:       '{primary}' === 'plausible' || '{primary}' === 'fathom',
+    cookieless:       {json.dumps(primary in ("plausible", "fathom"))},
     sampleRate:       1.0,  // 100% of users
   }},
 }};

@@ -137,7 +137,7 @@ _THEME_JS = """/**
     root.classList.toggle('dark', pref === true || saved === 'dark');
     if (!saved) root.classList.add('dark'); // dark default per design tokens
   } catch (e) {
-    /* noop */
+    void e;
   }
 })();
 

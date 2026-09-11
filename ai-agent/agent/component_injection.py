@@ -56,7 +56,10 @@ _IMPORT_RE = re.compile(r"^\s*import\s.+$", re.M)
 
 def _is_library_owned(rel_path: str) -> bool:
     parts = rel_path.replace("\\", "/").split("/")
-    return any(p in _LIBRARY_DIRS for p in ("/".join(parts[:2]),))
+    for i in range(len(parts) - 1):
+        if f"{parts[i]}/{parts[i + 1]}" in _LIBRARY_DIRS:
+            return True
+    return False
 
 
 def _safe_button_attrs(attrs: str) -> bool:
@@ -122,7 +125,12 @@ def inject_component_imports(project_dir: str, src_root: str = "frontend/src") -
                 return f"<ButtonMotion{attrs}>" if _safe_button_attrs(attrs) else match.group(0)
 
             new_content = _RAW_BUTTON_OPEN.sub(_swap, content)
-            if new_content != content and "ButtonMotion" in new_content:
+            # Only rewrite `</button>` closes when EVERY raw open was converted.
+            # If any open tag survives (complex attrs like `onClick={() => ...}`
+            # are intentionally skipped), rewriting the closes would leave an
+            # unmatched `</ButtonMotion>` and corrupt the JSX — so skip the file
+            # entirely instead and let the architect gate flag it.
+            if new_content != content and _RAW_BUTTON_OPEN.search(new_content) is None:
                 new_content = _RAW_BUTTON_CLOSE.sub("</ButtonMotion>", new_content)
                 new_content = _ensure_import(new_content)
                 with open(path, "w", encoding="utf-8") as fh:

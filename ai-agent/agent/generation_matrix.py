@@ -319,7 +319,7 @@ const providers = () => [
 
 export function track(name, properties = {}) {
   window.dispatchEvent(new CustomEvent('lumicore:analytics', { detail: { name, properties } }));
-  providers().forEach((p) => { try { p('event', name, properties); } catch (e) {} });
+  providers().forEach((p) => { try { p('event', name, properties); } catch (e) { void e; } });
 }
 
 export function trackConversion(name, value, currency = 'USD', extra = {}) {
