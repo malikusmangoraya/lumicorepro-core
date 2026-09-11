@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Zap } from 'lucide-react';
-import { SkipToContent, BrandLogo } from '../components/common';
+import { SkipToContent, BrandLogo, LicenseWatermark } from '../components/common';
 import GlassNavbar from '../components/common/GlassNavbar';
 import { Button } from '../components/ui';
 
@@ -14,6 +14,7 @@ export default function MainLayout() {
     <div className="min-h-screen flex flex-col bg-background">
       <SkipToContent />
       <GlassNavbar />
+      <LicenseWatermark />
 
       <main id="main-content" role="main" aria-label="Main content" className="flex-1">
         <div key={location.pathname} className="container mx-auto px-4 py-8 animate-page-enter">

@@ -23,6 +23,15 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci
 
+      - name: Frontend Lint
+        run: npm run lint
+
+      - name: Frontend Build
+        run: npm run build
+        env:
+          VITE_API_URL: https://api.lumicorepro.com
+          NODE_ENV: production
+
       - name: Check Backend Code Syntax
         run: |
           node --check backend/server.js
@@ -56,6 +65,24 @@ jobs:
 
       - name: Run Backend Tests
         run: cd backend && npm test || true
+
+  ai-agent-test:
+    name: AI Agent Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI Agent Dependencies
+        run: cd ai-agent && pip install -r requirements.txt
+
+      - name: Run AI Agent Tests
+        run: cd ai-agent && python -m pytest tests -q --ignore=tests/test_cli_e2e_progress.py
 
   build:
     name: Production Build & Asset Verification

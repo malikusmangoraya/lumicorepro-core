@@ -1,17 +1,17 @@
-# LumiCorePro — Production Deployment Guide
+# Deployment Guide
 
-This guide outlines deployment strategies for LumiCorePro across various cloud platforms and container orchestration engines.
-
----
+This guide outlines deployment strategies for LumicorePro across various cloud platforms and container orchestration engines.
 
 ## 1. Docker Compose (Single Host / VPS)
 
 ### Prerequisites
+
 - Docker Engine 24+
 - Docker Compose v2.20+
 - Domain configured with DNS A-records
 
 ### Deployment Steps
+
 1. Clone the repository and configure environment files:
    ```bash
    git clone https://github.com/your-org/lumicorepro-core.git
@@ -35,17 +35,17 @@ This guide outlines deployment strategies for LumiCorePro across various cloud p
    curl -i http://localhost:5000/api/health/detailed
    ```
 
----
-
 ## 2. Kubernetes Deployment (Production Cluster)
 
 ### Architecture
-- **Ingress Controller**: NGINX Ingress or Traefik with TLS certificate termination (Cert-Manager)
+
+- **Ingress Controller**: NGINX Ingress or Traefik with TLS certificate termination (cert-manager)
 - **Frontend Deployment**: 2+ replicas running Nginx static build
 - **Backend Deployment**: 3+ replicas with Horizontal Pod Autoscaler (HPA)
 - **Stateful Services**: MongoDB Atlas & AWS ElastiCache / Redis
 
 ### Sample Backend Deployment Manifest (`k8s/backend.yaml`)
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -85,23 +85,32 @@ spec:
               memory: "1Gi"
 ```
 
----
-
 ## 3. Cloud Provider Quick Deployments
 
 ### AWS (ECS / Fargate)
+
 - Push images to Amazon ECR.
 - Deploy tasks using ECS Fargate cluster with Application Load Balancer (ALB).
 - Use Amazon DocumentDB / Atlas for MongoDB and ElastiCache for Redis.
 
 ### Vercel / Render / Railway
-- **Frontend**: Deploy directly from Git repo on Vercel (`npm run build`, output: `dist`).
-- **Backend**: Deploy backend folder to Render Web Service or Railway (`npm start`, port `5000`).
 
----
+- **Frontend**: Deploy directly from the Git repo on Vercel (`npm run build`, output: `dist`).
+- **Backend**: Deploy the backend folder to Render Web Service or Railway (`npm start`, port `5000`).
 
 ## 4. SSL & Security Checklist
-- [x] Enforce TLS 1.3 with HTTPS redirect.
-- [x] Configure strict CORS with production domain whitelist.
-- [x] Set strong JWT and Session secret keys in cloud secret manager.
-- [x] Restrict MongoDB network access via VPC peering / IP allowlist.
+
+- [ ] Enforce TLS 1.3 with HTTPS redirect.
+- [ ] Configure strict CORS with the production domain whitelist.
+- [ ] Set strong JWT and session secret keys in a cloud secret manager.
+- [ ] Restrict MongoDB network access via VPC peering / IP allowlist.
+- [ ] Rate-limit auth and AI endpoints.
+- [ ] Enable structured logging and centralized log collection.
+
+## 5. Docs Site Deployment
+
+Deploy the VitePress docs as a static site (built with `npm run docs:build`, output: `docs/.vitepress/dist`):
+
+- **Netlify / Vercel**: Import the repo, build command `npm run docs:build`, output `docs/.vitepress/dist`.
+- **GitHub Pages**: Publish the build output to `gh-pages` via GitHub Actions.
+- **Nginx / Docker**: Serve the static `docs/.vitepress/dist` directory behind any web server.

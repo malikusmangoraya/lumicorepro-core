@@ -78,4 +78,11 @@ export const aiWriteLimiter = buildLimiter({
   message: 'Too many generation requests. Please wait a moment.',
 });
 
-export default { authLimiter, paymentLimiter, apiLimiter, uploadLimiter, aiLimiter, aiWriteLimiter };
+export const licenseLimiter = buildLimiter({
+  name: 'license',
+  windowMs: WINDOW,
+  max: 60,
+  message: 'Too many license checks. Please try again later.',
+});
+
+export default { authLimiter, paymentLimiter, apiLimiter, uploadLimiter, aiLimiter, aiWriteLimiter, licenseLimiter };

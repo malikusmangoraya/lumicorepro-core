@@ -1,5 +1,10 @@
 # LumicorePro Core 🚀
 
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Build](https://img.shields.io/github/actions/workflow/status/malikusmangoraya/lumicorepro-core/ci.yml)
+![Node](https://img.shields.io/badge/node-20+-green)
+![Tests](https://img.shields.io/badge/tests-292%20passed-brightgreen)
+
 **AI-Powered Full-Stack Website Generator** — Build production-ready websites from a single natural language prompt.
 
 LumicorePro Core is a modular React-based component library combined with a **9-phase AI agent pipeline** that automatically generates complete full-stack projects (React + Vite + Tailwind + Node.js + Express + PostgreSQL) tailored to **market demand and trending features**.

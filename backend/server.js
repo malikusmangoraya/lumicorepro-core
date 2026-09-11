@@ -73,6 +73,9 @@ import addressRoutes from './routes/address.routes.js';
 import orgRoutes from './routes/org.routes.js';
 import bookingRoutes from './routes/booking.routes.js';
 import playbookRoutes from './routes/playbook.routes.js';
+import licenseRoutes from './routes/license.routes.js';
+import refundPolicyRoutes from './routes/refund-policy.js';
+import aiDisclosureRoutes from './routes/ai-disclosure.js';
 import errorHandler, { notFound } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 import { swaggerOptions } from './config/swagger.js';
@@ -144,6 +147,9 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/playbook', playbookRoutes);
+app.use('/api/license', licenseRoutes);
+app.use('/api/legal/refund-policy', refundPolicyRoutes);
+app.use('/api/legal/ai-disclosure', aiDisclosureRoutes);
 
 // Health check routes
 app.use('/api/health', healthRoutes);

@@ -8,3 +8,4 @@ export { default as ThemeProvider, useTheme } from './ThemeProvider';
 export { default as ContactForm } from './ContactForm';
 export { default as Analytics } from './Analytics';
 export { default as CookieConsent } from './CookieConsent';
+export { default as LicenseWatermark } from './LicenseWatermark';

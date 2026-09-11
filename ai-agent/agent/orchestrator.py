@@ -34,6 +34,7 @@ from .competitive_benchmark import CompetitiveBenchmark
 from .currency_localizer import CurrencyLocalizer
 from .compliance_generator import ComplianceGenerator
 from .accessibility_checker import AccessibilityChecker
+from .license_injector import LicenseInjector
 from .localization_engine import LocalizationEngine
 from .api_generator import APIGenerator
 from .seo_automation import SEOAutomationEngine
@@ -175,6 +176,7 @@ class AgentOrchestrator:
         self.webhook_manager = WebhookManager()
         self.deployment_engine = GlobalDeploymentEngine()
         self.security_engine = SecurityPostureEngine()
+        self.license_injector = LicenseInjector()
         self.iteration_engine = AgentIterationEngine(self)
         self.design_engine = DesignStyleEngine()
         self.theme_engine = ThemeMatrixEngine()
@@ -1251,6 +1253,10 @@ class AgentOrchestrator:
                      self.security_engine.generate,
                      [spec, project_dir],
                      {"controls_verified": 0, "review_items": 0}),
+                    ("phase_12_license_stamp",
+                     self.license_injector.generate,
+                     [spec, project_dir],
+                     {"artifacts": [], "stamped": 0}),
                     ("phase_12_cost_model",
                      self.deployment_engine.estimate_running_cost,
                      [spec.get("website_type", "business"), "low"],

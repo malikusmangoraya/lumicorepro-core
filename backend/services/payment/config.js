@@ -130,6 +130,30 @@ const isGatewayEnabled = (gateway) => {
   return config ? config.enabled : false;
 };
 
+/**
+ * Startup safety check — logs a warning whenever LIVE keys are detected.
+ * Currently all gateways default to sandbox/test in .env.example.
+ * When you go live, replace this with a hard check or add an
+ * environment variable: PAYMENT_LIVE_MODE=true
+ */
+export function warnLiveKeys() {
+  const warnings = [];
+  const stripeKey = process.env.STRIPE_SECRET_KEY || '';
+  const paypalMode = (process.env.PAYPAL_MODE || 'sandbox').toLowerCase();
+
+  if (stripeKey.startsWith('sk_live')) {
+    warnings.push('STRIPE: Live key detected (sk_live_...) — real charges will occur!');
+  }
+  if (paypalMode === 'live') {
+    warnings.push('PAYPAL: Live mode — real payments will process');
+  }
+  if (warnings.length > 0) {
+    // eslint-disable-next-line no-console
+    console.warn('\n⚠️  PAYMENT LIVE MODE WARNING:\n' + warnings.join('\n') + '\n');
+  }
+  return { liveMode: warnings.length > 0, warnings };
+}
+
 export {
   getGatewayConfig,
   getEnabledGateways,

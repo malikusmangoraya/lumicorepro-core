@@ -251,6 +251,25 @@ export const previewAPI = {
   deploy: (runId, platform = 'vercel') => api.post('/ai/deploy', { run_id: runId, platform }),
 };
 
+// License validation (self-hosted, free)
+export const licenseAPI = {
+  validate: (key) => api.post('/license/validate', { key }),
+  metadata: () => api.get('/license/metadata'),
+};
+
+/** Validate a license key stored in localStorage. Never blocks the UI;
+ * returns { valid:false } when offline/unconfigured so the app still works. */
+export const checkStoredLicense = async () => {
+  const key = localStorage.getItem('lmc_license_key');
+  if (!key) return { valid: false, status: 'no_key' };
+  try {
+    const { data } = await licenseAPI.validate(key);
+    return data?.valid ? { valid: true, status: 'active' } : { valid: false, status: data?.status || 'invalid' };
+  } catch (e) {
+    return { valid: false, status: 'offline' };
+  }
+};
+
 /**
  * Resolve a preview URL returned by the agent into a URL the browser can load.
  * - Absolute HTTP(S) URLs (e.g. a production preview base) are kept as-is.
