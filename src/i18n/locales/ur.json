@@ -97,7 +97,8 @@
     "shop": "دکان",
     "ai": "AI",
     "business": "کاروبار",
-    "logout": "لاگ آؤٹ"
+    "logout": "لاگ آؤٹ",
+    "pricing": "قیمتیں"
   },
   "apiSettings": {
     "title": "API ترتیبات",

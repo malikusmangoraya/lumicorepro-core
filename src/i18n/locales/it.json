@@ -97,7 +97,8 @@
     "shop": "Negozio",
     "ai": "IA",
     "business": "Business",
-    "logout": "Esci"
+    "logout": "Esci",
+    "pricing": "Prezzi"
   },
   "apiSettings": {
     "title": "Configurazione API",

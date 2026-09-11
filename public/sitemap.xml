@@ -1,62 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://lumicorepro.com/</loc>
-    <lastmod>2026-08-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://lumicorepro.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://lumicorepro.com/es/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://lumicorepro.com/fr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://lumicorepro.com/de/" />
+    <xhtml:link rel="alternate" hreflang="it" href="https://lumicorepro.com/it/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://lumicorepro.com/pt/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://lumicorepro.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="ur" href="https://lumicorepro.com/ur/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://lumicorepro.com/zh/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://lumicorepro.com/ja/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://lumicorepro.com/ko/" />
+    <xhtml:link rel="alternate" hreflang="hi" href="https://lumicorepro.com/hi/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://lumicorepro.com/tr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://lumicorepro.com/" />
+    <lastmod>2026-09-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates</loc>
-    <lastmod>2026-08-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://lumicorepro.com/ar/templates" />
+    <xhtml:link rel="alternate" hreflang="ur" href="https://lumicorepro.com/ur/templates" />
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/generate</loc>
-    <lastmod>2026-08-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://lumicorepro.com/ar/generate" />
+    <xhtml:link rel="alternate" hreflang="ur" href="https://lumicorepro.com/ur/generate" />
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://lumicorepro.com/pricing</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://lumicorepro.com/gallery</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lumicorepro.com/chat</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lumicorepro.com/api-settings</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://lumicorepro.com/templates/ecommerce/ProductListing</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/business/LandingPage</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/business/ServicesPage</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/business/PricingPage</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/business/ContactPage</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/ai/ChatInterface</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lumicorepro.com/templates/ai/AIGenerator</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

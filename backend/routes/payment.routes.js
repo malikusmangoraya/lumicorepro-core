@@ -40,7 +40,8 @@ router.get('/config', (req, res) => {
 
   res.json({
     success: true,
-    currency: 'usd',
+    defaultCurrency: (process.env.DEFAULT_CURRENCY || 'USD').toUpperCase(),
+    supportedCurrencies: ['USD','EUR','GBP','PKR','INR','AED','SAR','BRL','MXN','CAD','AUD','JPY'],
     gateways: {
       stripe: {
         enabled: Boolean(stripe),
@@ -76,10 +77,11 @@ router.get('/config', (req, res) => {
  */
 router.post('/create-intent', protect, paymentLimiter, async (req, res, next) => {
   try {
-    const { orderId, amount, currency = 'usd' } = req.body;
+    const { orderId, amount, currency } = req.body;
 
     let targetAmount = amount;
     let order = null;
+    let orderCurrency = (currency || process.env.DEFAULT_CURRENCY || 'USD').toUpperCase();
 
     if (orderId) {
       order = await Order.findByPk(orderId);
@@ -87,6 +89,7 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
         return res.status(404).json({ success: false, error: 'Order not found' });
       }
       targetAmount = parseFloat(order.totalPrice);
+      orderCurrency = (order.currency || orderCurrency).toUpperCase();
     }
 
     if (!targetAmount || targetAmount <= 0) {
@@ -101,7 +104,7 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
     if (stripe) {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amountInCents,
-        currency,
+        currency: orderCurrency.toLowerCase(),
         metadata: {
           userId: String(req.user.id),
           orderId: order ? String(order.id) : '',
@@ -120,7 +123,7 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
       order_id: order ? order.id : null,
       stripePaymentIntentId: paymentIntentId,
       amount: targetAmount,
-      currency,
+      currency: orderCurrency.toLowerCase(),
       status: 'pending',
       provider: 'stripe',
       paymentMethod: 'card',
@@ -521,9 +524,10 @@ router.post('/checkout', protect, paymentLimiter, async (req, res, next) => {
     } else if (orderId) {
       const order = await Order.findByPk(orderId);
       if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+      const orderCurrency = (order.currency || process.env.DEFAULT_CURRENCY || 'USD').toUpperCase();
       const session = await stripeService.createPayment({
         amount: parseFloat(order.totalPrice),
-        currency: 'usd',
+        currency: orderCurrency.toLowerCase(),
         orderId: order.id,
       });
       const payment = await Payment.create({
@@ -531,7 +535,7 @@ router.post('/checkout', protect, paymentLimiter, async (req, res, next) => {
         order_id: order.id,
         stripePaymentIntentId: session.id,
         amount: parseFloat(order.totalPrice),
-        currency: 'usd',
+        currency: orderCurrency.toLowerCase(),
         status: 'pending',
         provider: 'stripe',
         paymentMethod: 'card',

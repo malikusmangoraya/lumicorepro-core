@@ -97,7 +97,8 @@
     "shop": "Tienda",
     "ai": "IA",
     "business": "Negocios",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "pricing": "Precios"
   },
   "apiSettings": {
     "title": "Configuración de API",

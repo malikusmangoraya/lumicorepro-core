@@ -110,14 +110,14 @@ const US_STATE_TAX_RATES = {
  * @param {string} options.billingAddress - Full billing address for EU VAT reversal checks
  * @returns {Object} Tax calculation result
  */
-export const calculateTax = ({ amount, country, state = null, billingAddress = null }) => {
+export const calculateTax = ({ amount, country, state = null, billingAddress = null, currency = 'USD' }) => {
   if (!amount || amount <= 0) {
     return {
       amount: 0,
       rate: 0,
       type: 'NONE',
       country,
-      currency: 'USD',
+      currency: currency.toUpperCase(),
       inclusive: false,
       total: 0,
     };

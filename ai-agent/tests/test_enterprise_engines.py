@@ -67,6 +67,15 @@ class TestEnterpriseEngines(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.test_dir, "frontend", "public", "robots.txt")))
         self.assertTrue(os.path.exists(os.path.join(self.test_dir, "SEO_AUDIT.md")))
 
+        seo_json = os.path.join(self.test_dir, "frontend", "src", "seo-config.json")
+        if os.path.exists(seo_json):
+            import json
+            with open(seo_json, "r", encoding="utf-8") as fh:
+                config = json.load(fh)
+            for page in config.values():
+                self.assertIn("ogLocale", page)
+                self.assertTrue(page["ogLocale"])
+
     def test_cdn_optimizer(self):
         cdn_opt = CDNOptimizer()
         res = cdn_opt.generate(self.test_dir, self.spec)

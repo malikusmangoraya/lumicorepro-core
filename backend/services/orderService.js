@@ -42,12 +42,19 @@ export function generateOrderNumber() {
  * Create an order atomically. Runs in a transaction, locking each product row
  * (FOR UPDATE) before checking stock to prevent oversell race conditions.
  */
-export async function createOrder(user, { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode }) {
+export async function createOrder(user, { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode, currency }) {
   const { sequelize, Product } = deps;
   return sequelize.transaction(async (t) => {
     let itemsPrice = 0;
     const orderItems = [];
     const stockDeltas = [];
+    const orderCurrency = (currency || 'USD').toUpperCase().trim();
+    const validCode = /^[A-Z]{3}$/;
+    if (!validCode.test(orderCurrency)) {
+      const err = new Error(`Unsupported currency: ${orderCurrency}`);
+      err.statusCode = 400;
+      throw err;
+    }
 
     for (const item of items) {
       // Row-level lock so concurrent checkouts serialize on this product
@@ -118,6 +125,7 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
         discountAmount: discount || 0,
         promoCode: applied ? promoCode.toUpperCase() : null,
         totalPrice,
+        currency: orderCurrency,
         notes: notes || '',
         status: 'pending',
       },

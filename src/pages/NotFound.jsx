@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, Sparkles, Search } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
+import PageSEO from '@/components/common/PageSEO';
 
 const QUICK_LINKS = [
   { path: '/templates', label: '60 Templates', icon: '🎨' },
@@ -15,6 +16,7 @@ export default function NotFoundPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background -mx-4 -my-8 px-4">
+      <PageSEO title="Page Not Found — LumicorePro" description="The page you are looking for does not exist." noIndex />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.06),transparent_60%)]" />
 
       <div className="relative text-center max-w-lg w-full animate-fade-in-up">

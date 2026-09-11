@@ -5,7 +5,22 @@
 
 // ==================== Date/Time Helpers ====================
 
-/** Format date to readable string */
+/**
+ * Resolve the active locale from i18n (import-safe, no circular deps).
+ * i18next-browser-languagedetector persists the language under `i18nextLng`.
+ * Falls back to the browser default when unavailable.
+ */
+const resolveLocale = () => {
+  try {
+    if (typeof window === 'undefined') return undefined;
+    const lang = window.localStorage?.getItem('i18nextLng');
+    return lang && lang !== 'undefined' && lang !== 'cimode' ? lang.replace('_', '-') : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** Format date to readable string (locale-aware via active i18n language) */
 export const formatDate = (date, options = {}) => {
   const defaultOptions = {
     year: 'numeric',
@@ -13,12 +28,13 @@ export const formatDate = (date, options = {}) => {
     day: 'numeric',
     ...options,
   };
-  return new Date(date).toLocaleDateString(undefined, defaultOptions);
+  const locale = resolveLocale();
+  return new Date(date).toLocaleDateString(locale, defaultOptions);
 };
 
-/** Format date and time */
+/** Format date and time (locale-aware) */
 export const formatDateTime = (date) => {
-  return new Date(date).toLocaleString();
+  return new Date(date).toLocaleString(resolveLocale());
 };
 
 /** Get relative time (e.g., "2 hours ago") */
@@ -52,14 +68,14 @@ export const getTimeSince = (date) => {
 
 // ==================== Number Helpers ====================
 
-/** Format number with commas */
+/** Format number with commas (locale-aware) */
 export const formatNumber = (num) => {
-  return new Intl.NumberFormat().format(num);
+  return new Intl.NumberFormat(resolveLocale()).format(num);
 };
 
-/** Format currency */
+/** Format currency (locale-aware) */
 export const formatCurrency = (amount, currency = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(resolveLocale(), {
     style: 'currency',
     currency,
   }).format(amount);

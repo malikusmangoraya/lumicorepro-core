@@ -3,7 +3,17 @@
  * @param {Object} order - Populated order object
  * @returns {string} Clean, responsive HTML invoice
  */
+
+const CURRENCY_SYMBOLS = {
+  USD: '$', EUR: '€', GBP: '£', PKR: 'Rs', INR: '₹', AED: 'د.إ',
+  SAR: '﷼', JPY: '¥', CNY: '¥', BRL: 'R$', MXN: '$', CAD: '$',
+  AUD: '$', SGD: '$', HKD: '$', KWD: 'د.ك', QAR: 'ر.ق', UAH: '₴', BDT: '৳',
+};
+
+const currencySymbol = (code) => CURRENCY_SYMBOLS[(code || 'USD').toUpperCase()] || '$';
+
 export const generateInvoiceHTML = (order) => {
+  const sym = currencySymbol(order.currency);
   const itemsRows = order.items
     .map(
       (item) => `
@@ -17,10 +27,10 @@ export const generateInvoiceHTML = (order) => {
           ${item.quantity}
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; text-align: right;">
-          $${item.price.toFixed(2)}
+          ${sym}${item.price.toFixed(2)}
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; text-align: right; font-weight: 600;">
-          $${(item.price * item.quantity).toFixed(2)}
+          ${sym}${(item.price * item.quantity).toFixed(2)}
         </td>
       </tr>
     `
@@ -95,10 +105,10 @@ export const generateInvoiceHTML = (order) => {
     </table>
 
     <div class="totals">
-      <div><span>Subtotal:</span><span>$${order.itemsPrice.toFixed(2)}</span></div>
-      <div><span>Tax (8%):</span><span>$${order.taxPrice.toFixed(2)}</span></div>
-      <div><span>Shipping:</span><span>${order.shippingPrice === 0 ? 'Free' : `$${order.shippingPrice.toFixed(2)}`}</span></div>
-      <div class="grand-total"><span>Total:</span><span>$${order.totalPrice.toFixed(2)} ${order.currency || 'USD'}</span></div>
+      <div><span>Subtotal:</span><span>${sym}${order.itemsPrice.toFixed(2)}</span></div>
+      <div><span>Tax (8%):</span><span>${sym}${order.taxPrice.toFixed(2)}</span></div>
+      <div><span>Shipping:</span><span>${order.shippingPrice === 0 ? 'Free' : `${sym}${order.shippingPrice.toFixed(2)}`}</span></div>
+      <div class="grand-total"><span>Total:</span><span>${sym}${order.totalPrice.toFixed(2)} ${order.currency || 'USD'}</span></div>
     </div>
 
     <div class="footer">

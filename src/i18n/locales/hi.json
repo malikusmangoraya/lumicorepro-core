@@ -97,7 +97,8 @@
     "shop": "दुकान",
     "ai": "AI",
     "business": "व्यवसाय",
-    "logout": "लॉग आउट"
+    "logout": "लॉग आउट",
+    "pricing": "मूल्य निर्धारण"
   },
   "apiSettings": {
     "title": "API कॉन्फ़िगरेशन",

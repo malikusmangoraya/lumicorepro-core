@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Card, IconButton, Textarea } from '@/components/ui';
 import { aiAgentAPI } from '@/services/api';
+import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
 
 const SUGGESTIONS = [
@@ -312,6 +313,11 @@ export default function Chat() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <PageSEO
+        title="Lumicore AI Chat — LumicorePro"
+        description="Chat with the Lumicore AI agent. Send text, images and documents — it analyses, answers and builds your full website."
+        noIndex
+      />
       <div className="mb-6 flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <Sparkles className="h-5 w-5" />

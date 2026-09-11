@@ -20,7 +20,7 @@ import {
 import { Badge, Button, ButtonMotion, Card } from '@/components/ui';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerGroup';
-import SEO, { schemas } from '@/components/common/SEO';
+import SEO, { schemas, hreflangFor } from '@/components/common/SEO';
 import { cn } from '@/utils';
 
 const Hero3DScene = React.lazy(() => import('@/components/motion/HeroCanvas'));
@@ -264,6 +264,7 @@ export default function Home() {
       <SEO
         title={`${t('home.heroTitleA')} — LumicorePro`}
         description={t('home.heroDescription')}
+        hreflang={typeof window !== 'undefined' ? hreflangFor(window.location.pathname, window.location.origin) : null}
         schema={[
           schemas.website({
             name: 'LumicorePro',

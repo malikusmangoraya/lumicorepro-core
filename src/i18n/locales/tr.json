@@ -97,7 +97,8 @@
     "shop": "Mağaza",
     "ai": "Yapay Zeka",
     "business": "İşletme",
-    "logout": "Çıkış Yap"
+    "logout": "Çıkış Yap",
+    "pricing": "Fiyatlandırma"
   },
   "apiSettings": {
     "title": "API Yapılandırması",

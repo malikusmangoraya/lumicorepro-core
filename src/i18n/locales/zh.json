@@ -97,7 +97,8 @@
     "shop": "商城",
     "ai": "AI",
     "business": "商务",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "pricing": "定价"
   },
   "apiSettings": {
     "title": "API 配置",

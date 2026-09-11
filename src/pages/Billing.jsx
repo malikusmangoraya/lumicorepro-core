@@ -10,8 +10,11 @@ import {
 } from 'lucide-react';
 import { Card, Badge, Button, Spinner } from '@/components/ui';
 import { subscriptionsAPI, paymentsAPI } from '@/services/api';
+import { useCurrency } from '@/hooks/useCurrency';
+import { formatDate } from '@/utils/helpers';
 
 export default function Billing() {
+  const { formatPrice } = useCurrency();
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -141,12 +144,12 @@ export default function Billing() {
                   </Badge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Period: {sub.currentPeriodStart ? new Date(sub.currentPeriodStart).toLocaleDateString() : '—'} →{' '}
-                  {sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : '—'}
+                  Period: {formatDate(sub.currentPeriodStart)} →{' '}
+                  {formatDate(sub.currentPeriodEnd)}
                 </p>
                 {sub.plan?.amount && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Coins className="h-3 w-3" /> ${parseFloat(sub.plan.amount).toFixed(2)}/
+                    <Coins className="h-3 w-3" /> {formatPrice(parseFloat(sub.plan.amount))}/
                     {sub.plan.interval === 'year' ? 'yr' : 'mo'}
                   </p>
                 )}

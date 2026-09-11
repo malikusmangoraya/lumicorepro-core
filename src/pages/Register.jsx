@@ -4,6 +4,7 @@ import { Mail, Lock, User, ArrowRight, Sparkles, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { Card, Input, Button, Alert, Progress } from '@/components/ui';
+import PageSEO from '@/components/common/PageSEO';
 
 const STRENGTH_LEVELS = [
   { label: 'Weak', score: 1 },
@@ -84,6 +85,11 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center -mx-4 -my-8 px-4 py-12">
+      <PageSEO
+        title="Create Account — LumicorePro"
+        description="Create your free LumicorePro account and start generating production-ready websites with AI agents."
+        noIndex
+      />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />
 
       <div className="relative w-full max-w-sm animate-fade-in-up">

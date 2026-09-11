@@ -4,9 +4,12 @@ import { Card, Badge, Button, Spinner } from '@/components/ui';
 import { plansAPI, paymentsAPI, subscriptionsAPI } from '@/services/api';
 import { getApiKey } from '@/services/apiConfig';
 import { useAppContext } from '@/context/AppContext';
+import { useCurrency } from '@/hooks/useCurrency';
+import PageSEO from '@/components/common/PageSEO';
 
 export default function Pricing() {
-  const { isAuthenticated, user } = useAppContext();
+  const { isAuthenticated } = useAppContext();
+  const { formatPrice } = useCurrency();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectingId, setSelectingId] = useState(null);
@@ -73,6 +76,11 @@ export default function Pricing() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      <PageSEO
+        title="Pricing — LumicorePro"
+        description="Simple pricing for AI-generated websites. Try the full 15-phase pipeline with per-plan AI credits — no card required to explore."
+        keywords="lumicorepro, pricing, ai website generator, plans, credits"
+      />
       <div className="mb-10 text-center">
         <h1 className="font-display text-3xl font-bold text-foreground">
           Simple pricing for AI-generated websites
@@ -107,7 +115,7 @@ export default function Pricing() {
             <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display text-3xl font-extrabold text-foreground">
-                ${parseFloat(plan.amount).toFixed(2)}
+                {formatPrice(parseFloat(plan.amount))}
               </span>
               <span className="text-sm text-muted-foreground">
                 /{plan.interval === 'year' ? 'year' : 'month'}
@@ -153,7 +161,7 @@ export default function Pricing() {
               <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="font-display text-3xl font-extrabold text-foreground">
-                  ${parseFloat(plan.amount).toFixed(2)}
+                  {formatPrice(parseFloat(plan.amount))}
                 </span>
                 <span className="text-sm text-muted-foreground">one-time</span>
               </div>

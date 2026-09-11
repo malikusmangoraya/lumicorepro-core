@@ -27,6 +27,12 @@ const numbers = {
   PORT: { min: 1, max: 65535 },
 };
 
+const optional = {
+  DEFAULT_CURRENCY: { pattern: /^[A-Z]{3}$/, msg: 'DEFAULT_CURRENCY must be an ISO 4217 3-letter code (e.g. USD)' },
+  DEFAULT_LOCALE: { pattern: /^[a-z]{2}([_-][A-Za-z]{2,4})?$/, msg: 'DEFAULT_LOCALE must be a BCP 47 tag (e.g. en, en-US)' },
+  TZ: { pattern: /^[A-Za-z_]+(\/[A-Za-z_+\/-]+)?$/, msg: 'TZ must be a valid IANA timezone (e.g. UTC, Asia/Karachi)' },
+};
+
 /** Validate and return normalized errors, or null when valid. */
 export function validateConfig(env = process.env, { strict = false } = {}) {
   const errors = [];
@@ -45,6 +51,13 @@ export function validateConfig(env = process.env, { strict = false } = {}) {
     const num = Number(env[key]);
     if (!Number.isFinite(num) || num < rule.min || num > rule.max) {
       errors.push(`Invalid env var ${key}: expected number in [${rule.min}, ${rule.max}]`);
+    }
+  }
+
+  for (const [key, rule] of Object.entries(optional)) {
+    if (env[key] === undefined || env[key] === '') continue;
+    if (rule.pattern && !rule.pattern.test(String(env[key]).trim())) {
+      errors.push(`Invalid env var ${key}: ${rule.msg}`);
     }
   }
 

@@ -6,5 +6,11 @@ Disallow: /templates/dashboard/
 Disallow: /login
 Disallow: /register
 
+# Allow localized paths (hreflang alternates)
+Allow: /ar/
+Allow: /ur/
+Allow: /es/
+Allow: /fr/
+
 # Sitemap location
 Sitemap: https://lumicorepro.com/sitemap.xml

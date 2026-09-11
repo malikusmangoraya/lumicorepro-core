@@ -97,7 +97,8 @@
     "shop": "쇼핑",
     "ai": "AI",
     "business": "비즈니스",
-    "logout": "로그아웃"
+    "logout": "로그아웃",
+    "pricing": "가격"
   },
   "apiSettings": {
     "title": "API 설정",

@@ -97,7 +97,8 @@
     "shop": "Boutique",
     "ai": "IA",
     "business": "Entreprise",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "pricing": "Tarifs"
   },
   "apiSettings": {
     "title": "Configuration de l'API",

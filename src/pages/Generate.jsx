@@ -51,6 +51,7 @@ import {
 } from '@/components/ui';
 import { aiAgentAPI, previewAPI, resolvePreviewUrl } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
+import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
 
 /* ── 15 pipeline phases (mirrors ai-agent/orchestrator.py) ───────── */
@@ -803,6 +804,11 @@ export default function GeneratePage() {
   ═══════════════════════════════════════════════════════════════════ */
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-page-enter">
+      <PageSEO
+        title="AI Website Generator — LumicorePro"
+        description="Generate a complete production-ready website with AI in minutes. 15-phase pipeline: market research, RTL/i18n, compliance, SEO and deploy configs."
+        keywords="ai website generator, ai site builder, react generator, lumen"
+      />
       {/* ── Page Header ─────────────────────────────────────────── */}
       <header className="animate-fade-in-up">
         <div className="flex items-center gap-2 mb-3 flex-wrap">

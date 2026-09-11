@@ -257,6 +257,15 @@ class SEOAutomationEngine:
     def _build_seo_config(self, pages, base_url, spec):
         project = spec.get("project_name", "Project")
         industry = spec.get("industry", "general")
+        languages = spec.get("languages_generated", ["en"])
+        region = spec.get("region", "NA")
+        primary_lang = (languages[0] if languages else "en").lower()
+        og_locale = {
+            "en": "en_US", "es": "es_ES", "fr": "fr_FR", "de": "de_DE",
+            "it": "it_IT", "pt": "pt_PT", "ar": "ar_SA", "ur": "ur_PK",
+            "zh": "zh_CN", "ja": "ja_JP", "ko": "ko_KR", "hi": "hi_IN",
+            "tr": "tr_TR",
+        }.get(primary_lang, "en_US")
         config = {}
         for page in pages:
             slug = page["slug"] or "home"
@@ -268,6 +277,7 @@ class SEOAutomationEngine:
                 "ogType":        "website" if not page["slug"] else "article",
                 "noIndex":       page.get("noindex", False),
                 "schema":        page.get("schema"),
+                "ogLocale":      og_locale,
             }
         return config
 

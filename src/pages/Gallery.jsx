@@ -4,9 +4,14 @@ import { ExternalLink, Layers, MapPin, TrendingUp, CheckCircle2 } from 'lucide-r
 import { Card, Badge, Button } from '@/components/ui';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerGroup';
-import SEO from '@/components/common/SEO';
+import SEO, { hreflangFor } from '@/components/common/SEO';
 import { cn } from '@/utils';
 import caseStudies from '@/data/caseStudies';
+
+const SEO_HREFLANG =
+  typeof window !== 'undefined'
+    ? hreflangFor(window.location.pathname, window.location.origin)
+    : null;
 
 const INDUSTRY_FILTERS = ['all', ...new Set(caseStudies.map((s) => s.industry))];
 
@@ -21,6 +26,7 @@ export default function Gallery() {
       <SEO
         title="Portfolio — AI-Generated Projects | LumicorePro"
         description="See real projects built with LumicorePro AI — e-commerce, healthcare, restaurants, real estate, education, and fitness platforms generated in minutes."
+        hreflang={SEO_HREFLANG}
       />
 
       <section className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">

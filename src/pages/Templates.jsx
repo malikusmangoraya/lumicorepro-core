@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { TEMPLATE_CATALOG } from '@/templates/catalog';
 import { Card, Badge, Button, Input, IconButton } from '@/components/ui';
+import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
 
 /* ── category meta ──────────────────────────────────────────────── */
@@ -95,6 +96,11 @@ export default function TemplatesHub() {
 
   return (
     <div className="space-y-8 animate-page-enter">
+      <PageSEO
+        title="Template Gallery — LumicorePro"
+        description="Browse 60+ production-ready website templates across 12 categories — e-commerce, dashboards, healthcare, AI and more. Generate with one click."
+        keywords="lumicorepro templates, website templates, react templates, ai site builder"
+      />
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="animate-fade-in-up">
         <div className="flex items-center gap-3 mb-2">

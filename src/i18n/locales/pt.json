@@ -97,7 +97,8 @@
     "shop": "Loja",
     "ai": "IA",
     "business": "Negócios",
-    "logout": "Sair"
+    "logout": "Sair",
+    "pricing": "Preços"
   },
   "apiSettings": {
     "title": "Configuração de API",

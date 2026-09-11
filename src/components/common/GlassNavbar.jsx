@@ -21,6 +21,7 @@ import {
   Sparkles,
   Zap,
   Key,
+  CreditCard,
 } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { useTheme } from './ThemeProvider';
@@ -64,6 +65,7 @@ export default function GlassNavbar() {
   const navItems = [
     { path: '/', label: t('navigation.home'), icon: Home, match: 'exact' },
     { path: '/templates', label: t('navigation.templates'), icon: LayoutTemplate, match: 'prefix' },
+    { path: '/pricing', label: t('navigation.pricing'), icon: CreditCard, match: 'exact' },
     {
       path: '/templates/dashboard/DashboardOverview',
       label: t('layout.dashboard'),

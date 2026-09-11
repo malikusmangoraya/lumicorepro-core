@@ -97,7 +97,8 @@
     "shop": "Shop",
     "ai": "KI",
     "business": "Business",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "pricing": "Preise"
   },
   "apiSettings": {
     "title": "API-Konfiguration",
