@@ -12,6 +12,7 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { useAppContext } from './AppContext';
 import authService from '../services/auth';
+import { trackEvent, AnalyticsEvents } from '../utils/analytics';
 
 const AuthContext = createContext(null);
 
@@ -92,6 +93,7 @@ export function AuthProvider({ children }) {
           const t = data?.token || data?.data?.token;
           if (u && t) {
             app.login(u, t);
+            trackEvent(AnalyticsEvents.SIGNUP);
             return { user: u, token: t };
           }
         } catch (_apiErr) {
@@ -105,6 +107,7 @@ export function AuthProvider({ children }) {
           };
           const t = 'demo-jwt-token-2026';
           app.login(demo, t);
+          trackEvent(AnalyticsEvents.SIGNUP, { mode: 'demo' });
           return { user: demo, token: t, demo: true };
         }
         throw new Error('Registration failed');

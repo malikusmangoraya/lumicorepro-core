@@ -118,14 +118,52 @@ const getEnabledGateways = () => {
     'stripe', 'paypal', 'razorpay', 'square', 'bkash',
     'mercadopago', 'flutterwave', 'paytm', 'mollie', 'liqpay', 'paddle'
   ];
-  
-  return gateways.filter(gateway => {
-    const config = getGatewayConfig(gateway);
-    return config && config.enabled;
-  });
+
+  // --- LAUNCH FEATURE FLAG ---
+  // At launch we only activate Stripe + PayPal. The other 11 gateways stay
+  // implemented in code but disabled: they will NOT return from this function,
+  // won't appear in the checkout UI, and won't process refunds.
+  //
+  //   env value                              -> active gateways
+  //   PAYMENT_GATEWAYS_ENABLED=stripe,paypal -> stripe + paypal (launch default)
+  //   PAYMENT_GATEWAYS_ENABLED=all           -> every gateway with a valid key
+  //   (unset)                                -> every gateway with a valid key
+  //
+  // To enable another gateway later: add its slug below, e.g. stripe,paypal,paddle.
+  // Comment: "disabled for launch — enable when gateway-specific demand confirmed"
+  const launchWhitelist = ['stripe', 'paypal'];
+  const enabledFlag = (process.env.PAYMENT_GATEWAYS_ENABLED || '')
+    .toLowerCase()
+    .split(',')
+    .map((g) => g.trim())
+    .filter(Boolean);
+
+  if (enabledFlag.includes('all')) {
+    // Explicit opt-in to all gateways (dev/live testing only)
+    return gateways.filter((gateway) => {
+      const config = getGatewayConfig(gateway);
+      return config && config.enabled;
+    });
+  }
+
+  return gateways
+    .filter((gateway) => launchWhitelist.includes(gateway))
+    .filter((gateway) => {
+      const config = getGatewayConfig(gateway);
+      return config && config.enabled;
+    });
 };
 
 const isGatewayEnabled = (gateway) => {
+  const enabledFlag = (process.env.PAYMENT_GATEWAYS_ENABLED || '')
+    .toLowerCase()
+    .split(',')
+    .map((g) => g.trim())
+    .filter(Boolean);
+  const launchWhitelist = ['stripe', 'paypal'];
+  if (!enabledFlag.includes('all') && !launchWhitelist.includes(gateway)) {
+    return false;
+  }
   const config = getGatewayConfig(gateway);
   return config ? config.enabled : false;
 };

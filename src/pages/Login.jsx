@@ -6,6 +6,9 @@ import { useAppContext } from '@/context/AppContext';
 import authService from '@/services/auth';
 import { Card, Input, Button, Alert, Divider, Modal } from '@/components/ui';
 import PageSEO from '@/components/common/PageSEO';
+import Turnstile from '@/components/common/CaptchaTurnstile';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 export default function LoginPage() {
   const { login, verify2FALogin } = useAuth();
@@ -22,6 +25,7 @@ export default function LoginPage() {
   const [twoFATarget, setTwoFATarget] = useState('');
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const validate = () => {
     const e = {};
@@ -42,7 +46,7 @@ export default function LoginPage() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await login({ email: form.email.trim(), password: form.password });
+      const res = await login({ email: form.email.trim(), password: form.password, captchaToken });
       if (res?.requires2FA) {
         setTwoFAStep(true);
         setTwoFATarget(res.user?.email || form.email.trim());
@@ -246,6 +250,23 @@ export default function LoginPage() {
                 error={errors.password}
               />
             </div>
+
+            {TURNSTILE_SITE_KEY && !twoFAStep && (
+              <div>
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onVerify={(token) => {
+                    setCaptchaToken(token);
+                    if (errors.captcha) setErrors((er) => ({ ...er, captcha: '' }));
+                  }}
+                />
+                {errors.captcha && (
+                  <p className="mt-1 text-xs text-destructive" role="alert">
+                    {errors.captcha}
+                  </p>
+                )}
+              </div>
+            )}
 
             <Button
               type="submit"

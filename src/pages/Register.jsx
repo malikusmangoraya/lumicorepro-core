@@ -5,6 +5,9 @@ import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { Card, Input, Button, Alert, Progress } from '@/components/ui';
 import PageSEO from '@/components/common/PageSEO';
+import Turnstile from '@/components/common/CaptchaTurnstile';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 const STRENGTH_LEVELS = [
   { label: 'Weak', score: 1 },
@@ -38,6 +41,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [agreed, setAgreed] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const strength = getPasswordStrength(form.password);
   const strengthLevel = STRENGTH_LEVELS[Math.min(strength - 1, 3)];
@@ -52,6 +56,7 @@ export default function RegisterPage() {
     if (!form.confirm) e.confirm = 'Please confirm your password';
     else if (form.confirm !== form.password) e.confirm = 'Passwords do not match';
     if (!agreed) e.agreed = 'You must accept the terms';
+    if (TURNSTILE_SITE_KEY && !captchaToken) e.captcha = 'Please complete the security check';
     return e;
   };
 
@@ -65,13 +70,21 @@ export default function RegisterPage() {
     setErrors({});
     setLoading(true);
     try {
-      await register({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+      await register({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        captchaToken,
+      });
       addNotification('Account created successfully! Welcome to LumiCorePro.', 'success');
       navigate('/');
     } catch (err) {
       setErrors({
         general:
-          err.response?.data?.error || err.message || 'Registration failed. Please try again.',
+          err.response?.data?.error?.message ||
+          err.response?.data?.error ||
+          err.message ||
+          'Registration failed. Please try again.',
       });
     } finally {
       setLoading(false);
@@ -182,6 +195,21 @@ export default function RegisterPage() {
               autoComplete="new-password"
               required
             />
+
+            <div>
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                onVerify={(token) => {
+                  setCaptchaToken(token);
+                  if (errors.captcha) setErrors((er) => ({ ...er, captcha: '' }));
+                }}
+              />
+              {errors.captcha && (
+                <p className="mt-1 text-xs text-destructive" role="alert">
+                  {errors.captcha}
+                </p>
+              )}
+            </div>
 
             <div>
               <label className="flex cursor-pointer items-start gap-2.5 group">

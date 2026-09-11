@@ -26,6 +26,8 @@ const LoginPage = lazy(() => import('../pages/Login'));
 const RegisterPage = lazy(() => import('../pages/Register'));
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy'));
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfService'));
+const RefundPolicyPage = lazy(() => import('../pages/RefundPolicy'));
+const MarketingLandingPage = lazy(() => import('../pages/MarketingLanding'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPassword'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPassword'));
 const VerifyEmailPage = lazy(() => import('../pages/VerifyEmail'));
@@ -229,6 +231,14 @@ export const router = createBrowserRouter([
     errorElement: <ErrorBoundary />,
     children: [
       { index: true, element: <Home /> },
+      {
+        path: 'marketing',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <MarketingLandingPage />
+          </Suspense>
+        ),
+      },
       { path: 'templates', element: <TemplatesHub /> },
       { path: 'generate', element: <GeneratePage /> },
       {
@@ -347,6 +357,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageSkeleton />}>
             <TermsOfServicePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'refund',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <RefundPolicyPage />
           </Suspense>
         ),
       },

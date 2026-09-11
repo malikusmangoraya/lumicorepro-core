@@ -3,12 +3,22 @@ import http from 'http';
 import logger from '../utils/logger.js';
 import { aiLimiter, aiWriteLimiter } from '../middleware/rateLimit.js';
 import { gateAI } from '../middleware/security.js';
+import { circuitBreaker, dailyGenLimit, dailyChatLimit, tokenCap, recordUsage } from '../middleware/usageGuard.js';
+import { dispatchAI } from '../services/aiCost/queue.service.js';
+import spendEstimator from '../services/aiCost/spendEstimator.service.js';
 
 const router = express.Router();
 const AI_AGENT_URL = process.env.AI_AGENT_URL || 'http://localhost:8000';
+const DEMO_MODE = (process.env.DEMO_MODE || 'false').toLowerCase() === 'true';
 
 // Global AI-route rate limiting (defense against auth-less abuse)
 router.use(aiLimiter);
+
+// Cost-guard the expensive routes: circuit breaker → daily/user/IP limit → token cap
+router.post('/generate', circuitBreaker(), dailyGenLimit(), tokenCap('generation'));
+router.post('/chat', circuitBreaker(), dailyChatLimit(), tokenCap('chat'));
+router.post('/vision/analyze', circuitBreaker(), dailyGenLimit(), tokenCap('vision'));
+router.post('/generate/stream', circuitBreaker(), dailyGenLimit(), tokenCap('generation'));
 
 /**
  * Validate + normalize file attachments from the frontend.
@@ -53,7 +63,7 @@ async function callAgent(endpoint, options = {}) {
  *     summary: Trigger 15-phase AI website generation pipeline
  *     tags: [AI Generation]
  */
-router.post('/generate', aiWriteLimiter, gateAI, async (req, res) => {
+router.post('/generate', aiWriteLimiter, gateAI, async (req, res, next) => {
   const { prompt, provider = 'gemini', language = 'en', region, image, files } = req.body;
   const attachments = sanitizeFiles(files);
 
@@ -61,7 +71,75 @@ router.post('/generate', aiWriteLimiter, gateAI, async (req, res) => {
     return res.status(400).json({ success: false, error: 'Prompt must be at least 5 characters long' });
   }
 
+  // Email-verified gate: unverified accounts must not burn AI quota. Skip for
+  // API-key-authenticated (service) calls — they're trusted partners.
+  if (req.user?.id && !DEMO_MODE) {
+    try {
+      const { default: UserModel } = await import('../models/User.js');
+      const account = await UserModel.findByPk(req.user.id, {
+        attributes: ['id', 'isVerified', 'betaStatus'],
+      });
+      if (account) {
+        if (account.isVerified === false) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: 'EMAIL_NOT_VERIFIED',
+              message: 'Please verify your email address before generating. Check your inbox for the verification link.',
+            },
+          });
+        }
+        const waitlistOn = process.env.WAITLIST_MODE === 'true';
+        if (waitlistOn && account.betaStatus === 'waitlist') {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: 'WAITLIST_PENDING',
+              message: 'Your account is on the waitlist. You will be able to generate once approved.',
+            },
+          });
+        }
+        if (waitlistOn && account.betaStatus === 'denied') {
+          return res.status(403).json({
+            success: false,
+            error: { code: 'WAITLIST_DENIED', message: 'This account is not authorized.' },
+          });
+        }
+      }
+    } catch (err) {
+      // DB offline — let the daily-limit guard handle cost protection
+      logger.warn(`verified-email check skipped: ${err.message}`);
+    }
+  }
+
   try {
+    // Demo mode: return instant simulated result WITHOUT calling the AI agent,
+    // so demo visitors never consume free AI API quota.
+    if (DEMO_MODE) {
+      const runId = `demo-${Date.now()}`;
+      const demoName = (prompt || 'demo-website').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) || 'demo-website';
+      return res.json({
+        success: true,
+        mode: 'demo_offline',
+        run_id: runId,
+        status: 'done',
+        ws_url: null,
+        download_url: null,
+        message: 'Demo mode: generation simulated with local rules (no AI quota consumed).',
+        fallback_data: {
+          projectName: demoName,
+          template: 'Selection simulated by demo rules',
+          components: 12,
+          backend: 'Express.js',
+          database: 'PostgreSQL',
+          qualityScore: 94,
+          launchReady: true,
+          executionTime: '0.4',
+          demo: true,
+        },
+      });
+    }
+
     // Attempt to call the Python FastAPI agent
     const body = { provider, language, region };
     if (prompt && typeof prompt === 'string' && prompt.trim().length >= 5) {
@@ -75,10 +153,21 @@ router.post('/generate', aiWriteLimiter, gateAI, async (req, res) => {
     if (attachments.length > 0) {
       body.files = attachments;
     }
-    const data = await callAgent('/api/generate', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    const data = await dispatchAI(
+      () => callAgent('/api/generate', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+      { queueKind: 'generation' }
+    );
+
+    // Record usage for the spend estimator (best-effort, never blocks response)
+    recordUsage({
+      userId: req.user?.id,
+      ip: req.ip,
+      endpoint: 'generation',
+      estimatedTokens: spendEstimator.estimateTokensForRequest('generation'),
+    }).catch(() => {});
 
     return res.json({
       success: true,
@@ -180,10 +269,19 @@ router.post('/vision/analyze', aiWriteLimiter, gateAI, async (req, res) => {
   }
 
   try {
-    const data = await callAgent('/api/vision/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ image: image.trim(), provider: provider || null }),
-    });
+    const data = await dispatchAI(
+      () => callAgent('/api/vision/analyze', {
+        method: 'POST',
+        body: JSON.stringify({ image: image.trim(), provider: provider || null }),
+      }),
+      { queueKind: 'vision' }
+    );
+    recordUsage({
+      userId: req.user?.id,
+      ip: req.ip,
+      endpoint: 'vision',
+      estimatedTokens: spendEstimator.estimateTokensForRequest('vision'),
+    }).catch(() => {});
     return res.json({ success: true, data });
   } catch (err) {
     logger.warn(`Vision analyze failed at ${AI_AGENT_URL}: ${err.message}`);
@@ -217,10 +315,19 @@ router.post('/chat', aiWriteLimiter, gateAI, async (req, res) => {
     if (attachments.length + (image ? 1 : 0) > 10) {
       return res.status(400).json({ success: false, error: 'Maximum 10 attachments per message' });
     }
-    const data = await callAgent('/api/chat', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    const data = await dispatchAI(
+      () => callAgent('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+      { queueKind: 'chat' }
+    );
+    recordUsage({
+      userId: req.user?.id,
+      ip: req.ip,
+      endpoint: 'chat',
+      estimatedTokens: spendEstimator.estimateTokensForRequest('chat'),
+    }).catch(() => {});
     return res.json({ success: true, data });
   } catch {
     return res.json({
@@ -466,6 +573,46 @@ router.get('/usage', async (req, res) => {
         lastGeneration:    null,
       },
     });
+  }
+});
+
+/**
+ * @swagger
+ * /api/ai/spend-estimator:
+ *   get:
+ *     summary: Local daily/weekly estimated AI token spend (admin). No paid analytics.
+ *     tags: [AI Generation]
+ */
+router.get('/spend-estimator', async (req, res, next) => {
+  try {
+    const summary = await spendEstimator.getSpendSummary(8);
+    return res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @swagger
+ * /api/ai/my-quota:
+ *   get:
+ *     summary: Return the authenticated user's today-remaining generation quota
+ *     tags: [AI Generation]
+ */
+router.get('/my-quota', async (req, res, next) => {
+  try {
+    return res.json({
+      success: true,
+      data: {
+        limit: parseInt(process.env.AI_DAILY_GEN_LIMIT, 10) || 3,
+        demoMode: DEMO_MODE,
+        message: DEMO_MODE
+          ? 'Demo mode active — generations are simulated and free.'
+          : `Free tier allows ${parseInt(process.env.AI_DAILY_GEN_LIMIT, 10) || 3} generations per day.`,
+      },
+    });
+  } catch (err) {
+    next(err);
   }
 });
 

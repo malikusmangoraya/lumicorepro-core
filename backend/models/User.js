@@ -58,6 +58,11 @@ User.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    betaStatus: {
+      type: DataTypes.ENUM('active', 'waitlist', 'denied'),
+      defaultValue: 'active',
+      comment: 'Waitlist gate: "waitlist" users can log in but cannot generate until approved.',
+    },
     verificationToken: {
       type: DataTypes.STRING(255),
       allowNull: true,

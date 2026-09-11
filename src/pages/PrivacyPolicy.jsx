@@ -135,8 +135,52 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3 border-t border-border pt-6">
+          <h2 className="text-xl font-bold font-display flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" /> 5. AI & Model Provider Disclosure
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            LumiCorePro combines on-device/pipeline rules with third-party large language models to
+            generate your website. When the AI agent is invoked, your prompt and the information
+            needed to produce your request may be transmitted to the applicable provider(s) listed
+            above for the sole purpose of completing the generation. Each provider processes data
+            under its own privacy policy; you can review the processing terms of the provider
+            actually used for your generation on request.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <strong>You must NOT submit sensitive personal data (health, financial, government
+            identifiers, minors' data) or regulated content through the AI generation tools.</strong>{' '}
+            AI output is machine-generated and may be imperfect — review before production use.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold font-display">6. Data Retention</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            We retain account data for as long as your account is active. AI generation logs (prompt
+            metadata and token usage counters) are retained for up to 90 days for fraud prevention
+            and cost accounting, then aggregated or deleted. Deleted accounts are purged within 30
+            days unless financial/legal retention obligations require longer storage.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-bold font-display">7. Sub-processors & Hosting Providers</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            We work with the following categories of service providers who may process personal data
+            on our behalf, always under appropriate data-processing agreements:
+          </p>
+          <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+            <li><strong>Cloud hosting:</strong> Vercel, Railway, Render (production infrastructure)</li>
+            <li><strong>Database & caching:</strong> Managed PostgreSQL and Redis providers</li>
+            <li><strong>Payments:</strong> Stripe, Inc. and PayPal, Inc. (PCI-DSS Level 1)</li>
+            <li><strong>Email delivery:</strong> Transactional email provider (verification, reset, invoice)</li>
+            <li><strong>Analytics:</strong> Privacy-friendly, first-party or self-hosted analytics</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3 border-t border-border pt-6">
           <h2 className="text-xl font-bold font-display">
-            5. Contact Our Data Protection Officer (DPO)
+            8. Contact Our Data Protection Officer (DPO)
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             If you have questions regarding this Privacy Policy or wish to exercise your data

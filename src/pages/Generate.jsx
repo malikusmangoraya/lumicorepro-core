@@ -53,6 +53,7 @@ import { aiAgentAPI, previewAPI, resolvePreviewUrl } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
 import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
+import { trackEvent, AnalyticsEvents } from '@/utils/analytics';
 
 /* ── 15 pipeline phases (mirrors ai-agent/orchestrator.py) ───────── */
 const PHASES = [
@@ -313,7 +314,7 @@ function qualityColor(score) {
    MAIN COMPONENT
 ════════════════════════════════════════════════════════════════════ */
 export default function GeneratePage() {
-  const { language: currentLang } = useAppContext();
+  const { language: currentLang, user: appUser } = useAppContext();
 
   /* State ─────────────────────────────────────────────────────────── */
   const [prompt, setPrompt] = useState('');
@@ -471,6 +472,7 @@ export default function GeneratePage() {
 
       setActivePhaseIdx(-1);
       setStatus('done');
+      trackEvent(AnalyticsEvents.GENERATE_SUCCESS, { engine: 'offline' });
       addLog('━━━ Offline Pipeline Complete! ━━━');
 
       const projectSlug =
@@ -525,6 +527,7 @@ export default function GeneratePage() {
         region: targetRegion !== 'GLOBAL' ? targetRegion : undefined,
       };
       if (screenshot) payload.image = screenshot;
+      trackEvent(AnalyticsEvents.GENERATE_CLICK, { provider, language: targetLang });
       const res = await aiAgentAPI.generate(payload);
 
       const data = res.data;
@@ -561,6 +564,7 @@ export default function GeneratePage() {
                 addLog(`✓ [Live] ${PHASES[msg.index]?.label || msg.phase} done`);
               } else if (msg.type === 'complete' || msg.type === 'finished') {
                 setStatus('done');
+                trackEvent(AnalyticsEvents.GENERATE_SUCCESS, { engine: 'live_agent' });
                 setActivePhaseIdx(-1);
                 addLog('━━━ Live AI Generation Complete! ━━━');
                 const rep = msg.result || {};
@@ -605,8 +609,16 @@ export default function GeneratePage() {
       } else {
         await runOfflinePipeline(txt, data.fallback_data);
       }
-    } catch {
+    } catch (err) {
+      const isDailyLimit = err?.response?.status === 429 && /daily|limit|quota/i.test(JSON.stringify(err?.response?.data || ''));
+      if (isDailyLimit) {
+        addLog('Daily generation limit reached — quota resets tomorrow.');
+        trackEvent(AnalyticsEvents.GENERATE_DAILY_LIMIT);
+        setStatus('ready');
+        return;
+      }
       addLog('Backend agent unreachable — running local offline engine.');
+      trackEvent(AnalyticsEvents.GENERATE_FAIL, { fallback: true });
       await runOfflinePipeline(txt);
     }
   }, [prompt, status, provider, targetLang, targetRegion, screenshot, runOfflinePipeline, addLog]);
@@ -809,6 +821,20 @@ export default function GeneratePage() {
         description="Generate a complete production-ready website with AI in minutes. 15-phase pipeline: market research, RTL/i18n, compliance, SEO and deploy configs."
         keywords="ai website generator, ai site builder, react generator, lumen"
       />
+      {/* ── Waitlist banner (closed beta) ──────────────────────── */}
+      {appUser?.betaStatus === 'waitlist' && (
+        <div
+          role="alert"
+          className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm"
+        >
+          <p className="font-semibold text-foreground">You&apos;re on the waitlist</p>
+          <p className="mt-1 text-muted-foreground">
+            Your spot isn&apos;t approved yet — generation is unlocked once an admin approves your
+            account. You can still browse templates and the live demo.
+          </p>
+        </div>
+      )}
+
       {/* ── Page Header ─────────────────────────────────────────── */}
       <header className="animate-fade-in-up">
         <div className="flex items-center gap-2 mb-3 flex-wrap">

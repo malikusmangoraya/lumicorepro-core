@@ -20,7 +20,7 @@ import Plan from '../models/Plan.js';
 import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import { sequelize } from '../config/database.js';
-import { getEnabledGateways, getGatewayConfig } from '../services/payment/config.js';
+import { getEnabledGateways, getGatewayConfig, isGatewayEnabled } from '../services/payment/config.js';
 
 const router = express.Router();
 
@@ -54,11 +54,11 @@ router.get('/config', (req, res) => {
         mode: process.env.PAYPAL_MODE || 'sandbox',
       },
       razorpay: {
-        enabled: Boolean(getGatewayConfig('razorpay')?.enabled),
+        enabled: isGatewayEnabled('razorpay'),
         keyId: process.env.RAZORPAY_KEY_ID || '',
       },
       paddle: {
-        enabled: Boolean(getGatewayConfig('paddle')?.enabled),
+        enabled: isGatewayEnabled('paddle'),
         environment: process.env.PADDLE_ENV || 'sandbox',
       },
     },

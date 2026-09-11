@@ -9,6 +9,49 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /api/users/waitlist:
+ *   get:
+ *     summary: List users waiting on the beta waitlist (Admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/waitlist', protect, authorize('admin'), async (req, res, next) => {
+  try {
+    const { count: total, rows: users } = await User.findAndCountAll({
+      where: { betaStatus: 'waitlist' },
+      attributes: { exclude: ['password'] },
+      order: [['createdAt', 'ASC']],
+    });
+    res.json({ success: true, data: { total, users } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
+ * /api/users/{id}/approve-waitlist:
+ *   post:
+ *     summary: Approve a waitlist user for launch access (Admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/:id/approve-waitlist', protect, authorize('admin'), async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+    await user.update({ betaStatus: 'active' });
+    res.json({ success: true, message: 'User approved for launch access', data: { id: user.id } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
  * /api/users:
  *   get:
  *     summary: Get all users (Admin/Vendor only)
@@ -178,7 +221,7 @@ router.put('/:id', protect, async (req, res, next) => {
 
     const allowedFields = ['name', 'phone', 'avatar', 'address', 'preferences'];
     if (req.user.role === 'admin') {
-      allowedFields.push('role', 'isActive', 'isVerified');
+      allowedFields.push('role', 'isActive', 'isVerified', 'betaStatus');
     }
 
     const updates = {};

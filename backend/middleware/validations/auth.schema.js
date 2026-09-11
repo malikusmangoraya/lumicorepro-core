@@ -6,6 +6,7 @@ export const registerSchema = z.object({
     email: z.string().trim().email('Valid email is required').toLowerCase(),
     password: z.string().min(6, 'Password must be at least 6 characters').max(128),
     role: z.enum(['user', 'vendor']).optional().default('user'),
+    captchaToken: z.string().optional(),
   }),
 });
 
@@ -13,6 +14,7 @@ export const loginSchema = z.object({
   body: z.object({
     email: z.string().trim().email('Valid email is required').toLowerCase(),
     password: z.string().min(1, 'Password is required'),
+    captchaToken: z.string().optional(),
   }),
 });
 

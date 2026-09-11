@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import { protect, generateToken, registerInMemoryStore } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimit.js';
+import { requireCaptcha, optionalCaptcha } from '../middleware/captchaVerify.js';
 import refreshService from '../services/refreshToken.service.js';
 import logger from '../utils/logger.js';
 import { generateOTP, verifyOTP } from '../utils/otp.js';
@@ -91,6 +92,7 @@ async function findUserById(id) {
 router.post(
   '/register',
   authLimiter,
+  requireCaptcha,
   validateRequest(registerSchema),
   async (req, res, next) => {
     try {
@@ -106,12 +108,27 @@ router.post(
       }
 
       let user;
+      // Waitlist/Beta gate: when WAITLIST_MODE=true, new signups enter the
+      // waitlist unless the daily auto-approve cap is still available.
+      const waitlistEnabled = process.env.WAITLIST_MODE === 'true';
+      let betaStatus = 'active';
+      if (waitlistEnabled) {
+        const autoApproveCap = parseInt(process.env.WAITLIST_AUTO_APPROVE_DAILY, 10) || 0;
+        const approvedToday = await User.count({
+          where: {
+            betaStatus: 'active',
+            createdAt: { [Op.gte]: new Date(new Date().setUTCHours(0, 0, 0, 0)) },
+          },
+        });
+        betaStatus = approvedToday < autoApproveCap ? 'active' : 'waitlist';
+      }
       try {
         user = await User.create({
           name,
           email: normEmail,
           password,
           role: role === 'vendor' ? 'vendor' : 'user',
+          betaStatus,
         });
       } catch (err) {
         logger.warn(`Postgres insert failed, storing user in memory: ${err.message}`);
@@ -124,6 +141,7 @@ router.post(
           role: role === 'vendor' ? 'vendor' : 'user',
           avatar: '',
           isActive: true,
+          betaStatus,
           twoFactorEnabled: false,
           preferences: { theme: 'dark', language: 'en' },
           comparePassword: async function (cand) { return bcrypt.compare(cand, this.password); },
@@ -184,6 +202,7 @@ router.post(
 router.post(
   '/login',
   authLimiter,
+  optionalCaptcha,
   validateRequest(loginSchema),
   async (req, res, next) => {
     try {
@@ -253,6 +272,7 @@ router.post(
           avatar: user.avatar || '',
           preferences: user.preferences || {},
           twoFactorEnabled: !!user.twoFactorEnabled,
+          betaStatus: user.betaStatus || 'active',
         },
       });
     } catch (error) {

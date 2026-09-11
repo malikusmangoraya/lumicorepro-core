@@ -1,0 +1,215 @@
+import { Link } from 'react-router-dom';
+import {
+  Zap,
+  Globe,
+  LayoutTemplate,
+  Languages,
+  Eye,
+  ShieldCheck,
+  Rocket,
+  Sparkles,
+  ArrowRight,
+  CheckCircle2,
+  Image as ImageIcon,
+} from 'lucide-react';
+import { Button, Badge, Card } from '@/components/ui';
+import PageSEO from '@/components/common/PageSEO';
+
+const WALL_OF_LUCK = [
+  {
+    title: '15-Phase AI Pipeline',
+    desc: 'From brief to production-ready website in one guided pipeline — research, structure, copy, build, review, deploy.',
+    icon: Zap,
+  },
+  {
+    title: 'AI Agents, Not Just Chat',
+    desc: 'A multi-agent system plans, writes, codes, reviews, and refines your project with provider fallback (Gemini, OpenAI, Anthropic, Claude, OpenRouter, DeepSeek).',
+    icon: Sparkles,
+  },
+  {
+    title: 'Live Previews',
+    desc: 'Watch your site render in real time via WebSocket streaming as every phase completes.',
+    icon: Eye,
+  },
+  {
+    title: '101 Ready Templates',
+    desc: 'Restaurant, real estate, e-commerce, portfolio, dashboard, fintech, travel and more — start close to your goal.',
+    icon: LayoutTemplate,
+  },
+  {
+    title: '13 Languages + RTL',
+    desc: 'Generate in English, Urdu, Arabic, Hindi, Spanish, French and more, with full right-to-left support.',
+    icon: Languages,
+  },
+  {
+    title: 'Built for Producers',
+    desc: 'Security-first, SEO-ready, payment-integrated output — export archives, deploy to Vercel/Railway, or download ZIP.',
+    icon: Rocket,
+  },
+];
+
+const SCREENSHOT_SLOTS = [
+  { label: 'Pipeline overview', hint: 'Paste a real screenshot here' },
+  { label: 'Live preview', hint: 'Paste a real screenshot here' },
+  { label: 'Generated storefront', hint: 'Paste a real screenshot here' },
+];
+
+export default function MarketingLandingPage() {
+  return (
+    <div className="-mx-4 -my-8 sm:mx-0 sm:my-0">
+      <PageSEO
+        title="LumiCorePro — AI that Builds Your Website From a Sentence"
+        description="LumiCorePro generates production-ready websites with a 15-phase AI agent pipeline. Try the free demo — no credit card required."
+      />
+
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.12),transparent_60%)]" />
+        <div className="relative mx-auto max-w-6xl px-6 pt-20 pb-16 text-center">
+          <Badge variant="outline" size="sm" className="mx-auto">
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> 15-phase AI agent — free demo live
+          </Badge>
+          <h1 className="mx-auto mt-6 max-w-3xl font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
+            Describe it.
+            <br />
+            <span className="bg-gradient-to-r from-primary via-primary/70 to-cyan-400 bg-clip-text text-transparent">
+              LumiCorePro builds it.
+            </span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Type a sentence about your business and watch AI agents plan, write, code, review, and
+            deploy a complete website — in minutes, in 13 languages, with live preview.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Link to="/generate" className="flex items-center gap-2">
+                Try the Live Demo
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg">
+              <Link to="/templates">Browse 101 Templates</Link>
+            </Button>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Free demo · no credit card · daily generation limit applies
+          </p>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight">
+            Everything an agency does, automated
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
+            LumiCorePro is a complete AI web studio — strategy to deployment, no copying-pasting
+            between tools.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {WALL_OF_LUCK.map((f, i) => (
+            <Card key={i} className="group p-6 transition-all duration-200 hover:border-primary/40">
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-200 group-hover:scale-110">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <h3 className="font-display text-base font-bold">{f.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* SCREENSHOTS (placeholder slots) */}
+      <section className="border-y border-border/60 bg-muted/30 py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="text-center">
+            <h2 className="font-display text-3xl font-bold tracking-tight">See it in action</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Real screenshots coming to these slots — replace the placeholders below.
+            </p>
+          </div>
+          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {SCREENSHOT_SLOTS.map((slot, i) => (
+              <div
+                key={i}
+                className="flex aspect-[4/3] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background p-6 text-center"
+              >
+                <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
+                <p className="mt-3 text-sm font-medium text-muted-foreground">{slot.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground/60">{slot.hint}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING — COMING SOON */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight">
+            Simple pricing, coming soon
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
+            We&apos;re launching in stages. Set your expectations with early plan shapes below —
+            prices will be announced on full release.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            { name: 'Starter', price: 'Coming Soon', perks: ['X generations / month', 'Community templates', 'Email support'] },
+            { name: 'Pro', price: 'Coming Soon', perks: ['More generations', 'Live deploy + domains', 'Priority support'] },
+            { name: 'Studio', price: 'Coming Soon', perks: ['Full agent access', 'White-label export', 'Team seats'] },
+          ].map((p, i) => (
+            <Card key={i} className={`p-6 ${i === 1 ? 'border-primary/50 ring-1 ring-primary/30' : ''}`}>
+              <h3 className="font-display text-lg font-bold">{p.name}</h3>
+              <p className="mt-2 font-display text-2xl font-extrabold">{p.price}</p>
+              <ul className="mt-4 space-y-2">
+                {p.perks.map((perk, j) => (
+                  <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary" /> {perk}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <Card className="relative overflow-hidden p-8 text-center sm:p-12">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%)]" />
+          <div className="relative">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+              Your next site is one sentence away
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
+              Join the waitlist for launch access and priority pricing, or try the live demo right
+              now.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                <Link to="/register">Join the Waitlist</Link>
+              </Button>
+              <Button variant="outline" size="lg">
+                <Link to="/generate">Open Demo</Link>
+              </Button>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Free AI cost protection
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Globe className="h-4 w-4 text-primary" /> 13 languages + RTL
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Rocket className="h-4 w-4 text-primary" /> One-click deploy to Vercel
+              </span>
+            </div>
+          </div>
+        </Card>
+      </section>
+    </div>
+  );
+}
