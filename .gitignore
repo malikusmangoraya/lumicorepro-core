@@ -39,3 +39,9 @@ ai-agent/database/*.db
 ai-agent/logs/
 generated-projects/
 
+# Python
+__pycache__/
+*.pyc
+venv/
+.pytest_cache/
+
