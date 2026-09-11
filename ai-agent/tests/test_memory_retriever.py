@@ -11,6 +11,7 @@ if str(agent_dir) not in sys.path:
 from database.init_db import init_database
 from agent.memory_retriever import MemoryRetriever
 from config.settings import AGENT_DB_PATH
+from utils.semantic import semantic_similarity
 
 class TestMemoryRetriever(unittest.TestCase):
 
@@ -38,6 +39,19 @@ class TestMemoryRetriever(unittest.TestCase):
     def test_search_database_schemas(self):
         schemas = self.retriever.search_database_schemas(["products"], "electronics")
         self.assertGreater(len(schemas), 0)
+
+    def test_semantic_similarity_typo_tolerance(self):
+        sim = semantic_similarity("restraunt food", "restaurant dining food")
+        self.assertGreater(sim, 0.3)
+        unrelated = semantic_similarity("blockchain mining", "restaurant dining food")
+        self.assertLess(unrelated, sim)
+
+    def test_search_components_semantic_bonus(self):
+        components = self.retriever.search_components(
+            "ecommerce", ["buying"], ["buy"]
+        )
+        self.assertGreater(len(components), 0)
+        self.assertIn("semantic_score", components[0])
 
 if __name__ == "__main__":
     unittest.main()

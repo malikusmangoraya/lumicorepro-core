@@ -389,9 +389,10 @@ class AgentOrchestrator:
     def _run_phases_parallel(self, phases: List[tuple]):
         """Run several independent, thread-safe phases concurrently.
 
-        Each tuple: (phase_name, func, func_args, fallback). Registry/deterministic
-        lookups only — never parallelize AI calls or file-writers (SQLite handles
-        concurrent read connections; distinct rows keep writes safe).
+        Each tuple: (phase_name, func, func_args, fallback). Safe when every
+        phase writes distinct files (verified per phase-group) and none mutates
+        the shared spec dict. Never parallelize AI/LLM calls (free-tier rate
+        limits) or two functions writing the same file.
         """
         results: Dict[str, Any] = {}
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -1234,33 +1235,31 @@ class AgentOrchestrator:
         try:
             compliance_report = {}
             accessibility_report = {}
+            security_report = {}
             if project_dir:
                 region = spec.get("region", "NA")
-                compliance_report = self._run_phase_safe(
-                    "phase_12_compliance",
-                    self.compliance_generator.generate,
-                    func_args=[spec, project_dir, region],
-                    fallback={"region": region, "applicable_regs": [], "artifacts_generated": []}
-                )
-                accessibility_report = self._run_phase_safe(
-                    "phase_12_accessibility",
-                    self.accessibility_checker.check,
-                    func_args=[project_dir, spec],
-                    fallback={"accessibility_score": 0, "wcag_aa_compliant": False}
-                )
-
-                # Security-by-default posture (SECURITY-CHECKLIST.md)
-                security_report = self._run_phase_safe(
-                    "phase_12_security_posture",
-                    self.security_engine.generate,
-                    func_args=[spec, project_dir],
-                    fallback={"controls_verified": 0, "review_items": 0}
-                )
-
-                # Hosting cost simulator (decision aid, cheap) + compliance evidence
-                cost_report = self.deployment_engine.estimate_running_cost(
-                    spec.get("website_type", "business"), "low"
-                )
+                p12 = self._run_phases_parallel([
+                    ("phase_12_compliance",
+                     self.compliance_generator.generate,
+                     [spec, project_dir, region],
+                     {"region": region, "applicable_regs": [], "artifacts_generated": []}),
+                    ("phase_12_accessibility",
+                     self.accessibility_checker.check,
+                     [project_dir, spec],
+                     {"accessibility_score": 0, "wcag_aa_compliant": False}),
+                    ("phase_12_security_posture",
+                     self.security_engine.generate,
+                     [spec, project_dir],
+                     {"controls_verified": 0, "review_items": 0}),
+                    ("phase_12_cost_model",
+                     self.deployment_engine.estimate_running_cost,
+                     [spec.get("website_type", "business"), "low"],
+                     {"estimates": {}}),
+                ])
+                compliance_report = p12.get("phase_12_compliance") or {}
+                accessibility_report = p12.get("phase_12_accessibility") or {}
+                security_report = p12.get("phase_12_security_posture") or {}
+                cost_report = p12.get("phase_12_cost_model") or {"estimates": {}}
                 try:
                     self._append_compliance_evidence(
                         project_dir, compliance_report, accessibility_report,
@@ -1289,18 +1288,18 @@ class AgentOrchestrator:
             seo_report = {}
             cdn_report = {}
             if project_dir:
-                seo_report = self._run_phase_safe(
-                    "phase_13_seo_automation",
-                    self.seo_engine.generate,
-                    func_args=[spec, project_dir],
-                    fallback={}
-                )
-                cdn_report = self._run_phase_safe(
-                    "phase_13_cdn_optimization",
-                    self.cdn_optimizer.generate,
-                    func_args=[project_dir, spec],
-                    fallback={}
-                )
+                p13 = self._run_phases_parallel([
+                    ("phase_13_seo_automation",
+                     self.seo_engine.generate,
+                     [spec, project_dir],
+                     {}),
+                    ("phase_13_cdn_optimization",
+                     self.cdn_optimizer.generate,
+                     [project_dir, spec],
+                     {}),
+                ])
+                seo_report = p13.get("phase_13_seo_automation") or {}
+                cdn_report = p13.get("phase_13_cdn_optimization") or {}
             phase_log["phase_13_seo_and_cdn"] = {
                 "pages_optimized": seo_report.get("pages_optimized", 0),
                 "sitemap_url": seo_report.get("sitemap_url", ""),
@@ -1318,30 +1317,28 @@ class AgentOrchestrator:
             ab_report = {}
             webhook_report = {}
             if project_dir:
-                perf_report = self._run_phase_safe(
-                    "phase_14_performance_budget",
-                    self.performance_budget.generate,
-                    func_args=[spec, project_dir],
-                    fallback={}
-                )
-                analytics_report = self._run_phase_safe(
-                    "phase_14_analytics_pipeline",
-                    self.analytics_pipeline.generate,
-                    func_args=[spec, project_dir],
-                    fallback={}
-                )
-                ab_report = self._run_phase_safe(
-                    "phase_14_ab_testing",
-                    self.ab_testing_engine.generate,
-                    func_args=[spec, project_dir],
-                    fallback={}
-                )
-                webhook_report = self._run_phase_safe(
-                    "phase_14_webhook_manager",
-                    self.webhook_manager.generate,
-                    func_args=[spec, project_dir],
-                    fallback={}
-                )
+                p14 = self._run_phases_parallel([
+                    ("phase_14_performance_budget",
+                     self.performance_budget.generate,
+                     [spec, project_dir],
+                     {}),
+                    ("phase_14_analytics_pipeline",
+                     self.analytics_pipeline.generate,
+                     [spec, project_dir],
+                     {}),
+                    ("phase_14_ab_testing",
+                     self.ab_testing_engine.generate,
+                     [spec, project_dir],
+                     {}),
+                    ("phase_14_webhook_manager",
+                     self.webhook_manager.generate,
+                     [spec, project_dir],
+                     {}),
+                ])
+                perf_report = p14.get("phase_14_performance_budget") or {}
+                analytics_report = p14.get("phase_14_analytics_pipeline") or {}
+                ab_report = p14.get("phase_14_ab_testing") or {}
+                webhook_report = p14.get("phase_14_webhook_manager") or {}
             phase_log["phase_14_performance_growth"] = {
                 "performance_targets": perf_report.get("targets", {}),
                 "analytics_events": analytics_report.get("total_events", 0),

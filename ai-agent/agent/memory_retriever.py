@@ -2,10 +2,9 @@ import sqlite3
 import threading
 import time
 from typing import Dict, Any, List, Optional
-from config.settings import AGENT_DB_PATH, REGISTRY_DIR
+from config.settings import AGENT_DB_PATH
 from utils.logger import agent_logger
-from utils.helpers import extract_keywords, normalize_text
-from utils.file_manager import FileManager
+from utils.semantic import semantic_similarity, tokenize, overlap_ratio
 
 # Thread-local storage for DB connections
 _thread_local = threading.local()
@@ -131,6 +130,12 @@ class MemoryRetriever:
             expanded_cats = synonyms.get(category.lower(), [category.lower()])
             expanded_inds = synonyms.get(industry.lower(), [industry.lower()])
 
+            # Local RAG: semantic query blob + candidate blob for typo/word-order tolerance.
+            semantic_query = " ".join(
+                [category, industry] + (list(features) or []) + expanded_cats + expanded_inds
+            )
+            semantic_q_tokens = tokenize(semantic_query)
+
             results = []
             for row in rows:
                 item = dict(row)
@@ -154,8 +159,19 @@ class MemoryRetriever:
                     if f.lower() in item_features or any(f.lower() in t for t in item_tags):
                         score += 10
 
+                # Semantic bonus (+12 max): catches fuzzy wording the exact matcher misses.
+                candidate_tokens = tokenize(
+                    " ".join([item_name] + item_tags + item_features + [item_cat, item_ind])
+                )
+                sem = semantic_similarity(semantic_query, " ".join(candidate_tokens))
+                sem += overlap_ratio(semantic_q_tokens, candidate_tokens) * 2
+                if score == 0 and sem > 0:
+                    score += int(sem * 10)
+                elif sem > 0:
+                    score += int(sem * 2)
                 score += self._usage_bias(item)
                 item["score"] = score
+                item["semantic_score"] = round(sem, 3)
                 results.append(item)
 
             results.sort(key=lambda x: x["score"], reverse=True)
@@ -179,6 +195,10 @@ class MemoryRetriever:
             rows = cursor.fetchall()
 
             matched = []
+            semantic_query = " ".join(
+                [category] + (list(features) or []) + (list(keywords) or [])
+            )
+            semantic_q_tokens = tokenize(semantic_query)
             for row in rows:
                 item = dict(row)
                 score = 0
@@ -196,9 +216,20 @@ class MemoryRetriever:
                     if kw.lower() in item["name"].lower() or any(kw.lower() in t for t in comp_tags):
                         score += 15
 
+                # Semantic bonus: fuzzy feature/name matches that the exact matcher misses.
+                candidate_tokens = tokenize(
+                    " ".join([item["name"].lower()] + comp_tags + comp_features)
+                )
+                sem = semantic_similarity(semantic_query, " ".join(candidate_tokens))
+                sem += overlap_ratio(semantic_q_tokens, candidate_tokens) * 2
+                if score == 0 and sem > 0:
+                    score += int(sem * 12)
+                elif sem > 0:
+                    score += int(sem * 3)
                 score += self._usage_bias(item)
                 if score > 0:
                     item["score"] = score
+                    item["semantic_score"] = round(sem, 3)
                     matched.append(item)
 
             matched.sort(key=lambda x: x["score"], reverse=True)

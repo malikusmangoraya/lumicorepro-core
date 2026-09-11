@@ -249,6 +249,39 @@ class TestPreviewEndpoints(unittest.TestCase):
         missing = self.client.get(f"/preview/{slug}/nope")
         self.assertEqual(missing.status_code, 404)
 
+    def test_preview_prefers_built_dist_over_public(self):
+        dist = os.path.join(self.project_dir, "frontend", "dist")
+        os.makedirs(dist, exist_ok=True)
+        with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as f:
+            f.write('<html><body id="built-app">Built Dist Live</body></html>')
+        r = self.client.post("/api/preview", json={"run_id": self.run_id})
+        self.assertEqual(r.status_code, 200, r.text)
+        slug = r.json()["data"]["slug"]
+        page = self.client.get(f"/preview/{slug}")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("Built Dist Live", page.text)
+
+    def test_sandbox_endpoint_mount_tree(self):
+        import json as _json
+        project_dir = os.path.join(self.tmp, "sb-project")
+        os.makedirs(os.path.join(project_dir, "src"), exist_ok=True)
+        with open(os.path.join(project_dir, "package.json"), "w", encoding="utf-8") as f:
+            f.write(_json.dumps({"name": "sb-project", "scripts": {"dev": "vite"}}))
+        with open(os.path.join(project_dir, "src", "App.jsx"), "w", encoding="utf-8") as f:
+            f.write("export default () => <h1>Hi</h1>;")
+        run_id = "run-sandbox-1"
+        self._srv._runs[run_id] = {
+            "status": "done",
+            "result": {"generated_project_dir": project_dir},
+        }
+        r = self.client.get(f"/api/sandbox/{run_id}")
+        self.assertEqual(r.status_code, 200, r.text)
+        tree = r.json()["data"]["mount_tree"]
+        self.assertIn("package.json", tree)
+        self.assertIn("src", tree)
+        self.assertIn("App.jsx", tree["src"]["directory"])
+        self.assertIn("contents", tree["src"]["directory"]["App.jsx"]["file"])
+
     def test_preview_rejects_unfinished_and_traversal(self):
         unfinished = "run-x"
         self._srv._runs[unfinished] = {"status": "queued", "result": None}
