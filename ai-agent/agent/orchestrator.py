@@ -1462,14 +1462,16 @@ class AgentOrchestrator:
             except Exception as inject_err:
                 agent_logger.warning(f"Component injection sweep skipped: {inject_err}")
             try:
-                from agent.commerce_ready import inject_commerce, repair_enterprise_compliance
-                commerce_report = inject_commerce(project_dir, spec)
-                phase_log["commerce_ready_injection"] = commerce_report
-                if "static" not in str(spec.get("layout_mode", "")).lower():
-                    repair_report = repair_enterprise_compliance(project_dir)
-                    phase_log["enterprise_compliance_repair"] = repair_report
+                # Autonomous production-readiness repair for ANY lane: static
+                # storefronts get the live commerce backend; transactional trees
+                # get the schema contract (models/index.js FK wiring, org/RBAC
+                # middleware) + JSON-LD/heading compliance. Deterministic only —
+                # zero AI calls, so the pipeline never blocks on rate limits.
+                from agent.enterprise_repair import repair_any_layout
+                repair_report = repair_any_layout(project_dir, spec)
+                phase_log["production_readiness_repair"] = repair_report
             except Exception as commerce_err:
-                agent_logger.warning(f"Commerce-ready injection skipped: {commerce_err}")
+                agent_logger.warning(f"Production-readiness repair skipped: {commerce_err}")
             try:
                 architect_gate = self._architect_enterprise_gate(project_dir, spec)
                 phase_log["architect_enterprise_verification"] = architect_gate

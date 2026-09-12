@@ -281,7 +281,7 @@ class SchemaContractTest(unittest.TestCase):
 
     # ── 6. Engine integration ──────────────────────────────────────────────
     def test_render_enterprise_injects_schema_contract(self):
-        spec = self._spec("ecommerce")
+        spec = self._spec("saas")
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_ent")
         _write(os.path.join(root, "frontend", "src", "services", ".keep"))

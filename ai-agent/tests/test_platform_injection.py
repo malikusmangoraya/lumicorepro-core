@@ -252,7 +252,7 @@ class PlatformInjectionTest(unittest.TestCase):
         self.assertFalse(report["platform_injection"]["backend_blueprint"]["applies"])
 
     def test_render_enterprise_layout_injects_platform(self):
-        spec = self._spec("ecommerce")
+        spec = self._spec("saas")
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_ent")
         _write(os.path.join(root, "frontend", "src", "services", ".keep"))

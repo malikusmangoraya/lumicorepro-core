@@ -194,7 +194,7 @@ class GenerationMatrixTest(unittest.TestCase):
         self.assertIn("generation_matrix", report)
 
     def test_render_enterprise_layout_applies_matrix(self):
-        spec = self._spec("ecommerce")
+        spec = self._spec("saas")
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_ent")
         # enterprise layout mounts the backend scaffold copies — fake it

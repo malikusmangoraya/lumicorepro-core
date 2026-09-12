@@ -205,7 +205,7 @@ class DesignSystemTest(unittest.TestCase):
         self.assertIn(MARKER, css)
 
     def test_render_enterprise_layout_injects_design_system(self):
-        spec = self._spec("ecommerce")
+        spec = self._spec("saas")
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_ent")
         _write(os.path.join(root, "frontend", "src", "services", ".keep"))
