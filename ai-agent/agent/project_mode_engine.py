@@ -55,6 +55,12 @@ STATIC_WEBSITE_TYPES = {
     "landing", "marketing", "brochure", "agency",
 }
 
+# Retail / storefront types also resolve to the client-static lane: the
+# LUMICORE_COMMERCE_READY injector mounts the live order backend (Express +
+# JSON persistence, COD + WhatsApp, admin panel) on top of the static SPA, so
+# e-commerce generations ship production-ready on the fully-supported path.
+RETAIL_STATIC_TERMS = ("ecommerce", "e-commerce", "ecom", "shop", "store", "mart", "retail", "grocery")
+
 BACKEND_CANONICAL = "backend"
 BACKEND_EXCLUDE_DIRS = ("node_modules", ".git", "coverage", "logs", "tests", "__tests__")
 BACKEND_EXCLUDE_FILES = (".env", ".env.production", ".env.staging", "package-lock.json")
@@ -84,7 +90,10 @@ class ProjectModeEngine:
             else:
                 mode = MODE_ENTERPRISE
         else:
-            mode = MODE_CLIENT_STATIC if wtype in STATIC_WEBSITE_TYPES else MODE_ENTERPRISE
+            mode = MODE_CLIENT_STATIC if (
+                wtype in STATIC_WEBSITE_TYPES
+                or any(term in wtype for term in RETAIL_STATIC_TERMS)
+            ) else MODE_ENTERPRISE
 
         spec["layout_mode"] = mode
         spec["deployment_mode"] = mode

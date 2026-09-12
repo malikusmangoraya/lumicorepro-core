@@ -38,10 +38,24 @@ class TestProjectModeEngine(unittest.TestCase):
         self.assertEqual(spec["deployment_mode"], MODE_CLIENT_STATIC)
 
     def test_select_enterprise_default_for_ecommerce(self):
+        # Retail/ecommerce now resolves to the client-static lane: the
+        # LUMICORE_COMMERCE_READY injector mounts the live order backend on
+        # the static SPA, shipping production-ready stores on the supported path.
         spec = {"website_type": "ecommerce"}
+        mode = self.engine.select_mode(spec)
+        self.assertEqual(mode, MODE_CLIENT_STATIC)
+        self.assertFalse(spec["has_api"])
+        self.assertEqual(spec["deployment_mode"], MODE_CLIENT_STATIC)
+
+    def test_select_enterprise_for_saas(self):
+        spec = {"website_type": "saas"}
         mode = self.engine.select_mode(spec)
         self.assertEqual(mode, MODE_ENTERPRISE)
         self.assertTrue(spec["has_api"])
+
+    def test_buyer_enterprise_overrides_ecommerce(self):
+        spec = {"website_type": "ecommerce", "buyer_type": "enterprise"}
+        self.assertEqual(self.engine.select_mode(spec), MODE_ENTERPRISE)
 
     def test_buyer_static_overrides_ecommerce(self):
         spec = {"website_type": "ecommerce", "buyer_type": "static"}

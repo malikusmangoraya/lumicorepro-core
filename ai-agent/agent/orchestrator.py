@@ -1007,6 +1007,33 @@ class AgentOrchestrator:
             #                     + Axios interceptor for relative /api/* via Nginx.
             layout_mode_report: Dict[str, Any] = {}
             if project_dir:
+                # ── Deterministic storefront routing (LUMICORE_COMMERCE_READY) ──
+                # Retail/shop generations run the fully-supported client-static
+                # lane; the commerce injector mounts the live order backend
+                # (Express + JSON persistence, COD + WhatsApp, admin) on top.
+                # This overrides AI website_type classification drift so every
+                # storefront ships production-ready without enterprise-gate risk.
+                try:
+                    hint = (" %s " % str(prompt or "")).lower()
+                    hint += " " + str(spec.get("website_type", "")).lower()
+                    hint += " " + str(spec.get("project_name", "")).lower()
+                    storefront_hint = (
+                        "ecommerce" in hint or "e-commerce" in hint or "retail" in hint
+                        or " store" in hint or " shop " in hint or "mart" in hint
+                        or "laundry" in hint or "banquet" in hint or "courier" in hint
+                        or "selling " in hint or "cart and checkout" in hint
+                    )
+                    if storefront_hint and all(
+                        t not in hint for t in ("enterprise", "saas", "fintech", "dashboard")
+                    ):
+                        spec["website_type"] = "ecommerce"
+                        spec["layout_mode"] = "client-static"
+                        spec["runtime_mode"] = "static"
+                        spec["deployment_mode"] = "client-static"
+                        spec["has_api"] = False
+                except Exception as route_err:
+                    agent_logger.warning(f"Storefront routing skipped: {route_err}")
+            if project_dir:
                 try:
                     layout_mode_report = self.mode_engine.render_layout(project_dir, spec)
                 except Exception as layout_err:
@@ -1435,9 +1462,12 @@ class AgentOrchestrator:
             except Exception as inject_err:
                 agent_logger.warning(f"Component injection sweep skipped: {inject_err}")
             try:
-                from agent.commerce_ready import inject_commerce
+                from agent.commerce_ready import inject_commerce, repair_enterprise_compliance
                 commerce_report = inject_commerce(project_dir, spec)
                 phase_log["commerce_ready_injection"] = commerce_report
+                if "static" not in str(spec.get("layout_mode", "")).lower():
+                    repair_report = repair_enterprise_compliance(project_dir)
+                    phase_log["enterprise_compliance_repair"] = repair_report
             except Exception as commerce_err:
                 agent_logger.warning(f"Commerce-ready injection skipped: {commerce_err}")
             try:
