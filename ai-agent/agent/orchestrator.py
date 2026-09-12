@@ -4,6 +4,7 @@ import json
 import time
 import traceback
 import copy
+import random
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Callable
 
@@ -55,6 +56,14 @@ from .project_mode_engine import ProjectModeEngine
 class OrchestratorError(Exception):
     """Raised when pipeline execution encounters unrecoverable errors."""
     pass
+
+
+# Shopping-friendly style packs. When the user does not pick a design style,
+# the orchestrator rotates through these so every generation looks distinct.
+_STYLE_POOL = [
+    "minimalism", "flat_design", "glassmorphism", "bento_grid",
+    "neumorphism", "claymorphism", "organic", "editorial", "swiss",
+]
 
 
 class PipelineCancelled(Exception):
@@ -881,6 +890,9 @@ class AgentOrchestrator:
             # Explicit overrides win over analyzer heuristics
             if design_style:
                 spec["design_style"] = design_style
+            elif not spec.get("design_style"):
+                # Deterministic variety: rotate theme pack when none requested.
+                spec["design_style"] = random.choice(_STYLE_POOL)
             if extra_spec:
                 spec.update(extra_spec)
             # Pass Agent Reach social signals into the planner engine

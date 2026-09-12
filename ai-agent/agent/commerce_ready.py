@@ -6,6 +6,7 @@ admin). No AI, no network, no native deps — safe to run on every generation.
 """
 import os
 import json
+import re
 import shutil
 import logging
 
@@ -161,9 +162,21 @@ def repair_enterprise_compliance(project_dir: str) -> dict:
                 '  { "@type": "%s", "@id": "schema:%s" },' % (name, name)
                 for name in missing
             )
-            if content.rstrip().endswith(";"):
+            sd_re = re.compile(r"(?ms)\bexport\s+default\s*\{\s*([\s\S]*?)\s*\}(\s*);")
+            m = sd_re.search(content)
+            if m:
+                inner = m.group(1).strip()
+                while inner.endswith(","):
+                    inner = inner[:-1].rstrip()
+                merged = (
+                    "export default [\n  %s,\n%s\n];\n"
+                    % (inner, additions)
+                )
+                content = content[: m.start()] + merged + content[m.end():]
+            elif re.search(r"\bexport\s+default\s*\[", content):
                 content = content.rstrip()
-                content = content[:-1] + ",\n" + additions + "\n];\n"
+                if content.endswith("]"):
+                    content = content[:-1] + ",\n" + additions + "\n];\n"
             else:
                 content = content.rstrip() + "\n" + additions + "\n"
             open(sd, "w", encoding="utf-8").write(content)

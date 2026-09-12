@@ -38,6 +38,7 @@ ai-agent/.env
 ai-agent/database/*.db
 ai-agent/logs/
 generated-projects/
+backend-library/*/data/
 
 # Python
 __pycache__/

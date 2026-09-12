@@ -191,8 +191,8 @@ class LocalizationEngine:
     }
 
     # ── Translations for key languages ────────────────────────────────────
-    # Only common.* + auth.* + forms.* translated — other sections use English
-    # as fallback (i18next fallbackLng: 'en')
+    # ar/ur/es/fr/de cover common/auth/forms/ecommerce/footer/errors/accessibility;
+    # other configured languages fall back to English (i18next fallbackLng: 'en')
     TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "ar": {
             "common": {
@@ -224,6 +224,25 @@ class LocalizationEngine:
                 "add_to_cart": "أضف إلى السلة", "price": "السعر",
                 "total": "المجموع", "order": "الطلب",
             },
+            "footer": {
+                "all_rights": "جميع الحقوق محفوظة", "powered_by": "مدعوم بواسطة",
+                "follow_us": "تابعنا", "newsletter": "اشترك في النشرة البريدية",
+                "your_email": "بريدك الإلكتروني", "subscribe": "اشتراك",
+            },
+            "errors": {
+                "404_title": "الصفحة غير موجودة",
+                "404_message": "الصفحة التي تبحث عنها غير موجودة.",
+                "500_title": "خطأ في الخادم",
+                "500_message": "حدث خطأ ما. حاول مرة أخرى.",
+                "network_error": "خطأ في الشبكة. تحقق من اتصالك.",
+                "try_again": "حاول مجددا", "go_home": "الصفحة الرئيسية",
+            },
+            "accessibility": {
+                "close_menu": "إغلاق القائمة", "open_menu": "فتح القائمة",
+                "toggle_theme": "تبديل الوضع الداكن/الفاتح",
+                "change_language": "تغيير اللغة",
+                "loading": "جاري تحميل المحتوى", "image_loading": "جاري تحميل الصورة",
+            },
         },
         "ur": {
             "common": {
@@ -252,6 +271,25 @@ class LocalizationEngine:
                 "add_to_cart": "کارٹ میں ڈالیں", "price": "قیمت",
                 "total": "کل", "order": "آرڈر",
             },
+            "footer": {
+                "all_rights": "جملہ حقوق محفوظ ہیں", "powered_by": "طاقت ور بذریعہ",
+                "follow_us": "ہمیں فالو کریں", "newsletter": "نیوز لیٹر سبسکرائب کریں",
+                "your_email": "آپ کا ای میل", "subscribe": "سبسکرائب",
+            },
+            "errors": {
+                "404_title": "صفحہ نہیں ملا",
+                "404_message": "جس صفحے کو آپ ڈھونڈ رہے ہیں وہ موجود نہیں۔",
+                "500_title": "سرور خرابی",
+                "500_message": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔",
+                "network_error": "نیٹ ورک کا مسئلہ۔ اپنا کنکشن چیک کریں۔",
+                "try_again": "دوبارہ کوشش کریں", "go_home": "ہوم پیج پر جائیں",
+            },
+            "accessibility": {
+                "close_menu": "مینو بند کریں", "open_menu": "مینو کھولیں",
+                "toggle_theme": "ڈارک/لائٹ موڈ تبدیل کریں",
+                "change_language": "زبان تبدیل کریں",
+                "loading": "مواد لوڈ ہو رہا ہے", "image_loading": "تصویر لوڈ ہو رہی ہے",
+            },
         },
         "fr": {
             "common": {
@@ -276,6 +314,30 @@ class LocalizationEngine:
                 "required_field": "Ce champ est obligatoire",
                 "form_success": "Votre message a été envoyé avec succès",
             },
+            "ecommerce": {
+                "cart": "Panier", "checkout": "Paiement",
+                "add_to_cart": "Ajouter au panier", "price": "Prix",
+                "total": "Total", "order": "Commande",
+            },
+            "footer": {
+                "all_rights": "Tous droits réservés", "powered_by": "Propulsé par",
+                "follow_us": "Suivez-nous", "newsletter": "Abonnez-vous à la newsletter",
+                "your_email": "Votre adresse e-mail", "subscribe": "S'abonner",
+            },
+            "errors": {
+                "404_title": "Page introuvable",
+                "404_message": "La page que vous cherchez n'existe pas.",
+                "500_title": "Erreur serveur",
+                "500_message": "Une erreur est survenue. Veuillez réessayer.",
+                "network_error": "Erreur réseau. Vérifiez votre connexion.",
+                "try_again": "Réessayer", "go_home": "Retour à l'accueil",
+            },
+            "accessibility": {
+                "close_menu": "Fermer le menu", "open_menu": "Ouvrir le menu",
+                "toggle_theme": "Basculer en mode sombre/clair",
+                "change_language": "Changer de langue",
+                "loading": "Le contenu charge", "image_loading": "Chargement de l'image",
+            },
         },
         "de": {
             "common": {
@@ -296,6 +358,30 @@ class LocalizationEngine:
                 "phone": "Telefonnummer", "message": "Nachricht",
                 "required_field": "Dieses Feld ist erforderlich",
             },
+            "ecommerce": {
+                "cart": "Warenkorb", "checkout": "Kasse",
+                "add_to_cart": "In den Warenkorb", "price": "Preis",
+                "total": "Gesamtsumme", "order": "Bestellung",
+            },
+            "footer": {
+                "all_rights": "Alle Rechte vorbehalten", "powered_by": "Unterstützt von",
+                "follow_us": "Folgen Sie uns", "newsletter": "Newsletter abonnieren",
+                "your_email": "Ihre E-Mail-Adresse", "subscribe": "Abonnieren",
+            },
+            "errors": {
+                "404_title": "Seite nicht gefunden",
+                "404_message": "Die gesuchte Seite existiert nicht.",
+                "500_title": "Serverfehler",
+                "500_message": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+                "network_error": "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
+                "try_again": "Erneut versuchen", "go_home": "Zur Startseite",
+            },
+            "accessibility": {
+                "close_menu": "Menü schließen", "open_menu": "Menü öffnen",
+                "toggle_theme": "Dunklen/hellen Modus umschalten",
+                "change_language": "Sprache ändern",
+                "loading": "Inhalt wird geladen", "image_loading": "Bild wird geladen",
+            },
         },
         "es": {
             "common": {
@@ -315,6 +401,30 @@ class LocalizationEngine:
                 "first_name": "Nombre", "last_name": "Apellido",
                 "phone": "Número de teléfono", "message": "Mensaje",
                 "required_field": "Este campo es obligatorio",
+            },
+            "ecommerce": {
+                "cart": "Carrito", "checkout": "Pago",
+                "add_to_cart": "Añadir al carrito", "price": "Precio",
+                "total": "Total", "order": "Pedido",
+            },
+            "footer": {
+                "all_rights": "Todos los derechos reservados", "powered_by": "Desarrollado por",
+                "follow_us": "Síguenos", "newsletter": "Suscríbete al boletín",
+                "your_email": "Tu correo electrónico", "subscribe": "Suscribirse",
+            },
+            "errors": {
+                "404_title": "Página no encontrada",
+                "404_message": "La página que buscas no existe.",
+                "500_title": "Error del servidor",
+                "500_message": "Algo salió mal. Inténtalo de nuevo.",
+                "network_error": "Error de red. Comprueba tu conexión.",
+                "try_again": "Reintentar", "go_home": "Ir a la página de inicio",
+            },
+            "accessibility": {
+                "close_menu": "Cerrar menú", "open_menu": "Abrir menú",
+                "toggle_theme": "Cambiar modo oscuro/claro",
+                "change_language": "Cambiar idioma",
+                "loading": "Cargando contenido", "image_loading": "Cargando imagen",
             },
         },
         "zh": {

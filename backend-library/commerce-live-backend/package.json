@@ -1,6 +1,6 @@
 {
   "name": "commerce-live-api",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "private": true,
   "type": "commonjs",
   "main": "server.js",
@@ -11,6 +11,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2"
+  },
+  "optionalDependencies": {
+    "stripe": "^17.5.0"
   },
   "engines": {
     "node": ">=18"

@@ -1849,5 +1849,329 @@
       "share_count",
       "native_web_share_api"
     ]
+  },
+  {
+    "name": "Marquee",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "marquee",
+      "scroller",
+      "logo",
+      "testimonial",
+      "carousel"
+    ],
+    "description": "Auto-scrolling infinite marquee strip with pause-on-hover, direction and speed control. Great for logos and testimonials.",
+    "file_path": "src/components/ui/Marquee.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "portfolio",
+      "marketing"
+    ],
+    "features": [
+      "logo_scroller",
+      "testimonial_carousel",
+      "pause_on_hover",
+      "infinite_scroll"
+    ]
+  },
+  {
+    "name": "Typewriter",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "typewriter",
+      "typing",
+      "hero",
+      "animated",
+      "text"
+    ],
+    "description": "Typewriter effect that cycles through a list of words with typing/deleting speeds, pause and cursor blink.",
+    "file_path": "src/components/ui/Typewriter.jsx",
+    "dependencies": [],
+    "compatible_categories": [
+      "business",
+      "portfolio",
+      "ecommerce",
+      "saas"
+    ],
+    "features": [
+      "typewriter",
+      "hero_animation",
+      "word_rotation"
+    ]
+  },
+  {
+    "name": "TextAnimate",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "text",
+      "reveal",
+      "fade",
+      "blur",
+      "heading",
+      "animation"
+    ],
+    "description": "Word-by-word text reveal with fade, slide or blur variants and stagger interval.",
+    "file_path": "src/components/ui/TextAnimate.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business",
+      "portfolio",
+      "ecommerce",
+      "saas"
+    ],
+    "features": [
+      "text_reveal",
+      "stagger_animation",
+      "hero_heading"
+    ]
+  },
+  {
+    "name": "AnimatedNumber",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "count",
+      "counter",
+      "number",
+      "statistics",
+      "stats"
+    ],
+    "description": "Animated count-up number with separators, decimals, prefix/suffix and eased timing.",
+    "file_path": "src/components/ui/AnimatedNumber.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard",
+      "business",
+      "ecommerce",
+      "saas"
+    ],
+    "features": [
+      "count_up",
+      "statistics",
+      "metrics"
+    ]
+  },
+  {
+    "name": "Dock",
+    "type": "component",
+    "category": "navigation",
+    "tags": [
+      "dock",
+      "nav",
+      "macos",
+      "floating",
+      "toolbar"
+    ],
+    "description": "macOS-style magnification dock with tooltips, backdrop blur and hover scale.",
+    "file_path": "src/components/ui/Dock.jsx",
+    "dependencies": [
+      "framer-motion",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "dashboard",
+      "saas",
+      "portfolio"
+    ],
+    "features": [
+      "floating_nav",
+      "dock_navigation",
+      "magnification"
+    ]
+  },
+  {
+    "name": "GradientButton",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "gradient",
+      "button",
+      "cta",
+      "animated",
+      "shimmer"
+    ],
+    "description": "Animated gradient CTA button with moving 3-stop gradient, rounded pill and shadows.",
+    "file_path": "src/components/ui/GradientButton.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "saas",
+      "marketing"
+    ],
+    "features": [
+      "cta_button",
+      "gradient_button",
+      "animated_bg"
+    ]
+  },
+  {
+    "name": "NeumorphButton",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "neumorphism",
+      "soft-ui",
+      "button",
+      "pressed"
+    ],
+    "description": "Soft-UI neumorphic button with raised and pressed states, accent tone option.",
+    "file_path": "src/components/ui/NeumorphButton.jsx",
+    "dependencies": [],
+    "compatible_categories": [
+      "business",
+      "portfolio",
+      "dashboard"
+    ],
+    "features": [
+      "soft_ui",
+      "neumorph",
+      "press_state"
+    ]
+  },
+  {
+    "name": "PixelButton",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "pixel",
+      "retro",
+      "8bit",
+      "arcade",
+      "button"
+    ],
+    "description": "Retro 8-bit pixel-bordered button with hard shadow, mono uppercase type and game feel.",
+    "file_path": "src/components/ui/PixelButton.jsx",
+    "dependencies": [],
+    "compatible_categories": [
+      "portfolio",
+      "ecommerce",
+      "gaming"
+    ],
+    "features": [
+      "retro_button",
+      "pixel_style",
+      "arcade_ui"
+    ]
+  },
+  {
+    "name": "PixelCard",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "pixel",
+      "retro",
+      "8bit",
+      "card",
+      "arcade"
+    ],
+    "description": "Retro pixel-styled card with hard shadow, corner pixels and mono title line.",
+    "file_path": "src/components/ui/PixelCard.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "portfolio",
+      "ecommerce",
+      "gaming"
+    ],
+    "features": [
+      "pixel_card",
+      "retro_ui",
+      "arcade"
+    ]
+  },
+  {
+    "name": "BlockBar",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "progress",
+      "bar",
+      "segments",
+      "retro",
+      "health",
+      "stat"
+    ],
+    "description": "Segmented retro progress/health bar with tone, segments, labels and inverted fill.",
+    "file_path": "src/components/ui/BlockBar.jsx",
+    "dependencies": [],
+    "compatible_categories": [
+      "dashboard",
+      "ecommerce",
+      "gaming",
+      "business"
+    ],
+    "features": [
+      "progress_bar",
+      "segmented_bar",
+      "health_bar"
+    ]
+  },
+  {
+    "name": "SpotlightCard",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "spotlight",
+      "glare",
+      "card",
+      "hover",
+      "glow"
+    ],
+    "description": "Card with a mouse-tracked spotlight/glare overlay that appears on hover.",
+    "file_path": "src/components/ui/SpotlightCard.jsx",
+    "dependencies": [],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "saas",
+      "marketing"
+    ],
+    "features": [
+      "spotlight_hover",
+      "glare_card",
+      "product_card"
+    ]
+  },
+  {
+    "name": "TiltCard",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "tilt",
+      "3d",
+      "card",
+      "perspective",
+      "hover"
+    ],
+    "description": "3D perspective tilt card that follows the cursor with spring smoothing and hover scale.",
+    "file_path": "src/components/ui/TiltCard.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "marketing"
+    ],
+    "features": [
+      "tilt_3d",
+      "perspective_hover",
+      "product_card"
+    ]
   }
 ]
