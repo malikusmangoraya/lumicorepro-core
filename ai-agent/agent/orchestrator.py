@@ -1435,6 +1435,12 @@ class AgentOrchestrator:
             except Exception as inject_err:
                 agent_logger.warning(f"Component injection sweep skipped: {inject_err}")
             try:
+                from agent.commerce_ready import inject_commerce
+                commerce_report = inject_commerce(project_dir, spec)
+                phase_log["commerce_ready_injection"] = commerce_report
+            except Exception as commerce_err:
+                agent_logger.warning(f"Commerce-ready injection skipped: {commerce_err}")
+            try:
                 architect_gate = self._architect_enterprise_gate(project_dir, spec)
                 phase_log["architect_enterprise_verification"] = architect_gate
                 if architect_gate.get("blocked_zip") and not architect_gate.get("skipped"):
