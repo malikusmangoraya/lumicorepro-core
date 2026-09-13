@@ -67,11 +67,11 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
 # Priority order: reasoning-tier first when a capable key exists, fast/cheap
 # fallback otherwise.
 FALLBACK_ORDER: List[str] = [
-    "grok",         # primary — Groq Cloud, fast + reliable
-    "gemini",       # Google — fast, free tier
+    "gemini",       # Google — fast, free tier (primary)
     "openai",       # GPT-4/4o — standard
+    "openrouter",   # aggregator — fallback
+    "grok",         # Groq Cloud — fast but rate limited
     "mistral",      # cheap, multilingual
-    "openrouter",   # aggregator — last resort
 ]
 
 def get_reasoning_provider() -> Any:

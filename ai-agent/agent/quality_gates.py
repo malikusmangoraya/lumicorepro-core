@@ -56,20 +56,28 @@ class QualityGates:
             "international_compliance": self._check_international_compliance(p_dir, spec),
             "accessibility": self._check_accessibility(p_dir),
             "deployment_readiness": self._check_deployment_readiness(p_dir),
+            "marketplace_docs": self._check_marketplace_docs(p_dir),
+            "pro_ui": self._check_pro_ui(p_dir),
         }
 
         passed = sum(1 for g in gates.values() if g["passed"])
         total = len(gates)
         overall_score = round((passed / total) * 100, 1)
 
-        # Lower threshold — accessibility is advisory for now
-        enterprise_ready_threshold = 75
+        enterprise_ready_threshold = 80
+        marketplace_ok = gates["marketplace_docs"]["passed"]
+        zero_errors = validation_report.get("valid", False) and not validation_report.get("errors")
         result = {
             "gates": gates,
             "passed_count": passed,
             "total_gates": total,
             "overall_score": overall_score,
-            "enterprise_ready": overall_score >= enterprise_ready_threshold and validation_report.get("valid", False),
+            "marketplace_ready": marketplace_ok and gates["pro_ui"]["passed"] and zero_errors,
+            "enterprise_ready": (
+                overall_score >= enterprise_ready_threshold
+                and marketplace_ok
+                and zero_errors
+            ),
             "targets": self.PERFORMANCE_TARGETS,
             "github_recovery_hint": self._github_recovery_hint(),
         }
@@ -290,3 +298,59 @@ class QualityGates:
         checks = [{"check": str(path.relative_to(p_dir)), "passed": path.exists()} for path in required]
         passed = sum(item["passed"] for item in checks)
         return {"passed": passed == len(checks), "checks": checks, "score": round(passed / len(checks) * 100, 1)}
+
+    def _check_marketplace_docs(self, p_dir: Path) -> Dict[str, Any]:
+        """README + license + env template required for international sales."""
+        from .marketplace_readme import readme_has_required_sections
+
+        readme_path = p_dir / "README.md"
+        readme_text = FileManager.read_file(str(readme_path)) if readme_path.exists() else ""
+        missing = readme_has_required_sections(readme_text) if readme_text else ["readme"]
+        env_ok = any(
+            (p_dir / rel).exists()
+            for rel in (".env.example", "frontend/.env.example", "backend/.env.example")
+        )
+        license_ok = (p_dir / "LICENSE.md").exists() or (p_dir / "LICENSE").exists()
+        checks = [
+            {"check": "readme_present", "passed": readme_path.exists() and len(readme_text) > 400},
+            {"check": "readme_sections", "passed": not missing, "missing": missing},
+            {"check": "license", "passed": license_ok},
+            {"check": "env_example", "passed": env_ok},
+        ]
+        passed = all(item["passed"] for item in checks)
+        return {"passed": passed, "checks": checks}
+
+    def _check_pro_ui(self, p_dir: Path) -> Dict[str, Any]:
+        """Block hobby-grade UI: branding, dark mode, lucide, responsive tokens."""
+        frontend = p_dir / "frontend"
+        pkg_text = ""
+        pkg = frontend / "package.json"
+        if pkg.exists():
+            pkg_text = FileManager.read_file(str(pkg))
+        files = []
+        src = frontend / "src"
+        if src.exists():
+            files = list(src.rglob("*.jsx")) + list(src.rglob("*.tsx")) + list(src.rglob("*.js"))
+        content = "\n".join(FileManager.read_file(str(path)) for path in files[:80])
+        checks = [
+            {"check": "lucide_icons", "passed": "lucide-react" in pkg_text or "lucide-react" in content},
+            {
+                "check": "brand_logo",
+                "passed": any(token in content for token in ("UniqueLogo", "BrandLogo", "<svg")),
+            },
+            {"check": "dark_mode", "passed": "dark:" in content or "darkMode" in content},
+            {"check": "responsive", "passed": "md:" in content or "lg:" in content},
+            {
+                "check": "pro_footer_or_nav",
+                "passed": any(
+                    token in content
+                    for token in ("ModernFooter", "GlassNavbar", "newsletter", "<footer")
+                ),
+            },
+        ]
+        passed_count = sum(1 for item in checks if item["passed"])
+        return {
+            "passed": passed_count >= 3,
+            "checks": checks,
+            "score": round(passed_count / len(checks) * 100, 1),
+        }

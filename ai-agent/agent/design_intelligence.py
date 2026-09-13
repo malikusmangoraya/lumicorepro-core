@@ -137,27 +137,42 @@ class AtomicDesignEngine:
         block_name: str = "HeroSection",
     ) -> str:
         contract = self._registry_contract()
-        style = spec.get("design_style") or "modern"
+        style = spec.get("design_style") or "animaster"
         palette = spec.get("design_tokens", {}).get("palette", {})
+        website_type = spec.get("website_type", "business")
+        project_name = spec.get("project_name", "LumicorePlatform")
         return f"""
-You are a senior front-end designer. Generate a SINGLE self-contained React component
-({block_name}.jsx) for a {spec.get('website_type', 'business')} site in the '{style}' style.
+You are a world-class principal UI/UX designer and fullstack React 19 engineer.
+Generate a high-converting, production-ready React component ({block_name}.jsx) for '{project_name}' ({website_type} site) in the '{style}' design style.
 
 TASK: {task}
 
-Design tokens available: {json.dumps(palette) if palette else 'use Tailwind semantic tokens (bg-primary, bg-card, text-muted-foreground). No hardcoded hex.'}
+DESIGN SYSTEM TOKENS:
+{json.dumps(palette, indent=2) if palette else 'Use semantic Tailwind classes (bg-primary, bg-card, border-border, text-foreground, text-muted-foreground).'}
 
-Follow the local component contract exactly:
-{contract or "Use functional components, prop defaults, className passthrough."}
+LOCAL COMPONENT CONTRACT:
+{contract or "Use functional components, prop defaults, className passthrough, dark mode support."}
 
+STRUCTURE CONTEXT:
 {structure_context[:6000]}
 
-Rules:
-- Tailwind utility classes only, no external CSS files.
-- Use local UI tokens (bg-primary, bg-card, border-border) not raw colors.
-- Accessible: aria-labels, semantic tags, no buttons without text.
-- Dark mode: include dark: variants.
-- Output ONLY the JSX component code.
+MANDATORY PRODUCTION & DESIGN STANDARDS:
+1. ICONS: Use real icons from 'lucide-react' (e.g., Sparkles, ArrowRight, Shield, Zap, Check, Globe). Always pair icons with descriptive visible labels or aria-label for a11y.
+2. IMAGES: Use real contextual high-resolution imagery (Unsplash or local asset paths), with LazyImage/img tags with proper alt text, object-cover, and rounded container styling.
+3. MOTION & AESTHETICS (Animaster / Skipper UI / Vengeance UI):
+   - Hero / Features: Use Bento Grid layouts, Spotlight hover radial glows, animated border beams, or 3D tilt perspective.
+   - Micro-interactions: Smooth hover lifts (hover:-translate-y-1), active scale downs, transition-all duration-200.
+   - Typography: Fluid bold font-display headings with dual-tone gradient accents (bg-gradient-to-r ... bg-clip-text text-transparent).
+4. BRANDING & FOOTER:
+   - Always use vector SVG logos (UniqueLogo or custom SVG geometric mark) instead of plain text.
+   - If generating footer, create a 4-5 column professional footer with newsletter, status badge, categorized sitemap, and social icons. Never a single plain line!
+5. SECURITY & RELIABILITY:
+   - Parameterize and sanitize all inputs. No dangerouslySetInnerHTML without sanitization.
+   - Zero hardcoded secrets or API keys.
+6. REACT 19 + VITE:
+   - Clean standard JSX hooks (useState, useEffect, useMemo, useCallback).
+   - Export default function {block_name}(props) {{ ... }}.
+   - Output ONLY the clean JSX component code without markdown backticks or commentary.
 """.strip()
 
     def reuse_or_create(

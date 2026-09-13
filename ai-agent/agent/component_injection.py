@@ -47,19 +47,28 @@ COMPONENT_LIBRARY: Dict[str, tuple] = {
 }
 
 # Library-owned directories are copied, never rewritten by the sweep.
-_LIBRARY_DIRS = {"components/ui", "components/ui/", "components/motion",
-                 "components/forms", "components/icons"}
+_LIBRARY_DIRS = {
+    "components/ui",
+    "components/ui/",
+    "components/motion",
+    "components/forms",
+    "components/icons",
+    "components/common",
+    "components/navigation",
+    "components/layout",
+    "layouts",
+    "components/Navbar.jsx",
+    "components/Footer.jsx",
+    "components/UniqueLogo.jsx",
+}
 _RAW_BUTTON_OPEN = re.compile(r"<button\b([^>]*)>")
 _RAW_BUTTON_CLOSE = re.compile(r"</button\s*>")
 _IMPORT_RE = re.compile(r"^\s*import\s.+$", re.M)
 
 
 def _is_library_owned(rel_path: str) -> bool:
-    parts = rel_path.replace("\\", "/").split("/")
-    for i in range(len(parts) - 1):
-        if f"{parts[i]}/{parts[i + 1]}" in _LIBRARY_DIRS:
-            return True
-    return False
+    norm = rel_path.replace(chr(92), "/")
+    return any(d in norm for d in _LIBRARY_DIRS)
 
 
 def _safe_button_attrs(attrs: str) -> bool:

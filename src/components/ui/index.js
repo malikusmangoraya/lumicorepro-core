@@ -41,3 +41,4 @@ export { default as PixelCard } from './PixelCard';
 export { default as BlockBar } from './BlockBar';
 export { default as SpotlightCard } from './SpotlightCard';
 export { default as TiltCard } from './TiltCard';
+export { default as CommandPalette } from './CommandPalette';

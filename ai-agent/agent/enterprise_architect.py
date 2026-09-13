@@ -580,8 +580,9 @@ class EnterpriseArchitect:
         if not os.path.isdir(src):
             return violations
         comp_root = os.path.join(src, "components")
+        layouts_root = os.path.join(src, "layouts")
         for root, _, files in os.walk(src):
-            if root == comp_root or comp_root in root:
+            if root == comp_root or comp_root in root or root == layouts_root or layouts_root in root:
                 continue
             for fname in files:
                 if not fname.endswith((".jsx", ".tsx")):

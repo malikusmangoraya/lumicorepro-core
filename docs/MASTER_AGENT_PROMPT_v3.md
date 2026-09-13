@@ -166,6 +166,9 @@ Write `generation-report.json` with all phase results.
 5. **3-5 unique features** for market differentiation
 6. **Security middleware** on every backend
 7. **Consistent API response format** — `{ success, status, message, data, timestamp }`
+8. **Marketplace README** — complete Getting Started + env + license at project root
+9. **Pro-level UI** — UniqueLogo, ModernFooter, dark mode, real imagery; never hobby templates
+10. **International sellable** — i18n, RTL, multi-currency, GDPR, SEO; `marketplace_ready` must be true
 
 ---
 

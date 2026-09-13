@@ -1,6 +1,8 @@
 export { default as Grid } from './Grid';
 export { default as Language } from './Language';
-export { default as BrandLogo } from './BrandLogo';
+export { default as BrandLogo, LogoMark } from './BrandLogo';
+export { default as UniqueLogo, LOGO_SYMBOLS } from './UniqueLogo';
+export { default as ModernFooter } from './ModernFooter';
 export { default as SEO, schemas as seoSchemas } from './SEO';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as SkipToContent } from './SkipToContent';
@@ -9,3 +11,7 @@ export { default as ContactForm } from './ContactForm';
 export { default as Analytics } from './Analytics';
 export { default as CookieConsent } from './CookieConsent';
 export { default as LicenseWatermark } from './LicenseWatermark';
+export { default as GlassNavbar } from './GlassNavbar';
+export { default as FAQAccordion } from './FAQAccordion';
+export { default as TestimonialGrid } from './TestimonialGrid';
+export { default as ThemeCustomizer } from './ThemeCustomizer';

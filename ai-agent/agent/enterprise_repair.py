@@ -313,13 +313,18 @@ def repair_any_layout(project_dir: str, spec: Dict[str, Any] = None) -> Dict[str
     layout = str(spec.get("layout_mode", ""))
     static = "static" in layout.lower() or not os.path.isdir(os.path.join(project_dir, "backend", "models"))
     result: Dict[str, Any] = {"project": project_dir, "lane": "static" if static else "transactional"}
+    try:
+        from agent.commerce_ready import inject_commerce
+        result["commerce"] = inject_commerce(project_dir, spec)
+    except Exception as exc:  # never let a repair crash the pipeline
+        result["commerce"] = {"status": "error", "error": str(exc)}
+
     if static:
         try:
-            from agent.commerce_ready import inject_commerce, repair_enterprise_compliance
-            result["commerce"] = inject_commerce(project_dir, spec)
+            from agent.commerce_ready import repair_enterprise_compliance
             result["enterprise_compliance"] = repair_enterprise_compliance(project_dir)
-        except Exception as exc:  # never let a repair crash the pipeline
-            result["commerce"] = {"status": "error", "error": str(exc)}
+        except Exception as exc:
+            result["enterprise_compliance"] = {"status": "error", "error": str(exc)}
     else:
         result["schema"] = repair_transactional_compliance(project_dir)
         try:

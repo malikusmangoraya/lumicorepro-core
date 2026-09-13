@@ -53,16 +53,20 @@ INDUSTRY_CATEGORY_MAP = {
     "agency-travel": "travel",
     "creative": "creative",
     "studio": "creative",
-    "saas": "business",
+    "saas": "saas",
     "dashboard": "dashboard",
-    "software": "business",
-    "fintech": "business",
+    "software": "saas",
+    "fintech": "fintech",
+    "ai": "ai",
+    "ml": "ai",
+    "artificial-intelligence": "ai",
 }
 
 # Total count of files in the stock library
 STOCK_CATEGORIES = [
     "business", "dashboard", "ecommerce", "education", "fitness",
     "healthcare", "portfolio", "realestate", "restaurant", "travel", "creative",
+    "ai", "saas", "fintech",
 ]
 
 

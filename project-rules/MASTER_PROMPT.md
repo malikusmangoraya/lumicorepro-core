@@ -1,129 +1,52 @@
 # LumicorePro Core — Complete System Master Prompt
 
-**Version:** 1.0  
-**Status:** Production-ready blueprint  
-**Scope:** Frontend (React + Vite) · Backend (Node + Express) · Database (MySQL) · AI
+**Version:** 2.0  
+**Status:** Production-ready Enterprise Blueprint  
+**Scope:** Frontend (React 19 + Vite 8 + Tailwind CSS + Motion) · Backend (Node + Express + MySQL/Redis) · AI Agent Engine
 
 ---
 
-## System architecture
+## 1. System Architecture
 
 ```
-End User → React Frontend → Axios API Gateway → Express Backend → MySQL
-                              ↘ Stripe / AI providers / Email / Uploads
-```
-
----
-
-## Frontend (`src/`)
-
-| Area | Purpose |
-|------|---------|
-| `components/ui` | Primitives (Button, Card, Modal, …) |
-| `components/*` | Domain UI (dashboard, ecommerce, ai, business, forms, auth) |
-| `templates/` | 20 production page templates |
-| `pages/` | App routes (Home, Templates hub, Auth) |
-| `layouts/` | Main / Auth / Dashboard shells |
-| `hooks/` | useApi, useForm, useAuth, useCart, useReveal, … |
-| `context/` | App, Auth, Cart, Theme |
-| `services/` | api, auth, product, order, ai |
-| `styles/` | tokens, animations |
-| `config/` | app + theme config |
-
-**Rules:** Tailwind-first · design tokens · a11y · motion 150–300ms · Lucide icons **with visible labels** (icon + name side by side).
-
----
-
-## Backend (`backend/`)
-
-```
-backend/src/
-  config/     database, env, cors, jwt
-  routes/     auth, users, products, orders, cart, payments, ai, admin
-  controllers/
-  services/
-  models/
-  middleware/ auth, error, validation, rateLimit
-  validators/
-  utils/
-  server.js
-```
-
-Standard response:
-
-```json
-{ "success": true, "status": 200, "message": "...", "data": {}, "timestamp": "..." }
+End User → React 19 Frontend → Axios Interceptors → Express Backend → MySQL / Redis
+                                  ↘ Fast Python AI Agent / Stripe / WebSockets
 ```
 
 ---
 
-## Database (MySQL)
+## 2. Frontend Design & UI/UX Standards
 
-Core domains:
-
-1. **Auth** — users, sessions, password_resets  
-2. **Catalog** — categories, products, product_images, product_variants, reviews  
-3. **Commerce** — carts, cart_items, orders, order_items, payments  
-4. **AI** — conversations, messages, ai_usage  
-5. **SaaS** — plans, subscriptions, invoices  
-6. **Admin** — audit_logs, settings  
-
-SQL lives in `database/schema.sql`.
+| Category | Rules & Requirements |
+|----------|----------------------|
+| **Branding & Logos** | **Never plain text.** Always generate a unique vector SVG logo (`UniqueLogo` / `BrandLogo`) with geometric symbols (Quantum, Hexagon, Shield, Infinity, Vortex, Diamond, Neural, Nova) and dual-tone gradients. |
+| **Footers** | **Never a single plain line.** Always build a rich 4-5 column professional footer (`ModernFooter`) with brand story, live system status (`🟢 99.99% Operational`), newsletter signup with instant validation, categorized sitemap with badges, social links, and legal/copyright bottom bar. |
+| **Headers & Navigation** | Sticky / Floating glassmorphism navbar (`GlassNavbar` / `Navbar`), responsive mobile menu drawer, active link indicators, Command Palette (`Cmd+K`), and glowing CTA buttons. |
+| **Icons** | Real icons from `lucide-react`. Always paired with visible text or accessible `aria-label`. Standard size `h-4 w-4` or `h-5 w-5`. |
+| **Images** | High-resolution photography via `ImageService` / Unsplash category matching. Wrapped in `LazyImage` or responsive containers with `alt` text, `object-cover`, and rounded radii. |
+| **Motion UI** | Inspired by **AnimasterLib**, **SkipperUI**, and **VengeanceUI**: Bento Grids, Spotlight cursor illumination, 3D holographic tilt, animated border beams, text morphing, and magnetic buttons. |
 
 ---
 
-## API surface (summary)
+## 3. Backend & Security Specifications
 
-- `POST/GET /api/auth/*` — register, login, logout, refresh, me, password reset  
-- `GET/PUT /api/users/:id` — profile, avatar, password  
-- `GET/POST /api/products` — list, detail, search, reviews (admin CRUD)  
-- `GET/POST /api/cart` — items, coupon  
-- `GET/POST /api/orders` — create, cancel, invoice, track  
-- `POST /api/payments/stripe/*` — intent, confirm, webhook  
-- `POST/GET /api/ai/*` — chat, conversations, generate, usage, models  
-- `GET/PUT /api/admin/*` — users, stats, logs, settings  
-
-Full endpoint list: see `docs/API.md` (when expanded) and `backend/src/routes/`.
+- **Input Validation & Sanitization**: Strict schema validation with Joi/Yup. Parameterized SQL queries only (no string concatenation).
+- **Authentication**: JWT with secure rotation (15m access token, 7d refresh token in httpOnly cookie). Bcrypt hashing (12+ rounds).
+- **Secrets & Config**: All keys loaded via `.env`. No hardcoded secrets.
+- **Security Headers**: Helmet, strict CORS whitelist, Content-Security-Policy (CSP), rate limiting on `/api/auth` and `/api/ai`.
+- **API Response Format**:
+  ```json
+  { "success": true, "status": 200, "message": "...", "data": {}, "timestamp": "2026-09-12T20:00:00Z" }
+  ```
 
 ---
 
-## Security
+## 4. Production Readiness
 
-- Access JWT ~15m · Refresh ~7d (httpOnly cookie preferred)  
-- bcrypt (12 rounds) · parameterized SQL · CORS whitelist · rate limits · HTTPS in prod  
-
----
-
-## Phases
-
-| Phase | Focus | Status in repo |
-|-------|--------|----------------|
-| 1 | Vite + React foundation | Done |
-| 2 | Config, hooks, standards | Done |
-| 3 | Design system + motion | Done |
-| 4 | 20 templates | Done |
-| 5+ | Backend + DB + AI agent | Scaffolded / next |
-
----
-
-## Success criteria
-
-- Reusable UI + 20 templates  
-- Auth + commerce + AI flows  
-- MySQL schema + Express API scaffold  
-- Professional UX: **every icon paired with a clear label**  
-- Deployable frontend; backend ready to flesh out  
-
----
-
-## Commands
-
-```bash
-# Frontend
-npm run dev
-
-# Backend (from backend/)
-npm install && npm run dev
-```
-
-Open `/templates` for the gallery.
+- **Build Integrity**: Zero ESLint / compile errors. React 19 clean functional components and hook rules.
+- **SEO & Meta**: Automated JSON-LD structured schemas, OpenGraph social cards, dynamic page titles and descriptions.
+- **Internationalization & Currency**: Multi-language (`i18next`), RTL support, and multi-currency switching (`CurrencyContext`).
+- **Containerization**: Dockerfile and Docker Compose production profiles.
+- **Marketplace README**: Root `README.md` must include product details, Getting Started commands, env vars, deploy, troubleshooting, and license — sellable on Gumroad / Lemon Squeezy / ThemeForest without extra writing.
+- **Pro UI only**: UniqueLogo, GlassNavbar, ModernFooter, dark mode, real assets. Hobby/demo UI is a failed delivery.
+- **Zero defects**: No TODO stubs, no placeholder images, no committed secrets, no known lint/build errors.

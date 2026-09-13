@@ -142,68 +142,20 @@ def _tech_rows(spec):
 
 
 def generate_readme(spec, project_dir=None):
-    """Render the marketing README text for a project spec."""
-    name = spec.get('project_name') or spec.get('name') or 'Project'
-    description = (
-        spec.get('description')
-        or spec.get('tagline')
-        or spec.get('summary')
-        or spec.get('original_prompt')
-        or ''
-    )
+    """Render a marketplace-grade README: details, stack, and how to start."""
+    agent_root = Path(__file__).resolve().parent.parent / 'ai-agent'
+    if str(agent_root) not in sys.path:
+        sys.path.insert(0, str(agent_root))
+    from agent.marketplace_readme import generate_marketplace_readme
 
-    parts = ['# %s' % name, '']
-    if description:
-        parts.append(str(description).strip())
-        parts.append('')
-
-    parts.append('## Features')
-    parts.append('')
-    parts.extend('- %s' % f for f in _features(spec))
-    parts.append('')
-
-    parts.append('## Tech Stack')
-    parts.append('')
-    parts.append('| Layer | Technology |')
-    parts.append('|-------|------------|')
-    parts.extend('| %s | %s |' % (layer, tech) for layer, tech in _tech_rows(spec))
-    parts.append('')
-
-    parts.append('## Getting Started')
-    parts.append('')
-    parts.append('```bash')
-    parts.append('# 1. Install frontend dependencies')
-    parts.append('cd frontend')
-    parts.append('npm install')
-    parts.append('')
-    parts.append('# 2. Start the development server')
-    parts.append('npm run dev')
-    parts.append('```')
-    parts.append('')
-    parts.append('Production build:')
-    parts.append('')
-    parts.append('```bash')
-    parts.append('npm run build')
-    parts.append('npm run preview')
-    parts.append('```')
-    parts.append('')
-
-    parts.append('## Screenshots')
-    parts.append('')
-    parts.append('See the `screenshots/` directory for desktop and mobile previews.')
-    parts.append('')
-
-    parts.append('## Demo Data')
-    parts.append('')
-    parts.append('Sample content lives in `demo-data/` — import it to see the project fully populated.')
-    parts.append('')
-
-    parts.append('## License')
-    parts.append('')
-    parts.append('This project is distributed under a paid end-user license. See `LICENSE.md` for usage')
-    parts.append('rights and `LICENSE-SEAL.md` for origin verification.')
-    parts.append('')
-    return '\n'.join(parts)
+    mode = 'static'
+    if project_dir:
+        backend = Path(project_dir) / 'backend' / 'package.json'
+        if backend.is_file():
+            mode = 'fullstack'
+    elif spec.get('backend') or (spec.get('tech_stack') or {}).get('backend'):
+        mode = 'fullstack'
+    return generate_marketplace_readme(spec, mode=mode)
 
 
 def _default_out(source):
@@ -222,7 +174,9 @@ def main(argv=None):
     spec = load_spec(args.source)
     out = Path(args.out) if args.out else _default_out(args.source)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(generate_readme(spec), encoding='utf-8')
+    source_path = Path(args.source)
+    project_dir = str(source_path) if source_path.is_dir() else None
+    out.write_text(generate_readme(spec, project_dir=project_dir), encoding='utf-8')
     print('README_OK %s' % out)
 
 

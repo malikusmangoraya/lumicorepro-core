@@ -149,6 +149,18 @@ class ProjectModeEngine:
             os.path.join(root, "README.md"),
             self._static_readme(spec),
         )
+        license_path = os.path.join(root, "LICENSE.md")
+        if not os.path.isfile(license_path):
+            FileManager.write_file(
+                license_path,
+                (
+                    f"# License — {project}\n\n"
+                    "## Permitted Use\n"
+                    "- Host, deploy, and commercially operate this product.\n"
+                    "- Modify the source for your own or client projects.\n"
+                    "- Resale of this source as a competing template requires a reseller license.\n"
+                ),
+            )
 
         # Generation Matrix — era-baseline premium layers.
         matrix_report = self._apply_generation_matrix(spec, root, MODE_CLIENT_STATIC)
@@ -474,9 +486,11 @@ class ProjectModeEngine:
             return {"skipped": True, "reason": str(exc)}
 
     def _static_readme(self, spec: Dict[str, Any]) -> str:
+        from .marketplace_readme import generate_marketplace_readme
+
         name = str(spec.get("project_name") or "Generated Project").replace("-", " ").title()
         wtype = str(spec.get("website_type") or "website").replace("_", " ").title()
-        return (
+        extra = (
             f"# {name}\n\n"
             f"Client-only static showcase (Mode 1) — `{wtype}` landing experience with "
             f"zero server hosting maintenance. The bundle is an API-less single-page "
@@ -526,6 +540,7 @@ class ProjectModeEngine:
             f"- Netlify: Domain settings → assign domain + update the registrar nameservers "
             f"to Netlify DNS (or add a CNAME to yoursite.netlify.app).\n\n"
         )
+        return generate_marketplace_readme(spec, mode="static", extra_sections=extra)
 
     # ── Mode 2: Enterprise Full-Stack Hydration ─────────────────────────────
     def render_enterprise_layout(self, project_dir: str, spec: Dict[str, Any]) -> Dict[str, Any]:
@@ -753,7 +768,7 @@ class ProjectModeEngine:
         wtype = str(spec.get("website_type") or "saas").replace("_", " ").title()
         model_list = "\n".join(f"  - `{m}`" for m in models)
         route_list = "\n".join(f"  - `{r}`" for r in routes)
-        return (
+        core = (
             f"# {name}\n\n"
             f"Enterprise full-stack hydration (Mode 2) — `{wtype}` SaaS / marketplace "
             f"/ dynamic application with persistent database, Redis-backed background "
@@ -819,6 +834,9 @@ class ProjectModeEngine:
             f"Serve `frontend/dist` behind Nginx and keep `backend` + `worker` behind the "
             f"same gateway.\n\n"
         )
+        from .marketplace_readme import generate_marketplace_readme
+
+        return core + "\n" + generate_marketplace_readme(spec, mode="fullstack")
 
     # ── Finalize (idempotent, safe-invariant run before ZIP) ───────────────
     def finalize_layout(self, project_dir: str, spec: Dict[str, Any]) -> None:

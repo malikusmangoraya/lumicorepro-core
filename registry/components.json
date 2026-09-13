@@ -2173,5 +2173,304 @@
       "perspective_hover",
       "product_card"
     ]
+  },
+  {
+    "name": "UniqueLogo",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "logo",
+      "brand",
+      "holographic",
+      "gradient",
+      "header",
+      "identity",
+      "svg"
+    ],
+    "description": "Dynamic vector SVG brand logo with dual-color gradient, geometric symbol, and responsive sizing. Generated per-project with unique design.",
+    "file_path": "src/components/common/UniqueLogo.jsx",
+    "dependencies": [
+      "lucide-react",
+      "react-router-dom"
+    ],
+    "compatible_categories": [
+      "common",
+      "header",
+      "branding",
+      "business",
+      "saas",
+      "ecommerce"
+    ],
+    "features": [
+      "svg_logo",
+      "gradient_symbol",
+      "responsive_sizing",
+      "router_link"
+    ]
+  },
+  {
+    "name": "BrandLogo",
+    "type": "component",
+    "category": "common",
+    "tags": [
+      "logo",
+      "brand",
+      "alternate",
+      "minimal",
+      "icon",
+      "identity"
+    ],
+    "description": "Minimal alternate brand logo variant for compact spaces, favicon, and watermark usage.",
+    "file_path": "src/components/common/BrandLogo.jsx",
+    "dependencies": [
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "common",
+      "footer",
+      "header",
+      "branding"
+    ],
+    "features": [
+      "minimal_variant",
+      "icon_only",
+      "watermark_ready"
+    ]
+  },
+  {
+    "name": "ModernFooter",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "footer",
+      "multi-column",
+      "newsletter",
+      "sitemap",
+      "social",
+      "status-badge",
+      "professional"
+    ],
+    "description": "Professional multi-column footer with live status badge, newsletter signup, categorized sitemap, social links, and scroll-to-top.",
+    "file_path": "src/components/ui/ModernFooter.jsx",
+    "dependencies": [
+      "lucide-react",
+      "react-router-dom",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "common",
+      "footer",
+      "business",
+      "saas",
+      "ecommerce"
+    ],
+    "features": [
+      "multi_column",
+      "newsletter_signup",
+      "status_badge",
+      "sitemap",
+      "social_links",
+      "scroll_to_top"
+    ]
+  },
+  {
+    "name": "GlassNavbar",
+    "type": "component",
+    "category": "navigation",
+    "tags": [
+      "navbar",
+      "glassmorphism",
+      "sticky",
+      "mobile-menu",
+      "cta",
+      "responsive",
+      "backdrop-blur"
+    ],
+    "description": "Glassmorphism navigation bar with backdrop blur, mobile drawer, branded logo, navigation links, and CTA button.",
+    "file_path": "src/components/navigation/GlassNavbar.jsx",
+    "dependencies": [
+      "lucide-react",
+      "react-router-dom"
+    ],
+    "compatible_categories": [
+      "common",
+      "header",
+      "navigation",
+      "business",
+      "saas",
+      "ecommerce"
+    ],
+    "features": [
+      "glassmorphism",
+      "mobile_drawer",
+      "cta_button",
+      "active_link_highlight",
+      "sticky_position"
+    ]
+  },
+  {
+    "name": "BentoGrid",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "bento",
+      "grid",
+      "layout",
+      "masonry",
+      "animated",
+      "cards",
+      "dashboard"
+    ],
+    "description": "Bento-style animated grid layout with staggered entrance, hover lift, and responsive breakpoints. Inspired by Apple Bento design.",
+    "file_path": "src/components/motion/BentoGrid.jsx",
+    "dependencies": [
+      "framer-motion",
+      "lucide-react"
+    ],
+    "compatible_categories": [
+      "dashboard",
+      "saas",
+      "business",
+      "portfolio",
+      "marketing"
+    ],
+    "features": [
+      "staggered_entrance",
+      "hover_lift",
+      "responsive_grid",
+      "card_slots",
+      "animation_variants"
+    ]
+  },
+  {
+    "name": "SpotlightGrid",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "spotlight",
+      "glare",
+      "grid",
+      "cursor",
+      "illumination",
+      "interactive",
+      "hover"
+    ],
+    "description": "Interactive grid with mouse-tracked spotlight/glare illumination following cursor. Creates premium hover experience.",
+    "file_path": "src/components/motion/SpotlightGrid.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "saas",
+      "portfolio",
+      "marketing"
+    ],
+    "features": [
+      "cursor_tracking",
+      "spotlight_glare",
+      "interactive_cards",
+      "premium_hover"
+    ]
+  },
+  {
+    "name": "HolographicCard",
+    "type": "component",
+    "category": "ui",
+    "tags": [
+      "holographic",
+      "3d",
+      "card",
+      "iridescent",
+      "border",
+      "premium",
+      "hover"
+    ],
+    "description": "Holographic/iridescent card with animated border beam, 3D depth, and color-shift on hover. High-impact premium UI element.",
+    "file_path": "src/components/ui/HolographicCard.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "saas",
+      "portfolio",
+      "creative",
+      "marketing"
+    ],
+    "features": [
+      "iridescent_border",
+      "3d_depth",
+      "border_beam",
+      "color_shift",
+      "hover_animation"
+    ]
+  },
+  {
+    "name": "BorderBeam",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "border",
+      "beam",
+      "animated",
+      "scanline",
+      "glow",
+      "premium",
+      "card"
+    ],
+    "description": "Animated border beam/scanline effect that sweeps around container edges. Adds premium motion to cards and sections.",
+    "file_path": "src/components/motion/BorderBeam.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce",
+      "business",
+      "saas",
+      "creative",
+      "marketing"
+    ],
+    "features": [
+      "scanline_animation",
+      "edge_glow",
+      "loop_animation",
+      "card_wrapper"
+    ]
+  },
+  {
+    "name": "TextMorph",
+    "type": "component",
+    "category": "motion",
+    "tags": [
+      "text",
+      "morph",
+      "animated",
+      "transition",
+      "word",
+      "rotation",
+      "hero"
+    ],
+    "description": "Smooth text morphing animation that transitions between multiple phrases with character-level interpolation.",
+    "file_path": "src/components/motion/TextMorph.jsx",
+    "dependencies": [
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business",
+      "portfolio",
+      "saas",
+      "creative",
+      "marketing",
+      "hero"
+    ],
+    "features": [
+      "character_morph",
+      "phrase_rotation",
+      "hero_headline",
+      "stagger_timing"
+    ]
   }
 ]

@@ -141,10 +141,29 @@ class FileManager:
 
     @staticmethod
     def create_zip_archive(src_dir: str, zip_output_base: str) -> str:
-        """Package target project directory into a clean .zip archive file."""
+        """Package target project directory into a clean .zip archive file.
+
+        Excludes `.git`, `node_modules`, `__pycache__`, `.pytest_cache`,
+        `.venv`, and `screenshots` so the deliverable stays lean and buyer-ready.
+        """
         try:
             safe_src = FileManager.resolve_safe_path(src_dir)
-            archive_path = shutil.make_archive(zip_output_base, 'zip', root_dir=str(safe_src.parent), base_dir=str(safe_src.name))
+            excludes = {".git", "node_modules", "__pycache__", ".pytest_cache", ".venv", "screenshots"}
+
+            def _filter(directory: Path, names: List[str]) -> List[str]:
+                ignored = []
+                for name in names:
+                    if name in excludes:
+                        ignored.append(name)
+                return ignored
+
+            archive_path = shutil.make_archive(
+                zip_output_base,
+                "zip",
+                root_dir=str(safe_src.parent),
+                base_dir=str(safe_src.name),
+                filter=_filter,
+            )
             agent_logger.info(f"Successfully generated ZIP archive at: {archive_path}")
             return archive_path
         except Exception as e:

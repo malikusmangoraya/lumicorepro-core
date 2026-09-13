@@ -1,6 +1,6 @@
 # AGENTS.md — LumicorePro Core
 
-> v5.0 (Speed Optimized) | 2026-09-04
+> v5.1 (Marketplace Delivery) | 2026-09-12
 > Monorepo: React 19 + Vite + Tailwind 3 | Express + MySQL + Redis | Python FastAPI AI Agent
 
 ---
@@ -65,8 +65,12 @@ Functional only. Proper deps/cleanup. Context/Zustand/Query for state. Axios int
 ### Tailwind
 Utility-first. Config tokens only (no hardcoded hex). `dark:` prefix required. Mobile-first. `transition-all duration-200`. Respect `prefers-reduced-motion`. RTL via `rtl.css`.
 
-### Components
-Max 300 lines. Props: `variant`/`size`/`disabled`/`className`. States: default/hover/active/disabled/loading/focus/error. A11y: `aria-*`, keyboard nav, visible focus. Icons + text labels always. Variants: primary/secondary/success/danger/warning/info/outline/ghost. Sizes: xs/sm/md/lg/xl.
+### Components & UI/UX
+Max 300 lines. Props: `variant`/`size`/`disabled`/`className`. States: default/hover/active/disabled/loading/focus/error. A11y: `aria-*`, keyboard nav, visible focus. Real Lucide icons (`lucide-react`) paired with text labels. Real curated high-res Unsplash images with `LazyImage` & `alt`.
+- **Branding**: Never plain text. Always generate dynamic vector SVG logos (`UniqueLogo` / `BrandLogo`) with geometric symbols & dual-color gradients.
+- **Footers**: Never a single plain line. Always multi-column professional footers (`ModernFooter`) with live status badge (`🟢 99.99% Operational`), newsletter signup, categorized sitemap, and social links.
+- **Motion UI**: Bento grids (`BentoGrid`), Spotlight cursor illumination (`SpotlightGrid`), 3D tilt (`HolographicCard`), border beams (`BorderBeam`), and text morphing (`TextMorph`).
+- **Variants**: primary/secondary/success/danger/warning/info/outline/ghost/glow. Sizes: xs/sm/md/lg/xl.
 
 ### Backend
 Response: `{success,status,message,data,timestamp}`. Errors: `success:false` + code + user message. Middleware: auth → validate → route → error. Mongoose schemas + validation. Structured logging.
@@ -219,9 +223,24 @@ JSDoc on public components/functions. Inline comments for complex logic only (wh
 
 ---
 
+## 18. SELLABLE PROJECT DELIVERY (mandatory)
+
+Every **new project** this agent creates must be listable on Gumroad, Lemon Squeezy, ThemeForest, Creative Market, GitHub, and Product Hunt.
+
+- **README.md (required):** product pitch, features, stack, prerequisites, copy-paste Getting Started, env table, structure, scripts, deploy, i18n/compliance, troubleshooting, license. Never a one-liner that only points at INSTRUCTIONS.md.
+- **International:** English buyer copy, i18n + RTL, multi-currency, GDPR consent, Privacy/Terms, SEO + OG + JSON-LD, robots/sitemap.
+- **Pro UI only:** UniqueLogo/BrandLogo, GlassNavbar, ModernFooter, Lucide + labels, real images, dark mode, motion, mobile-first. No placeholders, no text-only logos, no single-line footers.
+- **Zero errors:** no TODO/lorem/dummy keys; lint/build clean; `.env.example` only.
+- **Ship with:** LICENSE.md, .gitignore, seller kit when generated via the pipeline.
+
+Rule file: `.cursor/rules/marketplace-ready-projects.mdc`
+
+---
+
 ## 17. CHANGE LOG
 
 | Date | Ver | Changes |
 |------|-----|---------|
+| 2026-09-12 | 5.1 | Marketplace delivery — sellable README, pro UI, international, zero-error bar |
 | 2026-09-04 | 5.0 | Speed optimized — 867→compact, merged duplicates, removed verbosity |
 | 2026-09-04 | 4.0 | Enterprise — a11y, i18n/RTL, PWA, state tree, performance budgets |

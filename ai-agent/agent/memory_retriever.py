@@ -248,8 +248,19 @@ class MemoryRetriever:
         try:
             conn = self._get_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM assets_index")
-            rows = cursor.fetchall()
+            category = self._category_for_industry(str(industry or "general"))
+            if category:
+                cursor.execute(
+                    "SELECT * FROM assets_index WHERE type = 'image' AND category = ?",
+                    (category,),
+                )
+                rows = cursor.fetchall()
+                if len(rows) < 4:
+                    cursor.execute("SELECT * FROM assets_index")
+                    rows = cursor.fetchall()
+            else:
+                cursor.execute("SELECT * FROM assets_index")
+                rows = cursor.fetchall()
 
             categorized = {"images": [], "icons": [], "animations": []}
             for row in rows:
@@ -271,6 +282,52 @@ class MemoryRetriever:
         except Exception as e:
             agent_logger.error(f"Error searching assets: {e}")
             return {"images": [], "icons": [], "animations": []}
+
+    @staticmethod
+    def _category_for_industry(industry: str) -> str:
+        """Map an industry string to a stock asset category."""
+        mapping = {
+            "ecommerce": "ecommerce",
+            "electronics": "ecommerce",
+            "fashion": "ecommerce",
+            "restaurant": "restaurant",
+            "food": "restaurant",
+            "cafe": "restaurant",
+            "realestate": "realestate",
+            "property": "realestate",
+            "portfolio": "portfolio",
+            "personal": "portfolio",
+            "education": "education",
+            "lms": "education",
+            "course": "education",
+            "healthcare": "healthcare",
+            "medical": "healthcare",
+            "hospital": "healthcare",
+            "fitness": "fitness",
+            "gym": "fitness",
+            "travel": "travel",
+            "creative": "creative",
+            "studio": "creative",
+            "dashboard": "dashboard",
+            "saas": "saas",
+            "software": "saas",
+            "fintech": "fintech",
+            "ai": "ai",
+            "ml": "ai",
+            "business": "business",
+            "corporate": "business",
+            "agency": "business",
+            "consulting": "business",
+            "lawfirm": "business",
+            "nonprofit": "business",
+        }
+        key = (industry or "").strip().lower()
+        if key in mapping:
+            return mapping[key]
+        for name, cat in mapping.items():
+            if name in key and len(name) > 2:
+                return cat
+        return "business"
 
     def search_backend(self, category: str, features: List[str]) -> Optional[Dict[str, Any]]:
         """Find best matching backend template and its modules."""

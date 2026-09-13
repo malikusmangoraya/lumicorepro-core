@@ -303,19 +303,81 @@ export default useAppStore;
 
         artifacts["layout_landing"] = self._write(
             src, "layouts", "LandingLayout.jsx",
-            """/**
- * LandingLayout — alternative public landing layout template.
- * Code-split: loaded via React.lazy() (Platform TRD optimization mandate).
- */
+            """import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Zap } from 'lucide-react';
+
 export default function LandingLayout({ children }) {
   return (
-    <div className="fluid-container min-h-screen py-fluid-6">
-      <header className="flex items-center justify-between">
-        <span className="text-lg font-bold">Brand</span>
-        <nav className="flex gap-fluid-4" aria-label="Primary">Placeholders</nav>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500/20 selection:text-cyan-400">
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/" className="inline-flex items-center gap-2 font-bold text-lg text-white">
+            <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
+              <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="rgb(6, 182, 212)" opacity="0.95" />
+              <polygon points="24,12 34,18 34,30 24,36 14,30 14,18" fill="white" opacity="0.9" />
+            </svg>
+            <span>Platform<span className="text-cyan-400">Pro</span></span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300" aria-label="Primary">
+            <Link to="/" className="hover:text-cyan-400 transition-colors">Home</Link>
+            <Link to="/about" className="hover:text-cyan-400 transition-colors">About</Link>
+            <Link to="/services" className="hover:text-cyan-400 transition-colors">Services</Link>
+            <Link to="/contact" className="hover:text-cyan-400 transition-colors">Contact</Link>
+          </nav>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-cyan-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-400 transition-all"
+          >
+            Get Started <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </header>
-      <main>{children}</main>
-      <footer className="mt-fluid-6 border-t border-slate-800 pt-fluid-3 text-sm opacity-70">© {new Date().getFullYear()} Brand. All rights reserved.</footer>
+
+      <main className="flex-1">{children}</main>
+
+      <footer className="border-t border-slate-800 bg-slate-950 text-slate-400">
+        <div className="max-w-7xl mx-auto px-6 py-14">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+            <div className="space-y-3">
+              <span className="font-bold text-base text-white">Platform<span className="text-cyan-400">Pro</span></span>
+              <p className="text-xs text-slate-400 leading-relaxed">Enterprise fullstack web application platform with high performance and security built in.</p>
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                All systems operational
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold text-xs text-white uppercase tracking-wider mb-3">Product</p>
+              <ul className="space-y-2 text-xs">
+                <li><Link to="/services" className="hover:text-cyan-400">Features</Link></li>
+                <li><Link to="/services" className="hover:text-cyan-400">Solutions</Link></li>
+                <li><Link to="/services" className="hover:text-cyan-400">Pricing</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-xs text-white uppercase tracking-wider mb-3">Company</p>
+              <ul className="space-y-2 text-xs">
+                <li><Link to="/about" className="hover:text-cyan-400">About Us</Link></li>
+                <li><Link to="/contact" className="hover:text-cyan-400">Contact</Link></li>
+                <li><a href="#" className="hover:text-cyan-400">Privacy</a></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-xs text-white uppercase tracking-wider mb-3">Newsletter</p>
+              <p className="text-xs text-slate-400 mb-2">Subscribe for latest updates.</p>
+              <div className="flex gap-2">
+                <input type="email" placeholder="work@company.com" className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white" />
+                <button type="button" className="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500">Join</button>
+              </div>
+            </div>
+          </div>
+          <div className="pt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+            <p>&copy; {new Date().getFullYear()} PlatformPro. All rights reserved.</p>
+            <span className="flex items-center gap-1"><Zap className="h-3 w-3 text-cyan-400" /> React 19 + Vite</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -323,21 +385,34 @@ export default function LandingLayout({ children }) {
         )
         artifacts["layout_app"] = self._write(
             src, "layouts", "AppLayout.jsx",
-            """/**
- * AppLayout — authenticated/application layout template.
- * Code-split: loaded via React.lazy() (Platform TRD optimization mandate).
- */
+            """import React from 'react';
+import { Link } from 'react-router-dom';
+import { BarChart3, Users, Settings, Bell } from 'lucide-react';
+
 export default function AppLayout({ children }) {
   return (
-    <div className="fluid-container min-h-screen py-fluid-6">
-      <header className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/60 px-fluid-3 py-fluid-2">
-        <span className="font-bold">Console</span>
-        <span className="text-sm opacity-60">Signed in</span>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <header className="border-b border-slate-800 bg-slate-900/60 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-white">Console<span className="text-cyan-400">Admin</span></span>
+          <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-400">Live</span>
+        </div>
+        <div className="flex items-center gap-4 text-slate-400 text-sm">
+          <button type="button" className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-white" aria-label="Notifications"><Bell className="h-4 w-4" /></button>
+          <div className="flex items-center gap-2 border-l border-slate-800 pl-4">
+            <div className="h-7 w-7 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center text-xs font-bold text-slate-950">A</div>
+            <span className="text-xs font-medium text-slate-200">Admin</span>
+          </div>
+        </div>
       </header>
-      <main className="mt-fluid-4 grid gap-fluid-5 lg:grid-cols-[220px_1fr]">
-        <aside className="space-y-2 text-sm" aria-label="Navigation">Nav</aside>
-        <section>{children}</section>
-      </main>
+      <div className="flex-1 flex">
+        <aside className="w-56 border-r border-slate-800 bg-slate-950 p-4 space-y-1 text-xs" aria-label="Navigation">
+          <Link to="/" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-900 hover:text-cyan-400"><BarChart3 className="h-4 w-4" /> Overview</Link>
+          <Link to="/services" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-900 hover:text-cyan-400"><Users className="h-4 w-4" /> Customers</Link>
+          <Link to="/about" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-900 hover:text-cyan-400"><Settings className="h-4 w-4" /> Settings</Link>
+        </aside>
+        <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

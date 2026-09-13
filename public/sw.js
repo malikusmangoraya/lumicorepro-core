@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lumicorepro-v1.0.0';
+const CACHE_NAME = 'lumicorepro-v5.0.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

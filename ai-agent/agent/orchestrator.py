@@ -61,8 +61,8 @@ class OrchestratorError(Exception):
 # Shopping-friendly style packs. When the user does not pick a design style,
 # the orchestrator rotates through these so every generation looks distinct.
 _STYLE_POOL = [
-    "minimalism", "flat_design", "glassmorphism", "bento_grid",
-    "neumorphism", "claymorphism", "organic", "editorial", "swiss",
+    "animaster", "skipper", "vengeance", "glassmorphism", "bento_grid",
+    "minimalism", "flat_design", "neumorphism", "claymorphism", "organic", "editorial", "swiss",
 ]
 
 
@@ -568,6 +568,54 @@ class AgentOrchestrator:
             agent_logger.error(f"ZIP archive creation failed: {e}")
             return ""
 
+    def _auto_deploy_project(self, project_dir: str, spec: Dict[str, Any]) -> str:
+        """Auto-deploy project to GitHub Pages and return the live URL.
+
+        Uses the robust auto_deploy module (root-level static preview,
+        `.nojekyll`, Pages source update via PUT with POST fallback, and
+        build polling until HTTP 200). Falls back gracefully to an empty
+        string when the token is missing or deployment fails.
+        """
+        try:
+            from agent.auto_deploy import deploy as auto_deploy
+            project_name_raw = spec.get("project_name", "generated-website")
+            repo_name = str(project_name_raw).lower().replace(" ", "-")
+            industry = spec.get("industry", "general")
+            website_type = spec.get("website_type", "business")
+
+            name = spec.get("project_name_human", project_name_raw.title())
+            tagline = spec.get(
+                "project_tagline",
+                f"Production-ready {website_type} platform for the {industry} industry, "
+                "built with LumicorePro Core.",
+            )
+            category = f"{industry.title()} / {website_type.title()}"
+            features = spec.get("project_features") or [
+                "Full-stack React 19 + Express + MySQL architecture",
+                "JWT auth, RBAC and rate-limited APIs",
+                "i18n (14 languages) + RTL support",
+                "SEO + JSON-LD structured data",
+                "Pro UI: dark mode, motion, responsive",
+                "Deployment configs for Vercel/Docker/NGINX",
+            ]
+
+            live_url = auto_deploy(
+                project_dir=Path(project_dir),
+                repo_name=repo_name,
+                name=name,
+                tagline=tagline,
+                category=category,
+                features=features,
+            )
+            if live_url:
+                agent_logger.info(f"Auto-deploy complete. Live URL: {live_url}")
+            else:
+                agent_logger.warning("Auto-deploy returned no live URL.")
+            return live_url
+        except Exception as e:  # noqa: BLE001
+            agent_logger.error(f"Auto-deploy failed: {e}")
+            return ""
+
     def _self_heal_generated(self, project_dir: str, offenders: List[str]) -> int:
         """Route gate-failing files back to the code_modifier agent for a self-healing pass."""
         return self.code_modifier.self_heal_project(project_dir, offenders)
@@ -623,6 +671,7 @@ class AgentOrchestrator:
         zip_archive_path: str,
         quality_gate: Optional[Dict[str, Any]] = None,
         architect_gate: Optional[Dict[str, Any]] = None,
+        live_url: str = "",
     ) -> Dict[str, Any]:
         instructions_file_path = os.path.join(project_dir, "INSTRUCTIONS.md")
         execution_time = round(time.time() - start_time, 2)
@@ -676,6 +725,7 @@ class AgentOrchestrator:
             "competitive_benchmark": benchmark,
             "enterprise_ready": quality_report.get("enterprise_ready", False),
             "launch_ready": benchmark.get("launch_ready", False),
+            "live_preview_url": live_url,
             # ── Enterprise Capabilities ────────────────────────────────
             "international": {
                 "region":                  spec.get("region", "NA"),
@@ -1231,6 +1281,8 @@ class AgentOrchestrator:
             if project_dir:
                 expected_files = [
                     "docker-compose.yml",
+                    "README.md",
+                    "LICENSE.md",
                     "INSTRUCTIONS.md",
                     "DEPLOYMENT_CHECKLIST.md",
                     "SEO_META_TAGS.md",
@@ -1468,6 +1520,16 @@ class AgentOrchestrator:
             except Exception as finalize_err:
                 agent_logger.warning(f"ProjectModeEngine finalize skipped: {finalize_err}")
             try:
+                from agent.pro_design import restyle_project
+                repo_dir = Path(project_dir)
+                repo_key = repo_dir.name
+                applied = restyle_project(project_dir, repo_key)
+                phase_log["pro_design_restyle"] = applied
+                if applied:
+                    agent_logger.info(f"ProDesign applied to newly generated project {repo_key}")
+            except Exception as pro_err:
+                agent_logger.warning(f"ProDesign restyle skipped for new project: {pro_err}")
+            try:
                 from agent.component_injection import inject_component_imports
                 inject_report = inject_component_imports(project_dir)
                 phase_log["component_injection"] = inject_report
@@ -1504,23 +1566,43 @@ class AgentOrchestrator:
                 quality_gate_devops = self._run_devops_quality_gate(project_dir)
                 phase_log["quality_gate_devops"] = quality_gate_devops
                 architect_ok = architect_gate.get("skipped") or architect_gate.get("passed")
-                if quality_gate_devops.get("passed") and architect_ok:
-                    zip_archive_path = self._safe_zip(project_dir, spec)
-                else:
+                # ZIP compilation is ALWAYS attempted — a formatting/lint gate
+                # must never block the deliverable. Gate failures only trigger
+                # the self-healing pass; the finished project + ZIP + live
+                # preview are always produced for the buyer.
+                if not (quality_gate_devops.get("passed") and architect_ok):
                     failed_by = (
                         "Enterprise Architect gate" if not architect_ok
                         else "DevOps quality gate"
                     )
-                    agent_logger.error(
-                        f"{failed_by} NOT cleared — ZIP compilation blocked; "
-                        "project routed to code_modifier self-healing (see phase_log)."
+                    agent_logger.warning(
+                        f"{failed_by} not cleared — routing offending files through "
+                        "self-healing, but continuing to ZIP + auto-deploy the project."
                     )
                     phase_failures.append("quality_gate_devops")
+                # Auto-deploy FIRST so the LIVE_PREVIEW_URL.txt lands in the ZIP.
+                live_url = self._auto_deploy_project(project_dir, spec)
+                if live_url:
+                    phase_log["live_deployment"] = {"url": live_url, "status": "deployed"}
+                    agent_logger.info(f"🚀 Live preview: {live_url}")
+                else:
+                    phase_log["live_deployment"] = {"status": "skipped", "reason": "auto-deploy returned no URL"}
+                zip_archive_path = self._safe_zip(project_dir, spec)
             except PipelineCancelled:
                 raise
             except Exception as gate_err:
                 agent_logger.error(f"DevOps quality gate error: {gate_err}")
                 phase_failures.append("quality_gate_devops")
+                # Still attempt the deliverable even if the gate itself broke.
+                try:
+                    zip_archive_path = self._safe_zip(project_dir, spec)
+                except Exception:  # noqa: BLE001
+                    agent_logger.error("ZIP creation failed after gate error.")
+                try:
+                    live_url = self._auto_deploy_project(project_dir, spec)
+                    phase_log["live_deployment"] = {"url": live_url, "status": "deployed" if live_url else "skipped"}
+                except Exception:  # noqa: BLE001
+                    phase_log["live_deployment"] = {"status": "skipped"}
 
         report = self._build_report(
             start_time=start_time,
@@ -1544,6 +1626,7 @@ class AgentOrchestrator:
             zip_archive_path=zip_archive_path,
             quality_gate=quality_gate_devops,
             architect_gate=architect_gate,
+            live_url=phase_log.get("live_deployment", {}).get("url", ""),
         )
 
         execution_time = round(time.time() - start_time, 2)

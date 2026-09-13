@@ -1,312 +1,65 @@
 [
   {
-    "name": "iPhone 15 Pro Titanium HD",
+    "name": "Bitcoin",
     "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "smartphone",
-      "apple",
-      "iphone",
-      "flagship",
-      "mobile",
-      "phone",
-      "hd",
-      "5g"
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
     ],
-    "file_path": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=1000&auto=format&fit=crop"
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Bitcoin"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\bitcoin.jpg",
+    "width": 0,
+    "height": 0
   },
   {
-    "name": "Samsung Galaxy S24 Ultra HD",
+    "name": "Brain Lines",
     "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "smartphone",
-      "samsung",
-      "galaxy",
-      "android",
-      "mobile",
-      "phone",
-      "hd"
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
     ],
-    "file_path": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=1000&auto=format&fit=crop"
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Brain",
+      "Lines"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\brain-lines.jpg",
+    "width": 0,
+    "height": 0
   },
   {
-    "name": "MacBook Pro M3 Max Silver HD",
+    "name": "Chip Focus",
     "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "laptop",
-      "macbook",
-      "apple",
-      "computer",
-      "pc",
-      "hd",
-      "m3"
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
     ],
-    "file_path": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Asus ROG Strix Gaming Laptop HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
     "tags": [
-      "laptop",
-      "gaming",
-      "asus",
-      "rog",
-      "rtx",
-      "pc",
-      "hd"
+      "ai",
+      "stock",
+      "photo",
+      "Chip",
+      "Focus"
     ],
-    "file_path": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Sony WH-1000XM5 ANC Headphones HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "headphones",
-      "sony",
-      "audio",
-      "wireless",
-      "anc",
-      "sound",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "AirPods Max Space Gray HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "headphones",
-      "apple",
-      "airpods",
-      "audio",
-      "wireless",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Apple Watch Ultra 2 Titanium HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "smartwatch",
-      "apple",
-      "watch",
-      "wearables",
-      "fitness",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Garmin Fenix 7 Pro Multisport Watch HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "smartwatch",
-      "garmin",
-      "wearables",
-      "fitness",
-      "gps",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Sony A7 IV Full Frame Camera HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "camera",
-      "sony",
-      "mirrorless",
-      "4k",
-      "photography",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "DJI Mavic 3 Pro 4K Drone HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "drone",
-      "dji",
-      "mavic",
-      "4k",
-      "aerial",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Nvidia GeForce RTX 4090 GPU HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "gpu",
-      "nvidia",
-      "rtx",
-      "graphics",
-      "pc",
-      "hardware",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "PS5 Slim Console & DualSense HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "ps5",
-      "playstation",
-      "console",
-      "gamepad",
-      "gaming",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "RGB Mechanical Gaming Keyboard HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "keyboard",
-      "mechanical",
-      "rgb",
-      "peripherals",
-      "gaming",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Logitech MX Master 3S Ergonomic Mouse HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "mouse",
-      "logitech",
-      "ergonomic",
-      "peripherals",
-      "productivity",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Meta Quest 3 VR Headset HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "vr",
-      "virtualreality",
-      "meta",
-      "quest",
-      "headset",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "JBL Boombox 3 Bluetooth Speaker HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "speaker",
-      "jbl",
-      "audio",
-      "bluetooth",
-      "hifi",
-      "sound",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Amazon Echo Studio Smart Hub HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "smarthome",
-      "echo",
-      "alexa",
-      "speaker",
-      "hub",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1543512214-318c7553f230?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "65 Inch OLED 4K Smart TV HD",
-    "type": "image",
-    "category": "ecommerce",
-    "industry": "electronics",
-    "tags": [
-      "tv",
-      "television",
-      "oled",
-      "4k",
-      "screen",
-      "display",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "SaaS Executive Analytics Dashboard HD",
-    "type": "image",
-    "category": "saas",
-    "industry": "software",
-    "tags": [
-      "saas",
-      "dashboard",
-      "analytics",
-      "ui",
-      "charts",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
-  },
-  {
-    "name": "Crypto Trading Terminal Portal HD",
-    "type": "image",
-    "category": "fintech",
-    "industry": "crypto",
-    "tags": [
-      "fintech",
-      "crypto",
-      "trading",
-      "bitcoin",
-      "blockchain",
-      "hd"
-    ],
-    "file_path": "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1000&auto=format&fit=crop"
+    "file_path": "src/src\\assets\\images\\ai\\chip-focus.jpg",
+    "width": 0,
+    "height": 0
   },
   {
     "name": "Chip",
@@ -314,12 +67,59 @@
     "category": "ai",
     "industry": "ai",
     "industries": [
-      "ai"
+      "ai",
+      "technology",
+      "machine-learning"
     ],
     "tags": [
-      "chip"
+      "ai",
+      "stock",
+      "photo",
+      "Chip"
     ],
-    "file_path": "src/assets/images/ai/chip.jpg",
+    "file_path": "src/src\\assets\\images\\ai\\chip.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code Dark",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Code",
+      "Dark"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\code-dark.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code Screen",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Code",
+      "Screen"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\code-screen.jpg",
     "width": 0,
     "height": 0
   },
@@ -329,12 +129,38 @@
     "category": "ai",
     "industry": "ai",
     "industries": [
-      "ai"
+      "ai",
+      "technology",
+      "machine-learning"
     ],
     "tags": [
-      "code"
+      "ai",
+      "stock",
+      "photo",
+      "Code"
     ],
-    "file_path": "src/assets/images/ai/code.jpg",
+    "file_path": "src/src\\assets\\images\\ai\\code.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Coffee Focus",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Coffee",
+      "Focus"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\coffee-focus.jpg",
     "width": 0,
     "height": 0
   },
@@ -344,12 +170,101 @@
     "category": "ai",
     "industry": "ai",
     "industries": [
-      "ai"
+      "ai",
+      "technology",
+      "machine-learning"
     ],
     "tags": [
-      "data"
+      "ai",
+      "stock",
+      "photo",
+      "Data"
     ],
-    "file_path": "src/assets/images/ai/data.jpg",
+    "file_path": "src/src\\assets\\images\\ai\\data.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Design Tools",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Design",
+      "Tools"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\design-tools.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Earth Data",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Earth",
+      "Data"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\earth-data.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Game Tech",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Game",
+      "Tech"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\game-tech.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Chip",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Hero",
+      "Chip"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\hero-chip.jpg",
     "width": 0,
     "height": 0
   },
@@ -359,12 +274,58 @@
     "category": "ai",
     "industry": "ai",
     "industries": [
-      "ai"
+      "ai",
+      "technology",
+      "machine-learning"
     ],
     "tags": [
-      "hero"
+      "ai",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/ai/hero.jpg",
+    "file_path": "src/src\\assets\\images\\ai\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Knowledge",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Knowledge"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\knowledge.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Neural Light",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Neural",
+      "Light"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\neural-light.jpg",
     "width": 0,
     "height": 0
   },
@@ -374,12 +335,187 @@
     "category": "ai",
     "industry": "ai",
     "industries": [
-      "ai"
+      "ai",
+      "technology",
+      "machine-learning"
     ],
     "tags": [
-      "robot"
+      "ai",
+      "stock",
+      "photo",
+      "Robot"
     ],
-    "file_path": "src/assets/images/ai/robot.jpg",
+    "file_path": "src/src\\assets\\images\\ai\\robot.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Security",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Security"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\security.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Team Tech",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Team",
+      "Tech"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\team-tech.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Tech Glitch",
+    "type": "image",
+    "category": "ai",
+    "industry": "ai",
+    "industries": [
+      "ai",
+      "technology",
+      "machine-learning"
+    ],
+    "tags": [
+      "ai",
+      "stock",
+      "photo",
+      "Tech",
+      "Glitch"
+    ],
+    "file_path": "src/src\\assets\\images\\ai\\tech-glitch.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics Board",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Analytics",
+      "Board"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\analytics-board.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics Deck",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Analytics",
+      "Deck"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\analytics-deck.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Brainstorm",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Brainstorm"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\brainstorm.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Building Modern",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Building",
+      "Modern"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\building-modern.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Cards",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Cards"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\cards.jpg",
     "width": 0,
     "height": 0
   },
@@ -391,21 +527,16 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace",
-      "city"
+      "business",
+      "stock",
+      "photo",
+      "City"
     ],
-    "file_path": "src/assets/images/business/city.jpg",
+    "file_path": "src/src\\assets\\images\\business\\city.jpg",
     "width": 0,
     "height": 0
   },
@@ -417,21 +548,39 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace",
-      "hero"
+      "business",
+      "stock",
+      "photo",
+      "Corporate",
+      "Hero"
     ],
-    "file_path": "src/assets/images/business/corporate-hero.jpg",
+    "file_path": "src/src\\assets\\images\\business\\corporate-hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Corporate Space",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Corporate",
+      "Space"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\corporate-space.jpg",
     "width": 0,
     "height": 0
   },
@@ -443,20 +592,81 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Executive"
     ],
-    "file_path": "src/assets/images/business/executive.jpg",
+    "file_path": "src/src\\assets\\images\\business\\executive.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Finance",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Finance"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\finance.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Focus Work",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Focus",
+      "Work"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\focus-work.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Growth Chart",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Growth",
+      "Chart"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\growth-chart.jpg",
     "width": 0,
     "height": 0
   },
@@ -468,20 +678,60 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Growth"
     ],
-    "file_path": "src/assets/images/business/growth.jpg",
+    "file_path": "src/src\\assets\\images\\business\\growth.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Handshake Deal",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Handshake",
+      "Deal"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\handshake-deal.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Desk",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Hero",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\hero-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -493,21 +743,38 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace",
-      "hero"
+      "business",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/business/hero.jpg",
+    "file_path": "src/src\\assets\\images\\business\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Laptop Setup",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Laptop",
+      "Setup"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\laptop-setup.jpg",
     "width": 0,
     "height": 0
   },
@@ -519,20 +786,38 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Meeting"
     ],
-    "file_path": "src/assets/images/business/meeting.jpg",
+    "file_path": "src/src\\assets\\images\\business\\meeting.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Office Desk",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Office",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\office-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -544,20 +829,17 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Office",
+      "Team"
     ],
-    "file_path": "src/assets/images/business/office-team.jpg",
+    "file_path": "src/src\\assets\\images\\business\\office-team.jpg",
     "width": 0,
     "height": 0
   },
@@ -569,20 +851,123 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Office"
     ],
-    "file_path": "src/assets/images/business/office.jpg",
+    "file_path": "src/src\\assets\\images\\business\\office.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Presentation",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Presentation"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\presentation.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Professional Female",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Professional",
+      "Female"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\professional-female.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Professional Male",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Professional",
+      "Male"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\professional-male.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Strategy",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Strategy"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\strategy.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Summit",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Summit"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\summit.jpg",
     "width": 0,
     "height": 0
   },
@@ -594,20 +979,81 @@
     "industries": [
       "business",
       "corporate",
-      "saas",
-      "agency"
+      "agency",
+      "consulting"
     ],
     "tags": [
-      "team",
-      "meeting",
-      "office",
-      "corporate",
-      "growth",
-      "office",
-      "executive",
-      "workspace"
+      "business",
+      "stock",
+      "photo",
+      "Team"
     ],
-    "file_path": "src/assets/images/business/team.jpg",
+    "file_path": "src/src\\assets\\images\\business\\team.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Wealth",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Wealth"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\wealth.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Work Meeting1",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Work",
+      "Meeting1"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\work-meeting1.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Work Meeting2",
+    "type": "image",
+    "category": "business",
+    "industry": "business",
+    "industries": [
+      "business",
+      "corporate",
+      "agency",
+      "consulting"
+    ],
+    "tags": [
+      "business",
+      "stock",
+      "photo",
+      "Work",
+      "Meeting2"
+    ],
+    "file_path": "src/src\\assets\\images\\business\\work-meeting2.jpg",
     "width": 0,
     "height": 0
   },
@@ -618,18 +1064,142 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "artwork",
-      "design"
+      "stock",
+      "photo",
+      "Artwork",
+      "Design"
     ],
-    "file_path": "src/assets/images/creative/artwork-design.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\artwork-design.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Branding",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Branding"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\branding.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Colorful Space",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Colorful",
+      "Space"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\colorful-space.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Creative Fill 01",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Creative",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\creative-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Design Desktop",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Design",
+      "Desktop"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\design-desktop.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Design Pattern",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Design",
+      "Pattern"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\design-pattern.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Art",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Hero",
+      "Art"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\hero-art.jpg",
     "width": 0,
     "height": 0
   },
@@ -640,17 +1210,77 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "hero"
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/creative/hero.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Lookbook",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Lookbook"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\lookbook.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Moodboard",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Moodboard"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\moodboard.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Notebook Pen",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Notebook",
+      "Pen"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\notebook-pen.jpg",
     "width": 0,
     "height": 0
   },
@@ -661,17 +1291,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "project1"
+      "stock",
+      "photo",
+      "Project1"
     ],
-    "file_path": "src/assets/images/creative/project1.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\project1.jpg",
     "width": 0,
     "height": 0
   },
@@ -682,17 +1311,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "project2"
+      "stock",
+      "photo",
+      "Project2"
     ],
-    "file_path": "src/assets/images/creative/project2.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\project2.jpg",
     "width": 0,
     "height": 0
   },
@@ -703,17 +1331,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "project3"
+      "stock",
+      "photo",
+      "Project3"
     ],
-    "file_path": "src/assets/images/creative/project3.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\project3.jpg",
     "width": 0,
     "height": 0
   },
@@ -724,17 +1351,37 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "project4"
+      "stock",
+      "photo",
+      "Project4"
     ],
-    "file_path": "src/assets/images/creative/project4.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\project4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Studio Desk",
+    "type": "image",
+    "category": "creative",
+    "industry": "creative",
+    "industries": [
+      "creative",
+      "studio",
+      "portfolio"
+    ],
+    "tags": [
+      "creative",
+      "stock",
+      "photo",
+      "Studio",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\creative\\studio-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -745,17 +1392,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "team1"
+      "stock",
+      "photo",
+      "Team1"
     ],
-    "file_path": "src/assets/images/creative/team1.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\team1.jpg",
     "width": 0,
     "height": 0
   },
@@ -766,17 +1412,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "team2"
+      "stock",
+      "photo",
+      "Team2"
     ],
-    "file_path": "src/assets/images/creative/team2.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\team2.jpg",
     "width": 0,
     "height": 0
   },
@@ -787,17 +1432,16 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "team3"
+      "stock",
+      "photo",
+      "Team3"
     ],
-    "file_path": "src/assets/images/creative/team3.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\team3.jpg",
     "width": 0,
     "height": 0
   },
@@ -808,17 +1452,58 @@
     "industry": "creative",
     "industries": [
       "creative",
-      "studio"
+      "studio",
+      "portfolio"
     ],
     "tags": [
-      "studio",
-      "team",
-      "agency",
       "creative",
-      "art",
-      "team4"
+      "stock",
+      "photo",
+      "Team4"
     ],
-    "file_path": "src/assets/images/creative/team4.jpg",
+    "file_path": "src/src\\assets\\images\\creative\\team4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics Laptop",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Analytics",
+      "Laptop"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\analytics-laptop.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics Phone",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Analytics",
+      "Phone"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\analytics-phone.jpg",
     "width": 0,
     "height": 0
   },
@@ -826,19 +1511,271 @@
     "name": "Analytics",
     "type": "image",
     "category": "dashboard",
-    "industry": "software",
+    "industry": "dashboard",
     "industries": [
-      "software",
+      "dashboard",
       "saas",
-      "dashboard"
+      "software"
     ],
     "tags": [
-      "analytics",
       "dashboard",
-      "user",
-      "hero"
+      "stock",
+      "photo",
+      "Analytics"
     ],
-    "file_path": "src/assets/images/dashboard/analytics.jpg",
+    "file_path": "src/src\\assets\\images\\dashboard\\analytics.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Chart Notes",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Chart",
+      "Notes"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\chart-notes.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code Dash",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Code",
+      "Dash"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\code-dash.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Code Editor",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Code",
+      "Editor"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\code-editor.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 01",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 02",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-02.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 03",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-03.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 04",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-04.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 05",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-05.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 06",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-06.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 07",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-07.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dash Fill 08",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Dash",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-08.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Desk Dashboard",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Desk",
+      "Dashboard"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\desk-dashboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -846,19 +1783,40 @@
     "name": "Hero",
     "type": "image",
     "category": "dashboard",
-    "industry": "software",
+    "industry": "dashboard",
     "industries": [
-      "software",
+      "dashboard",
       "saas",
-      "dashboard"
+      "software"
     ],
     "tags": [
-      "analytics",
       "dashboard",
-      "user",
-      "hero"
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/dashboard/hero.jpg",
+    "file_path": "src/src\\assets\\images\\dashboard\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Payments Dash",
+    "type": "image",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "industries": [
+      "dashboard",
+      "saas",
+      "software"
+    ],
+    "tags": [
+      "dashboard",
+      "stock",
+      "photo",
+      "Payments",
+      "Dash"
+    ],
+    "file_path": "src/src\\assets\\images\\dashboard\\payments-dash.jpg",
     "width": 0,
     "height": 0
   },
@@ -866,20 +1824,19 @@
     "name": "User1",
     "type": "image",
     "category": "dashboard",
-    "industry": "software",
+    "industry": "dashboard",
     "industries": [
-      "software",
+      "dashboard",
       "saas",
-      "dashboard"
+      "software"
     ],
     "tags": [
-      "analytics",
       "dashboard",
-      "user",
-      "hero",
-      "user1"
+      "stock",
+      "photo",
+      "User1"
     ],
-    "file_path": "src/assets/images/dashboard/user1.jpg",
+    "file_path": "src/src\\assets\\images\\dashboard\\user1.jpg",
     "width": 0,
     "height": 0
   },
@@ -887,20 +1844,19 @@
     "name": "User2",
     "type": "image",
     "category": "dashboard",
-    "industry": "software",
+    "industry": "dashboard",
     "industries": [
-      "software",
+      "dashboard",
       "saas",
-      "dashboard"
+      "software"
     ],
     "tags": [
-      "analytics",
       "dashboard",
-      "user",
-      "hero",
-      "user2"
+      "stock",
+      "photo",
+      "User2"
     ],
-    "file_path": "src/assets/images/dashboard/user2.jpg",
+    "file_path": "src/src\\assets\\images\\dashboard\\user2.jpg",
     "width": 0,
     "height": 0
   },
@@ -908,20 +1864,81 @@
     "name": "User3",
     "type": "image",
     "category": "dashboard",
-    "industry": "software",
+    "industry": "dashboard",
     "industries": [
-      "software",
+      "dashboard",
       "saas",
-      "dashboard"
+      "software"
     ],
     "tags": [
-      "analytics",
       "dashboard",
-      "user",
-      "hero",
-      "user3"
+      "stock",
+      "photo",
+      "User3"
     ],
-    "file_path": "src/assets/images/dashboard/user3.jpg",
+    "file_path": "src/src\\assets\\images\\dashboard\\user3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Clothing Rack",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Clothing",
+      "Rack"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\clothing-rack.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Cosmetics",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Cosmetics"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\cosmetics.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Denim Rack",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Denim",
+      "Rack"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\denim-rack.jpg",
     "width": 0,
     "height": 0
   },
@@ -933,21 +1950,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "hero"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/ecommerce/hero.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -959,21 +1970,16 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "pro"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Iphone",
+      "Pro"
     ],
-    "file_path": "src/assets/images/ecommerce/iphone-pro.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\iphone-pro.jpg",
     "width": 0,
     "height": 0
   },
@@ -985,21 +1991,142 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "pro"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Macbook",
+      "Pro"
     ],
-    "file_path": "src/assets/images/ecommerce/macbook-pro.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\macbook-pro.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Camera",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Camera"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-camera.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Keyboard",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Keyboard"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-keyboard.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Shoe",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Shoe"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-shoe.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Sneaker",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Sneaker"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-sneaker.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Sneaker2",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Sneaker2"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-sneaker2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Product Sunglasses",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product",
+      "Sunglasses"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\product-sunglasses.jpg",
     "width": 0,
     "height": 0
   },
@@ -1011,21 +2138,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product1"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product1"
     ],
-    "file_path": "src/assets/images/ecommerce/product1.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1037,21 +2158,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product2"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product2"
     ],
-    "file_path": "src/assets/images/ecommerce/product2.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1063,21 +2178,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product3"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product3"
     ],
-    "file_path": "src/assets/images/ecommerce/product3.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1089,21 +2198,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product4"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product4"
     ],
-    "file_path": "src/assets/images/ecommerce/product4.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product4.jpg",
     "width": 0,
     "height": 0
   },
@@ -1115,21 +2218,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product5"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product5"
     ],
-    "file_path": "src/assets/images/ecommerce/product5.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product5.jpg",
     "width": 0,
     "height": 0
   },
@@ -1141,21 +2238,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product6"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product6"
     ],
-    "file_path": "src/assets/images/ecommerce/product6.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product6.jpg",
     "width": 0,
     "height": 0
   },
@@ -1167,21 +2258,15 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product7"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product7"
     ],
-    "file_path": "src/assets/images/ecommerce/product7.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product7.jpg",
     "width": 0,
     "height": 0
   },
@@ -1193,21 +2278,36 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "product8"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Product8"
     ],
-    "file_path": "src/assets/images/ecommerce/product8.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\product8.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Shopping Bags",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Shopping",
+      "Bags"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\shopping-bags.jpg",
     "width": 0,
     "height": 0
   },
@@ -1219,21 +2319,599 @@
     "industries": [
       "ecommerce",
       "electronics",
-      "shopping"
+      "fashion"
     ],
     "tags": [
-      "product",
-      "iphone",
-      "macbook",
-      "headphones",
-      "laptop",
-      "phone",
-      "watch",
-      "camera",
-      "shopping",
-      "sony"
+      "ecommerce",
+      "stock",
+      "photo",
+      "Sony",
+      "Headphones"
     ],
-    "file_path": "src/assets/images/ecommerce/sony-headphones.jpg",
+    "file_path": "src/src\\assets\\images\\ecommerce\\sony-headphones.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Earbuds",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Earbuds"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\earbuds.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 01",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 02",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-02.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 03",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-03.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 04",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-04.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 05",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-05.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 06",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-06.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 07",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-07.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 08",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-08.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 09",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-09.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 10",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-10.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 11",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-11.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 12",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-12.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 13",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-13.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Electronics Fill 14",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Electronics",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-14.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fitness Band",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Fitness",
+      "Band"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\fitness-band.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Gaming",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Gaming"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\gaming.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Laptop",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Laptop"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\laptop.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Phone",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Phone"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\phone.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Vr Headset",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Headset"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\vr-headset.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Ultra Smartwatch",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Ultra",
+      "Smartwatch"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\accessories\\ultra-smartwatch.svg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Anc Wireless Headphones",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Anc",
+      "Wireless",
+      "Headphones"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\headphones\\anc-wireless-headphones.svg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Pro Gaming Laptop",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Pro",
+      "Gaming",
+      "Laptop"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\laptops\\pro-gaming-laptop.svg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Flagship Smartphone",
+    "type": "image",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "industries": [
+      "ecommerce",
+      "electronics",
+      "fashion"
+    ],
+    "tags": [
+      "ecommerce",
+      "stock",
+      "photo",
+      "Flagship",
+      "Smartphone"
+    ],
+    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\smartphones\\flagship-smartphone.svg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Board Math",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Board",
+      "Math"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\board-math.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Campus",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Campus"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\campus.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Child Computer",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Child",
+      "Computer"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\child-computer.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Classroom",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Classroom"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\classroom.jpg",
     "width": 0,
     "height": 0
   },
@@ -1248,14 +2926,12 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course1"
+      "education",
+      "stock",
+      "photo",
+      "Course1"
     ],
-    "file_path": "src/assets/images/education/course1.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1270,14 +2946,12 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course2"
+      "education",
+      "stock",
+      "photo",
+      "Course2"
     ],
-    "file_path": "src/assets/images/education/course2.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1292,14 +2966,12 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course3"
+      "education",
+      "stock",
+      "photo",
+      "Course3"
     ],
-    "file_path": "src/assets/images/education/course3.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1314,14 +2986,12 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course4"
+      "education",
+      "stock",
+      "photo",
+      "Course4"
     ],
-    "file_path": "src/assets/images/education/course4.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course4.jpg",
     "width": 0,
     "height": 0
   },
@@ -1336,14 +3006,12 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course5"
+      "education",
+      "stock",
+      "photo",
+      "Course5"
     ],
-    "file_path": "src/assets/images/education/course5.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course5.jpg",
     "width": 0,
     "height": 0
   },
@@ -1358,14 +3026,33 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "course6"
+      "education",
+      "stock",
+      "photo",
+      "Course6"
     ],
-    "file_path": "src/assets/images/education/course6.jpg",
+    "file_path": "src/src\\assets\\images\\education\\course6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hand Write",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Hand",
+      "Write"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\hand-write.jpg",
     "width": 0,
     "height": 0
   },
@@ -1380,14 +3067,115 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online",
-      "hero"
+      "education",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/education/hero.jpg",
+    "file_path": "src/src\\assets\\images\\education\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Kid Study",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Kid",
+      "Study"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\kid-study.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Kids Labs",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Kids",
+      "Labs"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\kids-labs.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Lab Vials",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Lab",
+      "Vials"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\lab-vials.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Microscope",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Microscope"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\microscope.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Notes",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Notes"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\notes.jpg",
     "width": 0,
     "height": 0
   },
@@ -1402,13 +3190,55 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online"
+      "education",
+      "stock",
+      "photo",
+      "Online",
+      "Course"
     ],
-    "file_path": "src/assets/images/education/online-course.jpg",
+    "file_path": "src/src\\assets\\images\\education\\online-course.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Open Books",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Open",
+      "Books"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\open-books.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Planning Clipboard",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Planning",
+      "Clipboard"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\planning-clipboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -1423,13 +3253,13 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online"
+      "education",
+      "stock",
+      "photo",
+      "Student",
+      "Library"
     ],
-    "file_path": "src/assets/images/education/student-library.jpg",
+    "file_path": "src/src\\assets\\images\\education\\student-library.jpg",
     "width": 0,
     "height": 0
   },
@@ -1444,13 +3274,532 @@
       "course"
     ],
     "tags": [
-      "student",
-      "course",
-      "library",
-      "learning",
-      "online"
+      "education",
+      "stock",
+      "photo",
+      "Student"
     ],
-    "file_path": "src/assets/images/education/student.jpg",
+    "file_path": "src/src\\assets\\images\\education\\student.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Students",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Students"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\students.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Study Desk",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "Study",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\study-desk.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "University",
+    "type": "image",
+    "category": "education",
+    "industry": "education",
+    "industries": [
+      "education",
+      "lms",
+      "course"
+    ],
+    "tags": [
+      "education",
+      "stock",
+      "photo",
+      "University"
+    ],
+    "file_path": "src/src\\assets\\images\\education\\university.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Analytics Screen",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Analytics",
+      "Screen"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\analytics-screen.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Banking App",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Banking",
+      "App"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\banking-app.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Card Wallet",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Card",
+      "Wallet"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\card-wallet.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Coins",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Coins"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\coins.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 01",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 02",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-02.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 03",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-03.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 04",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-04.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 05",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-05.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 06",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-06.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 07",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-07.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 08",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-08.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 09",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-09.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 10",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-10.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 11",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-11.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 12",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-12.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 13",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-13.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fintech Fill 14",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Fintech",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-14.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Money App",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Money",
+      "App"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\money-app.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Phone Cash",
+    "type": "image",
+    "category": "fintech",
+    "industry": "fintech",
+    "industries": [
+      "fintech",
+      "finance",
+      "banking",
+      "payments"
+    ],
+    "tags": [
+      "fintech",
+      "stock",
+      "photo",
+      "Phone",
+      "Cash"
+    ],
+    "file_path": "src/src\\assets\\images\\fintech\\phone-cash.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Class",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Class"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\class.jpg",
     "width": 0,
     "height": 0
   },
@@ -1461,17 +3810,16 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "class1"
+      "fitness",
+      "stock",
+      "photo",
+      "Class1"
     ],
-    "file_path": "src/assets/images/fitness/class1.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\class1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1482,17 +3830,56 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "class2"
+      "fitness",
+      "stock",
+      "photo",
+      "Class2"
     ],
-    "file_path": "src/assets/images/fitness/class2.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\class2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Crossfit",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Crossfit"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\crossfit.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dumbbells",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Dumbbells"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\dumbbells.jpg",
     "width": 0,
     "height": 0
   },
@@ -1503,16 +3890,17 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal"
+      "fitness",
+      "stock",
+      "photo",
+      "Gym",
+      "Workout"
     ],
-    "file_path": "src/assets/images/fitness/gym-workout.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\gym-workout.jpg",
     "width": 0,
     "height": 0
   },
@@ -1523,17 +3911,16 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "gym1"
+      "fitness",
+      "stock",
+      "photo",
+      "Gym1"
     ],
-    "file_path": "src/assets/images/fitness/gym1.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\gym1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1544,17 +3931,37 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "gym2"
+      "fitness",
+      "stock",
+      "photo",
+      "Gym2"
     ],
-    "file_path": "src/assets/images/fitness/gym2.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\gym2.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Gym",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Hero",
+      "Gym"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\hero-gym.jpg",
     "width": 0,
     "height": 0
   },
@@ -1565,17 +3972,76 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "hero"
+      "fitness",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/fitness/hero.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hiit",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Hiit"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\hiit.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Jump",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Jump"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\jump.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Kettlebell",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Kettlebell"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\kettlebell.jpg",
     "width": 0,
     "height": 0
   },
@@ -1586,16 +4052,37 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal"
+      "fitness",
+      "stock",
+      "photo",
+      "Personal",
+      "Trainer"
     ],
-    "file_path": "src/assets/images/fitness/personal-trainer.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\personal-trainer.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Running",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Running"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\running.jpg",
     "width": 0,
     "height": 0
   },
@@ -1606,17 +4093,16 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "trainer1"
+      "fitness",
+      "stock",
+      "photo",
+      "Trainer1"
     ],
-    "file_path": "src/assets/images/fitness/trainer1.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\trainer1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1627,17 +4113,16 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "trainer2"
+      "fitness",
+      "stock",
+      "photo",
+      "Trainer2"
     ],
-    "file_path": "src/assets/images/fitness/trainer2.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\trainer2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1648,17 +4133,16 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "trainer3"
+      "fitness",
+      "stock",
+      "photo",
+      "Trainer3"
     ],
-    "file_path": "src/assets/images/fitness/trainer3.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\trainer3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1669,17 +4153,183 @@
     "industry": "fitness",
     "industries": [
       "fitness",
-      "gym"
+      "gym",
+      "health"
     ],
     "tags": [
-      "gym",
-      "trainer",
-      "workout",
-      "class",
-      "personal",
-      "trainer4"
+      "fitness",
+      "stock",
+      "photo",
+      "Trainer4"
     ],
-    "file_path": "src/assets/images/fitness/trainer4.jpg",
+    "file_path": "src/src\\assets\\images\\fitness\\trainer4.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Weights",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Weights"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\weights.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Woman Exercise",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Woman",
+      "Exercise"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\woman-exercise.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Yoga Class",
+    "type": "image",
+    "category": "fitness",
+    "industry": "fitness",
+    "industries": [
+      "fitness",
+      "gym",
+      "health"
+    ],
+    "tags": [
+      "fitness",
+      "stock",
+      "photo",
+      "Yoga",
+      "Class"
+    ],
+    "file_path": "src/src\\assets\\images\\fitness\\yoga-class.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doc Clipboard",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Doc",
+      "Clipboard"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\doc-clipboard.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doc Consult",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Doc",
+      "Consult"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\doc-consult.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doc Female",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Doc",
+      "Female"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\doc-female.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doc Male",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Doc",
+      "Male"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\doc-male.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Doc Tablet",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Doc",
+      "Tablet"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\doc-tablet.jpg",
     "width": 0,
     "height": 0
   },
@@ -1694,13 +4344,13 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor",
+      "Consult"
     ],
-    "file_path": "src/assets/images/healthcare/doctor-consult.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor-consult.jpg",
     "width": 0,
     "height": 0
   },
@@ -1715,14 +4365,12 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor1"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor1"
     ],
-    "file_path": "src/assets/images/healthcare/doctor1.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1737,14 +4385,12 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor2"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor2"
     ],
-    "file_path": "src/assets/images/healthcare/doctor2.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1759,14 +4405,12 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor3"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor3"
     ],
-    "file_path": "src/assets/images/healthcare/doctor3.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1781,14 +4425,12 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor4"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor4"
     ],
-    "file_path": "src/assets/images/healthcare/doctor4.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor4.jpg",
     "width": 0,
     "height": 0
   },
@@ -1803,14 +4445,12 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor5"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor5"
     ],
-    "file_path": "src/assets/images/healthcare/doctor5.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor5.jpg",
     "width": 0,
     "height": 0
   },
@@ -1825,14 +4465,33 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "doctor6"
+      "healthcare",
+      "stock",
+      "photo",
+      "Doctor6"
     ],
-    "file_path": "src/assets/images/healthcare/doctor6.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\doctor6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Doctor",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Hero",
+      "Doctor"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\hero-doctor.jpg",
     "width": 0,
     "height": 0
   },
@@ -1847,14 +4506,54 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "hero"
+      "healthcare",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/healthcare/hero.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hospital Build",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Hospital",
+      "Build"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\hospital-build.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hospital Hall",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Hospital",
+      "Hall"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\hospital-hall.jpg",
     "width": 0,
     "height": 0
   },
@@ -1869,13 +4568,75 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient"
+      "healthcare",
+      "stock",
+      "photo",
+      "Hospital"
     ],
-    "file_path": "src/assets/images/healthcare/hospital.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\hospital.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Lab Tech",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Lab",
+      "Tech"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\lab-tech.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Med Kit",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Med",
+      "Kit"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\med-kit.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Med Tech",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Med",
+      "Tech"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\med-tech.jpg",
     "width": 0,
     "height": 0
   },
@@ -1890,14 +4651,93 @@
       "hospital"
     ],
     "tags": [
-      "doctor",
-      "hospital",
-      "medical",
-      "consult",
-      "patient",
-      "modern"
+      "healthcare",
+      "stock",
+      "photo",
+      "Modern",
+      "Hospital"
     ],
-    "file_path": "src/assets/images/healthcare/modern-hospital.jpg",
+    "file_path": "src/src\\assets\\images\\healthcare\\modern-hospital.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Nurse",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Nurse"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\nurse.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Pharmacy",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Pharmacy"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\pharmacy.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Telehealth",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Telehealth"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\telehealth.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Vials",
+    "type": "image",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "industries": [
+      "healthcare",
+      "medical",
+      "hospital"
+    ],
+    "tags": [
+      "healthcare",
+      "stock",
+      "photo",
+      "Vials"
+    ],
+    "file_path": "src/src\\assets\\images\\healthcare\\vials.jpg",
     "width": 0,
     "height": 0
   },
@@ -1912,15 +4752,12 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar"
+      "stock",
+      "photo",
+      "Avatar"
     ],
-    "file_path": "src/assets/images/portfolio/avatar.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\avatar.jpg",
     "width": 0,
     "height": 0
   },
@@ -1935,15 +4772,33 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar"
+      "stock",
+      "photo",
+      "Code"
     ],
-    "file_path": "src/assets/images/portfolio/code.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\code.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Designer Desk",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Designer",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\designer-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -1958,16 +4813,34 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar",
-      "portrait"
+      "stock",
+      "photo",
+      "Designer",
+      "Portrait"
     ],
-    "file_path": "src/assets/images/portfolio/designer-portrait.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\designer-portrait.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dev Code",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Dev",
+      "Code"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\dev-code.jpg",
     "width": 0,
     "height": 0
   },
@@ -1982,15 +4855,13 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar"
+      "stock",
+      "photo",
+      "Developer",
+      "Workspace"
     ],
-    "file_path": "src/assets/images/portfolio/developer-workspace.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\developer-workspace.jpg",
     "width": 0,
     "height": 0
   },
@@ -2005,16 +4876,137 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar",
-      "hero"
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/portfolio/hero.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Mb Work",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Work"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\mb-work.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Phone Dev",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Phone",
+      "Dev"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\phone-dev.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Portfolio Fill 01",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Portfolio",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Portfolio Fill 02",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Portfolio",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-02.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Portfolio Fill 03",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Portfolio",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-03.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Portfolio Fill 04",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Portfolio",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -2029,16 +5021,12 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar",
-      "project1"
+      "stock",
+      "photo",
+      "Project1"
     ],
-    "file_path": "src/assets/images/portfolio/project1.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\project1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2053,16 +5041,12 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar",
-      "project2"
+      "stock",
+      "photo",
+      "Project2"
     ],
-    "file_path": "src/assets/images/portfolio/project2.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\project2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2077,16 +5061,74 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar",
-      "project3"
+      "stock",
+      "photo",
+      "Project3"
     ],
-    "file_path": "src/assets/images/portfolio/project3.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\project3.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Resume",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Resume"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\resume.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Design",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Saas",
+      "Design"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\saas-design.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Workspace Desk",
+    "type": "image",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "industries": [
+      "portfolio",
+      "personal",
+      "developer"
+    ],
+    "tags": [
+      "portfolio",
+      "stock",
+      "photo",
+      "Workspace",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\portfolio\\workspace-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -2101,15 +5143,12 @@
       "developer"
     ],
     "tags": [
-      "workspace",
       "portfolio",
-      "project",
-      "code",
-      "developer",
-      "designer",
-      "avatar"
+      "stock",
+      "photo",
+      "Workspace"
     ],
-    "file_path": "src/assets/images/portfolio/workspace.jpg",
+    "file_path": "src/src\\assets\\images\\portfolio\\workspace.jpg",
     "width": 0,
     "height": 0
   },
@@ -2120,17 +5159,163 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home"
+      "realestate",
+      "stock",
+      "photo",
+      "Agent"
     ],
-    "file_path": "src/assets/images/realestate/agent.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\agent.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Apartment Living",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Apartment",
+      "Living"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\apartment-living.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Arch Modern",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Arch",
+      "Modern"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\arch-modern.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Beach House",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Beach",
+      "House"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\beach-house.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Cabin Lake",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Cabin",
+      "Lake"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\cabin-lake.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Chair Interior",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Chair",
+      "Interior"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\chair-interior.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Condo View",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Condo",
+      "View"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\condo-view.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dusk Home",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Dusk",
+      "Home"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\dusk-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -2141,18 +5326,58 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "hero"
+      "realestate",
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/realestate/hero.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Home Decor",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Home",
+      "Decor"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\home-decor.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Interior Lux",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Interior",
+      "Lux"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\interior-lux.jpg",
     "width": 0,
     "height": 0
   },
@@ -2163,17 +5388,57 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home"
+      "realestate",
+      "stock",
+      "photo",
+      "Interior"
     ],
-    "file_path": "src/assets/images/realestate/interior.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\interior.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Living Room",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Living",
+      "Room"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\living-room.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Lounge",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Lounge"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\lounge.jpg",
     "width": 0,
     "height": 0
   },
@@ -2184,18 +5449,38 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "luxury"
+      "realestate",
+      "stock",
+      "photo",
+      "Luxury",
+      "Villa"
     ],
-    "file_path": "src/assets/images/realestate/luxury-villa.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\luxury-villa.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Modern Home",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Modern",
+      "Home"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\modern-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -2206,18 +5491,38 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "modern"
+      "realestate",
+      "stock",
+      "photo",
+      "Modern",
+      "House"
     ],
-    "file_path": "src/assets/images/realestate/modern-house.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\modern-house.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Pool House",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Pool",
+      "House"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\pool-house.jpg",
     "width": 0,
     "height": 0
   },
@@ -2228,18 +5533,16 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "prop1"
+      "realestate",
+      "stock",
+      "photo",
+      "Prop1"
     ],
-    "file_path": "src/assets/images/realestate/prop1.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\prop1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2250,18 +5553,16 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "prop2"
+      "realestate",
+      "stock",
+      "photo",
+      "Prop2"
     ],
-    "file_path": "src/assets/images/realestate/prop2.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\prop2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2272,18 +5573,16 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "prop3"
+      "realestate",
+      "stock",
+      "photo",
+      "Prop3"
     ],
-    "file_path": "src/assets/images/realestate/prop3.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\prop3.jpg",
     "width": 0,
     "height": 0
   },
@@ -2294,18 +5593,16 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "prop4"
+      "realestate",
+      "stock",
+      "photo",
+      "Prop4"
     ],
-    "file_path": "src/assets/images/realestate/prop4.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\prop4.jpg",
     "width": 0,
     "height": 0
   },
@@ -2316,18 +5613,182 @@
     "industry": "realestate",
     "industries": [
       "realestate",
-      "property"
+      "property",
+      "housing"
     ],
     "tags": [
-      "house",
-      "villa",
-      "property",
-      "interior",
-      "agent",
-      "home",
-      "prop5"
+      "realestate",
+      "stock",
+      "photo",
+      "Prop5"
     ],
-    "file_path": "src/assets/images/realestate/prop5.jpg",
+    "file_path": "src/src\\assets\\images\\realestate\\prop5.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Property",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Property"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\property.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Twilight Home",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Twilight",
+      "Home"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\twilight-home.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Villa Front",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Villa",
+      "Front"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\villa-front.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Work Desk Home",
+    "type": "image",
+    "category": "realestate",
+    "industry": "realestate",
+    "industries": [
+      "realestate",
+      "property",
+      "housing"
+    ],
+    "tags": [
+      "realestate",
+      "stock",
+      "photo",
+      "Work",
+      "Desk",
+      "Home"
+    ],
+    "file_path": "src/src\\assets\\images\\realestate\\work-desk-home.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Bar Tap",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Bar",
+      "Tap"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\bar-tap.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Brunch",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Brunch"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\brunch.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Burger",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Burger"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\burger.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Chef Plating",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Chef",
+      "Plating"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\chef-plating.jpg",
     "width": 0,
     "height": 0
   },
@@ -2338,18 +5799,99 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior"
+      "stock",
+      "photo",
+      "Chef"
     ],
-    "file_path": "src/assets/images/restaurant/chef.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\chef.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Choco Dessert",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Choco",
+      "Dessert"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\choco-dessert.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Colorful Salad",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Colorful",
+      "Salad"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\colorful-salad.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dessert",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Dessert"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\dessert.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dish Veg",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Dish",
+      "Veg"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\dish-veg.jpg",
     "width": 0,
     "height": 0
   },
@@ -2360,19 +5902,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish1"
+      "stock",
+      "photo",
+      "Dish1"
     ],
-    "file_path": "src/assets/images/restaurant/dish1.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2383,20 +5922,17 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish1",
-      "test"
+      "stock",
+      "photo",
+      "Dish1",
+      "Test"
     ],
-    "file_path": "src/assets/images/restaurant/dish1_test.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish1_test.jpg",
     "width": 0,
     "height": 0
   },
@@ -2407,19 +5943,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish2"
+      "stock",
+      "photo",
+      "Dish2"
     ],
-    "file_path": "src/assets/images/restaurant/dish2.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2430,19 +5963,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish3"
+      "stock",
+      "photo",
+      "Dish3"
     ],
-    "file_path": "src/assets/images/restaurant/dish3.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish3.jpg",
     "width": 0,
     "height": 0
   },
@@ -2453,19 +5983,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish4"
+      "stock",
+      "photo",
+      "Dish4"
     ],
-    "file_path": "src/assets/images/restaurant/dish4.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish4.jpg",
     "width": 0,
     "height": 0
   },
@@ -2476,19 +6003,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish5"
+      "stock",
+      "photo",
+      "Dish5"
     ],
-    "file_path": "src/assets/images/restaurant/dish5.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish5.jpg",
     "width": 0,
     "height": 0
   },
@@ -2499,19 +6023,16 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "dish6"
+      "stock",
+      "photo",
+      "Dish6"
     ],
-    "file_path": "src/assets/images/restaurant/dish6.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\dish6.jpg",
     "width": 0,
     "height": 0
   },
@@ -2522,19 +6043,17 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "fine"
+      "stock",
+      "photo",
+      "Fine",
+      "Dining"
     ],
-    "file_path": "src/assets/images/restaurant/fine-dining.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\fine-dining.jpg",
     "width": 0,
     "height": 0
   },
@@ -2545,19 +6064,17 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "gourmet"
+      "stock",
+      "photo",
+      "Gourmet",
+      "Dish"
     ],
-    "file_path": "src/assets/images/restaurant/gourmet-dish.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\gourmet-dish.jpg",
     "width": 0,
     "height": 0
   },
@@ -2568,19 +6085,37 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior",
-      "hero"
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/restaurant/hero.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Interior Tables",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Interior",
+      "Tables"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\interior-tables.jpg",
     "width": 0,
     "height": 0
   },
@@ -2591,18 +6126,620 @@
     "industry": "restaurant",
     "industries": [
       "restaurant",
-      "cafe",
-      "food"
+      "food",
+      "cafe"
     ],
     "tags": [
-      "dish",
-      "chef",
-      "dining",
-      "food",
       "restaurant",
-      "interior"
+      "stock",
+      "photo",
+      "Interior"
     ],
-    "file_path": "src/assets/images/restaurant/interior.jpg",
+    "file_path": "src/src\\assets\\images\\restaurant\\interior.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Kitchen Team",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Kitchen",
+      "Team"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\kitchen-team.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Lavish Dish",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Lavish",
+      "Dish"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\lavish-dish.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Meat Dish",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Meat",
+      "Dish"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\meat-dish.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Pancakes",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Pancakes"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\pancakes.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Pasta",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Pasta"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\pasta.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Salad Bowl",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Salad",
+      "Bowl"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\salad-bowl.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Table Setup",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Table",
+      "Setup"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\table-setup.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Toast",
+    "type": "image",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "industries": [
+      "restaurant",
+      "food",
+      "cafe"
+    ],
+    "tags": [
+      "restaurant",
+      "stock",
+      "photo",
+      "Toast"
+    ],
+    "file_path": "src/src\\assets\\images\\restaurant\\toast.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Dev Desk",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Dev",
+      "Desk"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\dev-desk.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Mobile First",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Mobile",
+      "First"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\mobile-first.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Office Green",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Office",
+      "Green"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\office-green.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 01",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-01.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 02",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-02.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 03",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-03.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 04",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-04.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 05",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-05.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 06",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-06.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 07",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-07.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 08",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-08.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 09",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-09.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 10",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-10.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 11",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-11.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 12",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-12.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 13",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-13.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 14",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-14.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 15",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-15.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 16",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-16.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Saas Fill 17",
+    "type": "image",
+    "category": "saas",
+    "industry": "saas",
+    "industries": [
+      "saas",
+      "software",
+      "tech"
+    ],
+    "tags": [
+      "saas",
+      "stock",
+      "photo",
+      "Saas",
+      "Fill"
+    ],
+    "file_path": "src/src\\assets\\images\\saas\\saas-fill-17.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Alps",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Alps"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\alps.jpg",
     "width": 0,
     "height": 0
   },
@@ -2613,19 +6750,73 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight"
+      "stock",
+      "photo",
+      "Beach",
+      "Resort"
     ],
-    "file_path": "src/assets/images/travel/beach-resort.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\beach-resort.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Beach",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Beach"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\beach.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Canoe",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Canoe"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\canoe.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Coast",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Coast"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\coast.jpg",
     "width": 0,
     "height": 0
   },
@@ -2636,20 +6827,15 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest1"
+      "stock",
+      "photo",
+      "Dest1"
     ],
-    "file_path": "src/assets/images/travel/dest1.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2660,20 +6846,15 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest2"
+      "stock",
+      "photo",
+      "Dest2"
     ],
-    "file_path": "src/assets/images/travel/dest2.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2684,20 +6865,15 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest3"
+      "stock",
+      "photo",
+      "Dest3"
     ],
-    "file_path": "src/assets/images/travel/dest3.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest3.jpg",
     "width": 0,
     "height": 0
   },
@@ -2708,20 +6884,15 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest4"
+      "stock",
+      "photo",
+      "Dest4"
     ],
-    "file_path": "src/assets/images/travel/dest4.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest4.jpg",
     "width": 0,
     "height": 0
   },
@@ -2732,20 +6903,15 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest5"
+      "stock",
+      "photo",
+      "Dest5"
     ],
-    "file_path": "src/assets/images/travel/dest5.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest5.jpg",
     "width": 0,
     "height": 0
   },
@@ -2756,20 +6922,94 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "dest6"
+      "stock",
+      "photo",
+      "Dest6"
     ],
-    "file_path": "src/assets/images/travel/dest6.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\dest6.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Fog Forest",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Fog",
+      "Forest"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\fog-forest.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Forest Rays",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Forest",
+      "Rays"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\forest-rays.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Forest",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Forest"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\forest.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hero Mountain",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Hero",
+      "Mountain"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\hero-mountain.jpg",
     "width": 0,
     "height": 0
   },
@@ -2780,20 +7020,53 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "hero"
+      "stock",
+      "photo",
+      "Hero"
     ],
-    "file_path": "src/assets/images/travel/hero.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\hero.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Hiker",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Hiker"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\hiker.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Map",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Map"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\map.jpg",
     "width": 0,
     "height": 0
   },
@@ -2804,19 +7077,75 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight"
+      "stock",
+      "photo",
+      "Mountain",
+      "Tour"
     ],
-    "file_path": "src/assets/images/travel/mountain-tour.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\mountain-tour.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Night Mtn",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Night",
+      "Mtn"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\night-mtn.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Palm Beach",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Palm",
+      "Beach"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\palm-beach.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Peak",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Peak"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\peak.jpg",
     "width": 0,
     "height": 0
   },
@@ -2827,20 +7156,91 @@
     "industry": "travel",
     "industries": [
       "travel",
-      "hotel",
       "tourism"
     ],
     "tags": [
       "travel",
-      "destination",
-      "resort",
-      "beach",
-      "mountain",
-      "tour",
-      "flight",
-      "plane"
+      "stock",
+      "photo",
+      "Plane"
     ],
-    "file_path": "src/assets/images/travel/plane.jpg",
+    "file_path": "src/src\\assets\\images\\travel\\plane.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Road",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Road"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\road.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Roadtrip",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Roadtrip"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\roadtrip.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Santorini",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Santorini"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\santorini.jpg",
+    "width": 0,
+    "height": 0
+  },
+  {
+    "name": "Temple",
+    "type": "image",
+    "category": "travel",
+    "industry": "travel",
+    "industries": [
+      "travel",
+      "tourism"
+    ],
+    "tags": [
+      "travel",
+      "stock",
+      "photo",
+      "Temple"
+    ],
+    "file_path": "src/src\\assets\\images\\travel\\temple.jpg",
     "width": 0,
     "height": 0
   }

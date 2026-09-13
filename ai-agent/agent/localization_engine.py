@@ -509,7 +509,7 @@ class LocalizationEngine:
     # ── i18n config template ──────────────────────────────────────────────
     I18N_CONFIG_TEMPLATE = """\
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import {{ initReactI18next }} from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Dynamically import all locale files

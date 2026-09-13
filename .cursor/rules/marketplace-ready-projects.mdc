@@ -1,0 +1,44 @@
+---
+description: Every new project this agent creates must be internationally sellable, error-free, pro-UI, with a complete README.
+alwaysApply: true
+---
+
+# Marketplace-Ready Project Delivery (Non-Negotiable)
+
+When you create, scaffold, generate, or finish **any new project** (standalone app, template, client site, generated ZIP, or folder under `generated-projects/`), treat it as a **paid digital product** for Gumroad, Lemon Squeezy, ThemeForest, Creative Market, GitHub, and Product Hunt.
+
+Do not ship hobby, demo, placeholder, or “basic template” quality.
+
+## Definition of done
+
+The project is done only when **all** of the following are true:
+
+1. **Sellable internationally** — English buyer-facing copy; i18n + RTL + multi-currency (USD/EUR/GBP/PKR/INR/AED/SAR); GDPR cookie consent; Privacy + Terms pages; SEO (title, description, Open Graph, JSON-LD, robots.txt, sitemap); PWA manifest where it is a web app.
+2. **Zero errors** — no TODO/FIXME/lorem ipsum/dummy images; no broken imports; lint + type/runtime-safe; secrets only in `.env.example` (never committed `.env`); parameterized SQL; validated inputs.
+3. **Pro-level UI** — not a plain landing. Required: unique SVG brand logo (`UniqueLogo` / `BrandLogo`, never plain-text logos); glass/sticky navbar; rich multi-column `ModernFooter` (status badge, newsletter, sitemap, social, legal); Lucide icons with labels; real Unsplash/curated images via `LazyImage` + `alt`; dark mode (`dark:`); mobile-first + `sm:`/`md:`/`lg:`; motion (`BentoGrid`, spotlight, border beams, or equivalent) with `prefers-reduced-motion`; tokens from Tailwind config, no random hex.
+4. **Complete `README.md` at the project root** (mandatory). Must include:
+   - Product name, one-line pitch, who it is for
+   - Features (buyer benefits, not only tech)
+   - Tech stack table
+   - Prerequisites (Node, DB, accounts)
+   - **Getting Started** copy-paste commands (install, env, migrate, run frontend + backend or static deploy)
+   - Environment variables table
+   - Project structure
+   - Scripts (`dev`, `build`, `test`, `lint`)
+   - Deployment (Vercel/Netlify and/or Docker)
+   - International / compliance notes
+   - Troubleshooting
+   - License
+5. **License + seller kit** — `LICENSE.md`, `.env.example`, `.gitignore`. Prefer `INSTRUCTIONS.md` + `DEPLOYMENT_CHECKLIST.md` + marketplace listing copy when the Lumicore generator ran.
+
+## Forbidden in delivered projects
+
+- Placeholder UI, gray boxes, stock “Lorem ipsum”, `https://via.placeholder.com`
+- Single-line footers, text-only logos, missing dark mode, desktop-only layouts
+- README that only says “see INSTRUCTIONS.md”
+- Hardcoded API keys, commented-out broken code, empty pages
+- Shipping with known lint/build errors
+
+## After writing code
+
+Lint frontend changes. Fix every error you introduced. If you cannot verify in a browser, run the closest substitute (`npm run build`, tests) and state what was not verified.

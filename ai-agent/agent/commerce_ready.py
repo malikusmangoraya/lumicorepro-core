@@ -20,14 +20,12 @@ API_SRC = os.path.join(
 )
 
 DEFAULT_CATALOG = [
-    {"id": "p1", "title": "Signature Product One", "tagline": "Best seller", "price": 1499},
-    {"id": "p2", "title": "Growth Product Two", "tagline": "Customer favourite", "price": 2499},
-    {"id": "p3", "title": "Premium Product Three", "tagline": "Premium pick", "price": 4499},
-    {"id": "p4", "title": "Starter Bundle", "tagline": "Economy pack", "price": 999},
-    {"id": "p5", "title": "Family Offer", "tagline": "Worth every rupee", "price": 3499},
-    {"id": "p6", "title": "Gift Card — Rs. 2000", "tagline": "Digital, instant", "price": 2000},
-    {"id": "p7", "title": "Gift Card — Rs. 5000", "tagline": "Digital, instant", "price": 5000},
-    {"id": "p8", "title": "Exclusive Limited Pack", "tagline": "While stocks last", "price": 5999},
+    {"id": "p1", "title": "Starter Commercial License", "tagline": "Single project & full source code", "price": 29},
+    {"id": "p2", "title": "Pro Unlimited License", "tagline": "Unlimited client sites & priority support", "price": 79},
+    {"id": "p3", "title": "Enterprise Whitelabel Suite", "tagline": "Full redistribution & SLA", "price": 199},
+    {"id": "p4", "title": "UI Motion Component Pack", "tagline": "30+ advanced micro-interactions", "price": 19},
+    {"id": "p5", "title": "Priority Support & Setup Pass", "tagline": "1-on-1 deployment assistance", "price": 49},
+    {"id": "p6", "title": "Lifetime All-Access Pass", "tagline": "All future templates & updates", "price": 299},
 ]
 
 STORE_PAGE = "Store"
@@ -128,6 +126,69 @@ def inject_commerce(project_dir: str, spec: dict) -> dict:
             if content.count("Route path=") > before:
                 _write(app_path, content)
                 made.append("frontend/src/App.jsx")
+
+    # 6. Commercial Marketplace & Lemon Squeezy Suite (Guarantee for every generation)
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    repo_src = os.path.join(repo_root, "src")
+
+    # Services
+    ls_svc = os.path.join(fe_src, "services", "lemonSqueezy.js")
+    if not os.path.exists(ls_svc) and os.path.exists(os.path.join(repo_src, "services", "lemonSqueezy.js")):
+        os.makedirs(os.path.dirname(ls_svc), exist_ok=True)
+        shutil.copyfile(os.path.join(repo_src, "services", "lemonSqueezy.js"), ls_svc)
+        made.append("frontend/src/services/lemonSqueezy.js")
+
+    # Components
+    comp_map = {
+        ("components", "common", "FAQAccordion.jsx"): os.path.join(fe_src, "components", "common", "FAQAccordion.jsx"),
+        ("components", "common", "TestimonialGrid.jsx"): os.path.join(fe_src, "components", "common", "TestimonialGrid.jsx"),
+        ("components", "common", "ThemeCustomizer.jsx"): os.path.join(fe_src, "components", "common", "ThemeCustomizer.jsx"),
+        ("components", "ecommerce", "PricingTable.jsx"): os.path.join(fe_src, "components", "ecommerce", "PricingTable.jsx"),
+        ("components", "ecommerce", "BuyTemplateBanner.jsx"): os.path.join(fe_src, "components", "ecommerce", "BuyTemplateBanner.jsx"),
+    }
+    for rel_tuple, dst_path in comp_map.items():
+        if not os.path.exists(dst_path):
+            src_path = os.path.join(repo_src, *rel_tuple)
+            if os.path.exists(src_path):
+                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+                shutil.copyfile(src_path, dst_path)
+                made.append(f"frontend/src/{'/'.join(rel_tuple)}")
+
+    # Pricing Page
+    pricing_dst = os.path.join(fe_src, "pages", "Pricing.jsx")
+    if not os.path.exists(pricing_dst):
+        pricing_src = os.path.join(repo_root, "generated-projects", "personal-creative-001", "frontend", "src", "pages", "Pricing.jsx")
+        if os.path.exists(pricing_src):
+            os.makedirs(os.path.dirname(pricing_dst), exist_ok=True)
+            shutil.copyfile(pricing_src, pricing_dst)
+            made.append("frontend/src/pages/Pricing.jsx")
+
+    # Wire /pricing into App.jsx if missing
+    if os.path.isfile(app_path):
+        app_text = open(app_path, encoding="utf-8").read()
+        if "pages/Pricing" not in app_text and "import Pricing from" not in app_text:
+            app_text = app_text.replace(
+                "const Home = lazy(() => import('./pages/Home'));",
+                "const Home = lazy(() => import('./pages/Home'));
+const Pricing = lazy(() => import('./pages/Pricing'));"
+            )
+            app_text = app_text.replace(
+                '<Route path="/" element={<Home />} />',
+                '<Route path="/" element={<Home />} />
+          <Route path="/pricing" element={<Pricing />} />'
+            )
+            _write(app_path, app_text)
+            made.append("frontend/src/App.jsx (wired /pricing)")
+
+    # Marketplace Seller Kit & Documentation in Project Root
+    doc_files = ["LEMON_SQUEEZY_SELLER_KIT.md", "BUYER_DOCUMENTATION.md", "COMMERCIAL_LICENSE.md"]
+    for df in doc_files:
+        df_path = os.path.join(base, df)
+        if not os.path.exists(df_path):
+            src_df = os.path.join(repo_root, "generated-projects", "personal-creative-001", df)
+            if os.path.exists(src_df):
+                shutil.copyfile(src_df, df_path)
+                made.append(df)
 
     if made:
         agent_logger.info(f"[COMMERCE_READY] injected: {made}")

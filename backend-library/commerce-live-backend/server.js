@@ -12,10 +12,12 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+const crypto = require('crypto');
+
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const SITE_NAME = process.env.SITE_NAME || 'Store';
-const DEFAULT_CURRENCY = process.env.CURRENCY || 'PKR';
+const DEFAULT_CURRENCY = process.env.CURRENCY || 'USD';
 const DELIVERY_FEE = Number(process.env.DELIVERY_FEE || 0);
 const FREE_DELIVERY_ABOVE = Number(process.env.FREE_DELIVERY_ABOVE || 0);
 const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || '';
@@ -24,6 +26,9 @@ const COD_ENABLED = String(process.env.COD_ENABLED || 'true') === 'true';
 const APP_BASE_URL = String(process.env.APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY || '';
+const LEMONSQUEEZY_API_KEY = process.env.LEMONSQUEEZY_API_KEY || '';
+const LEMONSQUEEZY_STORE_ID = process.env.LEMONSQUEEZY_STORE_ID || '';
+const LEMONSQUEEZY_WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET || '';
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || '';
 const PAYPAL_MODE = String(process.env.PAYPAL_MODE || 'live').toLowerCase();
@@ -367,6 +372,56 @@ app.get('/api/admin/stats', (req, res) => {
   const pending = orders.filter((o) => o.status === 'pending').length;
   res.json({ success: true, data: { totalOrders: orders.length, revenue, paid, pending, currency: DEFAULT_CURRENCY } });
 });
+
+// ── Lemon Squeezy Webhook Integration ─────────────────────────────────────
+app.post('/api/v1/lemonsqueezy/webhook', (req, res) => {
+  try {
+    const secret = LEMONSQUEEZY_WEBHOOK_SECRET;
+    const hmacHeader = req.headers['x-signature'];
+
+    if (secret && hmacHeader) {
+      const hmac = crypto.createHmac('sha256', secret);
+      const digest = Buffer.from(hmac.update(JSON.stringify(req.body)).digest('hex'), 'utf8');
+      const signature = Buffer.from(hmacHeader, 'utf8');
+      if (digest.length !== signature.length || !crypto.timingSafeEqual(digest, signature)) {
+        return res.status(403).json({ success: false, error: 'Invalid webhook signature.' });
+      }
+    }
+
+    const event = req.body;
+    const orderData = event.data?.attributes || {};
+    const newOrder = {
+      trackingId: 'LS-' + (event.data?.id || Date.now().toString(36).toUpperCase()),
+      customer: {
+        name: orderData.user_name || 'Customer',
+        email: orderData.user_email || '',
+      },
+      items: [{
+        title: orderData.first_order_item?.product_name || 'Digital License',
+        price: (orderData.total || 0) / 100,
+        qty: 1,
+      }],
+      total: (orderData.total || 0) / 100,
+      currency: (orderData.currency || DEFAULT_CURRENCY).toUpperCase(),
+      payment: {
+        method: 'lemonsqueezy',
+        status: 'paid',
+        transactionId: String(event.data?.id || ''),
+      },
+      status: 'confirmed',
+      createdAt: new Date().toISOString(),
+    };
+
+    const orders = readOrders();
+    orders.push(newOrder);
+    writeOrders(orders);
+
+    return res.status(200).json({ success: true, message: 'Lemon Squeezy order processed' });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

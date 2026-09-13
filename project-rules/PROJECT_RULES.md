@@ -46,6 +46,12 @@
 - Test critical user flows
 - Aim for 80%+ coverage
 
+## Delivered / generated projects
+- Treat every new project as a paid international digital product
+- Root README must explain the product and how to start it (copy-paste)
+- UI must be professional (logo, glass nav, rich footer, dark mode, real images)
+- Do not ship errors, TODOs, placeholders, or missing LICENSE / .env.example
+
 ## Security
 - Never commit `.env` files
 - Validate all user input
