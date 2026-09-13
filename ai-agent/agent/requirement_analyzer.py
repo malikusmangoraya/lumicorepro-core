@@ -212,6 +212,9 @@ class RequirementAnalyzer:
         spec["ambiguity_reason"] = reason
         spec["clarifying_options"] = options
         spec["original_prompt"] = prompt
+        # Always resolve a human brand name for the repo/project (ResuPro → resupro).
+        if not spec.get("project_name") or "001" in str(spec.get("project_name", "")):
+            spec["project_name"] = self._generate_project_name(spec, prompt)
         return spec
 
     def _normalize_multilingual(self, prompt: str) -> str:
@@ -330,12 +333,19 @@ class RequirementAnalyzer:
         prompt_lower = prompt.lower()
         keywords = extract_keywords(prompt_lower)
 
-        # Detect website_type
+        # Detect website_type — score every rule; ties broken by rule order, so
+        # SaaS/platform words (resume *builder*, tool, app) beat incidental page
+        # names like "blog" in the page list. This stops "blog pricing page"
+        # from classifying a SaaS product as a blog.
         website_type = "ecommerce"
+        best_score = 0
         for wtype, signals in self.TYPE_RULES.items():
-            if any(s in prompt_lower for s in signals):
+            score = sum(1 for s in signals if s in prompt_lower) + (
+                3 if wtype == "saas" and any(w in prompt_lower for w in ("builder", "tool ", " tool", "app ", "platform", "software")) else 0
+            )
+            if score > best_score:
+                best_score = score
                 website_type = wtype
-                break
 
         # Detect industry
         industry = "general"
@@ -422,7 +432,7 @@ class RequirementAnalyzer:
             "rtl_support":            False,
             "preferred_theme":        "dark",
         }
-        result["project_name"] = self._generate_project_name(result)
+        result["project_name"] = self._generate_project_name(result, original_prompt or prompt)
         agent_logger.info(
             f"NLP Spec: type={result['website_type']}, industry={result['industry']}, "
             f"features={len(result['features'])}, lang={result['language_detected']}, "
@@ -430,7 +440,33 @@ class RequirementAnalyzer:
         )
         return result
 
-    def _generate_project_name(self, spec: Dict[str, Any]) -> str:
+    def _generate_project_name(self, spec: Dict[str, Any], prompt: str = "") -> str:
+        brand = self._extract_brand_name(prompt or spec.get("original_prompt", ""))
+        if brand:
+            return slugify(brand)
         ind = spec.get("industry", "custom")
         wtype = spec.get("website_type", "site")
         return slugify(f"{ind}-{wtype}-001")
+
+    def _extract_brand_name(self, prompt: str) -> str:
+        """Extract a human brand/product name from the prompt (ResuPro, Verapay, ...)."""
+        import re as _re
+        if not prompt:
+            return ""
+        p = prompt.strip()
+        # 1) Explicit "named/called/brand X" hints
+        for m in _re.finditer(r"(?:named|called|brand(?: name)?|for the (?:brand|company)|app)\s+[:\-]?\s*([A-Z][A-Za-z0-9]*)", p):
+            cand = m.group(1)
+            if len(cand) >= 3:
+                return cand
+        # 2) PascalCase/CamelCase compound tokens (ResuPro, PayFlow, NexaMart)
+        for m in _re.finditer(r"\b[A-Z][a-z0-9]*[A-Z][A-Za-z0-9]*\b", p):
+            cand = m.group(0)
+            if len(cand) >= 3 and cand[0].isupper():
+                return cand
+        # 3) Single capitalized word (sidekick, verapay, ...)
+        for m in _re.finditer(r"\b[A-Z][a-z]{2,}\b", p):
+            first = m.group(0)
+            if first.lower() not in {"the", "for", "and", "with", "new", "your", "buy", "pro", "ai", "app", "get", "how", "why"}:
+                return first
+        return ""

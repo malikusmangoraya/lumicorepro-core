@@ -75,7 +75,7 @@ def create_repo(repo_name: str, token: str, description: str) -> bool:
         },
     )
     if "__error__" in res:
-        code = res.get("status_code")
+        code = res["__error__"].get("status_code")
         if code == 422:
             return repo_exists(repo_name, token)
         return False
@@ -192,11 +192,11 @@ def configure_pages(repo_name: str, token: str) -> str:
     body = {"source": {"branch": "main", "path": "/"}}
     # Try PUT (update) first
     res = gh_request("PUT", f"{base}/pages", token, body=body)
-    if "__error__" in res and res.get("status_code") == 404:
+    if "__error__" in res and res["__error__"].get("status_code") == 404:
         # new pages: POST
         res = gh_request("POST", f"{base}/pages", token, body=body)
     if "__error__" in res:
-        code = res.get("status_code")
+        code = res["__error__"].get("status_code")
         # 409 = already configured → fetch existing
         if code == 409:
             got = gh_request("GET", f"{base}/pages", token)

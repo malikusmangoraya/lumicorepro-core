@@ -1522,7 +1522,8 @@ class AgentOrchestrator:
             try:
                 from agent.pro_design import restyle_project
                 repo_dir = Path(project_dir)
-                repo_key = repo_dir.name
+                brand_key = spec.get("project_name") or repo_dir.name
+                repo_key = brand_key
                 applied = restyle_project(project_dir, repo_key)
                 phase_log["pro_design_restyle"] = applied
                 if applied:

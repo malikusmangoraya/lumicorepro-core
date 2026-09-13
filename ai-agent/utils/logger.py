@@ -32,6 +32,13 @@ class ColoredFormatter(logging.Formatter):
 
 def setup_logger(name: str = "lumicore_agent", log_file: str = None) -> logging.Logger:
     """Setup and return a configured logger with console and optional file handlers."""
+    # Windows consoles may run cp1252 — never crash on emoji/box-drawing glyphs.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except Exception:  # noqa: BLE001 — not available on all streams
+            pass
+
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 

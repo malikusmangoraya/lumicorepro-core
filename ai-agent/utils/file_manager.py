@@ -145,27 +145,32 @@ class FileManager:
 
         Excludes `.git`, `node_modules`, `__pycache__`, `.pytest_cache`,
         `.venv`, and `screenshots` so the deliverable stays lean and buyer-ready.
+        Uses a manual zipfile walk (portable across Python 3.12-3.14+) because
+        ``shutil.make_archive`` dropped its ``filter`` argument in 3.14.
         """
+        import zipfile
         try:
             safe_src = FileManager.resolve_safe_path(src_dir)
             excludes = {".git", "node_modules", "__pycache__", ".pytest_cache", ".venv", "screenshots"}
-
-            def _filter(directory: Path, names: List[str]) -> List[str]:
-                ignored = []
-                for name in names:
-                    if name in excludes:
-                        ignored.append(name)
-                return ignored
-
-            archive_path = shutil.make_archive(
-                zip_output_base,
-                "zip",
-                root_dir=str(safe_src.parent),
-                base_dir=str(safe_src.name),
-                filter=_filter,
-            )
-            agent_logger.info(f"Successfully generated ZIP archive at: {archive_path}")
-            return archive_path
+            zip_path = str(zip_output_base).rstrip(".zip")
+            if not zip_path.lower().endswith(".zip"):
+                zip_path += ".zip"
+            zip_path = str(Path(zip_path))
+            parent = Path(zip_path).parent
+            if not parent.exists():
+                parent.mkdir(parents=True, exist_ok=True)
+            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                base = Path(safe_src).resolve()
+                for root, dirs, files in os.walk(base):
+                    dirs[:] = [d for d in dirs if d not in excludes]
+                    for name in files:
+                        full = Path(root) / name
+                        if any(part in excludes for part in full.parts):
+                            continue
+                        arc = str(full.relative_to(base)) if full.parent != base else full.name
+                        zf.write(full, arcname=arc)
+            agent_logger.info(f"Successfully generated ZIP archive at: {zip_path}")
+            return zip_path
         except Exception as e:
             agent_logger.error(f"Failed to create ZIP archive for {src_dir}: {e}")
             return ""

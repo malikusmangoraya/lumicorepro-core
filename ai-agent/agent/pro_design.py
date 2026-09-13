@@ -54,6 +54,7 @@ PALETTES: Dict[str, Dict[str, Any]] = {
     'jobboard-hirehub':    {'primary': '#2563eb', 'accent': '#059669', 'heading': '#1e3a5f', 'navBg': '#ffffff', 'footerBg': '#1e293b'},
     'eventticket-live':    {'primary': '#9333ea', 'accent': '#e11d48', 'heading': '#3b0764', 'navBg': '#ffffff', 'footerBg': '#3b0764'},
     'cryptovault-pro':     {'primary': '#4f46e5', 'accent': '#f59e0b', 'heading': '#1e1b4b', 'navBg': '#ffffff', 'footerBg': '#1e1b4b'},
+    'resupro':             {'primary': '#2563eb', 'accent': '#7c3aed', 'heading': '#1e3a5f', 'navBg': '#ffffff', 'footerBg': '#1e293b'},
 }
 
 # ── 14 Project Profiles (copy + features) ───────────────────────────────────
@@ -226,6 +227,18 @@ PROFILES: Dict[str, Dict[str, Any]] = {
         ],
         'stats': [('$2B+', 'Assets Tracked'), ('50K+', 'Users'), ('300+', 'Coins'), ('99.99%', 'Uptime')],
     },
+    'resupro': {
+        'title': 'ResuPro', 'tagline': 'AI Resume & CV Builder for Career Success',
+        'eyebrow': 'CAREER PLATFORM',
+        'hero_desc': 'Create interview-winning resumes in minutes with AI-powered writing, professional templates, and one-click export to PDF.',
+        'features': [
+            ('AI Writing Assistant', 'Smart sentence suggestions tuned for every job description'),
+            ('ATS-Friendly Templates', 'Applicant tracking system optimised layouts recruiters love'),
+            ('One-Click Export', 'Pixel-perfect PDF and DOCX exports in any language'),
+            ('Career Analytics', 'Track views, downloads, and interview success rates'),
+        ],
+        'stats': [('500K+', 'Resumes Built'), ('4.9/5', 'User Rating'), ('200+', 'Templates'), ('2.3x', 'More Interviews')],
+    },
 }
 
 # ── Project images (curated Unsplash, verified) ──────────────────────────────
@@ -315,6 +328,7 @@ IMAGES: Dict[str, Dict[str, Any]] = {
     'jobboard-hirehub':    {'hero': 'interview', 'showcase': 'office-tower', 'features': ['job-search', 'handshake', 'team-meet', 'office-space']},
     'eventticket-live':    {'hero': 'concert', 'showcase': 'event-crowd', 'features': ['event-stage', 'conference', 'pizza', 'team-meet']},
     'cryptovault-pro':     {'hero': 'crypto-coins', 'showcase': 'crypto-chart', 'features': ['crypto-key', 'btc-cash', 'code-mac', 'analytics']},
+    'resupro':             {'hero': 'laptop-desk', 'showcase': 'office-anchor', 'features': ['women-work', 'office-space', 'team-meet', 'analytics']},
 }
 
 # repo → lucide icon names per feature card + showcase bullet icons
@@ -333,6 +347,7 @@ ICONS: Dict[str, Dict[str, Any]] = {
     'jobboard-hirehub':    {'features': ['briefcase', 'users', 'file-check', 'trending-up'], 'showcase': ['briefcase', 'users', 'trending-up']},
     'eventticket-live':    {'features': ['ticket', 'calendar-days', 'music', 'bar-chart-3'], 'showcase': ['ticket', 'calendar-days', 'music']},
     'cryptovault-pro':     {'features': ['lock', 'shield-check', 'wallet', 'file-check'], 'showcase': ['lock', 'trending-up', 'shield-check']},
+    'resupro':            {'features': ['file-text', 'sparkles', 'wand-2', 'award'], 'showcase': ['file-text', 'sparkles', 'wand-2']},
 }
 FALLBACK_ICONS = {'features': ['layout-dashboard', 'shield-check', 'zap', 'trending-up'], 'showcase': ['layout-dashboard', 'zap', 'trending-up']}
 
@@ -750,9 +765,9 @@ def _home_jsx(title: str, tagline: str, eyebrow: str, hero_desc: str,
               repo_name: str = '') -> str:
     p = palette['primary']
     h = palette['heading']
-    icon_names = ICONS.get(repo_name, FALLBACK_ICONS)['features']
-    show_icons = ICONS.get(repo_name, FALLBACK_ICONS)['showcase']
-    images = IMAGES.get(repo_name)
+    icon_names = (ICONS.get(repo_name) or _derive_icons(repo_name))['features']
+    show_icons = (ICONS.get(repo_name) or _derive_icons(repo_name))['showcase']
+    images = IMAGES.get(repo_name) or _derive_images(repo_name)
 
     hero_img = ''
     show_img = ''
@@ -1226,12 +1241,17 @@ def _derive_palette(repo_name: str) -> Dict[str, str]:
 
 def _derive_profile(repo_name: str) -> Dict[str, Any]:
     """Generate a sensible profile for a repo name not in PROFILES."""
-    clean = repo_name.replace('-', ' ').replace('_', ' ').title()
+    import re
+    clean = re.sub(r'[-_\d]+$', '', repo_name)
+    clean = clean.replace('-', ' ').replace('_', ' ').title().strip()
+    if not clean:
+        clean = repo_name.replace('-', ' ').replace('_', ' ').title().strip() or 'Lumicore'
+    title = clean.split()[0] if clean.split() else clean
     return {
-        'title': clean.split()[0] if clean.split() else clean,
-        'tagline': f'{clean} — Professional Web Platform',
-        'eyebrow': 'PROFESSIONAL PLATFORM',
-        'hero_desc': f'Build and scale {clean} with modern architecture, real-time analytics, and enterprise-grade reliability.',
+        'title': title,
+        'tagline': f'{clean}, engineered for growth',
+        'eyebrow': 'MODERN SAAS PLATFORM',
+        'hero_desc': f'{clean} helps teams ship faster with a beautiful, blazing-fast interface, real-time analytics, and enterprise-grade security.',
         'features': [
             ('Intuitive Dashboard', 'Real-time metrics and management at your fingertips'),
             ('Secure by Default', 'Enterprise authentication, encryption, and audit logging'),
@@ -1240,6 +1260,26 @@ def _derive_profile(repo_name: str) -> Dict[str, Any]:
         ],
         'stats': [('99.99%', 'Uptime'), ('<2s', 'Load Time'), ('10K+', 'Users'), ('4.9/5', 'Rating')],
     }
+
+
+def _derive_images(repo_name: str) -> Optional[Dict[str, list]]:
+    """Deterministic image set for any repo name (stable across runs)."""
+    import hashlib
+    i = int(hashlib.md5(repo_name.encode()).hexdigest(), 16)
+    keys = list(UNSPLASH.keys())
+    hero = keys[i % len(keys)]
+    show = keys[(i + 3) % len(keys)]
+    feats = [keys[(i + 1) % len(keys)], keys[(i + 2) % len(keys)], keys[(i + 4) % len(keys)], keys[(i + 5) % len(keys)]]
+    return {'hero': hero, 'showcase': show, 'features': feats}
+
+
+def _derive_icons(repo_name: str) -> Dict[str, list]:
+    """Deterministic Lucide icon set for any repo name."""
+    import hashlib
+    i = int(hashlib.md5(f'icon-{repo_name}'.encode()).hexdigest(), 16)
+    feats = FALLBACK_ICONS['features']
+    show = FALLBACK_ICONS['showcase']
+    return {'features': feats, 'showcase': show}
 
 
 def _patch_router_basename(frontend: Path) -> bool:
@@ -1285,6 +1325,9 @@ def restyle_project(project_dir: str, repo_name: str) -> bool:
         pal = PALETTES.get(repo_name) or _derive_palette(repo_name)
         prof = PROFILES.get(repo_name) or _derive_profile(repo_name)
 
+        # Ensure core build files exist (templates sometimes lack entry files)
+        _ensure_build_files(frontend, repo_name, prof['title'])
+
         (frontend / 'index.html').write_text(_index_html(prof['title'], prof['tagline']), encoding='utf-8')
         (src / 'index.css').write_text(_index_css(pal), encoding='utf-8')
         (frontend / 'tailwind.config.js').write_text(_tailwind_config(pal), encoding='utf-8')
@@ -1313,6 +1356,122 @@ def restyle_project(project_dir: str, repo_name: str) -> bool:
     except Exception as e:
         agent_logger.error(f"ProDesign failed for {repo_name}: {e}")
         return False
+
+
+def _ensure_build_files(frontend: Path, repo_name: str, title: str) -> None:
+    """Create missing core build files so the frontend can always build."""
+    pkg = frontend / 'package.json'
+    if not pkg.exists():
+        pkg.write_text(_json_mod.dumps({
+            'name': repo_name,
+            'private': True,
+            'version': '1.0.0',
+            'type': 'module',
+            'scripts': {'dev': 'vite', 'build': 'vite build', 'preview': 'vite preview'},
+            'dependencies': {
+                'react': '^19.2.0',
+                'react-dom': '^19.2.0',
+                'react-router-dom': '^6.22.0',
+                'lucide-react': '^1.31.0',
+                'framer-motion': '^11.18.2',
+                'i18next': '^25.0.0',
+                'react-i18next': '^16.0.0',
+                'axios': '^1.6.0',
+            },
+            'devDependencies': {
+                '@vitejs/plugin-react': '^6.0.4',
+                'vite': '^8.2.0',
+                'tailwindcss': '^3.4.0',
+                'autoprefixer': '^10.4.0',
+                'postcss': '^8.4.0',
+            },
+        }, indent=2), encoding='utf-8')
+        agent_logger.info(f"Created missing package.json for {repo_name}")
+
+    vite_cfg = frontend / 'vite.config.js'
+    if not vite_cfg.exists():
+        vite_cfg.write_text(
+            "import { defineConfig } from 'vite';\n"
+            "import react from '@vitejs/plugin-react';\n"
+            "import path from 'path';\n"
+            "\n"
+            "export default defineConfig({\n"
+            "  plugins: [react()],\n"
+            "  base: './',\n"
+            "  resolve: {\n"
+            "    alias: {\n"
+            "      '@': path.resolve(import.meta.dirname, './src'),\n"
+            "    },\n"
+            "  },\n"
+            "  server: {\n"
+            "    port: 3000,\n"
+            "    proxy: {\n"
+            "      '/api': 'http://localhost:5000',\n"
+            "    },\n"
+            "  },\n"
+            "});\n",
+            encoding='utf-8')
+        agent_logger.info(f"Created missing vite.config.js for {repo_name}")
+
+    main_jsx = frontend / 'src' / 'main.jsx'
+    if not main_jsx.exists():
+        main_jsx.parent.mkdir(parents=True, exist_ok=True)
+        main_jsx.write_text(
+            "import React from 'react';\n"
+            "import ReactDOM from 'react-dom/client';\n"
+            "import App from './App';\n"
+            "import './index.css';\n"
+            "\n"
+            "ReactDOM.createRoot(document.getElementById('root')).render(\n"
+            "  <React.StrictMode>\n"
+            "    <App />\n"
+            "  </React.StrictMode>\n"
+            ");\n",
+            encoding='utf-8')
+        agent_logger.info(f"Created missing main.jsx for {repo_name}")
+
+    app_jsx = frontend / 'src' / 'App.jsx'
+    if not app_jsx.exists():
+        app_jsx.parent.mkdir(parents=True, exist_ok=True)
+        app_jsx.write_text(
+            "import React, { Suspense, lazy } from 'react';\n"
+            "import { BrowserRouter, Routes, Route } from 'react-router-dom';\n"
+            "\n"
+            "const Home = lazy(() => import('./pages/Home'));\n"
+            "\n"
+            "function Loader() {\n"
+            "  return (\n"
+            "    <div className=\"flex items-center justify-center min-h-screen bg-slate-950\">\n"
+            "      <div className=\"h-8 w-8 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent\" />\n"
+            "    </div>\n"
+            "  );\n"
+            "}\n"
+            "\n"
+            "export default function App() {\n"
+            "  return (\n"
+            "    <BrowserRouter>\n"
+            "      <Suspense fallback={<Loader />}>\n"
+            "        <Routes>\n"
+            "          <Route path=\"/*\" element={<Home />} />\n"
+            "        </Routes>\n"
+            "      </Suspense>\n"
+            "    </BrowserRouter>\n"
+            "  );\n"
+            "}\n",
+            encoding='utf-8')
+        agent_logger.info(f"Created missing App.jsx for {repo_name}")
+
+    postcss = frontend / 'postcss.config.js'
+    if not postcss.exists():
+        postcss.write_text(
+            "export default {\n"
+            "  plugins: {\n"
+            "    tailwindcss: {},\n"
+            "    autoprefixer: {},\n"
+            "  },\n"
+            "};\n",
+            encoding='utf-8')
+        agent_logger.info(f"Created missing postcss.config.js for {repo_name}")
 
 
 def _shim() -> str:
