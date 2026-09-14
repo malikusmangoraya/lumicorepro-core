@@ -783,11 +783,14 @@ def _index_css(palette: Dict[str, str], ui_style: str = UI_STYLE_DEFAULT, extra_
 '''
 
 
-def _design_tokens_json(repo_name: str, palette: Dict[str, str]) -> str:
+def _design_tokens_json(repo_name: str, palette: Dict[str, str], ui_style: str = 'glassmorphism',
+                        region: str = 'default') -> str:
     import json
     tokens = {
         'style': 'consulting_pro',
         'name': 'Consulting Professional',
+        'ui_style': ui_style,
+        'target_region': region,
         'project_name': repo_name,
         'palette': {
             'primary': palette['primary'],
@@ -1547,10 +1550,109 @@ def _patch_router_basename(frontend: Path) -> bool:
     return True
 
 
+def _resolve_style_blueprint(repo_name: str, ui_style: str, region: str = 'default'):
+    """Deterministic design decision shared by the planning phase + restyle.
+
+    Merge order: base palette → international region palette → Design Vault
+    palette (exact design language) → UI-style overrides (dark/cyberpunk etc).
+    Returns (palette, extra_css, resolved_style_name).
+    """
+    from agent.design_vault import VAULT_STYLES
+
+    pal = PALETTES.get(repo_name) or _derive_palette(repo_name)
+    region_tune = REGION_PALETTES.get(region, {})
+    pal = {**pal, **region_tune}
+
+    extra_css = ''
+    vault_palette = {}
+    if ui_style in VAULT_STYLES:
+        vault_palette = VAULT_STYLES[ui_style].get('palette', {})
+        extra_css = VAULT_STYLES[ui_style].get('css_extra', '')
+        agent_logger.info(f"Design Vault style applied: {ui_style}")
+
+    style_tune = UI_STYLE_PALETTE.get(ui_style, {})
+    pal = {**pal, **vault_palette,
+           **{k: v for k, v in style_tune.items() if v and k not in ('dark', 'text')}}
+    if (style_tune.get('dark') or vault_palette.get('dark')) and not vault_palette:
+        pal.setdefault('cardBg', '#0f172a')
+        pal.setdefault('text', '#94a3b8')
+    return pal, extra_css, ui_style
+
+
+def resolve_design_blueprint(repo_name: str, ui_style: str, region: str = 'default',
+                             brand_title: str = '') -> Dict[str, Any]:
+    """Full international design plan produced BEFORE any code is written.
+
+    docstring/planing artifact: what style, which region palette, which
+    design language is used, and why — the single source of truth the
+    generation pipeline reports and the DESIGN_PLAN.md documents.
+    """
+    from agent.design_vault import VAULT_STYLES
+
+    pal, extra_css, resolved = _resolve_style_blueprint(repo_name, ui_style, region)
+    fonts = {}
+    if resolved in VAULT_STYLES:
+        fonts = VAULT_STYLES[resolved].get('fonts', {})
+    region_note = {
+        'gcc': 'Gulf luxury: gold + emerald, deep neutral footer',
+        'south-asia': 'South-Asian energy: saffron + green, warm canvas',
+        'east-asia': 'East-Asian prosperity: red + gold, ink heading',
+        'europe': 'European trust: refined blue + teal, clean light',
+        'north-america': 'North-American bold: royal blue + red accent',
+        'latam': 'LatAm warmth: coral + teal, energetic canvas',
+        'africa': 'African earth: amber + green, grounded',
+        'default': 'Global neutral (region-agnostic)',
+    }
+    font_heading = fonts.get('display', 'Poppins')
+    font_sans = fonts.get('sans', 'Roboto')
+    return {
+        'project_name': repo_name,
+        'ui_style': resolved,
+        'target_region': region,
+        'region_rationale': region_note.get(region, region_note['default']),
+        'palette': pal,
+        'fonts': {'display': font_heading, 'sans': font_sans},
+        'css_primitives': extra_css,
+        'vault_source': resolved if resolved in VAULT_STYLES else '',
+        'brand_title': brand_title or _derive_profile(repo_name).get('title', repo_name),
+    }
+
+
+def write_design_plan(project_root: Path, blueprint: Dict[str, Any]) -> None:
+    """Persist the international design plan into the delivered project."""
+    pal = blueprint.get('palette', {})
+    lines = [
+        '# Design Plan',
+        '',
+        'This project ships an internationally planned design system — the style,',
+        'color language, and target market were decided before a single page was built.',
+        '',
+        f"- **Project**: {blueprint.get('project_name')}",
+        f"- **Brand**: {blueprint.get('brand_title')}",
+        f"- **UI style**: {blueprint.get('ui_style')}",
+        f"- **Target market**: {blueprint.get('target_region')} — {blueprint.get('region_rationale')}",
+        f"- **Design Vault source**: {blueprint.get('vault_source') or 'built-in wheel'}",
+        f"- **Display font**: {blueprint.get('fonts', {}).get('display')}",
+        f"- **Body font**: {blueprint.get('fonts', {}).get('sans')}",
+        '',
+        '## Color system',
+        '',
+        '| Token | Value |',
+        '|-------|-------|',
+    ]
+    for k, v in pal.items():
+        if v and k != 'dark':
+            lines.append(f'| `--t-{k}` | `{v}` |')
+    lines += [
+        '',
+        'See `frontend/src/styles/design-tokens.json` for the machine-readable tokens.',
+    ]
+    (project_root / 'DESIGN_PLAN.md').write_text('\n'.join(lines), encoding='utf-8')
+
+
 def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_DEFAULT,
                     region: str = 'default') -> bool:
     """Apply professional consulting-style design to a generated project."""
-    from agent.design_vault import VAULT_STYLES
     try:
         root = Path(project_dir)
         frontend = root / 'frontend'
@@ -1562,27 +1664,8 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
             agent_logger.warning(f"No frontend/ at {project_dir}")
             return False
 
-        pal = PALETTES.get(repo_name) or _derive_palette(repo_name)
-        # International region palette (culture-aware color combo from analyzer)
-        region_tune = REGION_PALETTES.get(region, {})
-        pal = {**pal, **region_tune}
-
-        # Design Vault: a registered source (e.g. HorizonX export) overrides
-        # the style wheel entirely with its exact design language.
-        extra_css = ''
-        vault_palette = {}
-        if ui_style in VAULT_STYLES:
-            vault_palette = VAULT_STYLES[ui_style].get('palette', {})
-            extra_css = VAULT_STYLES[ui_style].get('css_extra', '')
-            agent_logger.info(f"Design Vault style applied: {ui_style}")
-
-        # UI-style palette overrides (e.g. dark cyberpunk, bento canvas)
-        style_tune = UI_STYLE_PALETTE.get(ui_style, {})
-        pal = {**pal, **vault_palette,
-               **{k: v for k, v in style_tune.items() if v and k not in ('dark', 'text')}}
-        if (style_tune.get('dark') or vault_palette.get('dark')) and not vault_palette:
-            pal.setdefault('cardBg', '#0f172a')
-            pal.setdefault('text', '#94a3b8')
+        pal, extra_css, resolved_style = _resolve_style_blueprint(repo_name, ui_style, region)
+        ui_style = resolved_style
         prof = PROFILES.get(repo_name) or _derive_profile(repo_name)
 
         # Ensure core build files exist (templates sometimes lack entry files)
@@ -1600,7 +1683,11 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
 
         tokens_dir = src / 'styles'
         tokens_dir.mkdir(parents=True, exist_ok=True)
-        (tokens_dir / 'design-tokens.json').write_text(_design_tokens_json(repo_name, pal), encoding='utf-8')
+        (tokens_dir / 'design-tokens.json').write_text(
+            _design_tokens_json(repo_name, pal, ui_style, region), encoding='utf-8')
+
+        blueprint = resolve_design_blueprint(repo_name, ui_style, region, prof['title'])
+        write_design_plan(root, blueprint)
 
         comps.mkdir(parents=True, exist_ok=True)
         (comps / 'LumicorePro.jsx').write_text(_lumicore_logo_jsx(), encoding='utf-8')

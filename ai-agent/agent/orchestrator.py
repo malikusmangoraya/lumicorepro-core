@@ -84,6 +84,7 @@ class AgentOrchestrator:
     PHASES = [
         "market_analysis",
         "requirement_analysis",
+        "design_brand_planning",
         "tech_stack_selection",
         "trending_features_injection",
         "resource_assembly_planning",
@@ -118,6 +119,7 @@ class AgentOrchestrator:
     # Phase dependency graph
     PHASE_DEPENDENCIES = {
         "requirement_analysis": [],
+        "design_brand_planning": ["requirement_analysis", "market_analysis"],
         "tech_stack_selection": ["requirement_analysis"],
         "trending_features_injection": ["requirement_analysis", "market_analysis"],
         "resource_assembly_planning": ["requirement_analysis", "tech_stack_selection"],
@@ -995,6 +997,34 @@ class AgentOrchestrator:
             raise
         except Exception:
             phase_failures.append("phase_2_requirement_analysis")
+
+        # ── Phase 2b: International Design & Brand Planning ────────────────────
+        # Produces the full design plan (style + region + palette + vault source)
+        # BEFORE any code is generated — the single source of truth for the build.
+        try:
+            from agent.pro_design import resolve_design_blueprint
+            _ui_style = spec.get('ui_style', 'glassmorphism')
+            _region = spec.get('target_region', 'default')
+            _repo = spec.get('project_name', 'project')
+            _brand = spec.get('brand_title', _repo)
+            _blueprint = self._run_phase_safe(
+                "Phase 2b - Design & Brand Planning",
+                lambda: resolve_design_blueprint(_repo, _ui_style, _region, _brand),
+                fallback={'ui_style': _ui_style, 'target_region': _region, 'palette': {}},
+            )
+            spec['design_blueprint'] = _blueprint
+            spec['ui_style'] = _blueprint.get('ui_style', _ui_style)
+            spec['target_region'] = _blueprint.get('target_region', _region)
+            agent_logger.info(
+                f"Design plan resolved: style={spec['ui_style']} region={spec['target_region']} "
+                f"vault={_blueprint.get('vault_source', 'built-in')}"
+            )
+            phase_log["phase_2b_design_plan"] = _blueprint
+        except PipelineCancelled:
+            raise
+        except Exception:
+            agent_logger.warning("Design brand planning skipped — falling back to analyzer defaults")
+            spec.setdefault('design_blueprint', {})
 
         # ── Phase 3: Tech Stack & Architecture Selection ─────────────────────
         try:
