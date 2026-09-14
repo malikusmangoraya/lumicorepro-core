@@ -7,9 +7,9 @@ const GradientButton = React.forwardRef(
     {
       children,
       className = '',
-      from = '#22d3ee',
-      via = '#818cf8',
-      to = '#c084fc',
+      from = 'var(--t-accent)',
+      via = 'var(--t-primary)',
+      to = 'var(--t-heading)',
       animate = true,
       disabled = false,
       'aria-label': ariaLabel,

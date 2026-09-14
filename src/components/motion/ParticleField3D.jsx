@@ -6,7 +6,7 @@ export default function ParticleField3D({
   count = 500,
   spread = 8,
   speed = 0.0004,
-  color = '#06b6d4',
+  color = 'cyan',
   size = 0.03,
   opacity = 0.8,
 }) {

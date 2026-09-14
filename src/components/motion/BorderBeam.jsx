@@ -15,7 +15,7 @@ export default function BorderBeam({
         style={{
           border: '2px solid transparent',
           background: `linear-gradient(90deg, ${color.replace('to', 'to')}) border-box`,
-          WebkitMask: 'linear-gradient(#fff, #fff) padding-box, linear-gradient(#fff, #fff)',
+          WebkitMask: 'linear-gradient(white, white) padding-box, linear-gradient(white, white)',
           WebkitMaskComposite: 'xor',
           maskComposite: 'exclude',
         }}

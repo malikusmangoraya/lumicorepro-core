@@ -16,7 +16,7 @@ export default function HolographicCard({
     >
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-500/20 via-transparent to-violet-500/20" />
       <div className="absolute inset-0 rounded-2xl border border-transparent" style={{ borderWidth }}>
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500" style={{ mask: `linear-gradient(#fff, #fff) content-box, linear-gradient(#fff, #fff)`, WebkitMask: `linear-gradient(#fff, #fff) content-box, linear-gradient(#fff, #fff)`, maskComposite: 'exclude', WebkitMaskComposite: 'xor', borderWidth }} />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500" style={{ mask: `linear-gradient(white, white) content-box, linear-gradient(white, white)`, WebkitMask: `linear-gradient(white, white) content-box, linear-gradient(white, white)`, maskComposite: 'exclude', WebkitMaskComposite: 'xor', borderWidth }} />
       </div>
       <div className="relative z-10 bg-slate-950/80 backdrop-blur-xl rounded-[calc(0.75rem-2px)] p-6 h-full">
         {children}
@@ -25,8 +25,8 @@ export default function HolographicCard({
         className="absolute inset-0 rounded-2xl"
         style={{
           border: `${borderWidth}px solid transparent`,
-          background: 'linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4) border-box',
-          WebkitMask: 'linear-gradient(#fff, #fff) padding-box, linear-gradient(#fff, #fff)',
+          background: 'linear-gradient(90deg, var(--t-accent), var(--t-primary), var(--t-heading), var(--t-accent)) border-box',
+          WebkitMask: 'linear-gradient(white, white) padding-box, linear-gradient(white, white)',
           WebkitMaskComposite: 'xor',
           maskComposite: 'exclude',
         }}

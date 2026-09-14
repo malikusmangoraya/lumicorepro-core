@@ -432,6 +432,7 @@ class RequirementAnalyzer:
             "rtl_support":            False,
             "preferred_theme":        "dark",
         }
+        self._detect_ui_style(result, original_prompt or prompt)
         result["project_name"] = self._generate_project_name(result, original_prompt or prompt)
         agent_logger.info(
             f"NLP Spec: type={result['website_type']}, industry={result['industry']}, "
@@ -439,6 +440,38 @@ class RequirementAnalyzer:
             f"rtl={result['rtl_support']}"
         )
         return result
+
+    UI_STYLE_SIGNALS = {
+        "minimalist":    ["minimal", "minimalist", "sada", "clean", "studio", "simple ui", "apple", "klar", "suthra"],
+        "glassmorphism": ["glass", "glassmorphism", "frosted", "blur", "translucent", "backdrop-blur", "sheesha"],
+        "neobrutalism":  ["neo-brutal", "neobrutalism", "brutalist", "neo-brutalist", "brutalism", "gumroad", "borders"],
+        "bento":         ["bento", "bento grid", "grid layout", "card grid", "vibes"],
+        "neumorphism":   ["neumorph", "neumorphism", "soft ui", "soft-ui", "soft button", "nsm"],
+        "flat":          ["flat", "flat design", "material", "material ui", "google", "2d"],
+        "claymorphism":  ["clay", "claymorphism", "3d clay", "clay ui", "bubble"],
+        "skeuomorphism": ["skeuomorph", "skeuomorphism", "realistic", "leather", "metallic", "vintage", "texture"],
+        "dark":          ["cyberpunk", "neon", "dark ui", "dark mode", "noir", "terminal", "hacker", "cyber"],
+    }
+
+    def _detect_ui_style(self, spec: Dict[str, Any], prompt: str) -> None:
+        """Detect a named UI design system (minimal/glass/neo-brutalism/bento/neumorphism/
+        flat/clay/skeuomorphism/dark-cyberpunk) from the prompt."""
+        p = prompt.lower()
+        matched = []
+        for style, signals in self.UI_STYLE_SIGNALS.items():
+            if any(sig in p for sig in signals):
+                matched.append(style)
+        # Highest-specificity first; dark/cyberpunk wins on explicit request
+        order = ["dark", "glassmorphism", "neobrutalism", "bento", "neumorphism",
+                 "claymorphism", "skeuomorphism", "flat", "minimalist"]
+        for style in order:
+            if style in matched:
+                spec["ui_style"] = style
+                if style not in spec.get("style", []):
+                    spec.setdefault("style", []).append(style)
+                agent_logger.info(f"UI style detected: {style}")
+                return
+        spec["ui_style"] = "glassmorphism"  # enterprise default
 
     def _generate_project_name(self, spec: Dict[str, Any], prompt: str = "") -> str:
         brand = self._extract_brand_name(prompt or spec.get("original_prompt", ""))

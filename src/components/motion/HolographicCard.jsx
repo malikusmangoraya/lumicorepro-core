@@ -6,8 +6,8 @@ export function HolographicCard({
   children,
   className = '',
   glareOpacity = 0.35,
-  neonColor = '#06b6d4', // cyan
-  accentColor = '#8b5cf6', // violet
+  neonColor = 'var(--t-accent)', // accent
+  accentColor = 'var(--t-primary)', // primary
   scaleOnHover = 1.02,
   ...props
 }) {

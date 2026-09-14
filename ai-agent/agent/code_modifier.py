@@ -270,6 +270,15 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
             pass
         if not safe_instruction:
             safe_instruction = "code review update"
+        # JSON must stay valid JSON — never append JS-style comments to it.
+        if file_path.lower().endswith(".json"):
+            if not content.strip():
+                patched_content = "{}\n"
+            else:
+                patched_content = content
+            if not patched_content.rstrip().endswith("}"):
+                patched_content = patched_content.rstrip() + "\n"
+            return FileManager.write_file(file_path, patched_content)
         patched_content = content + f"\n\n// Updated per review: {safe_instruction}\n"
         return FileManager.write_file(file_path, patched_content)
 

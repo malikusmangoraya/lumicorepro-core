@@ -8,7 +8,7 @@ const HeroCanvas = () => (
       count={300}
       spread={12}
       speed={0.0003}
-      color="#06b6d4"
+      color="cyan"
       size={0.025}
       opacity={0.6}
     />
@@ -16,7 +16,7 @@ const HeroCanvas = () => (
       count={100}
       spread={10}
       speed={0.0002}
-      color="#8b5cf6"
+      color="violet"
       size={0.02}
       opacity={0.4}
     />

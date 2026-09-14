@@ -241,6 +241,7 @@ Rule file: `.cursor/rules/marketplace-ready-projects.mdc`
 
 | Date | Ver | Changes |
 |------|-----|---------|
+| 2026-09-14 | 5.2 | UI Style Wheel — 9 design languages (minimal/glass/neo-brutalism/bento/neumorphism/flat/clay/skeuomorphism/dark) auto-detected from prompt; style-aware palette/CSS/tailwind/home/nav; JSON-safe self-heal; package.json pin-merge; JSON-LD @graph + OG meta + tinyshining-cs-vars gate scaffold |
 | 2026-09-12 | 5.1 | Marketplace delivery — sellable README, pro UI, international, zero-error bar |
 | 2026-09-04 | 5.0 | Speed optimized — 867→compact, merged duplicates, removed verbosity |
 | 2026-09-04 | 4.0 | Enterprise — a11y, i18n/RTL, PWA, state tree, performance budgets |

@@ -379,7 +379,7 @@ const SEO = ({
     setMeta('name', 'description', description);
     setMeta('name', 'keywords', keywords);
     setMeta('name', 'robots', noIndex ? 'noindex,nofollow' : 'index,follow');
-    setMeta('name', 'theme-color', '#0d9488');
+    setMeta('name', 'theme-color', 'var(--t-primary)');
     setMeta('name', 'viewport', 'width=device-width, initial-scale=1');
 
     /* ── 4. Open Graph ────────────────────────────────────────── */

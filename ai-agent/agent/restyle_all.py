@@ -10,7 +10,14 @@ from agent.pro_design import (
     build_and_deploy_ghpages,
     build_and_deploy_static,
     DIR_TO_REPO,
+    UI_STYLE_DEFAULT,
 )
+
+# Deterministic per-project style so the batch sweep shows off the whole wheel.
+STYLE_ROTATION = [
+    'glassmorphism', 'bento', 'neobrutalism', 'minimalist', 'neumorphism',
+    'flat', 'claymorphism', 'skeuomorphism', 'dark',
+]
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 GENERATED = ROOT / 'generated-projects'
@@ -37,29 +44,30 @@ def main():
         sys.exit(1)
 
     results = []
-    for dirname, repo in DIR_TO_REPO.items():
+    for idx, (dirname, repo) in enumerate(DIR_TO_REPO.items()):
         project_dir = GENERATED / dirname
         if not project_dir.exists():
             print(f'SKIP {repo}: dir {dirname} not found')
             continue
 
+        style = STYLE_ROTATION[idx % len(STYLE_ROTATION)]
         vite = has_vite_frontend(project_dir)
-        print(f'\n=== {repo} ({dirname}) vite={vite} ===')
+        print(f'\n=== {repo} ({dirname}) vite={vite} style={style} ===')
 
         if vite:
-            ok = restyle_project(str(project_dir), repo)
+            ok = restyle_project(str(project_dir), repo, style)
             print(f'RESTYLE: {ok}')
             url = build_and_deploy_ghpages(str(project_dir), repo, token)
         else:
             url = build_and_deploy_static(repo, token)
 
         status = 'ok' if url else 'deploy-fail'
-        results.append((repo, status, url))
+        results.append((repo, status, style, url))
         print(f'DEPLOY: {url or "FAIL"}')
 
     print('\n=== SUMMARY ===')
-    for repo, status, url in results:
-        print(f'{repo:<22} {status:<14} {url}')
+    for repo, status, style, url in results:
+        print(f'{repo:<22} {status:<14} {style:<16} {url}')
 
 
 if __name__ == '__main__':

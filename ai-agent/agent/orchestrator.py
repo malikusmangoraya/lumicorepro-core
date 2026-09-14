@@ -599,14 +599,32 @@ class AgentOrchestrator:
                 "Deployment configs for Vercel/Docker/NGINX",
             ]
 
-            live_url = auto_deploy(
-                project_dir=Path(project_dir),
-                repo_name=repo_name,
-                name=name,
-                tagline=tagline,
-                category=category,
-                features=features,
-            )
+            # Prefer a real SPA deployment (built dist on gh-pages branch) so the
+            # live preview shows the actual product — not the generic root shell.
+            live_url = ""
+            try:
+                # Ensure the GitHub repo exists first (gh-pages push needs it).
+                from agent.auto_deploy import repo_exists, create_repo, load_token
+                token = load_token()
+                if token and repo_exists(repo_name, token):
+                    pass
+                elif token:
+                    create_repo(repo_name, token, tagline)
+                if token:
+                    from agent.pro_design import build_and_deploy_ghpages
+                    live_url = build_and_deploy_ghpages(Path(project_dir), repo_name, token) or ""
+            except Exception as spa_err:
+                agent_logger.warning(f"SPA deploy unavailable ({spa_err}); falling back to root preview.")
+
+            if not live_url:
+                live_url = auto_deploy(
+                    project_dir=Path(project_dir),
+                    repo_name=repo_name,
+                    name=name,
+                    tagline=tagline,
+                    category=category,
+                    features=features,
+                )
             if live_url:
                 agent_logger.info(f"Auto-deploy complete. Live URL: {live_url}")
             else:
@@ -1524,10 +1542,12 @@ class AgentOrchestrator:
                 repo_dir = Path(project_dir)
                 brand_key = spec.get("project_name") or repo_dir.name
                 repo_key = brand_key
-                applied = restyle_project(project_dir, repo_key)
+                ui_style = spec.get("ui_style", "glassmorphism")
+                applied = restyle_project(project_dir, repo_key, ui_style)
                 phase_log["pro_design_restyle"] = applied
+                phase_log["pro_design_ui_style"] = ui_style
                 if applied:
-                    agent_logger.info(f"ProDesign applied to newly generated project {repo_key}")
+                    agent_logger.info(f"ProDesign applied to newly generated project {repo_key} [{ui_style}]")
             except Exception as pro_err:
                 agent_logger.warning(f"ProDesign restyle skipped for new project: {pro_err}")
             try:
