@@ -205,6 +205,7 @@ class RequirementAnalyzer:
 
         self._infer_implicit_features(spec)
         self._detect_color_hints(spec, prompt)
+        self._detect_region(spec, prompt)
         self._detect_rtl(spec, prompt)
         self._detect_pwa_signals(spec, prompt)
 
@@ -224,6 +225,37 @@ class RequirementAnalyzer:
         for kw, en in sorted(self.URDU_KEYWORD_MAP.items(), key=lambda x: -len(x[0])):
             result = result.replace(kw, en)
         return result
+
+    # ── International market/region colors (culture-aware color combos) ───
+    # Kept OUT of pro_design so the analyzer can also feed AI providers.
+    REGION_SIGNALS = {
+        'gcc':          ['uae', 'dubai', 'saudi', 'qatar', 'kuwait', 'bahrain', 'oman', 'kharab', 'middle east',
+                         'gulf', 'khaliji', 'khaleej', 'مطعم'],
+        'south-asia':   ['pakistan', 'pakistani', 'india', 'indian', 'bangladesh', 'bangladeshi', 'lahore',
+                         'islamabad', 'karachi', 'main land', 'deli', 'amritsar', 'south asia', 'desi', 'hindi'],
+        'east-asia':    ['china', 'chinese', 'japan', 'japanese', 'korea', 'korean', 'singapore', 'tokyo',
+                         'shanghai', 'seoul', 'hong kong', 'taiwan'],
+        'europe':       ['europe', 'european', 'uk', 'london', 'paris', 'berlin', 'france', 'germany',
+                         'italy', 'spain', 'switzerland', 'sweden', 'denmark', 'norway', 'nordic'],
+        'north-america': ['usa', 'united states', 'america', 'canada', 'new york', 'los angeles', 'san francisco'],
+        'latam':        ['brazil', 'mexico', 'argentina', 'colombia', 'chile', 'peru', 'latam', 'latin america',
+                         'spain market', 'uruguay'],
+        'africa':       ['nigeria', 'kenya', 'egypt', 'south africa', 'ghana', 'africa', 'morocco', 'tunisia',
+                         'algiers'],
+        'default':      [],
+    }
+
+    def _detect_region(self, spec: Dict[str, Any], prompt: str) -> None:
+        """Detect the target international market so the palette can follow it."""
+        p = prompt.lower()
+        for region, signals in self.REGION_SIGNALS.items():
+            if region == 'default':
+                continue
+            if any(sig in p for sig in signals):
+                spec['target_region'] = region
+                agent_logger.info(f"Target region detected: {region}")
+                return
+        spec['target_region'] = 'default'
 
     def _detect_color_hints(self, spec: Dict[str, Any], prompt: str) -> None:
         """Extract color and theme preferences from prompt."""

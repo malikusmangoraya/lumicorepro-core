@@ -53,7 +53,29 @@ def _rgb(hex_color: str) -> str:
 # Default for every project: glassmorphism (enterprise).
 UI_STYLE_DEFAULT = 'glassmorphism'
 
-    # per-style dark/light palette overrides applied on top of the base palette
+# ── International region palettes (culturally-aware color combos) ────────
+# Applied on top of the base palette when the analyzer detects a target market.
+# Each combo is chosen for the market's color psychology (luxury gold for the
+# Gulf, saffron for South Asia, red/gold for East Asia, etc).
+REGION_PALETTES: Dict[str, Dict[str, str]] = {
+    'gcc': {'primary': '#b8860b', 'accent': '#0f766e', 'heading': '#5b3200',
+            'navBg': '#fffaf0', 'footerBg': '#1c1917'},
+    'south-asia': {'primary': '#ea580c', 'accent': '#16a34a', 'heading': '#451a03',
+                   'navBg': '#fff7ed', 'footerBg': '#1c1917'},
+    'east-asia': {'primary': '#dc2626', 'accent': '#d97706', 'heading': '#1f2937',
+                  'navBg': '#fff7f7', 'footerBg': '#111827'},
+    'europe': {'primary': '#1d4ed8', 'accent': '#0f766e', 'heading': '#0f172a',
+               'navBg': '#f8fafc', 'footerBg': '#0f172a'},
+    'north-america': {'primary': '#2563eb', 'accent': '#dc2626', 'heading': '#111827',
+                      'navBg': '#f8fafc', 'footerBg': '#111827'},
+    'latam': {'primary': '#f97316', 'accent': '#0d9488', 'heading': '#7c2d12',
+              'navBg': '#fff7ed', 'footerBg': '#1c1917'},
+    'africa': {'primary': '#b45309', 'accent': '#047857', 'heading': '#292524',
+               'navBg': '#fafaf9', 'footerBg': '#1c1917'},
+    'default': {},
+}
+
+# per-style dark/light palette overrides applied on top of the base palette
 UI_STYLE_PALETTE = {
     'glassmorphism': {'navBg': '#f8fafc', 'footerBg': '#0f172a', 'dark': False},
     'minimalist':    {'navBg': '#ffffff', 'footerBg': '#0f172a', 'dark': False},
@@ -603,12 +625,14 @@ def _index_html(title: str, tagline: str) -> str:
 '''
 
 
-def _index_css(palette: Dict[str, str], ui_style: str = UI_STYLE_DEFAULT) -> str:
+def _index_css(palette: Dict[str, str], ui_style: str = UI_STYLE_DEFAULT, extra_css: str = '') -> str:
     p = palette['primary']
     a = palette['accent']
     h = palette['heading']
     r, g, b = int(p[1:3], 16), int(p[3:5], 16), int(p[5:7], 16)
     style_css = UI_STYLE_CSS.get(ui_style, UI_STYLE_CSS[UI_STYLE_DEFAULT])
+    if extra_css:
+        style_css = style_css + '\n' + extra_css
     return f'''@tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1523,8 +1547,10 @@ def _patch_router_basename(frontend: Path) -> bool:
     return True
 
 
-def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_DEFAULT) -> bool:
+def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_DEFAULT,
+                    region: str = 'default') -> bool:
     """Apply professional consulting-style design to a generated project."""
+    from agent.design_vault import VAULT_STYLES
     try:
         root = Path(project_dir)
         frontend = root / 'frontend'
@@ -1537,10 +1563,24 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
             return False
 
         pal = PALETTES.get(repo_name) or _derive_palette(repo_name)
+        # International region palette (culture-aware color combo from analyzer)
+        region_tune = REGION_PALETTES.get(region, {})
+        pal = {**pal, **region_tune}
+
+        # Design Vault: a registered source (e.g. HorizonX export) overrides
+        # the style wheel entirely with its exact design language.
+        extra_css = ''
+        vault_palette = {}
+        if ui_style in VAULT_STYLES:
+            vault_palette = VAULT_STYLES[ui_style].get('palette', {})
+            extra_css = VAULT_STYLES[ui_style].get('css_extra', '')
+            agent_logger.info(f"Design Vault style applied: {ui_style}")
+
         # UI-style palette overrides (e.g. dark cyberpunk, bento canvas)
         style_tune = UI_STYLE_PALETTE.get(ui_style, {})
-        pal = {**pal, **{k: v for k, v in style_tune.items() if v and k not in ('dark', 'text')}}
-        if style_tune.get('dark'):
+        pal = {**pal, **vault_palette,
+               **{k: v for k, v in style_tune.items() if v and k not in ('dark', 'text')}}
+        if (style_tune.get('dark') or vault_palette.get('dark')) and not vault_palette:
             pal.setdefault('cardBg', '#0f172a')
             pal.setdefault('text', '#94a3b8')
         prof = PROFILES.get(repo_name) or _derive_profile(repo_name)
@@ -1549,7 +1589,7 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
         _ensure_build_files(frontend, repo_name, prof['title'])
 
         (frontend / 'index.html').write_text(_index_html(prof['title'], prof['tagline']), encoding='utf-8')
-        (src / 'index.css').write_text(_index_css(pal, ui_style), encoding='utf-8')
+        (src / 'index.css').write_text(_index_css(pal, ui_style, extra_css), encoding='utf-8')
         (frontend / 'tailwind.config.js').write_text(_tailwind_config(pal), encoding='utf-8')
 
         # Gate-conformant app shell: provider stack + theme import + MotionCanvas

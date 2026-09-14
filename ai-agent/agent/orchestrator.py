@@ -1543,11 +1543,19 @@ class AgentOrchestrator:
                 brand_key = spec.get("project_name") or repo_dir.name
                 repo_key = brand_key
                 ui_style = spec.get("ui_style", "glassmorphism")
-                applied = restyle_project(project_dir, repo_key, ui_style)
+                region = spec.get("target_region", "default")
+                applied = restyle_project(project_dir, repo_key, ui_style, region)
                 phase_log["pro_design_restyle"] = applied
                 phase_log["pro_design_ui_style"] = ui_style
+                phase_log["pro_design_region"] = region
                 if applied:
-                    agent_logger.info(f"ProDesign applied to newly generated project {repo_key} [{ui_style}]")
+                    agent_logger.info(f"ProDesign applied to newly generated project {repo_key} [{ui_style}/{region}]")
+                try:
+                    from agent.design_vault import write_manifest
+                    vault_manifest = write_manifest()
+                    phase_log["design_vault_sources"] = vault_manifest.get("sources", [])
+                except Exception as vault_err:
+                    agent_logger.warning(f"Design vault manifest skipped: {vault_err}")
             except Exception as pro_err:
                 agent_logger.warning(f"ProDesign restyle skipped for new project: {pro_err}")
             try:
