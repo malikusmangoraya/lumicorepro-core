@@ -241,6 +241,7 @@ Rule file: `.cursor/rules/marketplace-ready-projects.mdc`
 
 | Date | Ver | Changes |
 |------|-----|---------|
+| 2026-09-14 | 5.5 | Full-stack hardening — `repair_any_layout` last-gate `repair_component_imports` fixes broken `@/` imports (known stubs input/textarea/select, passthrough stubs, default→named alias `export { defaultName as X }`); project-builder rejects non-project templates; api_generator backend gets npm auto-fix; schema/template seeding only keeps real files |
 | 2026-09-14 | 5.4 | Planning-first: new `design_brand_planning` phase resolves the full international design blueprint (style + region + palette + vault source) BEFORE code generation; writes DESIGN_PLAN.md + style/region-aware design-tokens.json; palette resolution shared between plan and restyle via `_resolve_style_blueprint` |
 | 2026-09-14 | 5.3 | International design — region-aware color combos (GCC/South-Asia/East-Asia/EU/NA/LatAm/Africa) + Design Vault that registers legally-obtained kits (e.g. HorizonX exports) as agent-native ui_styles via token extraction |
 | 2026-09-14 | 5.2 | UI Style Wheel — 9 design languages (minimal/glass/neo-brutalism/bento/neumorphism/flat/clay/skeuomorphism/dark) auto-detected from prompt; style-aware palette/CSS/tailwind/home/nav; JSON-safe self-heal; package.json pin-merge; JSON-LD @graph + OG meta + tinyshining-cs-vars gate scaffold |

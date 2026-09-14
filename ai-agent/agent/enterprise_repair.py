@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from agent.schema_contract_injection import FK_CONTRACT, MODEL_BASELINE
+from utils.logger import agent_logger
 
 DIRECT_EXPORT_RE = re.compile(r"module\.exports\s*=\s*(\w+)\s*;")
 NAMED_EXPORT_RE = re.compile(r"module\.exports\s*=\s*\{\s*(\w+)\s*\}")
@@ -305,6 +306,143 @@ def repair_transactional_compliance(project_dir: str) -> Dict[str, Any]:
     }
 
 
+def repair_component_imports(project_dir: str) -> Dict[str, Any]:
+    """Repair broken `@/components/...` imports in generated frontends.
+
+    AI diff patches (bespoke design, customisation passes) commonly emit
+    imports such as `import { Input } from '@/components/ui/input'` even when
+    the target file was never generated. Every referenced component that is
+    missing on disk either receives a small safe stub (when we know its shape)
+    or a generic passthrough component mirroring the imported symbol names —
+    so the frontend always builds.
+    """
+    import re
+
+    frontend = os.path.join(project_dir, "frontend", "src")
+    if not os.path.isdir(frontend):
+        return {"status": "skipped", "reason": "no frontend/src"}
+    created = 0
+
+    # Only safe well-known simple primitives get a hand-written stub.
+    # Each stub exports BOTH a named component (import { Input }) and a
+    # default export (import Input) to satisfy any import flavour.
+    KNOWN_STUBS = {
+        "input": 'export const Input = (props) => <input {...props} className={["w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500", props.className || ""].filter(Boolean).join(" ")} />;\nexport default Input;\n',
+        "textarea": 'export const Textarea = (props) => <textarea {...props} className={["w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500", props.className || ""].filter(Boolean).join(" ")} />;\nexport default Textarea;\n',
+        "select": 'export const Select = (props) => <select {...props} className={["w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500", props.className || ""].filter(Boolean).join(" ")} />;\nexport default Select;\n',
+    }
+    # Match any '@/' alias import: '@/components/ui/input', '@/ui/input', ...
+    # rel holds everything after '@/' so the on-disk file is exactly src/<rel>.
+    import_stmt = re.compile(
+        r"import\s+((?:\{[^}]*\}|[A-Za-z0-9_]+)\s*(?:,\s*\{[^}]*\})?)\s+from\s+['\"]@/([^'\"]+)['\"]"
+    )
+    name_only = re.compile(r"[A-Za-z0-9_]+")
+    # Find the module's default-export identifier so missing named imports can
+    # be aliased from it: `export { defaultName as Badge }`.
+    default_export = re.compile(
+        r"export\s+default\s+(?:(?:function|class)\s+([A-Za-z0-9_]+)|([A-Za-z0-9_]+))"
+    )
+
+    def _ensure_named_exports(path: str, names: List[str]) -> List[str]:
+        """Append `export { defaultName as X }` for any requested name the file
+        does not already export (its default export is aliased). """
+        try:
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                content = fh.read()
+        except OSError:
+            return []
+        if "export default" not in content:
+            return []
+        m = default_export.search(content)
+        if not m:
+            return []
+        default_name = m.group(1) or m.group(2)
+        already = re.findall(
+            r"export\s+(?:const|let|var|function|class)\s+([A-Za-z0-9_]+)"
+            r"|export\s*\{[^}]*\b(" + default_name + r")\b",
+            content,
+        )
+        exported = {x for pair in already for x in pair if x}
+        added = []
+        for nm in names:
+            if nm in ("React", "default") or nm in exported:
+                continue
+            if ("export " + nm) in content or ("export {" in content and nm in content.split("export {")[-1][:200]):
+                continue
+            try:
+                with open(path, "a", encoding="utf-8") as fh:
+                    fh.write(f"\nexport {{ {default_name} as {nm} }};\n")
+                added.append(nm)
+            except OSError:
+                pass
+        return added
+
+    for root, _dirs, files in os.walk(frontend):
+        if "node_modules" in root or "dist" in root:
+            continue
+        for fname in files:
+            if not fname.endswith((".js", ".jsx")):
+                continue
+            path = os.path.join(root, fname)
+            try:
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    text = fh.read()
+            except OSError as exc:
+                agent_logger.warning(f"Import repair: skipped unreadable {path}: {exc}")
+                continue
+            for m in import_stmt.finditer(text):
+                names_part, rel = m.group(1), m.group(2)
+                rel = (rel or "").strip()
+                if rel.endswith((".css", ".json")):
+                    continue
+                if rel.startswith("/") or rel.startswith("."):
+                    continue
+                candidates = [
+                    os.path.normpath(os.path.join(frontend, rel + ".jsx")),
+                    os.path.normpath(os.path.join(frontend, rel + ".js")),
+                    os.path.normpath(os.path.join(frontend, rel + ".tsx")),
+                    os.path.normpath(os.path.join(frontend, rel, "index.jsx")),
+                    os.path.normpath(os.path.join(frontend, rel, "index.js")),
+                ]
+                existing = next((c for c in candidates if os.path.exists(c)), None)
+                if existing:
+                    requested = name_only.findall(names_part or "")
+                    added = _ensure_named_exports(existing, requested)
+                    if added:
+                        agent_logger.warning(
+                            f"Import repair: aliased default→named exports {added} in {existing}"
+                        )
+                    continue
+                base = os.path.basename(rel.rstrip("/").lower())
+                if base in KNOWN_STUBS:
+                    out = os.path.normpath(os.path.join(frontend, rel + ".jsx"))
+                    os.makedirs(os.path.dirname(out), exist_ok=True)
+                    with open(out, "w", encoding="utf-8") as fh:
+                        fh.write(KNOWN_STUBS[base])
+                    agent_logger.warning(f"Import repair: wrote known stub {out}")
+                    created += 1
+                    continue
+                # Generic passthrough stub mirroring the imported symbol names.
+                names = name_only.findall(names_part or "")
+                exports = []
+                for nm in names:
+                    if nm in ("React", "default"):
+                        continue
+                    exports.append(
+                        f"export const {nm} = (props) => React.createElement('div', props, props.children);\n"
+                    )
+                if not exports:
+                    continue
+                out = os.path.normpath(os.path.join(frontend, rel + ".jsx"))
+                os.makedirs(os.path.dirname(out), exist_ok=True)
+                stub = "import React from 'react';\n" + "".join(exports) + "\nexport default function DummyComponent(props) {\n  return React.createElement('div', props, props.children);\n}\n"
+                with open(out, "w", encoding="utf-8") as fh:
+                    fh.write(stub)
+                agent_logger.warning(f"Import repair: wrote passthrough stub {out}")
+                created += 1
+    return {"status": "ok", "stubs_written": created}
+
+
 def repair_any_layout(project_dir: str, spec: Dict[str, Any] = None) -> Dict[str, Any]:
     """Autonomous repair entry: applies the right deterministic repair for the
     project's lane. Static/commerce storefronts are handled by the commerce
@@ -318,6 +456,11 @@ def repair_any_layout(project_dir: str, spec: Dict[str, Any] = None) -> Dict[str
         result["commerce"] = inject_commerce(project_dir, spec)
     except Exception as exc:  # never let a repair crash the pipeline
         result["commerce"] = {"status": "error", "error": str(exc)}
+    # Last line of defence: a broken @/components import must never ship.
+    try:
+        result["component_imports"] = repair_component_imports(project_dir)
+    except Exception as exc:
+        result["component_imports"] = {"status": "error", "error": str(exc)}
 
     if static:
         try:
