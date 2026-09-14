@@ -10,7 +10,7 @@ ai_agent_dir = current_dir.parent
 if str(ai_agent_dir) not in sys.path:
     sys.path.insert(0, str(ai_agent_dir))
 
-from config.settings import AGENT_DB_PATH, REGISTRY_DIR
+from config.settings import AGENT_DB_PATH, REGISTRY_DIR, PROJECT_ROOT
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
 
@@ -151,8 +151,31 @@ def _seed_templates(cursor):
     path = REGISTRY_DIR / "templates.json"
     data = FileManager.read_json(str(path))
     if not isinstance(data, list):
-        return
+        data = []
+    # Remove stale templates whose path is not a real Vite project root
+    # (no package.json/index.html) so broken section-level copies never recur.
+    cursor.execute("SELECT id, file_path FROM templates_index")
+    for row_id, fp in cursor.fetchall():
+        if not fp:
+            continue
+        try:
+            is_project = (Path(PROJECT_ROOT) / fp / "package.json").exists() and \
+                         (Path(PROJECT_ROOT) / fp / "index.html").exists()
+        except OSError:
+            is_project = False
+        if not is_project:
+            cursor.execute("DELETE FROM templates_index WHERE id = ?", (row_id,))
     for item in data:
+        fp = item.get("file_path")
+        if not fp:
+            continue
+        try:
+            is_project = (Path(PROJECT_ROOT) / fp / "package.json").exists() and \
+                         (Path(PROJECT_ROOT) / fp / "index.html").exists()
+        except OSError:
+            is_project = False
+        if not is_project:
+            continue
         cursor.execute("""
             INSERT OR REPLACE INTO templates_index 
             (name, type, category, industry, tags, description, file_path, dependencies, compatible_categories, features, rating, usage_count)
@@ -248,23 +271,14 @@ def _seed_schemas(cursor):
         {"name": "Electronics Products Schema", "type": "schema", "category": "electronics", "file_path": "database/schemas/electronics.sql", "tables": ["categories", "products"], "features": ["products", "categories", "specs"]},
         {"name": "Users & Auth Schema", "type": "schema", "category": "auth", "file_path": "database/schemas/users.sql", "tables": ["users", "addresses"], "features": ["authentication", "user_profile"]},
         {"name": "SaaS Subscription Schema", "type": "schema", "category": "saas", "file_path": "database/schemas/saas.sql", "tables": ["subscriptions", "plans", "usages"], "features": ["subscription", "billing", "plan"]},
-        {"name": "Blog & Content Schema", "type": "schema", "category": "blog", "file_path": "database/schemas/blog.sql", "tables": ["posts", "comments", "categories"], "features": ["blog", "post", "comment"]},
-        {"name": "Appointment Booking Schema", "type": "schema", "category": "appointment", "file_path": "database/schemas/appointment.sql", "tables": ["appointments", "bookings"], "features": ["appointment", "booking"]},
-        {"name": "Social Platform Schema", "type": "schema", "category": "social", "file_path": "database/schemas/social.sql", "tables": ["posts", "likes", "comments", "followers"], "features": ["social", "feed", "like", "follow"]},
-        {"name": "Learning & Courses Schema", "type": "schema", "category": "education", "file_path": "database/schemas/education.sql", "tables": ["courses", "enrollments", "modules", "quizzes"], "features": ["course", "enrollment", "learning"]},
-        {"name": "Healthcare Patient Schema", "type": "schema", "category": "healthcare", "file_path": "database/schemas/healthcare.sql", "tables": ["patients", "doctors", "appointments"], "features": ["healthcare", "patient", "doctor"]},
-        {"name": "Real Estate Listings Schema", "type": "schema", "category": "realestate", "file_path": "database/schemas/realestate.sql", "tables": ["listings", "agents", "inquiries"], "features": ["realestate", "listing", "property"]},
-        {"name": "Restaurant & Menu Schema", "type": "schema", "category": "restaurant", "file_path": "database/schemas/restaurant.sql", "tables": ["menu_items", "reservations", "orders"], "features": ["restaurant", "menu", "reservation"]},
-        {"name": "Fitness & Membership Schema", "type": "schema", "category": "fitness", "file_path": "database/schemas/fitness.sql", "tables": ["memberships", "workouts", "trainers"], "features": ["fitness", "membership", "workout"]},
-        {"name": "Travel & Booking Schema", "type": "schema", "category": "travel", "file_path": "database/schemas/travel.sql", "tables": ["destinations", "packages", "bookings"], "features": ["travel", "booking", "destination"]},
-        {"name": "Social Media Schema", "type": "schema", "category": "social", "file_path": "database/schemas/social.sql", "tables": ["posts", "likes", "comments", "followers", "messages"], "features": ["social", "feed", "like", "follow", "messaging"]},
-        {"name": "Music Streaming Schema", "type": "schema", "category": "music", "file_path": "database/schemas/music.sql", "tables": ["tracks", "playlists", "artists"], "features": ["music", "streaming", "playlist"]},
-        {"name": "Job & Recruitment Schema", "type": "schema", "category": "job", "file_path": "database/schemas/job.sql", "tables": ["jobs", "applications", "candidates"], "features": ["job", "recruitment", "application"]},
-        {"name": "Events & Ticketing Schema", "type": "schema", "category": "events", "file_path": "database/schemas/events.sql", "tables": ["events", "tickets", "registrations"], "features": ["events", "ticketing", "registration"]},
-        {"name": "Crypto Portfolio Schema", "type": "schema", "category": "crypto", "file_path": "database/schemas/crypto.sql", "tables": ["tokens", "wallets", "transactions"], "features": ["crypto", "wallet", "transaction"]},
-        {"name": "Fintech Wallet Schema", "type": "schema", "category": "fintech", "file_path": "database/schemas/fintech.sql", "tables": ["accounts", "transactions", "payments"], "features": ["fintech", "payment", "wallet"]},
+        {"name": "Automotive / Car Dealership Schema", "type": "schema", "category": "automotive", "file_path": "database/schemas/automotive.sql", "tables": ["vehicle_brands", "vehicle_models", "test_drive_bookings", "sales_leads", "promotions", "user_favorites"], "features": ["vehicle inventory", "test drive booking", "sales leads", "car dealership", "automotive", "favorites"]},
     ]
+    # Drop stale rows whose SQL file no longer exists on disk so the schema
+    # index only ever advertises real, consumable DDL.
     for item in schemas:
+        s_path = Path(PROJECT_ROOT) / item["file_path"]
+        if not s_path.exists():
+            continue
         cursor.execute("""
             INSERT OR REPLACE INTO database_schemas_index 
             (name, type, category, file_path, tables, features)
@@ -277,6 +291,11 @@ def _seed_schemas(cursor):
             ",".join(item.get("tables", [])),
             ",".join(item.get("features", []))
         ))
+    cursor.execute("SELECT id, file_path FROM database_schemas_index")
+    stale_ids = [row[0] for row in cursor.fetchall()
+                 if row[1] and not (Path(PROJECT_ROOT) / row[1]).exists()]
+    for sid in stale_ids:
+        cursor.execute("DELETE FROM database_schemas_index WHERE id = ?", (sid,))
 
 if __name__ == "__main__":
     init_database()

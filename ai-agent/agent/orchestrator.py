@@ -1160,6 +1160,12 @@ class AgentOrchestrator:
                         self.api_generator.generate_full_backend(backend_dir, plan)
                     except Exception as api_err:
                         agent_logger.warning(f"APIGenerator backend note: {api_err}")
+                    # Backend package.json only exists AFTER api_generator; the
+                    # build_project-time auto-fix was a no-op. Fix missing deps now.
+                    try:
+                        fixed = self.project_builder._auto_fix_npm_dependencies(backend_dir, is_backend=True)
+                    except Exception as fix_err:
+                        agent_logger.warning(f"Backend npm auto-fix skipped: {fix_err}")
 
             ai_calls_count = 0
             diff_mode = (os.getenv("AI_DIFF_PATCHING", "1").strip().lower() in ("1", "true", "yes"))

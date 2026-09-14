@@ -79,26 +79,58 @@ class ProjectBuilder:
         "express-validator": "^7.0.1"
     }
 
+    @staticmethod
+    def _is_project_template(path: Path) -> bool:
+        """A usable frontend template must be a real Vite project root.
+
+        Guards against section-level folders (LandingPage.jsx, ServicesPage,
+        etc.) being copied raw into frontend/ — which produced broken builds
+        where no package.json/index.html existed. Also refuses the monorepo
+        root / template library root themselves (they are not templates).
+        """
+        try:
+            resolved = path.resolve()
+            templates_root = (PROJECT_ROOT / 'src' / 'templates').resolve()
+            if resolved == PROJECT_ROOT or resolved == templates_root:
+                return False
+            try:
+                resolved.relative_to(templates_root)  # must live inside src/templates
+            except ValueError:
+                return False
+            if not (resolved / 'package.json').exists():
+                return False
+            if not (resolved / 'index.html').exists():
+                return False
+        except OSError:
+            return False
+        return True
+
     def _resolve_template_path(self, template_info: Dict[str, Any]) -> Path:
-        """Resolve template directory path using mapping, with fallback logic."""
+        """Resolve template directory path using mapping, with fallback logic.
+
+        Only real project templates (dir containing package.json + index.html)
+        are accepted. Anything else signals the caller to use the default
+        Vite scaffold, guaranteeing a valid buildable frontend every time.
+        """
         rel_path = template_info.get("file_path", "") if template_info else ""
         # Use the mapping if available, otherwise use rel_path directly
         mapped = self.TEMPLATE_PATH_MAP.get(rel_path, rel_path)
         resolved = (PROJECT_ROOT / mapped).resolve()
-        if resolved.exists():
+        if self._is_project_template(resolved):
             return resolved
         # Try mapping without the "src/templates/" prefix
         alt_path = "src/templates/" + rel_path.replace("src/templates/", "")
         alt_resolved = (PROJECT_ROOT / alt_path).resolve()
-        if alt_resolved.exists():
+        if self._is_project_template(alt_resolved):
             return alt_resolved
         # Try every known template path as fallback
         for known in self.TEMPLATE_PATH_MAP.values():
             candidate = (PROJECT_ROOT / known).resolve()
-            if candidate.exists():
+            if self._is_project_template(candidate):
                 agent_logger.warning(f"Template {rel_path} not found, falling back to {known}")
                 return candidate
-        return resolved  # Return original even if not found
+        # Return a path that certainly does not exist → default scaffold builds
+        return resolved.with_name(resolved.name + ".__missing__")
 
     def build_project(self, plan: Dict[str, Any]) -> str:
         """Execute assembly plan and return path of generated project."""
