@@ -14,17 +14,16 @@ import {
   Download,
   Upload,
 } from 'lucide-react';
-import {
-  Card,
+import Card, {
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-  Button,
-  Input,
-  Textarea,
-  Alert,
-} from '../components/ui';
+} from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/forms/Input';
+import Textarea from '../components/forms/Textarea';
+import Alert from '../components/ui/Alert';
 import {
   getApiConfig,
   saveApiConfig,

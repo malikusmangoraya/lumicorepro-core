@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Palette, X, Sun, Moon, Check, Sparkles } from 'lucide-react';
 
 const COLOR_THEMES = [
@@ -43,6 +43,13 @@ export default function ThemeCustomizer() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTheme, setActiveTheme] = useState('cyan');
   const [isDark, setIsDark] = useState(true);
+  const triggerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    triggerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('site_theme');
@@ -51,6 +58,21 @@ export default function ThemeCustomizer() {
       applyTheme(saved);
     }
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, close]);
 
   const applyTheme = (themeId) => {
     const theme = COLOR_THEMES.find((t) => t.id === themeId);
@@ -77,9 +99,11 @@ export default function ThemeCustomizer() {
       {/* Floating Trigger Button */}
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500 text-slate-950 shadow-2xl shadow-cyan-500/50 hover:bg-cyan-400 hover:scale-110 active:scale-95 transition-all"
         aria-label="Open theme customizer"
+        aria-expanded={isOpen}
       >
         <Palette className="h-5 w-5" />
       </button>
@@ -88,12 +112,17 @@ export default function ThemeCustomizer() {
       {isOpen && (
         <div
           className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm transition-opacity"
-          onClick={() => setIsOpen(false)}
+          onClick={close}
+          aria-hidden="true"
         />
       )}
 
       {/* Slide-out Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        inert={!isOpen}
+        aria-label="Live Theme Studio"
         className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-slate-950 border-l border-slate-800 p-6 shadow-2xl transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -105,8 +134,10 @@ export default function ThemeCustomizer() {
           </div>
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            ref={closeButtonRef}
+            onClick={close}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900"
+            aria-label="Close theme customizer"
           >
             <X className="h-4 w-4" />
           </button>

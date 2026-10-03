@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck, Globe, GitBranch } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import authService from '@/services/auth';
@@ -9,11 +9,22 @@ import PageSEO from '@/components/common/PageSEO';
 import Turnstile from '@/components/common/CaptchaTurnstile';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+const OAUTH_PROVIDERS = ['GitHub', 'Google'];
+const getOAuthUrl = (provider) => {
+  const raw = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const base = raw.endsWith('/api') ? raw : `${raw.replace(/\/+$/, '')}/api`;
+  return `${base}/auth/oauth/${provider.toLowerCase()}`;
+};
+
+/** Route guards redirect here with `?next=`; only same-origin paths are honoured. */
+const safeNextPath = (raw) => (raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : '/');
 
 export default function LoginPage() {
   const { login, verify2FALogin } = useAuth();
   const { addNotification, login: appLogin } = useAppContext();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get('next'));
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -53,7 +64,7 @@ export default function LoginPage() {
         addNotification('Two-Factor Authentication is required for this account.', 'info');
         return;
       }
-      navigate('/');
+      navigate(nextPath, { replace: true });
     } catch (err) {
       setErrors({
         general:
@@ -80,7 +91,7 @@ export default function LoginPage() {
       if (data?.token && data?.user) {
         appLogin(data.user, data.token);
         addNotification('2FA verified — welcome back.', 'success');
-        navigate('/');
+        navigate(nextPath, { replace: true });
         return;
       }
       setOtpError('Unexpected response from 2FA verification');
@@ -187,7 +198,7 @@ export default function LoginPage() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="000000"
                 autoComplete="one-time-code"
-                leftIcon={<ShieldCheck className="h-4 w-4" />}
+                leftIcon={ShieldCheck}
                 error={otpError}
               />
               <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
@@ -216,7 +227,7 @@ export default function LoginPage() {
               onChange={change('email')}
               placeholder="you@example.com"
               autoComplete="email"
-              leftIcon={<Mail className="h-4 w-4" />}
+              leftIcon={Mail}
               error={errors.email}
             />
 
@@ -246,7 +257,7 @@ export default function LoginPage() {
                 onChange={change('password')}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                leftIcon={<Lock className="h-4 w-4" />}
+                leftIcon={Lock}
                 error={errors.password}
               />
             </div>
@@ -274,7 +285,7 @@ export default function LoginPage() {
               size="lg"
               fullWidth
               loading={loading}
-              rightIcon={<ArrowRight className="h-4 w-4" />}
+              rightIcon={ArrowRight}
             >
               Sign In
             </Button>
@@ -286,18 +297,16 @@ export default function LoginPage() {
               <Divider label="or continue with" className="my-5" />
 
               <div className="grid grid-cols-2 gap-3">
-                {['GitHub', 'Google'].map((label) => (
+                {OAUTH_PROVIDERS.map((label) => (
                   <Button
                     key={label}
                     variant="outline"
-                    onClick={() =>
-                      addNotification(
-                        `${label} OAuth login is ready to configure in production settings`,
-                        'info'
-                      )
-                    }
+                    leftIcon={label === 'GitHub' ? GitBranch : Globe}
+                    onClick={() => {
+                      window.location.href = getOAuthUrl(label);
+                    }}
                   >
-                    {label === 'GitHub' ? '⚡' : '🌐'} {label}
+                    {label}
                   </Button>
                 ))}
               </div>

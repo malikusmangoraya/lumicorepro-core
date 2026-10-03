@@ -1,5 +1,6 @@
 from typing import Dict, Any, List
 from utils.logger import agent_logger
+from config.master_prompt import get_master_prompt, MASTER_20_DESIGN_STYLES
 
 class GenerationPlanner:
     """Creates a step-by-step project assembly and generation plan with interactive style configuration."""
@@ -44,13 +45,15 @@ class GenerationPlanner:
         selected_schemas: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Construct structured generation plan with style configuration."""
-        agent_logger.info("Constructing assembly & generation plan...")
+        agent_logger.info("Constructing assembly & generation plan aligned with Master Prompt...")
 
         project_name = spec.get("project_name", "generated-website")
 
         plan = {
             "project_name": project_name,
             "destination": f"generated-projects/{project_name}",
+            "master_prompt": get_master_prompt(),
+            "zero_budget_mode": True,
             "template": selected_template,
             "components": selected_components,
             "assets": selected_assets,
@@ -58,16 +61,18 @@ class GenerationPlanner:
             "database_schemas": selected_schemas,
             "style_preference": spec.get("style_preference", {}),
             "assembly_steps": [
-                f"1. Scaffold directory at generated-projects/{project_name}",
+                f"1. Scaffold modular directory at generated-projects/{project_name} (frontend, backend, docs)",
                 f"2. Copy base template from {selected_template.get('file_path') if selected_template else 'Vite React Base'}",
-                f"3. Inject {len(selected_components)} matched reusable React components",
+                f"3. Inject {len(selected_components)} matched reusable React components and 3D hero if applicable",
                 f"4. Copy selected images, icons, and animation stylesheets",
-                f"5. Copy and configure Node.js/Express backend ({selected_backend.get('name') if selected_backend else 'Default Express Base'})",
-                f"6. Consolidate PostgreSQL database schemas ({', '.join([s.get('name') for s in selected_schemas])})",
-                "7. Update imports, package.json dependencies, and config files",
-                "8. Execute code modifier for missing parts",
-                "9. Run end-to-end validation checks",
-                "10. Generate INSTRUCTIONS.md with step-by-step deployment guide"
+                f"5. Configure Node.js/Express backend ({selected_backend.get('name') if selected_backend else 'Default Express Base'}) with Prisma/SQLite zero-budget setup",
+                "6. Implement mock_response() and demo mode for AI and Payment handlers (Zero-Budget requirement)",
+                f"7. Consolidate database schemas ({', '.join([s.get('name') for s in selected_schemas])})",
+                "8. Generate complete docs/ suite (PRD, ARCHITECTURE, RULES, DESIGN, TASKS, MEMORY, SETUP, DEPLOYMENT, COMPLIANCE)",
+                "9. Generate free hosting configs (Cloudflare Pages, Netlify, Render, Fly.io) and GitHub Actions",
+                "10. Generate .vscode/extensions.json (25 extensions), CONTRIBUTING.md, and .env.example with client activation comments",
+                "11. Run quality gates (dependencies, imports, env vars, WCAG a11y) and self-healing",
+                "12. Finalize Lemon Squeezy ready README.md"
             ],
             "ai_tasks_required": []
         }

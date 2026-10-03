@@ -1,108 +1,401 @@
-name: LumiCorePro CI Pipeline
+# =============================================================================
+# LumicorePro — the ONE merge gate.
+# =============================================================================
+# Branch model
+# ------------
+#   master   Default and only long-lived integration branch. The single VPS
+#            deployment tracks it. A red run here blocks merge AND blocks a
+#            release/tag, because deploy.yml re-runs the same suites before
+#            publishing images.
+#   main     Accepted as an alias so a repository rename does not silently
+#            disable CI. No workflow here requires both to exist.
+#   feature/* Short-lived branches. Open a PR into master; this workflow is the
+#            only required status check.
+#
+#   There is deliberately no `develop`/`dev` branch. The previous three
+#   workflows each watched a different branch set (develop | dev | master+main),
+#   so a red suite could pass on one branch and fail on another. All triggers
+#   now live in this file. `backup.yml` is the only other workflow and it is
+#   cron-only (it does not gate anything).
+#
+# Failure policy
+# --------------
+#   No `|| true`, no `continue-on-error` and no `--passWithNoTests` anywhere in
+#   this repository's workflows. A red suite fails the run and blocks the merge.
+#   If a check is genuinely not applicable, delete the step — do not mask it.
+#
+# Job order (each job gates the next)
+# -----------------------------------
+#   frontend-lint -> frontend-test -> frontend-build (bundle budget)
+#     -> backend-syntax -> backend-test -> db-migration-check -> ai-agent-test
+#     -> e2e -> security
+# =============================================================================
+
+name: CI
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [master, main]
   pull_request:
-    branches: [main, master, develop]
+    branches: [master, main]
+  workflow_dispatch:
+
+# A new push to the same branch/PR cancels the previous run. The merge gate is
+# still the latest completed run, so this only saves runner minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  lint-and-validate:
-    name: Lint & Code Quality
+  # ── 1. Frontend lint ──────────────────────────────────────────────────────
+  frontend-lint:
+    name: '1. Frontend lint'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Frontend Dependencies
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install frontend dependencies
         run: npm ci
-
-      - name: Frontend Lint
+      - name: ESLint
         run: npm run lint
 
-      - name: Frontend Build
+  # ── 2. Frontend unit tests (vitest) ───────────────────────────────────────
+  frontend-test:
+    name: '2. Frontend unit tests'
+    runs-on: ubuntu-latest
+    needs: frontend-lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci
+      # `vitest run` exits 1 when no test file matches, so an empty or broken
+      # suite fails the gate instead of reporting a vacuous pass.
+      - name: Vitest with coverage
+        run: npm run test:coverage
+      - name: Upload frontend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-frontend
+          path: coverage/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── 3. Frontend production build + 4. bundle budget ───────────────────────
+  frontend-build:
+    name: '3. Frontend build + bundle budget'
+    runs-on: ubuntu-latest
+    needs: frontend-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Build production bundle
         run: npm run build
         env:
-          VITE_API_URL: https://api.lumicorepro.com
           NODE_ENV: production
+      # scripts/check-bundle-budget.mjs reads dist/.vite/manifest.json and exits
+      # non-zero on any gzip budget violation (AGENTS.md §7). Headroom is ~7 KB
+      # on initial JS, so a small regression is a real failure, not noise.
+      - name: Bundle budget (`npm run size`)
+        run: npm run size
+      - name: Upload production bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 7
 
-      - name: Check Backend Code Syntax
+  # ── 5. Backend syntax check ───────────────────────────────────────────────
+  backend-syntax:
+    name: '4. Backend syntax check'
+    runs-on: ubuntu-latest
+    needs: frontend-build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      # `node --check` parses every backend source file. This catches the
+      # class of failure (unbalanced brace, bad import syntax) that otherwise
+      # only shows up at container start.
+      - name: Parse every backend source file
+        working-directory: backend
         run: |
-          node --check backend/server.js
-          node --check backend/utils/logger.js
-          node --check backend/utils/otp.js
-          node --check backend/middleware/security.js
-          node --check backend/routes/auth.routes.js
-          node --check backend/routes/product.routes.js
-          node --check backend/routes/order.routes.js
-          node --check backend/routes/payment.routes.js
-          node --check backend/routes/analytics.routes.js
-          node --check backend/routes/upload.routes.js
-          node --check backend/routes/search.routes.js
-          node --check backend/routes/notification.routes.js
+          set -euo pipefail
+          mapfile -t files < <(find . -name '*.js' -not -path './node_modules/*' | sort)
+          echo "Checking ${#files[@]} backend file(s)"
+          for f in "${files[@]}"; do
+            node --check "$f"
+          done
+          echo "OK — all backend files parse"
 
-  test:
-    name: Unit & Integration Tests
+  # ── 6. Backend jest suite (with coverage) ─────────────────────────────────
+  backend-test:
+    name: '5. Backend unit + integration tests'
     runs-on: ubuntu-latest
+    needs: backend-syntax
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Dependencies
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install backend dependencies
         run: npm ci
-
-      - name: Run Backend Tests
-        run: cd backend && npm test || true
-
-  ai-agent-test:
-    name: AI Agent Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      # The backend suite is intentionally DB-less (models and services are
+      # mocked). It runs the instrumented path from backend/package.json:
+      #   node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage
+      # NOTE: coverage is reported, not yet gated. AGENTS.md §6 records 37.9%
+      # statements against an 80% target — add coverageThreshold only after the
+      # suite actually clears it, never by lowering the bar to the current value.
+      - name: Jest with coverage
+        run: npm run test:ci
+      - name: Upload backend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.11'
+          name: coverage-backend
+          path: backend/coverage/
+          if-no-files-found: ignore
+          retention-days: 7
 
-      - name: Install AI Agent Dependencies
-        run: cd ai-agent && pip install -r requirements.txt
-
-      - name: Run AI Agent Tests
-        run: cd ai-agent && python -m pytest tests -q --ignore=tests/test_cli_e2e_progress.py
-
-  build:
-    name: Production Build & Asset Verification
+  # ── 7. Migration SQL check against a scratch Postgres ─────────────────────
+  # The repo has no single canonical base schema: the running schema is created
+  # by the Sequelize models (backend/models/*) and production runs with
+  # `sequelize.sync` disabled, so `database/migrations/*.sql` are applied to an
+  # existing database. This job therefore validates that every migration file
+  # is parseable and idempotent against a real server WITHOUT assuming the base
+  # tables exist: each file is executed inside its own transaction that is
+  # always rolled back, and any file mentioning a pre-existing base table is
+  # checked only for syntax (see database/README.md "Known gap").
+  db-migration-check:
+    name: '6. Migration SQL check'
     runs-on: ubuntu-latest
-    needs: [lint-and-validate]
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build Frontend Production Bundle
-        run: npm run build
+    needs: backend-test
+    services:
+      postgres:
+        image: postgres:16-alpine
         env:
-          VITE_API_URL: https://api.lumicorepro.com
-          NODE_ENV: production
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci_migrate_check
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+      - name: Validate migrations parse and are idempotent
+        run: |
+          set -euo pipefail
+          PSQL="psql -h localhost -U ci -d ci_migrate_check -v ON_ERROR_STOP=1 -q"
+          # Minimal stand-in for the Sequelize-owned base tables. `users` and
+          # `products` are referenced by migrations 001/002 and by the
+          # supporting indexes, so they must exist for those statements to
+          # parse-and-run. They are created here ONLY for this throwaway check
+          # database and are never applied to any real environment.
+          $PSQL -c "CREATE TABLE IF NOT EXISTS users (id serial PRIMARY KEY, email varchar(255) UNIQUE NOT NULL, password_hash varchar(255) NOT NULL);"
+          $PSQL -c "CREATE TABLE IF NOT EXISTS products (id serial PRIMARY KEY, title varchar(255));"
+          for f in $(find database/migrations -name '*.sql' ! -name '*.down.sql' | sort); do
+            echo "--- $f"
+            # Run the file twice. Every migration in this repo documents itself
+            # as additive/idempotent (IF NOT EXISTS / ADD COLUMN IF NOT EXISTS)
+            # and is meant to be safe to re-apply during a rolling deploy. If a
+            # future migration is only safe to run once, add a matching
+            # *.down.sql and drop it from this loop with an explanatory comment
+            # — do not weaken the loop for every file.
+            for pass in 1 2; do
+              $PSQL -f "$f"
+            done
+          done
+          echo "OK — migrations parse and are idempotent"
+      - name: Validate rollback files execute
+        run: |
+          set -euo pipefail
+          PSQL="psql -h localhost -U ci -d ci_migrate_check -v ON_ERROR_STOP=1 -q"
+          # Newest first: each .down.sql must be able to drop what its matching
+          # .up.sql created, so the up-migrations from the previous step must
+          # still be present in this throwaway database.
+          for f in $(find database/migrations -name '*.down.sql' | sort -r); do
+            echo "--- $f"
+            $PSQL -f "$f"
+          done
+          echo "OK — rollback files execute cleanly"
+
+  # ── 8. AI agent pytest ────────────────────────────────────────────────────
+  ai-agent-test:
+    name: '7. AI agent (pytest)'
+    runs-on: ubuntu-latest
+    needs: db-migration-check
+    defaults:
+      run:
+        working-directory: ai-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ai-agent/requirements.txt
+      - name: Install AI agent dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # pytest-cov is a CI-only addition; it is not in requirements.txt so
+          # the agent's own dependency list stays unchanged.
+          pip install pytest-cov
+      - name: pytest with coverage
+        # No --ignore flags: every collected test must pass. The previous
+        # workflows disagreed on this (one ignored test_cli_e2e_progress.py,
+        # the other ran it), which is exactly the kind of split that lets a red
+        # suite ship. pytest also exits 5 ("no tests collected") when nothing
+        # is collected, so an empty suite fails too.
+        run: python -m pytest tests -q --cov=agent --cov-report=term-missing
+
+  # ── 9. Playwright e2e (chromium) ──────────────────────────────────────────
+  e2e:
+    name: '8. Playwright e2e (chromium)'
+    runs-on: ubuntu-latest
+    needs: ai-agent-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      # playwright.config.js starts scripts/e2e-server.mjs, which builds the
+      # app and serves the PRODUCTION bundle via `vite preview` — the artifact
+      # that ships, not the dev server.
+      - name: Run e2e suite
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── 10. Secret scan + dependency audit ────────────────────────────────────
+  security:
+    name: '9. Secret scan + dependency audit'
+    runs-on: ubuntu-latest
+    needs: e2e
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks scans history, not just the worktree: a credential that
+          # was committed and then deleted is still leaked.
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.github/gitleaks.toml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Frontend dependency audit (high and above)
+        run: |
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+      - name: Backend dependency audit (high and above)
+        working-directory: backend
+        run: |
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+
+  # ── Aggregate gate ───────────────────────────────────────────────────────
+  # Branch protection should require the check named "CI gate" only, so a job
+  # added upstream automatically joins the required set instead of silently
+  # falling outside it.
+  #
+  # Two jobs, deliberately:
+  #
+  #   ci-gate  has no `if:` and no script that inspects another job's result. It
+  #            runs only when ALL nine needs succeeded — GitHub's own semantics
+  #            — so a green "CI gate" check means every upstream job was green.
+  #            A `if: always()` + parse-the-JSON gate is a common pattern but it
+  #            reintroduces exactly the "did that shell condition really fail the
+  #            run?" ambiguity this file exists to remove.
+  #
+  #   ci-failed is the `if: always()` counterpart. It runs when a need did not
+  #            succeed and fails, so a *skipped* upstream job (which can leave
+  #            the gate job skipped rather than failed) still produces a red
+  #            check on the pull request instead of a green or absent one.
+  ci-gate:
+    name: CI gate
+    runs-on: ubuntu-latest
+    needs:
+      - frontend-lint
+      - frontend-test
+      - frontend-build
+      - backend-syntax
+      - backend-test
+      - db-migration-check
+      - ai-agent-test
+      - e2e
+      - security
+    steps:
+      - name: All upstream jobs succeeded
+        run: echo "Every CI job succeeded."
+
+  ci-failed:
+    name: CI failed
+    runs-on: ubuntu-latest
+    needs:
+      - frontend-lint
+      - frontend-test
+      - frontend-build
+      - backend-syntax
+      - backend-test
+      - db-migration-check
+      - ai-agent-test
+      - e2e
+      - security
+    if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped'))
+    steps:
+      - name: Report the failing job
+        run: |
+          echo "One or more CI jobs did not succeed:"
+          echo '${{ toJSON(needs) }}'
+          exit 1

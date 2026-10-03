@@ -3,18 +3,21 @@ import resp from '../../utils/response.js';
 
 // Minimal express res mock
 const fakeRes = () => {
-  const res = {};
+  const res = { headersSent: false };
   res.status = jest.fn((c) => { res._status = c; return res; });
-  res.json = jest.fn((b) => { res._body = b; return res; });
+  res.json = jest.fn((b) => { res._body = b; res.headersSent = true; return res; });
   return res;
 };
 
-describe('Response wrapper (standardized shape)', () => {
-  it('sendSuccess returns { success:true, data }', () => {
+describe('Response wrapper (canonical envelope)', () => {
+  it('sendSuccess returns the canonical success envelope', () => {
     const res = fakeRes();
     resp.sendSuccess(res, { id: 1 });
     expect(res._status).toBe(200);
-    expect(res._body).toEqual({ success: true, data: { id: 1 } });
+    expect(res._body).toMatchObject({ success: true, status: 200, data: { id: 1 } });
+    expect(Object.keys(res._body).sort()).toEqual(
+      ['success', 'status', 'message', 'data', 'timestamp'].sort(),
+    );
   });
 
   it('sendSuccess attaches meta when provided', () => {
@@ -23,13 +26,24 @@ describe('Response wrapper (standardized shape)', () => {
     expect(res._body.meta).toEqual({ page: 1, total: 50 });
   });
 
-  it('sendError returns { success:false, error:{code,message} }', () => {
+  it('sendSuccess honours a custom status code', () => {
+    const res = fakeRes();
+    resp.sendSuccess(res, { id: 3 }, null, 201);
+    expect(res._status).toBe(201);
+    expect(res._body.status).toBe(201);
+  });
+
+  it('sendError returns the canonical error envelope', () => {
     const res = fakeRes();
     resp.sendError(res, 'VALIDATION_ERROR', 'Bad input', 422);
     expect(res._status).toBe(422);
     expect(res._body).toEqual({
       success: false,
-      error: { code: 'VALIDATION_ERROR', message: 'Bad input' },
+      status: 422,
+      message: 'Bad input',
+      code: 'VALIDATION_ERROR',
+      data: null,
+      timestamp: expect.any(String),
     });
   });
 
@@ -37,8 +51,8 @@ describe('Response wrapper (standardized shape)', () => {
     const res = fakeRes();
     resp.sendNotFound(res, 'Order');
     expect(res._status).toBe(404);
-    expect(res._body.error.code).toBe('NOT_FOUND');
-    expect(res._body.error.message).toContain('Order');
+    expect(res._body.code).toBe('NOT_FOUND');
+    expect(res._body.message).toContain('Order');
   });
 
   it('sendUnauthorized / sendForbidden use 401/403', () => {

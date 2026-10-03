@@ -1,0 +1,77 @@
+# E-commerce playbook — LumicorePro Core
+industry: ecommerce
+primary_goal: purchase
+secondary_goals: [cart_value, repeat_purchase, wishlist]
+business_model: retail / dropship / marketplace
+
+pages:
+  - home
+  - category
+  - product
+  - cart
+  - checkout
+  - account
+  - order_confirmation
+
+critical_components:
+  - search
+  - filters
+  - sort
+  - product_card
+  - product_gallery
+  - variant_selector
+  - cart_drawer
+  - wishlist
+  - reviews
+  - related_products
+  - recommendation
+
+conversion:
+  primary_cta: buy_now
+  secondary_cta: add_to_cart
+  urgency: [stock_left, sale_end, free_shipping_bar]
+  trust:
+    - reviews
+    - shipping_info
+    - returns_policy
+    - payment_security
+    - money_back_guarantee
+
+mobile_priority:
+  search: high
+  filters: high
+  sticky_cart: high
+  one_tap_checkout: high
+
+visual:
+  density: medium
+  imagery: product_dominant
+  typography: clean_mercantile
+  motion: subtle_hover
+  3d: optional_product_viewer
+  cta_style: bold_high_contrast
+
+ux_patterns:
+  - quick_view_modal
+  - sticky_add_to_cart
+  - cart_preview_on_hover
+  - recently_viewed
+  - clean_empty_states
+
+avoid:
+  - hidden_pricing
+  - excessive_modal_usage
+  - weak_search
+  - unclear_checkout
+  - fake_reviews
+  - vague_cta
+  - unnecessary_carousels
+  - dead_end_pricing
+
+qa:
+  - checkout_flow_complete
+  - cart_persistence
+  - variant_switching
+  - search_filters_combined
+  - mobile_add_to_cart
+  - payment_error_paths

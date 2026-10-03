@@ -1,0 +1,76 @@
+# Fintech playbook — LumicorePro Core
+industry: fintech
+primary_goal: account_signup
+secondary_goals: [deposit, transaction, application_completion]
+business_model: payments / banking / lending / insurtech
+
+pages:
+  - home
+  - product_features
+  - pricing
+  - signup
+  - account_verification
+  - dashboard
+  - transactions
+  - loans
+  - support
+
+critical_components:
+  - account_creation
+  - kyc_verification
+  - transaction_list
+  - balance_card
+  - charts
+  - quick_actions
+  - security_center
+  - alerts
+  - customer_support
+
+conversion:
+  primary_cta: create_account
+  secondary_cta: see_features
+  trust:
+    - regulatory_compliance
+    - encryption
+    - licensed_bodies
+    - fraud_protection
+    - insurance
+  urgency: [limited_time_rate, compliance_deadline]
+
+mobile_priority:
+  balance_check: high
+  transfer: high
+  nfc_payment: high
+  verify_identity: high
+
+visual:
+  density: medium
+  trust: very_high
+  decorative_effects: low
+  data_visualization: high
+  typography: trustworthy
+  motion: restrained
+  3d: no
+  cta_style: clear_primary
+
+ux_patterns:
+  - guided_kyc
+  - biometric_login
+  - transaction_filters
+  - spending_insights
+  - alert_center
+
+avoid:
+  - hidden_fees
+  - misleading_rates
+  - fake_reviews
+  - vague_cta
+  - excessive_modal_usage
+  - unclear_error_states
+
+qa:
+  - kyc_flow_steps
+  - transaction_filtering
+  - balance_accuracy
+  - error_message_clarity
+  - security_settings

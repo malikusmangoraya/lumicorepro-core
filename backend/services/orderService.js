@@ -7,6 +7,7 @@
  * tax/shipping, and records notifications after commit.
  */
 import { sequelize as defaultSequelize } from '../config/database.js';
+import { Op } from 'sequelize';
 import OrderModel from '../models/Order.js';
 import ProductModel from '../models/Product.js';
 import NotificationModel from '../models/Notification.js';
@@ -41,8 +42,12 @@ export function generateOrderNumber() {
 /**
  * Create an order atomically. Runs in a transaction, locking each product row
  * (FOR UPDATE) before checking stock to prevent oversell race conditions.
+ *
+ * `orgId` pins the checkout to one tenant: the product must belong to that org
+ * (or be a legacy `org_id IS NULL` row when orgId is null) and the created order
+ * is stamped with the same org.
  */
-export async function createOrder(user, { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode, currency }) {
+export async function createOrder(user, { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode, currency, orgId }) {
   const { sequelize, Product } = deps;
   return sequelize.transaction(async (t) => {
     let itemsPrice = 0;
@@ -58,8 +63,10 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
 
     for (const item of items) {
       // Row-level lock so concurrent checkouts serialize on this product
+      const productWhere = { id: item.product };
+      if (orgId !== undefined) productWhere.org_id = orgId === null ? { [Op.is]: null } : orgId;
       const product = await Product.findOne({
-        where: { id: item.product },
+        where: productWhere,
         lock: t.LOCK.UPDATE,
         transaction: t,
       });
@@ -114,6 +121,7 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
     const order = await deps.Order.create(
       {
         user_id: user.id,
+        org_id: orgId === undefined ? null : orgId,
         orderNumber,
         items: orderItems,
         shippingAddress,
@@ -141,6 +149,74 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
   });
 }
 
+/**
+ * Cancel an order inside one transaction with row-level locks.
+ *
+ * - Locks the order row (FOR UPDATE) and re-reads its status inside the
+ *   transaction, so two concurrent cancels serialize: only the first one
+ *   restores stock (idempotent for `cancelled` / `refunded` orders).
+ * - Locks each product row (FOR UPDATE) before adding the cancelled quantity
+ *   back, so a cancel racing a checkout cannot corrupt the stock counter.
+ * - Tenant scoped: `orgId` is part of the lookup, so an order from another org
+ *   is reported as `404` rather than `403` (existence is not leaked).
+ *
+ * @param {string|number} orderId order id (numeric) or order number
+ * @param {{orgId?: number|null, userId?: number, isAdmin?: boolean}} [actor]
+ * @returns {Promise<{order: object, alreadyCancelled: boolean}>}
+ */
+export async function cancelOrder(orderId, { orgId, userId, isAdmin = false } = {}) {
+  const { sequelize, Product } = deps;
+  const raw = String(orderId ?? '').trim();
+  const isNumericId = /^\d+$/.test(raw);
+
+  return sequelize.transaction(async (t) => {
+    const where = isNumericId ? { id: raw } : { orderNumber: raw };
+    if (orgId !== undefined) where.org_id = orgId === null ? { [Op.is]: null } : orgId;
+
+    const order = await deps.Order.findOne({ where, lock: t.LOCK.UPDATE, transaction: t });
+    if (!order) {
+      const err = new Error('Order not found');
+      err.statusCode = 404;
+      throw err;
+    }
+
+    if (!isAdmin && String(order.user_id) !== String(userId)) {
+      const err = new Error('Not authorized to cancel this order');
+      err.statusCode = 403;
+      throw err;
+    }
+
+    if (['shipped', 'delivered'].includes(order.status)) {
+      const err = new Error(`Cannot cancel order that has already been ${order.status}`);
+      err.statusCode = 400;
+      throw err;
+    }
+
+    // Status transition is idempotent: a terminal order is never restored twice.
+    if (['cancelled', 'refunded'].includes(order.status)) {
+      return { order, alreadyCancelled: true };
+    }
+
+    await order.update({ status: 'cancelled' }, { transaction: t });
+
+    for (const item of order.items || []) {
+      const quantity = Number(item.quantity) || 0;
+      if (!item.product_id || quantity <= 0) continue;
+
+      const product = await Product.findOne({
+        where: { id: item.product_id },
+        lock: t.LOCK.UPDATE,
+        transaction: t,
+      });
+      if (!product) continue;
+
+      await product.update({ stock: product.stock + quantity }, { transaction: t });
+    }
+
+    return { order, alreadyCancelled: false };
+  });
+}
+
 /** Record the post-order notification (after commit, non-transactional). */
 export async function createOrderNotification(userId, { orderNumber, totalPrice, orderItems }) {
   await deps.Notification.create({
@@ -158,6 +234,7 @@ export async function createOrderNotification(userId, { orderNumber, totalPrice,
 
 export default {
   createOrder,
+  cancelOrder,
   generateOrderNumber,
   createOrderNotification,
   logger: (msg, meta) => logger.info(msg, meta),

@@ -1,14 +1,12 @@
 import express from 'express';
-import { Op } from 'sequelize';
 import Order from '../models/Order.js';
-import Product from '../models/Product.js';
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import { protect, authorize } from '../middleware/auth.js';
-import { createOrder, createOrderNotification } from '../services/orderService.js';
+import { createOrder, createOrderNotification, cancelOrder } from '../services/orderService.js';
 import { disarmCartRecovery } from '../services/checkout/recovery.service.js';
 import { enqueue, QUEUES } from '../services/queue/queue.service.js';
-import cache from '../services/cache/cache.service.js';
+import { callerOrgId, tenantWhere } from '../services/tenantScope.service.js';
 import logger from '../utils/logger.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { createOrderSchema, updateOrderStatusSchema } from '../middleware/validations/index.js';
@@ -31,7 +29,8 @@ router.get('/', protect, async (req, res, next) => {
     const offset = (page - 1) * limit;
     const status = req.query.status;
 
-    const where = {};
+    // Tenant boundary: admins still only see their own organization's orders.
+    const where = tenantWhere(req);
     if (req.user.role !== 'admin') {
       where.user_id = req.user.id;
     }
@@ -85,7 +84,9 @@ router.get('/:id', protect, async (req, res, next) => {
     const isNumericId = /^\d+$/.test(id);
 
     const order = await Order.findOne({
-      where: isNumericId ? { id } : { orderNumber: id },
+      where: isNumericId
+        ? tenantWhere(req, { id })
+        : tenantWhere(req, { orderNumber: id }),
       include: [
         {
           model: User,
@@ -133,6 +134,7 @@ router.post(
       // Atomic transaction: order-create + stock-decrement, row-locked (FOR UPDATE)
       const { order, orderItems, totalPrice } = await createOrder(req.user, {
         items, shippingAddress, billingAddress, paymentMethod, notes, promoCode,
+        orgId: callerOrgId(req),
       });
 
       // Post-commit, non-transactional notification + cache invalidation
@@ -148,16 +150,11 @@ router.post(
         html: `<h2>Order Confirmed — ${order.orderNumber}</h2><p>Thank you for your purchase!</p><p>Total: $${totalPrice.toFixed(2)}</p>`,
       });
 
-      // Emit real-time notification if socket is available
-      const io = req.app.get('io');
-      if (io) {
-        io.emit('social_proof', {
-          type: 'purchase',
-          user: req.user.name.split(' ')[0],
-          productName: orderItems[0].title,
-          time: 'Just now',
-        });
-      }
+      // NOTE: a global `social_proof` broadcast lived here. It pushed the
+      // buyer's first name + product to every connected socket with no
+      // consumer and no consent gate, so it was removed. If social proof is
+      // wanted later, emit anonymized product-only events to a public room
+      // behind an explicit opt-in preference.
 
       logger.info(`Order created: ${order.orderNumber} by user ${req.user.email} ($${totalPrice})`);
 
@@ -186,7 +183,7 @@ router.patch('/:id/status', protect, authorize('admin'), validateRequest(updateO
   try {
     const { status, trackingNumber, carrier } = req.body;
 
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findOne({ where: tenantWhere(req, { id: req.params.id }) });
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
@@ -224,48 +221,35 @@ router.patch('/:id/status', protect, authorize('admin'), validateRequest(updateO
  * @swagger
  * /api/orders/{id}/cancel:
  *   patch:
- *     summary: Cancel an order
+ *     summary: Cancel an order (transactional, idempotent)
+ *     description: >
+ *       Runs in one transaction with `SELECT ... FOR UPDATE` locks on the order
+ *       and on every product it restores. Cancelling an already-cancelled order is
+ *       a no-op, so stock is never restored twice. Orders of another organization
+ *       answer 404.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  */
 router.patch('/:id/cancel', protect, async (req, res, next) => {
   try {
-    const order = await Order.findByPk(req.params.id);
-    if (!order) {
-      return res.status(404).json({ success: false, error: 'Order not found' });
-    }
+    const { order, alreadyCancelled } = await cancelOrder(req.params.id, {
+      orgId: callerOrgId(req),
+      userId: req.user.id,
+      isAdmin: req.user.role === 'admin',
+    });
 
-    if (req.user.role !== 'admin' && order.user_id !== req.user.id) {
-      return res.status(403).json({ success: false, error: 'Not authorized to cancel this order' });
-    }
-
-    if (['shipped', 'delivered'].includes(order.status)) {
-      return res.status(400).json({
-        success: false,
-        error: `Cannot cancel order that has already been ${order.status}`,
-      });
-    }
-
-    await order.update({ status: 'cancelled' });
-
-    // Restore stock for each item
-    const orderItems = order.items || [];
-    for (const item of orderItems) {
-      const product = await Product.findByPk(item.product_id);
-      if (product) {
-        await product.update({ stock: product.stock + item.quantity });
-      }
-    }
-
-    logger.info(`Order cancelled: ${order.orderNumber}`);
+    logger.info(`Order ${alreadyCancelled ? 'already cancelled' : 'cancelled'}: ${order.orderNumber}`);
 
     res.json({
       success: true,
-      message: 'Order cancelled successfully',
+      message: alreadyCancelled ? 'Order was already cancelled' : 'Order cancelled successfully',
       data: order,
     });
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, error: error.message });
+    }
     next(error);
   }
 });
@@ -274,14 +258,15 @@ router.patch('/:id/cancel', protect, async (req, res, next) => {
  * @swagger
  * /api/orders/{id}:
  *   delete:
- *     summary: Delete order (Admin only)
+ *     summary: Delete order (Admin only, soft delete)
+ *     description: Sets `deleted_at` (paranoid model); the row is retained.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  */
 router.delete('/:id', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findOne({ where: tenantWhere(req, { id: req.params.id }) });
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }

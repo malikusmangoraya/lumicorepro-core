@@ -1,3 +1,9 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -35,5 +41,7 @@ export const swaggerOptions = {
       },
     ],
   },
-  apis: ['./routes/*.js'],
+  // Absolute glob: the old relative './routes/*.js' only resolved when the
+  // process CWD happened to be backend/, so /api-docs was empty otherwise.
+  apis: [path.join(__dirname, '..', 'routes', '*.js')],
 };

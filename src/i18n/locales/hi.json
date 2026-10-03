@@ -98,7 +98,8 @@
     "ai": "AI",
     "business": "व्यवसाय",
     "logout": "लॉग आउट",
-    "pricing": "मूल्य निर्धारण"
+    "pricing": "मूल्य निर्धारण",
+    "workspace": "कार्यक्षेत्र"
   },
   "apiSettings": {
     "title": "API कॉन्फ़िगरेशन",

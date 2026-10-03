@@ -98,7 +98,8 @@
     "shop": "Shop",
     "ai": "AI",
     "business": "Business",
-    "logout": "Logout"
+    "logout": "Logout",
+    "workspace": "Workspace"
   },
   "apiSettings": {
     "title": "API Configuration",

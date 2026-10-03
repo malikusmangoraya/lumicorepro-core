@@ -47,6 +47,9 @@ export default function PropertyListing() {
           src={img.realestate.hero}
           alt="Properties"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-8">
@@ -124,6 +127,8 @@ export default function PropertyListing() {
                 src={PROP_IMGS[i % PROP_IMGS.length]}
                 alt={prop.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="absolute top-3 left-3 flex gap-2">

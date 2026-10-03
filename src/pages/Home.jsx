@@ -17,7 +17,10 @@ import {
   ChevronRight,
   Play,
 } from 'lucide-react';
-import { Badge, Button, ButtonMotion, Card } from '@/components/ui';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import ButtonMotion from '@/components/ui/ButtonMotion';
+import Card from '@/components/ui/Card';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerGroup';
 import SEO, { schemas, hreflangFor } from '@/components/common/SEO';

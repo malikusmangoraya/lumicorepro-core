@@ -98,7 +98,8 @@
     "ai": "KI",
     "business": "Business",
     "logout": "Abmelden",
-    "pricing": "Preise"
+    "pricing": "Preise",
+    "workspace": "Arbeitsbereich"
   },
   "apiSettings": {
     "title": "API-Konfiguration",

@@ -98,7 +98,8 @@
     "ai": "AI",
     "business": "کاروبار",
     "logout": "لاگ آؤٹ",
-    "pricing": "قیمتیں"
+    "pricing": "قیمتیں",
+    "workspace": "ورک اسپیس"
   },
   "apiSettings": {
     "title": "API ترتیبات",

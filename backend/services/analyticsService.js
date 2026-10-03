@@ -12,19 +12,26 @@ import { sequelize } from '../config/database.js';
  * Single query using CTE + window functions; designed to run at scale.
  *
  * @param {number} days  lookback window
+ * @param {number|null} [orgId] tenant filter; `null` = legacy rows (`org_id IS NULL`)
  * @returns {Promise<{daily: Array, topProducts: Array, summary: object}>}
  */
-export async function revenueReport({ days = 30 } = {}) {
+export async function revenueReport({ days = 30, orgId } = {}) {
+  // Tenant scoping: an omitted orgId keeps the previous unscoped behaviour (internal callers),
+  // an explicit null restricts to legacy rows, a number pins the tenant.
+  const orgPredicate = orgId === undefined
+    ? ''
+    : (orgId === null ? 'AND o.org_id IS NULL' : 'AND o.org_id = $2');
   const sql = `
     WITH period_orders AS (
       SELECT
         o.id,
-        o.total_price,
-        o.is_paid,
-        o.created_at,
+        o."totalPrice" AS total_price,
+        o."isPaid"     AS is_paid,
+        o."createdAt"  AS created_at,
         JSONB_ARRAY_ELEMENTS(o.items::jsonb) AS item
       FROM orders o
-      WHERE o.created_at >= NOW() - ($1::int * INTERVAL '1 day')
+      WHERE o."createdAt" >= NOW() - ($1::int * INTERVAL '1 day')
+        ${orgPredicate}
     ),
     daily_revenue AS (
       SELECT
@@ -62,7 +69,9 @@ export async function revenueReport({ days = 30 } = {}) {
     ORDER BY day;
   `;
 
-  const [rows] = await sequelize.query(sql, { bind: [days] });
+  const [rows] = await sequelize.query(sql, {
+    bind: orgId === undefined || orgId === null ? [days] : [days, orgId],
+  });
 
   // Summarize from the same single pass
   const summary = rows.reduce((acc, r) => {
@@ -84,13 +93,22 @@ export async function revenueReport({ days = 30 } = {}) {
   };
 }
 
-/** Top-N products by gross sales using a window function (single pass). */
-export async function topProducts({ days = 30, limit = 10 } = {}) {
+/**
+ * Top-N products by gross sales using a window function (single pass).
+ * @param {number} days lookback window
+ * @param {number} limit max rows
+ * @param {number|null} [orgId] tenant filter; `null` = legacy rows (`org_id IS NULL`)
+ */
+export async function topProducts({ days = 30, limit = 10, orgId } = {}) {
+  const orgPredicate = orgId === undefined
+    ? ''
+    : (orgId === null ? 'AND org_id IS NULL' : 'AND org_id = $3');
   const sql = `
     WITH period_orders AS (
       SELECT JSONB_ARRAY_ELEMENTS(items::jsonb) AS item
       FROM orders
-      WHERE created_at >= NOW() - ($1::int * INTERVAL '1 day')
+      WHERE "createdAt" >= NOW() - ($1::int * INTERVAL '1 day')
+        ${orgPredicate}
     ),
     aggregates AS (
       SELECT
@@ -106,7 +124,9 @@ export async function topProducts({ days = 30, limit = 10 } = {}) {
     ORDER BY gross DESC
     LIMIT $2;
   `;
-  const [rows] = await sequelize.query(sql, { bind: [days, limit] });
+  const [rows] = await sequelize.query(sql, {
+    bind: orgId === undefined || orgId === null ? [days, limit] : [days, limit, orgId],
+  });
   return rows.map((r) => ({ ...r, units: Number(r.units), gross: Number(r.gross) }));
 }
 

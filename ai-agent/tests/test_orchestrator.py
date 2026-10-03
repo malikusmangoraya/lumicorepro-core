@@ -1,5 +1,6 @@
 import sys
 import os
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -29,17 +30,21 @@ class TestOrchestratorInit(unittest.TestCase):
         self.assertIsNotNone(orch.database_selector)
 
     def test_orchestrator_phases_defined(self):
-        """Orchestrator should have all 15 enterprise phases defined."""
+        """Orchestrator should define every enterprise phase, including the
+        pre-coding design planner and the post-build browser QA phase."""
         orch = AgentOrchestrator()
-        self.assertEqual(len(orch.PHASES), 15)
+        self.assertEqual(len(orch.PHASES), 18)
         expected_phases = [
             "market_analysis",
             "requirement_analysis",
+            "design_brand_planning",
+            "design_planner",
             "tech_stack_selection",
             "trending_features_injection",
             "resource_assembly_planning",
             "code_generation",
             "quality_verification",
+            "browser_qa",
             "improvement_recommendations",
             "competitive_benchmark_delivery",
             "international_delivery",
@@ -51,6 +56,38 @@ class TestOrchestratorInit(unittest.TestCase):
         ]
         for phase in expected_phases:
             self.assertIn(phase, orch.PHASES)
+
+    def test_phase_dependency_graph_is_consistent(self):
+        """Every phase must declare dependencies that are declared earlier."""
+        orch = AgentOrchestrator()
+        deps = orch.PHASE_DEPENDENCIES
+        for phase in orch.PHASES:
+            self.assertIn(phase, deps, f"{phase} missing from PHASE_DEPENDENCIES")
+            for dep in deps[phase]:
+                self.assertIn(dep, orch.PHASES, f"{phase} depends on unknown {dep}")
+                self.assertLess(
+                    orch.PHASES.index(dep),
+                    orch.PHASES.index(phase),
+                    f"{phase} depends on later phase {dep}",
+                )
+
+    def test_design_planner_precedes_code_generation(self):
+        """The design contract must be resolved before any code is generated."""
+        orch = AgentOrchestrator()
+        self.assertLess(
+            orch.PHASES.index("design_planner"),
+            orch.PHASES.index("code_generation"),
+        )
+        self.assertIn("design_planner", orch.PHASE_DEPENDENCIES["code_generation"])
+
+    def test_browser_qa_follows_quality_verification(self):
+        """Browser QA must run after the build is quality-verified."""
+        orch = AgentOrchestrator()
+        self.assertLess(
+            orch.PHASES.index("quality_verification"),
+            orch.PHASES.index("browser_qa"),
+        )
+        self.assertEqual(orch.PHASE_DEPENDENCIES["browser_qa"], ["quality_verification"])
 
 class TestOrchestratorProviderInit(unittest.TestCase):
     """Test AI provider initialization with fallback chain."""
@@ -130,6 +167,60 @@ class TestOrchestratorFailurePolicy(unittest.TestCase):
         self.assertEqual(len(phase_log["engineering_matrix"]["docs"]), 5)
         self.assertIn("COMPONENT CONTRACT", spec.get("component_contract", ""))
 
+    def test_deployment_release_gate_blocks_failed_checks(self):
+        result = AgentOrchestrator._deployment_release_gate(
+            {"valid": True},
+            {"overall_score": 92},
+            {"passed": False},
+            {"passed": True},
+        )
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["blockers"], ["devops_quality_gate_failed"])
+
+    def test_deployment_release_gate_allows_passed_checks(self):
+        result = AgentOrchestrator._deployment_release_gate(
+            {"valid": True},
+            {"overall_score": 80},
+            {"passed": True},
+            {"passed": True},
+        )
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["blockers"], [])
+
+    def test_workflow_agents_report_four_role_handoffs(self):
+        report = AgentOrchestrator._build_workflow_agents_report(
+            {
+                "phase_2_requirement_analysis": {"features": ["catalog"]},
+                "phase_5_assembly_plan": {"project_name": "shop", "steps": 5},
+                "phase_2b_design_plan": {"target_region": "global"},
+                "phase_2_design_decision": {"hero": "editorial", "cta_style": "clear"},
+                "phase_6_code_generation": {"ai_calls": 2},
+                "qa_release_gate": {"passed": True, "blockers": []},
+                "phase_7_quality_verification": {"overall_score": 91},
+                "live_deployment": {"status": "deployed", "url": "https://example.test"},
+            },
+            {
+                "benchmark_first": {
+                    "source": "live+deterministic",
+                    "industry": "ecommerce",
+                    "benchmark_peers": ["international peer"],
+                }
+            },
+            "generated-projects/shop",
+        )
+        self.assertEqual(
+            set(report), {"planner", "design_researcher", "coder", "qa_deployment"}
+        )
+        self.assertEqual(report["design_researcher"]["status"], "completed")
+        self.assertEqual(
+            report["design_researcher"]["handoff"]["benchmark_peers"],
+            ["international peer"],
+        )
+        self.assertEqual(
+            report["qa_deployment"]["handoff"]["deployment_status"], "deployed"
+        )
+        self.assertEqual(report["qa_deployment"]["status"], "deployed")
+
 
 class TestProjectBuilderSafety(unittest.TestCase):
     def test_project_name_is_safe_slug(self):
@@ -137,6 +228,34 @@ class TestProjectBuilderSafety(unittest.TestCase):
             ProjectBuilder._safe_project_name("../My Unsafe Store!"),
             "my-unsafe-store",
         )
+
+
+class TestDesignPlanArtifacts(unittest.TestCase):
+    """The design contract must be persisted once the project directory exists."""
+
+    def test_persists_plan_after_build_directory_exists(self):
+        orch = AgentOrchestrator()
+        phase_log = {}
+        with tempfile.TemporaryDirectory() as project_dir:
+            written = orch._persist_design_plan_artifacts(
+                project_dir, {"pages": [], "page_plans": {}}, phase_log
+            )
+
+            self.assertTrue(written["ok"])
+            self.assertTrue(Path(written["paths"]["markdown"]).is_file())
+            self.assertTrue(Path(written["paths"]["json"]).is_file())
+        self.assertEqual(phase_log["phase_5b_design_planner"]["artifacts"], written)
+
+    def test_missing_inputs_are_recorded_not_silent(self):
+        orch = AgentOrchestrator()
+        phase_log = {}
+
+        written = orch._persist_design_plan_artifacts("", {}, phase_log)
+
+        self.assertFalse(written["ok"])
+        self.assertIn("reason", written)
+        self.assertEqual(phase_log["phase_5b_design_planner"]["artifacts"], written)
+
 
 if __name__ == "__main__":
     unittest.main()

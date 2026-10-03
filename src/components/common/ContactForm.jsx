@@ -4,7 +4,10 @@
  * and reports status through both inline alerts and onSuccess/onError callbacks.
  */
 import { useMemo, useState } from 'react';
-import { Button, Input, Textarea, Alert } from '@/components/ui';
+import Button from '@/components/ui/Button';
+import Alert from '@/components/ui/Alert';
+import Input from '@/components/forms/Input';
+import Textarea from '@/components/forms/Textarea';
 import useForm from '@/hooks/useForm';
 import { contactAPI } from '@/services/contact';
 

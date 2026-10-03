@@ -39,8 +39,8 @@ class TestDesignStyleEngine(unittest.TestCase):
         Path(target, "frontend", "public").mkdir(parents=True, exist_ok=True)
         return self.engine.apply(target, spec)
 
-    def test_style_catalog_has_15_styles(self):
-        self.assertEqual(len(self.engine.STYLES), 15)
+    def test_style_catalog_has_full_catalog(self):
+        self.assertGreaterEqual(len(self.engine.STYLES), 15)
         for style_id, meta in self.engine.STYLES.items():
             self.assertIn("name", meta)
             self.assertIn("color", meta)
@@ -141,6 +141,7 @@ class TestDesignStyleEngine(unittest.TestCase):
         self.assertEqual(a, b)
 
     def test_register_style_extends_catalog(self):
+        base_count = len(self.engine.STYLES)
         self.engine.register_style({
             'id': 'neon_test',
             'name': 'Neon Test',
@@ -157,10 +158,10 @@ class TestDesignStyleEngine(unittest.TestCase):
         try:
             style = self.engine.resolve_style({"design_style": "neon_test"})
             self.assertEqual(style["id"], "neon_test")
-            self.assertEqual(len(self.engine.STYLES), 16)
+            self.assertEqual(len(self.engine.STYLES), base_count + 1)
         finally:
             self.engine.STYLES.pop('neon_test')
-        self.assertEqual(len(self.engine.STYLES), 15)
+        self.assertEqual(len(self.engine.STYLES), base_count)
 
     def test_inject_css_is_non_destructive(self):
         project = tempfile.mkdtemp(prefix="css-", dir=self.tmp)

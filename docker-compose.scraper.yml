@@ -1,0 +1,21 @@
+# Google Maps Scraper Service
+# Usage: docker compose -f docker-compose.scraper.yml up -d
+# API: http://localhost:8080 (localhost only, no auth required)
+
+services:
+  google-maps-scraper:
+    image: gosom/google-maps-scraper:v1.15.0
+    container_name: gmaps-scraper
+    restart: unless-stopped
+    command: ["-web", "-data-folder", "/gmapsdata"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - gmaps_data:/gmapsdata
+      - gmaps_cache:/opt
+    environment:
+      - SCRAPER_API_KEY=${SCRAPER_API_KEY:-}
+
+volumes:
+  gmaps_data:
+  gmaps_cache:

@@ -42,6 +42,8 @@ export default function StudentDashboard() {
               src={img.education.student}
               alt={student.name}
               className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </Avatar>
           <div className="flex-1 min-w-[180px]">
@@ -89,6 +91,8 @@ export default function StudentDashboard() {
                     src={COURSE_IMGS[enrolled.indexOf(c) % COURSE_IMGS.length]}
                     alt={c.name}
                     className="h-14 w-14 rounded-xl object-cover shrink-0 hidden sm:block"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 flex-wrap">

@@ -1,0 +1,82 @@
+# =============================================================================
+# CI/CD Pipeline — REPURPOSED. This file no longer gates anything.
+# =============================================================================
+# It watched `[master, main]` and re-ran lint / frontend tests / backend tests /
+# ai-agent tests / build / bundle budget / e2e — a near-superset of ci.yml — with
+# its own `needs:` graph. Three workflows watching three different branch sets
+# (ci.yml: main+master+develop, test.yml: main+dev, this file: master+main) meant
+# a red suite could be green on one branch and red on another.
+#
+# The single merge gate is now .github/workflows/ci.yml. Releases are handled by
+# .github/workflows/deploy.yml (tag-triggered: verify -> build+push to GHCR ->
+# optional SSH deploy). Cron backups live in .github/workflows/backup.yml.
+#
+# This file is kept, manual-only, for one purpose: verifying that a pull request
+# from a fork (where ci.yml secrets are unavailable) would still pass every check.
+# It does NOT run on push or pull_request, so it cannot affect branch protection.
+#
+# Docker image builds are intentionally NOT here. They duplicate deploy.yml and
+# were the origin of the old "Build and Push Docker Images" job that pushed
+# nowhere; publishing happens only in deploy.yml, which really does log in to
+# GHCR and push.
+# =============================================================================
+
+name: CI/CD (manual pre-merge check — superseded by ci.yml)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-cd-manual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fork-simulation:
+    name: Fork-style verification (no secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Frontend — install, lint, unit tests
+        run: |
+          npm ci
+          npm run lint
+          npm run test
+
+      - name: Backend — install and jest
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:ci
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: AI agent — install and pytest
+        working-directory: ai-agent
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest tests -q
+
+      - name: Frontend — production build and bundle budget
+        run: |
+          npm run build
+          npm run size
+        env:
+          NODE_ENV: production
+
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end suite
+        run: npm run test:e2e

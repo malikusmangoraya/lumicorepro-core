@@ -46,6 +46,9 @@ export default function CreativeStudio() {
           src={img.creative.hero}
           alt="Creative Studio"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
@@ -154,6 +157,8 @@ export default function CreativeStudio() {
                   src={PROJ_IMGS[i % PROJ_IMGS.length]}
                   alt={proj.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 {proj.featured && (
@@ -216,6 +221,8 @@ export default function CreativeStudio() {
                 src={TEAM_IMGS[i % TEAM_IMGS.length]}
                 alt={member.name}
                 className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover ring-2 ring-border"
+                loading="lazy"
+                decoding="async"
               />
               <h4 className="font-semibold text-sm">{member.name}</h4>
               <p className="text-xs text-primary mt-0.5">{member.role}</p>

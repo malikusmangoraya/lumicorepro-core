@@ -6,17 +6,24 @@
  * Each template group is wrapped in ErrorBoundary for graceful error recovery.
  */
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import RouteErrorBoundary from '../components/common/RouteErrorBoundary';
+import PageSkeleton from '../components/common/PageSkeleton';
+import RequireAuth from '../components/auth/RequireAuth';
+import RequireAdmin from '../components/auth/RequireAdmin';
 import SetupGate from '../components/gates/SetupGate';
 
-// ── Eager pages (loaded immediately — small & critical) ───────────────────
-import Home from '../pages/Home';
-import TemplatesHub from '../pages/Templates';
-import GeneratePage from '../pages/Generate';
-import ApiSettings from '../pages/ApiSettings';
-import NotFound from '../pages/NotFound';
+// ── Primary pages are loaded only when their route is visited ─────────────
+const HomePage = lazy(() => import('../pages/Home'));
+const TemplatesHub = lazy(() => import('../pages/Templates'));
+const GeneratePage = lazy(() => import('../pages/Generate'));
+const ApiSettingsPage = lazy(() => import('../pages/ApiSettings'));
+// Lazy like every other page. This one used to be a static import, which pulled
+// pages/NotFound -> components/ui/Card -> framer-motion (~35 KB gzip) onto the
+// first-paint path and failed the initial-JS budget in `npm run size`.
+const NotFound = lazy(() => import('../pages/NotFound'));
 
 const ChatPage = lazy(() => import('../pages/Chat'));
 const PlanPricingPage = lazy(() => import('../pages/Pricing'));
@@ -25,6 +32,14 @@ const GalleryPage = lazy(() => import('../pages/Gallery'));
 
 const LoginPage = lazy(() => import('../pages/Login'));
 const RegisterPage = lazy(() => import('../pages/Register'));
+const UserDashboardPage = lazy(() => import('../pages/Dashboard'));
+const AdminDashboardPage = lazy(() => import('../pages/AdminDashboard'));
+const AdminUsersPage = lazy(() => import('../pages/AdminUsers'));
+const AdminAuditLogsPage = lazy(() => import('../pages/AdminAuditLogs'));
+const NotificationsPage = lazy(() => import('../pages/Notifications'));
+const OnboardingPage = lazy(() => import('../pages/Onboarding'));
+const InviteAcceptPage = lazy(() => import('../pages/InviteAccept'));
+const BoilerplateLandingPage = lazy(() => import('../pages/BoilerplateLanding'));
 const SetupWizardPage = lazy(() => import('../pages/SetupWizard'));
 const GlobalSystemSettingsPage = lazy(() => import('../pages/GlobalSystemSettings'));
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy'));
@@ -38,6 +53,8 @@ const ChangePasswordPage = lazy(() => import('../pages/ChangePassword'));
 const OAuthCallbackPage = lazy(() => import('../pages/OAuthCallback'));
 const OrganizationsPage = lazy(() => import('../pages/Organizations'));
 const OrganizationSettingsPage = lazy(() => import('../pages/OrganizationSettings'));
+const WorkspacePage = lazy(() => import('../pages/Workspace'));
+const AIDashboardPage = lazy(() => import('../pages/AIDashboard'));
 
 // ── Lazy template imports — each group is a separate chunk ────────────────
 // Dashboard
@@ -117,21 +134,6 @@ const ServicesList = lazy(() => import('../templates/creative/ServicesList'));
 const TeamCulture = lazy(() => import('../templates/creative/TeamCulture'));
 const GetInTouch = lazy(() => import('../templates/creative/GetInTouch'));
 
-// ── Shared loading skeleton shown while lazy chunks download ──────────────
-function PageSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4 py-8">
-      <div className="h-8 bg-muted rounded-xl w-1/3" />
-      <div className="h-4 bg-muted rounded-lg w-2/3" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-48 bg-muted rounded-2xl" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ── Wrap lazy element in Suspense + ErrorBoundary ─────────────────────────
 function L({ component: Component }) {
   return (
@@ -140,6 +142,26 @@ function L({ component: Component }) {
         <Component />
       </Suspense>
     </ErrorBoundary>
+  );
+}
+
+// ── Private / admin wrappers ──────────────────────────────────────────────
+// Guards sit OUTSIDE the Suspense boundary so an unauthenticated visitor is
+// redirected before the private chunk is ever downloaded. Backend authorization
+// stays the real boundary; these keep the UX honest.
+function Private({ component: Component }) {
+  return (
+    <RequireAuth>
+      <L component={Component} />
+    </RequireAuth>
+  );
+}
+
+function AdminOnly({ component: Component }) {
+  return (
+    <RequireAdmin>
+      <L component={Component} />
+    </RequireAdmin>
   );
 }
 
@@ -235,9 +257,9 @@ export const router = createBrowserRouter([
         <MainLayout />
       </SetupGate>
     ),
-    errorElement: <ErrorBoundary />,
+    errorElement: <RouteErrorBoundary />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <L component={HomePage} /> },
       {
         path: 'marketing',
         element: (
@@ -246,15 +268,20 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
-      { path: 'templates', element: <TemplatesHub /> },
-      { path: 'generate', element: <GeneratePage /> },
+      { path: 'templates', element: <L component={TemplatesHub} /> },
+      { path: 'generate', element: <L component={GeneratePage} /> },
+      {
+        path: 'workspace',
+        element: <Private component={WorkspacePage} />,
+      },
+      {
+        path: 'ai-dashboard',
+        element: <Private component={AIDashboardPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
       {
         path: 'chat',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <ChatPage />
-          </Suspense>
-        ),
+        element: <Private component={ChatPage} />,
       },
       {
         path: 'pricing',
@@ -266,11 +293,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'billing',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <BillingPage />
-          </Suspense>
-        ),
+        element: <Private component={BillingPage} />,
       },
       {
         path: 'login',
@@ -279,7 +302,7 @@ export const router = createBrowserRouter([
             <LoginPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'register',
@@ -288,7 +311,7 @@ export const router = createBrowserRouter([
             <RegisterPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'setup',
@@ -297,16 +320,12 @@ export const router = createBrowserRouter([
             <SetupWizardPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'admin/settings',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <GlobalSystemSettingsPage />
-          </Suspense>
-        ),
-        errorElement: <ErrorBoundary />,
+        element: <AdminOnly component={GlobalSystemSettingsPage} />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'forgot-password',
@@ -315,7 +334,7 @@ export const router = createBrowserRouter([
             <ForgotPasswordPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'reset-password/:token',
@@ -324,7 +343,7 @@ export const router = createBrowserRouter([
             <ResetPasswordPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'verify-email/:token',
@@ -333,7 +352,7 @@ export const router = createBrowserRouter([
             <VerifyEmailPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'change-password',
@@ -342,7 +361,7 @@ export const router = createBrowserRouter([
             <ChangePasswordPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'oauth/callback',
@@ -351,15 +370,11 @@ export const router = createBrowserRouter([
             <OAuthCallbackPage />
           </Suspense>
         ),
-        errorElement: <ErrorBoundary />,
+        errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'api-settings',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <ApiSettings />
-          </Suspense>
-        ),
+        element: <Private component={ApiSettingsPage} />,
       },
       {
         path: 'gallery',
@@ -396,34 +411,76 @@ export const router = createBrowserRouter([
       // ── Shortcut routes for nav dropdown links ──────────────────────────
       {
         path: 'profile',
-        element: <L component={Profile} errorBoundary />,
+        element: <Private component={Profile} />,
       },
       {
         path: 'settings',
-        element: <L component={Settings} errorBoundary />,
+        element: <Private component={Settings} />,
       },
       {
         path: 'orgs',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <OrganizationsPage />
-          </Suspense>
-        ),
+        element: <Private component={OrganizationsPage} />,
       },
       {
         path: 'orgs/:id',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <OrganizationSettingsPage />
-          </Suspense>
-        ),
+        element: <Private component={OrganizationSettingsPage} />,
       },
       {
         path: 'dashboard',
-        element: <L component={DashboardOverview} errorBoundary />,
+        element: <Private component={UserDashboardPage} />,
+        errorElement: <RouteErrorBoundary />,
       },
-      ...templateRoutes.map((r) => ({ ...r, errorElement: <ErrorBoundary /> })),
+      {
+        path: 'notifications',
+        element: <Private component={NotificationsPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'onboarding',
+        element: <Private component={OnboardingPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'invite/:token',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <InviteAcceptPage />
+          </Suspense>
+        ),
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'boilerplate',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <BoilerplateLandingPage />
+          </Suspense>
+        ),
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'admin/dashboard',
+        element: <AdminOnly component={AdminDashboardPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'admin/users',
+        element: <AdminOnly component={AdminUsersPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'admin/audit',
+        element: <AdminOnly component={AdminAuditLogsPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'admin',
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      ...templateRoutes.map((r) => ({ ...r, errorElement: <RouteErrorBoundary /> })),
     ],
   },
-  { path: '*', element: <NotFound /> },
+  // Catch-all. This element used to be rendered bare, so the lazy NotFound chunk
+  // suspended with no boundary and the router blew up on an unknown path.
+  { path: '*', element: <L component={NotFound} /> },
 ]);

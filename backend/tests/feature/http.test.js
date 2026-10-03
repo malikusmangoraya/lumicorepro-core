@@ -68,11 +68,18 @@ describe('HTTP layer basics', () => {
     expect(res.headers['x-request-id']).toBeTruthy();
   });
 
-  it('responds 404 with standardized error shape for unknown routes', async () => {
+  it('responds 404 with the canonical envelope for unknown routes', async () => {
     const res = await request(app).get('/api/does-not-exist');
     expect(res.status).toBe(404);
+    expect(Object.keys(res.body).sort()).toEqual(
+      ['success', 'status', 'message', 'code', 'data', 'timestamp'].sort(),
+    );
     expect(res.body.success).toBe(false);
-    expect(res.body.error.message).toBeTruthy();
+    expect(res.body.status).toBe(404);
+    expect(res.body.code).toBe('NOT_FOUND');
+    expect(res.body.data).toBeNull();
+    expect(res.body.message).toBeTruthy();
+    expect(Number.isNaN(Date.parse(res.body.timestamp))).toBe(false);
   });
 
   it('enforces auth rate-limit on /api/auth/refresh with 429 Retry-After', async () => {

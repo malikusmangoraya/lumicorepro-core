@@ -9,7 +9,7 @@ agent_dir = Path(__file__).resolve().parent.parent
 if str(agent_dir) not in sys.path:
     sys.path.insert(0, str(agent_dir))
 
-from agent.code_modifier import CodeModifier, build_diff_prompt, strip_diff_fence, SecurityViolationError
+from agent.code_modifier import CodeModifier, build_diff_prompt, has_code_fence, strip_diff_fence, SecurityViolationError
 
 
 class StubProvider:
@@ -61,6 +61,44 @@ class TestCodeModifierVFS(unittest.TestCase):
         cleaned = strip_diff_fence(fenced)
         self.assertTrue(cleaned.startswith("diff --git"))
         self.assertNotIn("```", cleaned)
+
+    def test_strip_diff_fence_ignores_language_tag(self):
+        cleaned = strip_diff_fence("```diff\n" + SIMPLE_DIFF + "\n```")
+        self.assertTrue(cleaned.startswith("diff --git"))
+        self.assertNotIn("```", cleaned)
+
+    def test_strip_diff_fence_survives_prose_preamble(self):
+        """Models prefix a sentence before the fence; that must not reach the file."""
+        reply = "Here is the updated file:\n\n```jsx\nexport default function Home() {\n  return null;\n}\n```\n\nLet me know."
+        cleaned = strip_diff_fence(reply)
+        self.assertTrue(cleaned.startswith("export default function Home()"))
+        self.assertNotIn("```", cleaned)
+        self.assertNotIn("Here is the updated file", cleaned)
+        self.assertFalse(has_code_fence(cleaned))
+
+    def test_strip_diff_fence_prefers_diff_block_over_earlier_prose_fence(self):
+        reply = "Example:\n```\nconst x = 1;\n```\n\nActual change:\n```diff\n" + SIMPLE_DIFF + "\n```"
+        cleaned = strip_diff_fence(reply)
+        self.assertTrue(cleaned.startswith("diff --git"))
+        self.assertNotIn("const x = 1", cleaned)
+
+    def test_strip_diff_fence_passes_through_bare_diff(self):
+        """A fence-free diff survives untouched, newline-terminated."""
+        cleaned = strip_diff_fence(SIMPLE_DIFF)
+        self.assertEqual(cleaned, SIMPLE_DIFF.strip() + "\n")
+        self.assertFalse(has_code_fence(cleaned))
+
+    def test_strip_diff_fence_terminates_diff_with_newline(self):
+        """git apply rejects a diff whose last line is not newline-terminated."""
+        truncated = SIMPLE_DIFF.rstrip("\n")
+        cleaned = strip_diff_fence(truncated)
+        self.assertTrue(cleaned.endswith("\n"), "unified diff must end with a newline")
+        self.assertNotEqual(cleaned, truncated)
+
+    def test_has_code_fence_detects_residue(self):
+        self.assertTrue(has_code_fence("```jsx\nfoo\n```"))
+        self.assertFalse(has_code_fence("export default function Home() {}"))
+        self.assertFalse(has_code_fence(None))
 
     def test_apply_ai_diff_batch_writes_files(self):
         mod = CodeModifier(ai_provider=StubProvider(SIMPLE_DIFF))

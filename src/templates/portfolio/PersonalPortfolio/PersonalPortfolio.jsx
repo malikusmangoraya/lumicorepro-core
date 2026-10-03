@@ -33,6 +33,9 @@ export default function PersonalPortfolio() {
           src={img.portfolio.workspace}
           alt="Workspace"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/20" />
         <div className="absolute inset-0 flex items-center p-8">
@@ -41,6 +44,8 @@ export default function PersonalPortfolio() {
               src={img.portfolio.avatar}
               alt={profile.name}
               className="h-24 w-24 rounded-3xl object-cover border-2 border-primary/50 shadow-glow-sm shrink-0 hidden sm:block"
+              loading="lazy"
+              decoding="async"
             />
             <div>
               <Badge variant="success" className="mb-2">

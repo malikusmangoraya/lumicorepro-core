@@ -123,7 +123,9 @@ class QualityGates:
         checks = []
         backend = p_dir / "backend"
         if backend.exists():
-            server_files = list(backend.rglob("server.js")) + list(backend.rglob("*.js"))
+            from .intelligence.source_index import get_source_index
+            index = get_source_index(str(p_dir.resolve()))
+            server_files = [Path(p) for p in index.files(".js")]
             content = ""
             for sf in server_files[:5]:
                 content += FileManager.read_file(str(sf))
@@ -187,7 +189,10 @@ class QualityGates:
             })
             
             # Check for cookie consent (GDPR/PECR)
-            src_files = list(frontend.rglob("*.jsx")) + list(frontend.rglob("*.tsx"))
+            from .intelligence.source_index import get_source_index
+            index = get_source_index(str(p_dir.resolve()))
+            src_files = [Path(p) for p in
+                         index.files(".jsx", ".tsx")]
             has_cookie_consent = False
             for sf in src_files[:50]:
                 content = FileManager.read_file(str(sf))
@@ -274,7 +279,10 @@ class QualityGates:
     def _check_accessibility(self, p_dir: Path) -> Dict[str, Any]:
         """Apply a lightweight WCAG artifact gate before expensive browser checks."""
         frontend = p_dir / "frontend"
-        files = list(frontend.rglob("*.jsx")) + list(frontend.rglob("*.tsx")) if frontend.exists() else []
+        from .intelligence.source_index import get_source_index
+        index = get_source_index(str(p_dir.resolve()))
+        files = [Path(p) for p in
+                 index.files(".jsx", ".tsx")] if frontend.exists() else []
         content = "\n".join(FileManager.read_file(str(path)) for path in files[:100])
         checks = [
             {"check": "semantic_landmarks", "passed": any(tag in content for tag in ("<main", "<header", "<nav"))},

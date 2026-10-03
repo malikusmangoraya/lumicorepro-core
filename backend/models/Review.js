@@ -18,6 +18,14 @@ Review.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    org_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+      references: { model: 'organizations', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
     userName: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -74,6 +82,9 @@ Review.init(
         unique: true,
         fields: ['product_id', 'user_id'],
       },
+      { name: 'idx_reviews_org', fields: ['org_id'] },
+      { name: 'idx_reviews_product', fields: ['product_id'] },
+      { name: 'idx_reviews_user', fields: ['user_id'] },
     ],
   }
 );

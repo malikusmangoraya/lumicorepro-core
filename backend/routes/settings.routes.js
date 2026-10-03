@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import systemConfig from '../services/systemConfig.service.js';
 import User from '../models/User.js';
 import { protect, authorize, generateToken } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/rateLimit.js';
 import logger from '../utils/logger.js';
 import { CURRENCY_LIST } from '../config/currency.js';
 import stripeService from '../services/payment/stripe.service.js';
@@ -176,7 +177,7 @@ router.put('/system', protect, authorize('admin'), async (req, res) => {
  * Creates the master Super-Admin account (only when no admin exists yet) and
  * persists the buyer's initial business details in one atomic step.
  */
-router.post('/setup', async (req, res) => {
+router.post('/setup', authLimiter, async (req, res) => {
   try {
     const { business, currency, admin } = req.body || {};
     if (!admin || typeof admin !== 'object') return invalid(res, 'Super-Admin details are required');
@@ -193,7 +194,15 @@ router.post('/setup', async (req, res) => {
     try {
       adminUser = await User.findOne({ where: { role: 'admin' } });
     } catch (e) {
-      logger.warn(`setup: admin lookup failed (${e.message}) — assuming DB unavailable`);
+      // Fail CLOSED: if we cannot confirm that no admin exists, we must not
+      // assume the database is empty and mint a new Super-Admin — that turns a
+      // transient DB error into a privilege-escalation path.
+      logger.error(`setup: admin lookup failed (${e.message}) — refusing to proceed`);
+      return res.status(503).json({
+        success: false,
+        error: 'Setup is temporarily unavailable. Please retry.',
+        code: 'SETUP_UNAVAILABLE',
+      });
     }
 
     if (adminUser) {

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   Sun,
@@ -22,13 +21,19 @@ import {
   Zap,
   Key,
   CreditCard,
+  Wrench,
+  ChevronDown,
 } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { useTheme } from './ThemeProvider';
-import { BrandLogo, Language } from '../common';
+import BrandLogo from './BrandLogo';
+import Language from './Language';
+import NotificationBell from './NotificationBell';
 import { CurrencySelector } from '../CurrencySelector';
 import { cn } from '../../utils';
-import { IconButton, Button, Dropdown, DropdownItem, DropdownDivider } from '../ui';
+import IconButton from '../ui/IconButton';
+import Button from '../ui/Button';
+import Dropdown, { DropdownItem, DropdownDivider } from '../ui/Dropdown';
 
 function navActive(pathname, item) {
   if (item.match === 'exact') return pathname === item.path;
@@ -36,18 +41,6 @@ function navActive(pathname, item) {
     return pathname === item.path || pathname.startsWith(`${item.path}/`);
   return pathname === item.path;
 }
-
-const mobileMenuVariants = {
-  hidden: { x: '-100%' },
-  visible: { x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } },
-  exit: { x: '-100%', transition: { duration: 0.2 } },
-};
-
-const backdropVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
 
 export default function GlassNavbar() {
   const { isAuthenticated, logout, language, setLanguage } = useAppContext();
@@ -102,6 +95,12 @@ export default function GlassNavbar() {
       highlight: true,
     },
     {
+      path: '/workspace',
+      label: t('navigation.workspace'),
+      icon: Wrench,
+      match: 'exact',
+    },
+    {
       path: '/api-settings',
       label: t('navigation.apiSettings'),
       icon: Key,
@@ -139,7 +138,7 @@ export default function GlassNavbar() {
       );
     }
     return (
-      <motion.div whileHover={{ scale: 1.05 }} className="relative">
+      <div className="relative transition-transform duration-150 hover:scale-105">
         <Link
           to={item.path}
           onClick={onNavigate}
@@ -155,13 +154,9 @@ export default function GlassNavbar() {
           <span>{item.label}</span>
         </Link>
         {active && (
-          <motion.div
-            layoutId="nav-underline"
-            className="absolute -bottom-1 left-3 right-3 h-0.5 bg-primary rounded-full"
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          />
+          <div className="absolute -bottom-1 left-3 right-3 h-0.5 rounded-full bg-primary" />
         )}
-      </motion.div>
+      </div>
     );
   };
 
@@ -216,6 +211,12 @@ export default function GlassNavbar() {
               size="md"
             />
 
+            {isAuthenticated && (
+              <span className="hidden md:inline-flex">
+                <NotificationBell />
+              </span>
+            )}
+
             {isAuthenticated ? (
               <div className="hidden md:block">
                 <Dropdown
@@ -230,7 +231,9 @@ export default function GlassNavbar() {
                   <DropdownItem icon={Settings} onClick={() => navigate('/settings')}>
                     {t('navigation.settings')}
                   </DropdownItem>
-                  <DropdownItem icon={Bell}>{t('layout.notifications')}</DropdownItem>
+                  <DropdownItem icon={Bell} onClick={() => navigate('/notifications')}>
+                    {t('layout.notifications')}
+                  </DropdownItem>
                   <DropdownDivider />
                   <DropdownItem icon={LogOut} danger onClick={() => logout()}>
                     {t('navigation.logout')}
@@ -266,25 +269,14 @@ export default function GlassNavbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="lg:hidden"
-          >
+      {mobileMenuOpen && (
+        <div className="lg:hidden">
             <div
               className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden="true"
             />
-            <motion.div
-              variants={mobileMenuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+            <div
               role="dialog"
               aria-label="Mobile navigation"
               className="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border shadow-xl flex flex-col"
@@ -409,10 +401,9 @@ export default function GlassNavbar() {
                   </>
                 )}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+        </div>
+      )}
     </header>
   );
 }

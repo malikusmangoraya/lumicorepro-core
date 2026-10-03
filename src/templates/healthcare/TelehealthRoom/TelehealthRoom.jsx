@@ -48,6 +48,8 @@ export default function TelehealthRoom() {
               src={img.healthcare.doctor1}
               alt={doctor.name}
               className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
@@ -63,6 +65,8 @@ export default function TelehealthRoom() {
                   src={img.healthcare.doctor1}
                   alt={doctor.name}
                   className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </Avatar>
               <div>

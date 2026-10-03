@@ -1,0 +1,97 @@
+# Dependabot configuration — LumicorePro
+# ======================================
+# Weekly, grouped updates for the three package ecosystems in this monorepo plus
+# the GitHub Actions used by .github/workflows/*.
+#
+# Why grouped: ungrouped Dependabot on a repo this size opens dozens of PRs a
+# week, each of which must pass the full CI gate. Grouping keeps one reviewable
+# PR per ecosystem while still surfacing every advisory.
+#
+# Minor/patch bumps are grouped automatically. Major bumps are NOT grouped — a
+# breaking upgrade (React 20, ESLint 11, Express 5) needs its own PR and its own
+# migration notes, so it stays visible instead of hiding inside a batch.
+
+version: 2
+updates:
+  # ── Frontend / repo root (npm) ────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:00'
+      timezone: UTC
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      frontend-minor-patch:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
+
+  # ── Backend (npm) ─────────────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:15'
+      timezone: UTC
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - dependencies
+      - backend
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      backend-minor-patch:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
+
+  # ── AI agent (pip) ────────────────────────────────────────────────────────
+  # requirements.txt pins some providers exactly (google-genai, openai, pytest);
+  # Dependabot will propose bumps for those pins, which is intended — the pins
+  # exist to keep provider SDKs reproducible, not to freeze them forever.
+  - package-ecosystem: pip
+    directory: /ai-agent
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:30'
+      timezone: UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ai-agent
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      ai-agent-minor-patch:
+        patterns: ['*']
+        update-types: ['minor', 'patch']
+
+  # ── GitHub Actions ────────────────────────────────────────────────────────
+  # Keeps actions/checkout, setup-node, setup-python, upload-artifact,
+  # gitleaks-action, etc. on supported versions (pinned-tag actions do get
+  # security updates that a frozen @v4 tag alone will not deliver).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:45'
+      timezone: UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      github-actions:
+        patterns: ['*']

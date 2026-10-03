@@ -1,127 +1,119 @@
 import logger from '../utils/logger.js';
 import resp from '../utils/response.js';
+import { isAppError } from '../utils/errors.js';
+
+const { fail } = resp;
+
+const isProduction = () => process.env.NODE_ENV === 'production';
 
 // ── 404 handler ─────────────────────────────────────────────────────────────
+// The canonical envelope is written by the helper itself — the response object
+// is never re-serialized (that produced a circular-JSON "double response").
 const notFound = (req, res, next) => {
-  res.status(404);
-  res.json(resp.sendNotFound(res, `Route ${req.method} ${req.originalUrl}`));
+  if (res.headersSent) return next();
+  return fail(res, 'NOT_FOUND', `Route ${req.method} ${req.originalUrl} not found`, 404);
 };
 
 // ── Global error handler ─────────────────────────────────────────────────────
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  // A response has already been written (e.g. a streaming route failed midway).
+  // Hand the error back to Express instead of writing a second body.
+  if (res.headersSent) return next(err);
 
-  // Log error details
+  // Explicit AppError status/code wins; otherwise fall back to res.statusCode.
+  const statusCode = isAppError(err)
+    ? err.statusCode
+    : (res.statusCode === 200 ? 500 : res.statusCode);
+
+  // Log error details (server-side only — never sent to the client)
   logger.error(`[${req.method}] ${req.originalUrl} — ${err.message}`, {
     stack: err.stack,
     ip: req.ip,
   });
 
+  // ── Explicit application errors (AppError) ───────────────────────────────
+  if (isAppError(err)) {
+    return fail(res, err.code, err.message, statusCode, err.details || null);
+  }
+
   // ── Sequelize: Unique constraint (e.g. duplicate email) ──────────────────
   if (err.name === 'SequelizeUniqueConstraintError') {
     const fields = err.errors?.map((e) => e.path).join(', ') || 'field';
-    return res.status(400).json({
-      success: false,
-      error: `Duplicate value: ${fields} already exists`,
-    });
+    return fail(res, 'DUPLICATE_VALUE', `Duplicate value: ${fields} already exists`, 400);
   }
 
   // ── Sequelize: Validation error (model-level validators) ─────────────────
   if (err.name === 'SequelizeValidationError') {
-    const errors = err.errors?.map((e) => e.message) || [err.message];
-    return res.status(400).json({
-      success: false,
-      error: 'Validation Error',
-      details: errors,
-    });
+    const details = err.errors?.map((e) => e.message) || [err.message];
+    return fail(res, 'VALIDATION_ERROR', 'Validation Error', 400, details);
   }
 
   // ── Sequelize: Database connection error ──────────────────────────────────
   if (err.name === 'SequelizeConnectionError' || err.name === 'SequelizeConnectionRefusedError') {
-    return res.status(503).json({
-      success: false,
-      error: 'Database connection unavailable. Please try again shortly.',
-    });
+    return fail(
+      res,
+      'DATABASE_UNAVAILABLE',
+      'Database connection unavailable. Please try again shortly.',
+      503,
+    );
   }
 
   // ── Sequelize: Generic database error ────────────────────────────────────
   if (err.name?.startsWith('Sequelize')) {
-    return res.status(500).json({
-      success: false,
-      error: process.env.NODE_ENV === 'production'
-        ? 'A database error occurred'
-        : err.message,
-    });
+    return fail(
+      res,
+      'DATABASE_ERROR',
+      isProduction() ? 'A database error occurred' : err.message,
+      500,
+    );
   }
 
   // ── JWT errors ────────────────────────────────────────────────────────────
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid token',
-    });
+    return fail(res, 'INVALID_TOKEN', 'Invalid token', 401);
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      error: 'Token expired — please log in again',
-    });
+    return fail(res, 'TOKEN_EXPIRED', 'Token expired — please log in again', 401);
   }
 
   // ── Multer / file upload errors ───────────────────────────────────────────
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({
-      success: false,
-      error: 'File too large. Maximum allowed size is 10 MB.',
-    });
+    return fail(res, 'FILE_TOO_LARGE', 'File too large. Maximum allowed size is 10 MB.', 413);
   }
 
   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-    return res.status(400).json({
-      success: false,
-      error: 'Unexpected file field in upload request.',
-    });
+    return fail(res, 'UNEXPECTED_FILE', 'Unexpected file field in upload request.', 400);
   }
 
   // ── Stripe payment errors ─────────────────────────────────────────────────
   if (err.type === 'StripeCardError') {
-    return res.status(402).json({
-      success: false,
-      error: err.message,
-      code: err.code,
-    });
+    return fail(res, err.code || 'CARD_ERROR', err.message, 402);
   }
 
   if (err.type && err.type.startsWith('Stripe')) {
-    return res.status(402).json({
-      success: false,
-      error: err.message || 'Payment processing error',
-    });
+    return fail(res, 'PAYMENT_ERROR', err.message || 'Payment processing error', 402);
   }
 
   // ── Syntax error (malformed JSON body) ───────────────────────────────────
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({
-      success: false,
-      error: 'Invalid JSON in request body',
-    });
+    return fail(res, 'INVALID_JSON', 'Invalid JSON in request body', 400);
   }
 
   // ── Generic 4xx forwarded as-is ───────────────────────────────────────────
   if (statusCode >= 400 && statusCode < 500) {
-    return res.status(statusCode).json({
-      success: false,
-      error: err.message || 'Bad Request',
-    });
+    return fail(res, 'REQUEST_ERROR', err.message || 'Bad Request', statusCode);
   }
 
-  // ── Generic 500 ───────────────────────────────────────────────────────────
-  return res.status(statusCode).json({
-    success: false,
-    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
-  });
+  // ── Generic 500 ──────────────────────────────────────────────────────────
+  // The stack trace is logged above and NEVER serialized into the response,
+  // in any environment (AGENTS.md §3: never expose stack traces).
+  return fail(
+    res,
+    'INTERNAL_ERROR',
+    isProduction() ? 'Internal Server Error' : err.message,
+    statusCode,
+  );
 };
 
 export default errorHandler;

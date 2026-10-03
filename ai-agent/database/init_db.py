@@ -147,34 +147,41 @@ def _ensure_column(cursor, table: str, column: str, ddl: str) -> None:
     except Exception as exc:  # pragma: no cover
         agent_logger.warning(f"Migration skipped for {table}.{column}: {exc}")
 
+def _is_valid_template_root(fp: str, project_root: Path) -> bool:
+    """A template path is valid when it is either a real Vite project root
+    (package.json + index.html) or a real library template folder containing at
+    least one .jsx section. This keeps broken/stale paths out while still seeding
+    the 100+ UI template sections that the project builder actually assembles.
+    """
+    try:
+        base = project_root / fp
+    except (TypeError, OSError):
+        return False
+    if not base.is_dir():
+        return False
+    if (base / "package.json").exists() and (base / "index.html").exists():
+        return True
+    return any(base.rglob("*.jsx"))
+
+
 def _seed_templates(cursor):
     path = REGISTRY_DIR / "templates.json"
     data = FileManager.read_json(str(path))
     if not isinstance(data, list):
         data = []
-    # Remove stale templates whose path is not a real Vite project root
-    # (no package.json/index.html) so broken section-level copies never recur.
+    # Remove stale templates whose files are gone so broken section-level copies
+    # never recur in memory or the theme matrix.
     cursor.execute("SELECT id, file_path FROM templates_index")
     for row_id, fp in cursor.fetchall():
         if not fp:
             continue
-        try:
-            is_project = (Path(PROJECT_ROOT) / fp / "package.json").exists() and \
-                         (Path(PROJECT_ROOT) / fp / "index.html").exists()
-        except OSError:
-            is_project = False
-        if not is_project:
+        if not _is_valid_template_root(fp, PROJECT_ROOT):
             cursor.execute("DELETE FROM templates_index WHERE id = ?", (row_id,))
     for item in data:
         fp = item.get("file_path")
         if not fp:
             continue
-        try:
-            is_project = (Path(PROJECT_ROOT) / fp / "package.json").exists() and \
-                         (Path(PROJECT_ROOT) / fp / "index.html").exists()
-        except OSError:
-            is_project = False
-        if not is_project:
+        if not _is_valid_template_root(fp, PROJECT_ROOT):
             continue
         cursor.execute("""
             INSERT OR REPLACE INTO templates_index 
@@ -200,10 +207,16 @@ def _seed_components(cursor):
     data = FileManager.read_json(str(path))
     if not isinstance(data, list):
         return
+    # Drop stale rows whose files were removed so memory reflects the real
+    # library (keeps component search free of ghost references).
+    cursor.execute("SELECT name, file_path FROM components_index")
+    for row_name, fp in cursor.fetchall():
+        if fp and not (Path(PROJECT_ROOT) / fp).exists():
+            cursor.execute("DELETE FROM components_index WHERE name = ?", (row_name,))
     for item in data:
         if not isinstance(item, dict) or not item.get("file_path"):
             continue
-        if not Path(item["file_path"]).exists():
+        if not (Path(PROJECT_ROOT) / item["file_path"]).exists():
             continue
         cursor.execute("""
             INSERT OR REPLACE INTO components_index 

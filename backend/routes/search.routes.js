@@ -3,8 +3,11 @@ import { Op } from 'sequelize';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import cache from '../services/cache/cache.service.js';
+import { optionalProtect } from '../middleware/auth.js';
 
 const router = express.Router();
+
+const MAX_SEARCH_LIMIT = 50;
 
 /**
  * @swagger
@@ -13,7 +16,7 @@ const router = express.Router();
  *     summary: Global search across entities (products, categories, users)
  *     tags: [Search]
  */
-router.get('/', async (req, res, next) => {
+router.get('/', optionalProtect, async (req, res, next) => {
   try {
     const { q, type = 'all', limit = 10, category } = req.query;
 
@@ -22,10 +25,15 @@ router.get('/', async (req, res, next) => {
     }
 
     const searchQuery = q.trim();
-    const searchLimit = parseInt(limit, 10) || 10;
+    const parsedLimit = parseInt(limit, 10);
+    const searchLimit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(parsedLimit, 1), MAX_SEARCH_LIMIT)
+      : 10;
 
     // Cache search results for 10 min (fast-moving query space is bounded by inventory size)
-    const cacheKey = `search:${type}:${searchQuery.slice(0, 50)}:${searchLimit}:${category || ''}`;
+    // The auth flag is part of the key: user records are only included for authenticated
+    // callers, so an anonymous response must never be served to (or cached for) them.
+    const cacheKey = `search:${type}:${searchQuery.slice(0, 50)}:${searchLimit}:${category || ''}:u${req.user ? 1 : 0}`;
     const cached = await cache.get('search', cacheKey);
     if (cached) return res.json({ success: true, query: searchQuery, data: cached, meta: { cached: true } });
 
@@ -67,8 +75,10 @@ router.get('/', async (req, res, next) => {
       results.categories = categoryRows.map((r) => r.category);
     }
 
-    // 3. Search Users (only if authorization header present)
-    if ((type === 'all' || type === 'users') && req.headers.authorization) {
+    // 3. Search Users — authenticated callers only.
+    // Gating on a valid token (not merely header presence) prevents anonymous
+    // enumeration of user id/name/email/role/avatar.
+    if ((type === 'all' || type === 'users') && req.user) {
       try {
         results.users = await User.findAll({
           attributes: ['id', 'name', 'email', 'role', 'avatar'],

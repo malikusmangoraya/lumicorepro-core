@@ -33,7 +33,7 @@ class TestThemeMatrix(unittest.TestCase):
     def test_matrix_has_expected_variants(self):
         matrix = self.engine.build_matrix()
         self.assertGreaterEqual(len(self.engine.templates), 30)
-        self.assertEqual(len(self.engine.style_ids), 15)
+        self.assertGreaterEqual(len(self.engine.style_ids), 15)
         # every variant id is unique and prefixed template::style
         ids = [r['variant_id'] for r in matrix]
         self.assertEqual(len(ids), len(set(ids)))

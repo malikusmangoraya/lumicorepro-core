@@ -35,8 +35,11 @@ describe('validateRequest middleware', () => {
     validateRequest(schema)(req, res, next);
     expect(next).not.toHaveBeenCalled();
     expect(res._status).toBe(422);
+    // Canonical envelope: code + details live at the top level, data is null.
     expect(res._body.success).toBe(false);
-    expect(res._body.error.code).toBe('VALIDATION_ERROR');
-    expect(res._body.error.details.length).toBeGreaterThan(0);
+    expect(res._body.status).toBe(422);
+    expect(res._body.code).toBe('VALIDATION_ERROR');
+    expect(res._body.data).toBeNull();
+    expect(res._body.details.length).toBeGreaterThan(0);
   });
 });

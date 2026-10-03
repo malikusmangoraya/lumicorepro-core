@@ -41,6 +41,8 @@ export default function AppointmentBooking() {
           src={img.healthcare.hospital}
           alt="Hospital"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex items-end p-8">
@@ -113,6 +115,8 @@ export default function AppointmentBooking() {
                     src={DOC_IMGS[d.img]}
                     alt={d.name}
                     className="h-12 w-12 rounded-xl object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold truncate">{d.name}</p>

@@ -1,3 +1,16 @@
+# =============================================================================
+# LumicorePro — frontend Deployment + Service
+# =============================================================================
+# SECONDARY TARGET. Canonical production is Docker Compose on one VPS; see
+# docs/DEPLOYMENT.md. Not applied by CI and not verified on a live cluster.
+#
+# The image is Dockerfile.frontend: nginx (unprivileged) serving the built dist
+# on port 8080 as UID 101. The previous manifest assumed port 80 and probed `/`
+# — both were wrong for this image, so the pod would never have become Ready.
+#
+# Image tags: `1.0.0` is a PLACEHOLDER. Use a real released tag or commit SHA and
+# keep `imagePullPolicy: IfNotPresent`.
+# =============================================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +19,7 @@ metadata:
   labels:
     app: lumicorepro-frontend
     tier: web
+    app.kubernetes.io/part-of: lumicorepro
 spec:
   replicas: 2
   selector:
@@ -24,20 +38,34 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101       # nginx user
+        runAsUser: 101        # `nginx` user in the nginx-unprivileged image
+        fsGroup: 101
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: lumicorepro-frontend
 
       containers:
         - name: frontend
-          image: ghcr.io/lumicorepro/frontend:latest
-          imagePullPolicy: Always
+          # PLACEHOLDER TAG — replace with the released version or commit SHA.
+          image: ghcr.io/lumicorepro/frontend:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
 
+          # /healthz.txt is a static file created in the image (Dockerfile.frontend)
+          # so the probe does not depend on the SPA bundle rendering.
           livenessProbe:
             httpGet:
-              path: /
-              port: 80
+              path: /healthz.txt
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 20
             timeoutSeconds: 3
@@ -45,8 +73,8 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /
-              port: 80
+              path: /healthz.txt
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 2
@@ -59,6 +87,11 @@ spec:
               cpu: "200m"
               memory: "256Mi"
 
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
 ---
 apiVersion: v1
 kind: Service
@@ -67,11 +100,27 @@ metadata:
   namespace: lumicorepro
   labels:
     app: lumicorepro-frontend
+    app.kubernetes.io/part-of: lumicorepro
 spec:
   selector:
     app: lumicorepro-frontend
   ports:
     - name: http
       port: 80
-      targetPort: 80
+      targetPort: 8080
   type: ClusterIP
+
+---
+# PodDisruptionBudget — a node drain must not take down the whole web tier.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: lumicorepro
+  labels:
+    app.kubernetes.io/part-of: lumicorepro
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: lumicorepro-frontend

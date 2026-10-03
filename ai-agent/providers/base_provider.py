@@ -50,6 +50,17 @@ class BaseAIProvider(ABC):
         return any(kw in msg for kw in ("429", "rate limit", "rate_limit", "too many requests",
                                          "quota exceeded", "requests per minute", "requests per day"))
 
+    @staticmethod
+    def is_connectivity_error(exception: Exception) -> bool:
+        """Check if exception indicates a network/connectivity failure (gateway down, DNS, timeout)."""
+        msg = str(exception).lower()
+        return any(kw in msg for kw in (
+            "connection refused", "connection reset", "connection aborted", "connection error",
+            "cannot connect", "failed to resolve", "name resolution", "network unreachable",
+            "getaddrinfo failed", "nodename nor servname", "timed out", "timeout",
+            "max retries exceeded", "proxyerror", "temporarily unavailable", "offline",
+        ))
+
     def execute_with_retry(self, func, *args, **kwargs) -> Any:
         """Execute API request function with 3-attempt exponential backoff retry.
 
@@ -86,6 +97,15 @@ class BaseAIProvider(ABC):
                 if self.is_rate_limited(e):
                     agent_logger.warning(
                         f"Provider {self.__class__.__name__} rate limited (attempt {attempt}/{self.max_retries}). "
+                        "Signaling rotation."
+                    )
+                    raise
+
+                # Connectivity failure (gateway down / network) — fail fast so the
+                # pool rotates instead of burning retries on a dead endpoint.
+                if self.is_connectivity_error(e):
+                    agent_logger.warning(
+                        f"Provider {self.__class__.__name__} unreachable (attempt {attempt}/{self.max_retries}). "
                         "Signaling rotation."
                     )
                     raise

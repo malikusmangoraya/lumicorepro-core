@@ -61,7 +61,7 @@ export default function NutritionPlans() {
         {meals.map((m, i) => (
           <Card key={m.type} animate="fade-up" animationDelay={i * 70} className="overflow-hidden">
             <div className="relative h-32">
-              <img src={MEAL_IMGS[i % 2]} alt={m.name} className="h-full w-full object-cover" />
+              <img src={MEAL_IMGS[i % 2]} alt={m.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
               <Badge className="absolute top-3 left-3 text-[10px]">{m.type}</Badge>
             </div>
             <div className="p-4">

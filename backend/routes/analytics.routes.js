@@ -3,8 +3,10 @@ import { Op, fn, col, literal } from 'sequelize';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import Membership from '../models/Membership.js';
 import { protect, authorize } from '../middleware/auth.js';
 import analyticsService from '../services/analyticsService.js';
+import { callerOrgId, tenantWhere } from '../services/tenantScope.service.js';
 
 const router = express.Router();
 
@@ -13,6 +15,7 @@ const router = express.Router();
  * /api/analytics/dashboard:
  *   get:
  *     summary: Get dashboard KPIs & summary stats
+ *     description: Tenant scoped — aggregates only the caller's organization.
  *     tags: [Analytics]
  *     security:
  *       - bearerAuth: []
@@ -20,10 +23,10 @@ const router = express.Router();
 router.get('/dashboard', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
     const [totalUsers, totalProducts, totalOrders, lowStockProducts] = await Promise.all([
-      User.count(),
-      Product.count({ where: { isActive: true } }),
-      Order.count(),
-      Product.count({ where: { stock: { [Op.lte]: 5 }, isActive: true } }),
+      Membership.count({ where: tenantWhere(req, { status: 'active' }) }),
+      Product.count({ where: tenantWhere(req, { isActive: true }) }),
+      Order.count({ where: tenantWhere(req) }),
+      Product.count({ where: tenantWhere(req, { stock: { [Op.lte]: 5 }, isActive: true } })),
     ]);
 
     // Revenue aggregation using Sequelize
@@ -32,7 +35,7 @@ router.get('/dashboard', protect, authorize('admin', 'vendor'), async (req, res,
         [fn('SUM', col('totalPrice')), 'totalRevenue'],
         [fn('AVG', col('totalPrice')), 'avgOrderValue'],
       ],
-      where: { isPaid: true },
+      where: tenantWhere(req, { isPaid: true }),
       raw: true,
     });
 
@@ -41,6 +44,7 @@ router.get('/dashboard', protect, authorize('admin', 'vendor'), async (req, res,
 
     // Recent 5 orders
     const recentOrders = await Order.findAll({
+      where: tenantWhere(req),
       include: [
         {
           model: User,
@@ -77,12 +81,12 @@ router.get('/dashboard', protect, authorize('admin', 'vendor'), async (req, res,
 router.get('/stats', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
     const [totalUsers, totalProducts, totalOrders, revenueResult] = await Promise.all([
-      User.count(),
-      Product.count({ where: { isActive: true } }),
-      Order.count(),
+      Membership.count({ where: tenantWhere(req, { status: 'active' }) }),
+      Product.count({ where: tenantWhere(req, { isActive: true }) }),
+      Order.count({ where: tenantWhere(req) }),
       Order.findOne({
         attributes: [[fn('SUM', col('totalPrice')), 'totalRevenue']],
-        where: { isPaid: true },
+        where: tenantWhere(req, { isPaid: true }),
         raw: true,
       }),
     ]);
@@ -122,7 +126,7 @@ router.get('/sales', protect, authorize('admin', 'vendor'), async (req, res, nex
         [fn('SUM', col('totalPrice')), 'revenue'],
         [fn('COUNT', col('id')), 'orders'],
       ],
-      where: { createdAt: { [Op.gte]: startDate } },
+      where: tenantWhere(req, { createdAt: { [Op.gte]: startDate } }),
       group: [fn('DATE', col('createdAt'))],
       order: [[fn('DATE', col('createdAt')), 'ASC']],
       raw: true,
@@ -154,14 +158,15 @@ router.get('/top-products', protect, authorize('admin', 'vendor'), async (req, r
   try {
     const limit = parseInt(req.query.limit, 10) || 5;
     const days = parseInt(req.query.days, 10) || 90;
+    const orgId = callerOrgId(req);
 
     // Use a single SQL pass (window function) instead of loading every order
     let rows;
     try {
-      rows = await analyticsService.topProducts({ days, limit });
+      rows = await analyticsService.topProducts({ days, limit, orgId });
     } catch (err) {
       // Fallback to the previous in-JS aggregation if DB/CTE unavailable
-      const orders = await Order.findAll({ attributes: ['items'], raw: true });
+      const orders = await Order.findAll({ attributes: ['items'], where: tenantWhere(req), raw: true });
       const productMap = {};
       for (const order of orders) {
         for (const item of order.items || []) {
@@ -192,7 +197,7 @@ router.get('/top-products', protect, authorize('admin', 'vendor'), async (req, r
 router.get('/revenue-report', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
-    const report = await analyticsService.revenueReport({ days });
+    const report = await analyticsService.revenueReport({ days, orgId: callerOrgId(req) });
     res.json({ success: true, days, data: report });
   } catch (error) {
     next(error);
@@ -208,13 +213,23 @@ router.get('/revenue-report', protect, authorize('admin', 'vendor'), async (req,
  *     security:
  *       - bearerAuth: []
  */
+/**
+ * @swagger
+ * /api/analytics/user-growth:
+ *   get:
+ *     summary: Get member registration growth by month (tenant scoped)
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ */
 router.get('/user-growth', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const userGrowth = await User.findAll({
+    const userGrowth = await Membership.findAll({
       attributes: [
         [fn('TO_CHAR', col('createdAt'), 'YYYY-MM'), 'month'],
         [fn('COUNT', col('id')), 'newUsers'],
       ],
+      where: tenantWhere(req),
       group: [fn('TO_CHAR', col('createdAt'), 'YYYY-MM')],
       order: [[fn('TO_CHAR', col('createdAt'), 'YYYY-MM'), 'ASC']],
       raw: true,
@@ -247,7 +262,7 @@ router.get('/category-distribution', async (req, res, next) => {
         [fn('COUNT', col('id')), 'count'],
         [fn('AVG', col('price')), 'avgPrice'],
       ],
-      where: { isActive: true },
+      where: tenantWhere(req, { isActive: true }),
       group: ['category'],
       order: [[fn('COUNT', col('id')), 'DESC']],
       raw: true,

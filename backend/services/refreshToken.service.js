@@ -36,7 +36,9 @@ export function generateAccessToken(userId, extra = {}) {
 
 /** Verify + decode a refresh token. Returns payload or throws. */
 export function verifyRefreshToken(token) {
-  return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET, {
+    algorithms: ['HS256'],
+  });
 }
 
 /** Mark a refresh token (by jti) as revoked, with a family id for rollback. */

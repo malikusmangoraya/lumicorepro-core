@@ -49,7 +49,7 @@ export default function TrainerProfiles() {
             className="overflow-hidden flex flex-col"
           >
             <div className="relative h-56">
-              <img src={TRAINER_IMGS[t.img]} alt={t.name} className="h-full w-full object-cover" />
+              <img src={TRAINER_IMGS[t.img]} alt={t.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
               <Badge variant="secondary" className="absolute top-3 left-3 text-[10px]">
                 {t.cert}

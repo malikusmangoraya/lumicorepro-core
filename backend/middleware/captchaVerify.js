@@ -13,6 +13,18 @@ import logger from '../utils/logger.js';
 
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY || '';
 const TURNSTILE_ENABLED = (process.env.TURNSTILE_ENABLED || 'true').toLowerCase() === 'true';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// Captcha is enforced when it is enabled and either we are in production or a
+// secret is actually configured. Outside production it stays advisory so local
+// DX is not blocked.
+const CAPTCHA_ENFORCED = TURNSTILE_ENABLED && (IS_PRODUCTION || Boolean(TURNSTILE_SECRET));
+
+if (IS_PRODUCTION && TURNSTILE_ENABLED && !TURNSTILE_SECRET) {
+  logger.error(
+    'TURNSTILE_ENABLED is true but TURNSTILE_SECRET_KEY is unset — captcha verification is being skipped in production. Set the secret or explicitly set TURNSTILE_ENABLED=false.',
+  );
+}
 
 // Cloudflare Turnstile site key for frontend (public, safe to expose)
 export const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '';
@@ -70,7 +82,7 @@ export function requireCaptcha(req, res, next) {
     return next();
   }
 
-  const token = req.body?.captchaToken || req.body?.cf_turnstile_response || req.headers['x-captcha-token'];
+  const token = req.body?.captchaToken || req.body?.cf_turnstile_response || req.headers?.['x-captcha-token'];
 
   if (!token || typeof token !== 'string' || token.trim().length < 10) {
     return res.status(400).json({
@@ -86,6 +98,19 @@ export function requireCaptcha(req, res, next) {
   verifyTurnstileToken(token, ip)
     .then((result) => {
       if (!result.success) {
+        // The verifier being unreachable is our outage, not the caller's fault.
+        // Answer 503 so the client retries later instead of being told their
+        // captcha was wrong. Without this the CAPTCHA_UNAVAILABLE response below
+        // was unreachable and every outage surfaced as CAPTCHA_FAILED.
+        if (result.error === 'turnstile_unreachable') {
+          return res.status(503).json({
+            success: false,
+            error: {
+              code: 'CAPTCHA_UNAVAILABLE',
+              message: 'Captcha verification is temporarily unavailable. Please retry.',
+            },
+          });
+        }
         return res.status(403).json({
           success: false,
           error: {
@@ -98,7 +123,18 @@ export function requireCaptcha(req, res, next) {
     })
     .catch((err) => {
       logger.error(`Captcha middleware error: ${err.message}`);
-      next(); // fail open in unexpected errors
+      if (CAPTCHA_ENFORCED) {
+        // Fail CLOSED: an unexpected verification error (network blip, upstream
+        // 5xx, malformed response) must not become a free pass for bot traffic.
+        return res.status(503).json({
+          success: false,
+          error: {
+            code: 'CAPTCHA_UNAVAILABLE',
+            message: 'Captcha verification is temporarily unavailable. Please retry.',
+          },
+        });
+      }
+      next();
     });
 }
 
@@ -112,7 +148,7 @@ export function optionalCaptcha(req, res, next) {
     return next();
   }
 
-  const token = req.body?.captchaToken || req.headers['x-captcha-token'];
+  const token = req.body?.captchaToken || req.headers?.['x-captcha-token'];
   if (!token) {
     req.captchaVerified = false;
     return next();

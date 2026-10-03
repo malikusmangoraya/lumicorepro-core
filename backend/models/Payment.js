@@ -18,6 +18,14 @@ Payment.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    org_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+      references: { model: 'organizations', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
     provider: {
       type: DataTypes.STRING(50),
       defaultValue: 'stripe',
@@ -132,6 +140,12 @@ Payment.init(
     modelName: 'Payment',
     tableName: 'payments',
     timestamps: true,
+    indexes: [
+      { name: 'idx_payments_org', fields: ['org_id'] },
+      { name: 'idx_payments_user', fields: ['user_id'] },
+      { name: 'idx_payments_order', fields: ['order_id'] },
+      { name: 'idx_payments_status', fields: ['status'] },
+    ],
   }
 );
 

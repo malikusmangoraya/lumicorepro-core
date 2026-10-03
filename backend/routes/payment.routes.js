@@ -10,8 +10,9 @@ import Payment from '../models/Payment.js';
 import Notification from '../models/Notification.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { paymentLimiter } from '../middleware/rateLimit.js';
-import { stripeWebhook, markWebhookProcessed } from '../middleware/webhookSecurity.js';
+import { stripeWebhook, paypalWebhook, markWebhookProcessed } from '../middleware/webhookSecurity.js';
 import logger from '../utils/logger.js';
+import resp from '../utils/response.js';
 import { generateInvoiceHTML } from '../utils/invoiceGenerator.js';
 import stripeService from '../services/payment/stripe.service.js';
 import paypalService from '../services/payment/paypal.service.js';
@@ -29,8 +30,11 @@ import {
   UNCONFIGURED_MESSAGE,
 } from '../services/payment/dynamic.js';
 import systemConfig from '../services/systemConfig.service.js';
+import { AI_AGENT_TIMEOUTS, agentEndpointUrl, fetchWithTimeout } from '../utils/aiAgent.js';
 
 const router = express.Router();
+
+const { ok, fail } = resp;
 
 /**
  * Dynamic Stripe client — resolved per request from the runtime SystemConfig
@@ -137,13 +141,10 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
       clientSecret = paymentIntent.client_secret;
       paymentIntentId = paymentIntent.id;
     } else {
-      const { ok } = await gatewayReady('stripe');
-      if (!ok) {
-        return res.status(200).json({
-          success: false,
-          code: 'PAYMENT_UNCONFIGURED',
-          error: UNCONFIGURED_MESSAGE,
-        });
+      const { ok: ready } = await gatewayReady('stripe');
+      if (!ready) {
+        // Canonical envelope; HTTP status is unchanged (200) for compatibility.
+        return fail(res, 'PAYMENT_UNCONFIGURED', UNCONFIGURED_MESSAGE, 200);
       }
       paymentIntentId = `pi_mock_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       clientSecret = `${paymentIntentId}_secret_${Math.random().toString(36).substring(2, 8)}`;
@@ -377,17 +378,39 @@ router.post('/paypal/capture', protect, paymentLimiter, async (req, res, next) =
 
 /**
  * POST /paypal/webhook — PayPal webhook handler
+ *
+ * Every delivery is signature-verified against PayPal's
+ * POST /v1/notifications/verify-webhook-signature endpoint (see
+ * middleware/webhookSecurity.js → paypalWebhook) and deduplicated by event id
+ * via the durable webhook_events ledger. `PAYMENT.CAPTURE.COMPLETED` marks the
+ * matching payment + order paid inside one transaction; a delivery whose
+ * payment/order cannot be found is logged and still acknowledged with 200 so
+ * PayPal stops retrying.
  */
-router.post('/paypal/webhook', express.raw({ type: 'application/json' }), async (req, res, next) => {
-  try {
-    const event = JSON.parse(req.body.toString());
-    await paypalService.handleWebhook(event);
-    res.json({ received: true });
-  } catch (error) {
-    logger.error(`PayPal webhook error: ${error.message}`);
-    res.status(400).json({ success: false, error: 'Webhook processing failed' });
-  }
-});
+router.post(
+  '/paypal/webhook',
+  express.raw({ type: 'application/json' }),
+  paypalWebhook(),
+  async (req, res) => {
+    try {
+      const event = req.webhookEvent;
+      const result = await paypalService.handleWebhook(event);
+
+      await markWebhookProcessed(req);
+
+      return ok(res, {
+        received: true,
+        eventId: event?.id || null,
+        handled: result?.handled === true,
+      });
+    } catch (error) {
+      // Verification + dedupe already passed; only fulfilment failed.
+      if (res.headersSent) return res;
+      logger.error(`PayPal webhook error: ${error.message}`);
+      return fail(res, 'WEBHOOK_PROCESSING_FAILED', 'Webhook processing failed', 400);
+    }
+  },
+);
 
 /* ══════════════════════════════════════════════════════════════════
  * PADDLE — Merchant of Record (cards + PayPal + sales tax handled)
@@ -645,12 +668,15 @@ router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook
         });
         if (metadata.agentApiKey) {
           try {
-            const aiUrl = (process.env.AI_AGENT_URL || 'http://localhost:8000').replace(/\/+$/, '');
-            await fetch(`${aiUrl}/api/accounts/credits/topup`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'x-api-key': metadata.agentApiKey },
-              body: JSON.stringify({ amount: parseFloat(metadata.credits), reason: 'stripe_purchase' }),
-            }).catch(() => {});
+            await fetchWithTimeout(
+              agentEndpointUrl('/api/accounts/credits/topup'),
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': metadata.agentApiKey },
+                body: JSON.stringify({ amount: parseFloat(metadata.credits), reason: 'stripe_purchase' }),
+              },
+              AI_AGENT_TIMEOUTS.status
+            ).catch(() => {});
           } catch { /* non-fatal */ }
         }
       }

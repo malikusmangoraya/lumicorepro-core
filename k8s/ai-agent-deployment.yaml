@@ -1,0 +1,252 @@
+# =============================================================================
+# LumicorePro — AI agent (FastAPI) Deployment + Service + PVC
+# =============================================================================
+# SECONDARY TARGET. Canonical production is Docker Compose on one VPS; see
+# docs/DEPLOYMENT.md. Not applied by CI and not verified on a live cluster.
+#
+# This file did not exist: k8s/configmap.yaml pointed AI_AGENT_URL at
+# `http://ai-agent:8000` while no Service by that name was defined anywhere in
+# k8s/, so every AI endpoint would have returned 502 from the backend with no
+# explanation. The Service name below (`ai-agent`) is what that URL targets —
+# renaming one requires renaming the other.
+#
+# Image: built from ai-agent/Dockerfile with the REPOSITORY ROOT as build context
+# (the Dockerfile copies src/templates, registry and database/schemas alongside
+# the agent so its PROJECT_ROOT-relative lookups resolve). See the release
+# workflow for the build that produces this tag.
+#
+# Replicas: 1, and it must stay 1. The agent keeps run state in-process (pipeline
+# store, telemetry, in-memory run registry) and writes SQLite under
+# /app/database. Two replicas without shared state serve inconsistent results for
+# the same run_id. Scaling it means externalising that state first — see
+# docs/RUNBOOK.md § "Scale the AI agent".
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-agent
+  namespace: lumicorepro
+  labels:
+    app: ai-agent
+    tier: agent
+    app.kubernetes.io/part-of: lumicorepro
+spec:
+  replicas: 1
+  strategy:
+    # SQLite on a ReadWriteOnce volume: a surge pod would block on the volume.
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ai-agent
+  template:
+    metadata:
+      labels:
+        app: ai-agent
+        tier: agent
+    spec:
+      terminationGracePeriodSeconds: 60
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+
+      containers:
+        - name: ai-agent
+          # PLACEHOLDER TAG — replace with the released version or commit SHA.
+          image: ghcr.io/lumicorepro/ai-agent:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "8000"
+            # TrustedHostMiddleware: must contain the in-cluster DNS names used
+            # by the backend and by the kubelet probe. Omitting 127.0.0.1 makes
+            # every probe fail and the pod restart-loop.
+            - name: ALLOWED_HOSTS
+              value: "ai-agent,ai-agent.lumicorepro.svc.cluster.local,127.0.0.1,localhost"
+            - name: CORS_ORIGINS
+              value: "https://lumicorepro.com,https://www.lumicorepro.com"
+            - name: GENERATED_PROJECTS_DIR
+              value: /app/generated-projects
+            - name: ACTIVE_AI_PROVIDER
+              valueFrom:
+                configMapKeyRef:
+                  name: lumicorepro-ai-config
+                  key: ACTIVE_AI_PROVIDER
+                  optional: true
+            # At least one provider key is required for generation to work.
+            # `optional: true` lets the pod start (and pass /health) without
+            # them, so a missing key surfaces as a failed generation rather than
+            # a CrashLoopBackOff that hides the real cause. See docs/RUNBOOK.md
+            # § "The AI agent is offline".
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: GEMINI_API_KEY
+                  optional: true
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: OPENAI_API_KEY
+                  optional: true
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: DEEPSEEK_API_KEY
+                  optional: true
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: OPENROUTER_API_KEY
+                  optional: true
+            - name: GROK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: GROK_API_KEY
+                  optional: true
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-ai-secrets
+                  key: GITHUB_TOKEN
+                  optional: true
+
+          # The FastAPI app exposes /health (ai-agent/server.py), NOT /api/health.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1500m"
+              memory: "1Gi"
+
+          volumeMounts:
+            - name: agent-state
+              mountPath: /app/database
+            - name: agent-projects
+              mountPath: /app/generated-projects
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+      volumes:
+        - name: agent-state
+          persistentVolumeClaim:
+            claimName: agent-state-pvc
+        - name: agent-projects
+          persistentVolumeClaim:
+            claimName: agent-projects-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agent
+  namespace: lumicorepro
+  labels:
+    app: ai-agent
+    app.kubernetes.io/part-of: lumicorepro
+spec:
+  selector:
+    app: ai-agent
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP          # internal only — never exposed through the Ingress
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-state-pvc
+  namespace: lumicorepro
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-projects-pvc
+  namespace: lumicorepro
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+# PodDisruptionBudget — with replicas: 1 this budget blocks an eviction that
+# would take the agent down. That is intentional: a drain should be done
+# deliberately (delete the PDB or accept the outage), not by silently parking the
+# only agent replica while the backend keeps returning 502s.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ai-agent-pdb
+  namespace: lumicorepro
+  labels:
+    app.kubernetes.io/part-of: lumicorepro
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ai-agent
+
+# =============================================================================
+# NOT DEFINED HERE — create these before the pod can start:
+#
+#   kubectl -n lumicorepro create secret generic lumicorepro-ai-secrets \
+#     --from-literal=GEMINI_API_KEY="" \
+#     --from-literal=OPENAI_API_KEY="" \
+#     --from-literal=DEEPSEEK_API_KEY="" \
+#     --from-literal=OPENROUTER_API_KEY="" \
+#     --from-literal=GROK_API_KEY="" \
+#     --from-literal=GITHUB_TOKEN=""
+#
+#   kubectl -n lumicorepro create configmap lumicorepro-ai-config \
+#     --from-literal=ACTIVE_AI_PROVIDER=grok
+#
+# Both are referenced with `optional: true`, so a missing Secret does NOT block
+# startup — the Deployment runs and reports unhealthy generation instead. That
+# trade-off is deliberate; see docs/RUNBOOK.md.
+# =============================================================================

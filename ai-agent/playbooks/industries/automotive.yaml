@@ -1,0 +1,69 @@
+# Automotive playbook — LumicorePro Core
+industry: automotive
+primary_goal: lead_generation
+secondary_goals: [test_drive_booking, showroom_visit, financing_qualification]
+business_model: dealership / OEM / showroom
+
+pages:
+  - home
+  - showroom
+  - vehicle_detail
+  - financing
+  - test_drive
+  - service
+  - about
+  - contact
+
+critical_components:
+  - vehicle_card
+  - vehicle_specs
+  - gallery
+  - price_reveal
+  - compare
+  - financing_calculator
+  - test_drive_form
+  - dealership_finder
+
+conversion:
+  primary_cta: book_test_drive
+  secondary_cta: concierge_call
+  trust:
+    - warranty
+    - certified_inspection
+    - awards
+    - financing_partners
+  urgency: [limited_stock, new_model, trade_in_offer]
+
+mobile_priority:
+  gallery: high
+  test_drive_form: high
+  price_reveal: high
+  dealership_near_me: high
+
+visual:
+  density: low
+  imagery: cinematic
+  typography: editorial
+  motion: slow_driving
+  3d: conditional_configurator
+  cta_style: concierge
+
+ux_patterns:
+  - configurator
+  - 360_view
+  - test_drive_calendar
+  - trade_in_estimator
+
+avoid:
+  - hidden_pricing
+  - excessive_modal_usage
+  - vague_cta
+  - fake_reviews
+  - auto_playing_carousel
+
+qa:
+  - lead_capture_flow
+  - price_reveal_flow
+  - configurator_variants
+  - financing_calculator_math
+  - test_drive_booking

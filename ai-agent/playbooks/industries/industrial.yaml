@@ -1,0 +1,66 @@
+# Industrial / B2B playbook — LumicorePro Core
+industry: industrial
+primary_goal: quote_request
+secondary_goals: [catalog_download, consultation, dealer_locator]
+business_model: manufacturing / B2B / machine / materials
+
+pages:
+  - home
+  - products
+  - product_detail
+  - capabilities
+  - certifications
+  - projects
+  - download_center
+  - contact
+
+critical_components:
+  - product_card
+  - catalog_download
+  - quote_form
+  - technical_docs
+  - cert_badge
+  - case_study
+  - distributor_locator
+  - procurement
+
+conversion:
+  primary_cta: request_quote
+  secondary_cta: download_catalog
+  trust:
+    - certifications
+    - manufacturing_capability
+    - clients
+    - delivery_record
+
+mobile_priority:
+  catalog: high
+  quote_form: high
+  technical_docs: high
+
+visual:
+  density: medium_high
+  imagery: machinery_dominant
+  typography: technical_utilitarian
+  motion: minimal
+  3d: no
+  cta_style: direct
+
+ux_patterns:
+  - quote_wizard
+  - spec_sheet_view
+  - catalog_search
+  - dealer_locator
+
+avoid:
+  - vague_cta
+  - hidden_pricing_after_quote
+  - excessive_decoration
+  - fake_certifications
+
+qa:
+  - quote_form_flow
+  - catalog_download
+  - cert_badge_authentic
+  - technical_doc_view
+  - dealer_locator

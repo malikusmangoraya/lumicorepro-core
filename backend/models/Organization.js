@@ -26,7 +26,7 @@ Organization.init(
       },
     },
     owner_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: 'Creator/owner user id',
     },
@@ -47,7 +47,10 @@ Organization.init(
     tableName: 'organizations',
     timestamps: true,
     paranoid: true,
-    indexes: [{ fields: ['slug'] }, { fields: ['owner_id'] }],
+    // Sequelize defaults the paranoid column to "deletedAt"; this schema stores it
+    // as `deleted_at` (AGENTS.md DB rule), so `destroy()` must write that column.
+    deletedAt: 'deleted_at',
+    indexes: [{ fields: ['slug'] }, { fields: ['owner_id'] }, { fields: ['deleted_at'] }],
   }
 );
 

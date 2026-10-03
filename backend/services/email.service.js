@@ -7,9 +7,21 @@
  * best-effort delivery.
  */
 import nodemailer from 'nodemailer';
+import logger from '../utils/logger.js';
 import systemConfig from './systemConfig.service.js';
 
 let transporter = null;
+let transporterKey = null;
+
+/**
+ * Cache key for the pooled transporter. The admin panel can change SMTP
+ * credentials at runtime, so the transporter must be rebuilt whenever the
+ * effective config changes — a plain "create once" cache kept sending mail
+ * with stale credentials after a settings save.
+ */
+function transporterCacheKey(smtp) {
+  return JSON.stringify([smtp.host, smtp.port, smtp.secure, smtp.user, smtp.pass]);
+}
 
 /**
  * Load SMTP credentials from the runtime SystemConfig (DB-backed, cached)
@@ -19,10 +31,11 @@ let transporter = null;
 async function getSmtpConfig() {
   const dbCfg = await systemConfig.get('smtp', null);
   if (dbCfg && dbCfg.enabled && dbCfg.host && dbCfg.user && dbCfg.pass && !dbCfg.host.includes('your_')) {
+    const port = Number(dbCfg.port) || 587;
     return {
       host: dbCfg.host,
-      port: dbCfg.port || 587,
-      secure: Boolean(dbCfg.secure) || dbCfg.port === 465,
+      port,
+      secure: Boolean(dbCfg.secure) || port === 465,
       user: dbCfg.user,
       pass: dbCfg.pass,
       fromName: dbCfg.fromName || '',
@@ -46,14 +59,22 @@ async function getSmtpConfig() {
   };
 }
 
-async function getTransporter() {
+/**
+ * Return a pooled SMTP transporter for the *current* configuration.
+ * Exported for tests and for the settings smoke-check endpoint.
+ */
+export async function getTransporter() {
   const smtp = await getSmtpConfig();
   if (!smtp) {
-    transporter = null;
+    closeTransporter();
     return null;
   }
 
-  if (transporter) return transporter;
+  const key = transporterCacheKey(smtp);
+  if (transporter && transporterKey === key) return transporter;
+
+  // Credentials changed (or first call) — drop the old pool before rebuilding.
+  closeTransporter();
 
   transporter = nodemailer.createTransport({
     host: smtp.host,
@@ -65,29 +86,53 @@ async function getTransporter() {
     rateDelta: 1000,
     rateLimit: 5,
   });
+  transporterKey = key;
 
   return transporter;
 }
 
+/** Dispose the pooled transporter (config change, shutdown, tests). */
+export function closeTransporter() {
+  if (transporter && typeof transporter.close === 'function') {
+    try {
+      transporter.close();
+    } catch (err) {
+      logger.debug(`Transporter close failed: ${err.message}`);
+    }
+  }
+  transporter = null;
+  transporterKey = null;
+}
+
 const BRAND = process.env.APP_BRAND || 'Your App';
+
+function sanitizeHeaderValue(value) {
+  return String(value || '')
+    .replace(/[\r\n"]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 async function getFromAddress(business = null) {
   const cfg = business || (await systemConfig.get('business', {}));
-  const smtp = await systemConfig.get('smtp', {});
-  const BizName = cfg.name || BRAND;
-  if (smtp.fromEmail) return `"${smtp.fromName || BizName}" <${smtp.fromEmail}>`;
+  const smtp = (await systemConfig.get('smtp', {})) || {};
+  const BizName = sanitizeHeaderValue(cfg.name) || BRAND;
+  const fromName = sanitizeHeaderValue(smtp.fromName);
+  const fromEmail = sanitizeHeaderValue(smtp.fromEmail);
+  if (fromEmail) return `"${fromName || BizName}" <${fromEmail}>`;
   return `"${BizName}" <${process.env.EMAIL_FROM_ADDRESS || 'no-reply@' + (process.env.APP_DOMAIN || 'yourdomain.com')}>`;
 }
 
 /**
  * Send an email. Returns { sent: boolean } — always resolves (never throws).
+ * Failure shape: { sent:false, error, code:'EMAIL_SEND_FAILED' }.
+ * No-SMTP shape: { sent:false, dryRun:true } and the message is logged instead.
  */
 export async function sendEmail({ to, subject, html, text }) {
   try {
     const tr = await getTransporter();
     if (!tr) {
       // No SMTP configured — log the email content for dev/staging debugging.
-      const { logger } = await import('../utils/logger.js');
       logger.info(`[mail:dry-run] to=${to} subject=${subject}`);
       return { sent: false, dryRun: true };
     }
@@ -96,9 +141,8 @@ export async function sendEmail({ to, subject, html, text }) {
     await tr.sendMail({ from, to, subject, html: html || text, text });
     return { sent: true };
   } catch (err) {
-    const { logger } = await import('../utils/logger.js');
     logger.warn(`Email send failed (${err.message})`);
-    return { sent: false, error: err.message };
+    return { sent: false, error: err.message, code: 'EMAIL_SEND_FAILED' };
   }
 }
 
@@ -158,4 +202,13 @@ export async function sendOTPEmail(to, code) {
   return sendEmail({ to, subject: 'Your LumicorePro verification code', html });
 }
 
-export default { sendEmail, sendWelcomeEmail, sendVerificationEmail, sendPasswordResetEmail, sendOrderConfirmationEmail, sendOTPEmail };
+export default {
+  sendEmail,
+  sendWelcomeEmail,
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendOrderConfirmationEmail,
+  sendOTPEmail,
+  getTransporter,
+  closeTransporter,
+};

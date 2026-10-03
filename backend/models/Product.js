@@ -90,9 +90,17 @@ vendor_id: {
       comment: 'Product owner (legacy single-tenant)',
     },
     org_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+      references: { model: 'organizations', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Soft-delete marker (paranoid)',
     },
     isFeatured: {
       type: DataTypes.BOOLEAN,
@@ -118,6 +126,18 @@ vendor_id: {
     modelName: 'Product',
     tableName: 'products',
     timestamps: true,
+    paranoid: true,
+    deletedAt: 'deleted_at',
+    indexes: [
+      { name: 'idx_products_org', fields: ['org_id'] },
+      { name: 'idx_products_org_active', fields: ['org_id', 'isActive'] },
+      { name: 'idx_products_category', fields: ['category'] },
+      { name: 'idx_products_vendor', fields: ['vendor_id'] },
+      { name: 'idx_products_created_at', fields: ['createdAt'] },
+      { name: 'idx_products_deleted_at', fields: ['deleted_at'] },
+      // SKU is unique inside a tenant; NULL skus stay repeatable (Postgres treats NULLs as distinct).
+      { name: 'uq_products_org_sku', unique: true, fields: ['org_id', 'sku'] },
+    ],
     hooks: {
       beforeSave: (product) => {
         if (product.changed('title') || !product.slug) {

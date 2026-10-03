@@ -1,0 +1,69 @@
+# Fashion playbook — LumicorePro Core
+industry: fashion
+primary_goal: purchase
+secondary_goals: [wishlist, lookbook, preorder]
+business_model: retail / boutique / brand store
+
+pages:
+  - home
+  - collections
+  - category
+  - product
+  - lookbook
+  - size_guide
+  - cart
+  - checkout
+  - account
+
+critical_components:
+  - product_card
+  - collection_hero
+  - size_selector
+  - lookbook_grid
+  - cart_drawer
+  - wishlist
+  - styling_tips
+  - reviews
+
+conversion:
+  primary_cta: buy_now
+  secondary_cta: add_to_bag
+  trust:
+    - size_guarantee
+    - return_policy
+    - fabric_quality
+    - sustainability
+  urgency: [limited_collection, sale_end]
+
+mobile_priority:
+  size_check: high
+  quick_buy: high
+  lookbook_scroll: high
+  cart: high
+
+visual:
+  density: medium
+  imagery: high_fashion_editorial
+  typography: elegant
+  motion: graceful
+  3d: optional_fabric_tryon
+  cta_style: refined_primary
+
+ux_patterns:
+  - size_finder
+  - fit_recommendation
+  - lookbook_story
+  - wishlist_sync
+
+avoid:
+  - fake_discounts
+  - vague_fabric_claims
+  - excessive_carousels
+  - unclear_size_chart
+
+qa:
+  - size_selector_flow
+  - product_gallery
+  - lookbook_navigation
+  - cart_to_checkout
+  - return_policy_display

@@ -50,6 +50,9 @@ export default function CourseCatalog() {
           src={img.education.hero}
           alt="Education"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
@@ -124,6 +127,8 @@ export default function CourseCatalog() {
                 src={COURSE_IMGS[i % COURSE_IMGS.length]}
                 alt={course.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">

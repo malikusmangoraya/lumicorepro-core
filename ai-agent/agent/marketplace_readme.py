@@ -78,7 +78,7 @@ def _env_rows(mode: str) -> List[Tuple[str, str, str]]:
     return [
         ("PORT", "API port", "5000"),
         ("DATABASE_URL", "PostgreSQL or MySQL connection string", "postgres://user:pass@localhost:5432/app"),
-        ("JWT_SECRET", "Random 64-character secret", "replace_with_a_random_64_character_secret"),
+        ("JWT_SECRET", "REQUIRED. Random 32+ char secret. Generate: node -e \"console.log(require('crypto').randomBytes(48).toString('hex'))\" (or: openssl rand -hex 32)", ""),
         ("CORS_ORIGIN", "Allowed frontend origin", "http://localhost:5173"),
         ("VITE_API_URL", "Frontend API base URL", "http://localhost:5000"),
         ("REDIS_URL", "Redis for queues (enterprise)", "redis://localhost:6379"),

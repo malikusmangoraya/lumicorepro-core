@@ -1,0 +1,42 @@
+# ai-agent build context exclusions.
+# Keeps the image small and prevents local state/secrets from being baked in.
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python caches / build output
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+
+# Local agent state and output (mounted as volumes instead)
+database/*.db
+database/*.db-journal
+database/*.sqlite
+logs/
+*.log
+generated-projects/
+.artifacts/
+.router.json
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tests are kept in the build context on purpose: they are small, and having
+# them inside the image makes `docker compose exec ai-agent python -m pytest`
+# possible for a smoke check. Exclude the heavy benchmark corpora instead.
+tests/benchmarks-data/

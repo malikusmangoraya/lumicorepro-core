@@ -16,6 +16,23 @@ const shadows = {
   lg: 'shadow-lg',
 };
 
+// Cache motion-enhanced components so a new component identity is not created
+// on every render (which would remount the card and restart its animations).
+// Object components use a WeakMap so one-off inline components can be garbage
+// collected; string tags use a small Map because WeakMap keys must be objects.
+const motionObjectCache = new WeakMap();
+const motionTagCache = new Map();
+const createMotionComponent =
+  typeof motion.create === 'function' ? motion.create.bind(motion) : motion;
+
+function getMotionComponent(Component) {
+  const cache = typeof Component === 'string' ? motionTagCache : motionObjectCache;
+  if (!cache.has(Component)) {
+    cache.set(Component, createMotionComponent(Component));
+  }
+  return cache.get(Component);
+}
+
 const Card = React.forwardRef(
   (
     {
@@ -56,9 +73,12 @@ const Card = React.forwardRef(
             transition: { type: 'spring', stiffness: 300, damping: 20 },
           }
         : {};
+    // Motion props are only understood by motion components. Rendering them on
+    // a plain DOM/custom component leaks whileHover/transition into the DOM.
+    const RenderComponent = interactive && !reveal ? getMotionComponent(Component) : Component;
 
     const content = (
-      <Component
+      <RenderComponent
         ref={ref}
         className={cardClasses}
         onClick={onClick}
@@ -80,7 +100,7 @@ const Card = React.forwardRef(
         {...props}
       >
         {children}
-      </Component>
+      </RenderComponent>
     );
 
     if (reveal) {

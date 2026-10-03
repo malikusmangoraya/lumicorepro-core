@@ -75,6 +75,8 @@ export default function ProductListing() {
                     src={PRODUCT_IMGS[i % PRODUCT_IMGS.length]}
                     alt={p.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button className="h-8 w-8 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-md hover:bg-primary hover:text-primary-foreground transition-colors">

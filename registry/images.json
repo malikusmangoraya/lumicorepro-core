@@ -15,7 +15,7 @@
       "photo",
       "Bitcoin"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\bitcoin.jpg",
+    "file_path": "src\\assets\\images\\ai\\bitcoin.jpg",
     "width": 0,
     "height": 0
   },
@@ -36,7 +36,7 @@
       "Brain",
       "Lines"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\brain-lines.jpg",
+    "file_path": "src\\assets\\images\\ai\\brain-lines.jpg",
     "width": 0,
     "height": 0
   },
@@ -57,7 +57,7 @@
       "Chip",
       "Focus"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\chip-focus.jpg",
+    "file_path": "src\\assets\\images\\ai\\chip-focus.jpg",
     "width": 0,
     "height": 0
   },
@@ -77,7 +77,7 @@
       "photo",
       "Chip"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\chip.jpg",
+    "file_path": "src\\assets\\images\\ai\\chip.jpg",
     "width": 0,
     "height": 0
   },
@@ -98,7 +98,7 @@
       "Code",
       "Dark"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\code-dark.jpg",
+    "file_path": "src\\assets\\images\\ai\\code-dark.jpg",
     "width": 0,
     "height": 0
   },
@@ -119,7 +119,7 @@
       "Code",
       "Screen"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\code-screen.jpg",
+    "file_path": "src\\assets\\images\\ai\\code-screen.jpg",
     "width": 0,
     "height": 0
   },
@@ -139,7 +139,7 @@
       "photo",
       "Code"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\code.jpg",
+    "file_path": "src\\assets\\images\\ai\\code.jpg",
     "width": 0,
     "height": 0
   },
@@ -160,7 +160,7 @@
       "Coffee",
       "Focus"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\coffee-focus.jpg",
+    "file_path": "src\\assets\\images\\ai\\coffee-focus.jpg",
     "width": 0,
     "height": 0
   },
@@ -180,7 +180,7 @@
       "photo",
       "Data"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\data.jpg",
+    "file_path": "src\\assets\\images\\ai\\data.jpg",
     "width": 0,
     "height": 0
   },
@@ -201,7 +201,7 @@
       "Design",
       "Tools"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\design-tools.jpg",
+    "file_path": "src\\assets\\images\\ai\\design-tools.jpg",
     "width": 0,
     "height": 0
   },
@@ -222,7 +222,7 @@
       "Earth",
       "Data"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\earth-data.jpg",
+    "file_path": "src\\assets\\images\\ai\\earth-data.jpg",
     "width": 0,
     "height": 0
   },
@@ -243,7 +243,7 @@
       "Game",
       "Tech"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\game-tech.jpg",
+    "file_path": "src\\assets\\images\\ai\\game-tech.jpg",
     "width": 0,
     "height": 0
   },
@@ -264,7 +264,7 @@
       "Hero",
       "Chip"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\hero-chip.jpg",
+    "file_path": "src\\assets\\images\\ai\\hero-chip.jpg",
     "width": 0,
     "height": 0
   },
@@ -284,7 +284,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\hero.jpg",
+    "file_path": "src\\assets\\images\\ai\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -304,7 +304,7 @@
       "photo",
       "Knowledge"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\knowledge.jpg",
+    "file_path": "src\\assets\\images\\ai\\knowledge.jpg",
     "width": 0,
     "height": 0
   },
@@ -325,7 +325,7 @@
       "Neural",
       "Light"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\neural-light.jpg",
+    "file_path": "src\\assets\\images\\ai\\neural-light.jpg",
     "width": 0,
     "height": 0
   },
@@ -345,7 +345,7 @@
       "photo",
       "Robot"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\robot.jpg",
+    "file_path": "src\\assets\\images\\ai\\robot.jpg",
     "width": 0,
     "height": 0
   },
@@ -365,7 +365,7 @@
       "photo",
       "Security"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\security.jpg",
+    "file_path": "src\\assets\\images\\ai\\security.jpg",
     "width": 0,
     "height": 0
   },
@@ -386,7 +386,7 @@
       "Team",
       "Tech"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\team-tech.jpg",
+    "file_path": "src\\assets\\images\\ai\\team-tech.jpg",
     "width": 0,
     "height": 0
   },
@@ -407,7 +407,7 @@
       "Tech",
       "Glitch"
     ],
-    "file_path": "src/src\\assets\\images\\ai\\tech-glitch.jpg",
+    "file_path": "src\\assets\\images\\ai\\tech-glitch.jpg",
     "width": 0,
     "height": 0
   },
@@ -429,7 +429,7 @@
       "Analytics",
       "Board"
     ],
-    "file_path": "src/src\\assets\\images\\business\\analytics-board.jpg",
+    "file_path": "src\\assets\\images\\business\\analytics-board.jpg",
     "width": 0,
     "height": 0
   },
@@ -451,7 +451,7 @@
       "Analytics",
       "Deck"
     ],
-    "file_path": "src/src\\assets\\images\\business\\analytics-deck.jpg",
+    "file_path": "src\\assets\\images\\business\\analytics-deck.jpg",
     "width": 0,
     "height": 0
   },
@@ -472,7 +472,7 @@
       "photo",
       "Brainstorm"
     ],
-    "file_path": "src/src\\assets\\images\\business\\brainstorm.jpg",
+    "file_path": "src\\assets\\images\\business\\brainstorm.jpg",
     "width": 0,
     "height": 0
   },
@@ -494,7 +494,7 @@
       "Building",
       "Modern"
     ],
-    "file_path": "src/src\\assets\\images\\business\\building-modern.jpg",
+    "file_path": "src\\assets\\images\\business\\building-modern.jpg",
     "width": 0,
     "height": 0
   },
@@ -515,7 +515,7 @@
       "photo",
       "Cards"
     ],
-    "file_path": "src/src\\assets\\images\\business\\cards.jpg",
+    "file_path": "src\\assets\\images\\business\\cards.jpg",
     "width": 0,
     "height": 0
   },
@@ -536,7 +536,7 @@
       "photo",
       "City"
     ],
-    "file_path": "src/src\\assets\\images\\business\\city.jpg",
+    "file_path": "src\\assets\\images\\business\\city.jpg",
     "width": 0,
     "height": 0
   },
@@ -558,7 +558,7 @@
       "Corporate",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\business\\corporate-hero.jpg",
+    "file_path": "src\\assets\\images\\business\\corporate-hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -580,7 +580,7 @@
       "Corporate",
       "Space"
     ],
-    "file_path": "src/src\\assets\\images\\business\\corporate-space.jpg",
+    "file_path": "src\\assets\\images\\business\\corporate-space.jpg",
     "width": 0,
     "height": 0
   },
@@ -601,7 +601,7 @@
       "photo",
       "Executive"
     ],
-    "file_path": "src/src\\assets\\images\\business\\executive.jpg",
+    "file_path": "src\\assets\\images\\business\\executive.jpg",
     "width": 0,
     "height": 0
   },
@@ -622,7 +622,7 @@
       "photo",
       "Finance"
     ],
-    "file_path": "src/src\\assets\\images\\business\\finance.jpg",
+    "file_path": "src\\assets\\images\\business\\finance.jpg",
     "width": 0,
     "height": 0
   },
@@ -644,7 +644,7 @@
       "Focus",
       "Work"
     ],
-    "file_path": "src/src\\assets\\images\\business\\focus-work.jpg",
+    "file_path": "src\\assets\\images\\business\\focus-work.jpg",
     "width": 0,
     "height": 0
   },
@@ -666,7 +666,7 @@
       "Growth",
       "Chart"
     ],
-    "file_path": "src/src\\assets\\images\\business\\growth-chart.jpg",
+    "file_path": "src\\assets\\images\\business\\growth-chart.jpg",
     "width": 0,
     "height": 0
   },
@@ -687,7 +687,7 @@
       "photo",
       "Growth"
     ],
-    "file_path": "src/src\\assets\\images\\business\\growth.jpg",
+    "file_path": "src\\assets\\images\\business\\growth.jpg",
     "width": 0,
     "height": 0
   },
@@ -709,7 +709,7 @@
       "Handshake",
       "Deal"
     ],
-    "file_path": "src/src\\assets\\images\\business\\handshake-deal.jpg",
+    "file_path": "src\\assets\\images\\business\\handshake-deal.jpg",
     "width": 0,
     "height": 0
   },
@@ -731,7 +731,7 @@
       "Hero",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\business\\hero-desk.jpg",
+    "file_path": "src\\assets\\images\\business\\hero-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -752,7 +752,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\business\\hero.jpg",
+    "file_path": "src\\assets\\images\\business\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -774,7 +774,7 @@
       "Laptop",
       "Setup"
     ],
-    "file_path": "src/src\\assets\\images\\business\\laptop-setup.jpg",
+    "file_path": "src\\assets\\images\\business\\laptop-setup.jpg",
     "width": 0,
     "height": 0
   },
@@ -795,7 +795,7 @@
       "photo",
       "Meeting"
     ],
-    "file_path": "src/src\\assets\\images\\business\\meeting.jpg",
+    "file_path": "src\\assets\\images\\business\\meeting.jpg",
     "width": 0,
     "height": 0
   },
@@ -817,7 +817,7 @@
       "Office",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\business\\office-desk.jpg",
+    "file_path": "src\\assets\\images\\business\\office-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -839,7 +839,7 @@
       "Office",
       "Team"
     ],
-    "file_path": "src/src\\assets\\images\\business\\office-team.jpg",
+    "file_path": "src\\assets\\images\\business\\office-team.jpg",
     "width": 0,
     "height": 0
   },
@@ -860,7 +860,7 @@
       "photo",
       "Office"
     ],
-    "file_path": "src/src\\assets\\images\\business\\office.jpg",
+    "file_path": "src\\assets\\images\\business\\office.jpg",
     "width": 0,
     "height": 0
   },
@@ -881,7 +881,7 @@
       "photo",
       "Presentation"
     ],
-    "file_path": "src/src\\assets\\images\\business\\presentation.jpg",
+    "file_path": "src\\assets\\images\\business\\presentation.jpg",
     "width": 0,
     "height": 0
   },
@@ -903,7 +903,7 @@
       "Professional",
       "Female"
     ],
-    "file_path": "src/src\\assets\\images\\business\\professional-female.jpg",
+    "file_path": "src\\assets\\images\\business\\professional-female.jpg",
     "width": 0,
     "height": 0
   },
@@ -925,7 +925,7 @@
       "Professional",
       "Male"
     ],
-    "file_path": "src/src\\assets\\images\\business\\professional-male.jpg",
+    "file_path": "src\\assets\\images\\business\\professional-male.jpg",
     "width": 0,
     "height": 0
   },
@@ -946,7 +946,7 @@
       "photo",
       "Strategy"
     ],
-    "file_path": "src/src\\assets\\images\\business\\strategy.jpg",
+    "file_path": "src\\assets\\images\\business\\strategy.jpg",
     "width": 0,
     "height": 0
   },
@@ -967,7 +967,7 @@
       "photo",
       "Summit"
     ],
-    "file_path": "src/src\\assets\\images\\business\\summit.jpg",
+    "file_path": "src\\assets\\images\\business\\summit.jpg",
     "width": 0,
     "height": 0
   },
@@ -988,7 +988,7 @@
       "photo",
       "Team"
     ],
-    "file_path": "src/src\\assets\\images\\business\\team.jpg",
+    "file_path": "src\\assets\\images\\business\\team.jpg",
     "width": 0,
     "height": 0
   },
@@ -1009,7 +1009,7 @@
       "photo",
       "Wealth"
     ],
-    "file_path": "src/src\\assets\\images\\business\\wealth.jpg",
+    "file_path": "src\\assets\\images\\business\\wealth.jpg",
     "width": 0,
     "height": 0
   },
@@ -1031,7 +1031,7 @@
       "Work",
       "Meeting1"
     ],
-    "file_path": "src/src\\assets\\images\\business\\work-meeting1.jpg",
+    "file_path": "src\\assets\\images\\business\\work-meeting1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1053,7 +1053,7 @@
       "Work",
       "Meeting2"
     ],
-    "file_path": "src/src\\assets\\images\\business\\work-meeting2.jpg",
+    "file_path": "src\\assets\\images\\business\\work-meeting2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1074,7 +1074,7 @@
       "Artwork",
       "Design"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\artwork-design.jpg",
+    "file_path": "src\\assets\\images\\creative\\artwork-design.jpg",
     "width": 0,
     "height": 0
   },
@@ -1094,7 +1094,7 @@
       "photo",
       "Branding"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\branding.jpg",
+    "file_path": "src\\assets\\images\\creative\\branding.jpg",
     "width": 0,
     "height": 0
   },
@@ -1115,7 +1115,7 @@
       "Colorful",
       "Space"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\colorful-space.jpg",
+    "file_path": "src\\assets\\images\\creative\\colorful-space.jpg",
     "width": 0,
     "height": 0
   },
@@ -1136,7 +1136,7 @@
       "Creative",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\creative-fill-01.jpg",
+    "file_path": "src\\assets\\images\\creative\\creative-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -1157,7 +1157,7 @@
       "Design",
       "Desktop"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\design-desktop.jpg",
+    "file_path": "src\\assets\\images\\creative\\design-desktop.jpg",
     "width": 0,
     "height": 0
   },
@@ -1178,7 +1178,7 @@
       "Design",
       "Pattern"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\design-pattern.jpg",
+    "file_path": "src\\assets\\images\\creative\\design-pattern.jpg",
     "width": 0,
     "height": 0
   },
@@ -1199,7 +1199,7 @@
       "Hero",
       "Art"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\hero-art.jpg",
+    "file_path": "src\\assets\\images\\creative\\hero-art.jpg",
     "width": 0,
     "height": 0
   },
@@ -1219,7 +1219,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\hero.jpg",
+    "file_path": "src\\assets\\images\\creative\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -1239,7 +1239,7 @@
       "photo",
       "Lookbook"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\lookbook.jpg",
+    "file_path": "src\\assets\\images\\creative\\lookbook.jpg",
     "width": 0,
     "height": 0
   },
@@ -1259,7 +1259,7 @@
       "photo",
       "Moodboard"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\moodboard.jpg",
+    "file_path": "src\\assets\\images\\creative\\moodboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -1280,7 +1280,7 @@
       "Notebook",
       "Pen"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\notebook-pen.jpg",
+    "file_path": "src\\assets\\images\\creative\\notebook-pen.jpg",
     "width": 0,
     "height": 0
   },
@@ -1300,7 +1300,7 @@
       "photo",
       "Project1"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\project1.jpg",
+    "file_path": "src\\assets\\images\\creative\\project1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1320,7 +1320,7 @@
       "photo",
       "Project2"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\project2.jpg",
+    "file_path": "src\\assets\\images\\creative\\project2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1340,7 +1340,7 @@
       "photo",
       "Project3"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\project3.jpg",
+    "file_path": "src\\assets\\images\\creative\\project3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1360,7 +1360,7 @@
       "photo",
       "Project4"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\project4.jpg",
+    "file_path": "src\\assets\\images\\creative\\project4.jpg",
     "width": 0,
     "height": 0
   },
@@ -1381,7 +1381,7 @@
       "Studio",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\studio-desk.jpg",
+    "file_path": "src\\assets\\images\\creative\\studio-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -1401,7 +1401,7 @@
       "photo",
       "Team1"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\team1.jpg",
+    "file_path": "src\\assets\\images\\creative\\team1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1421,7 +1421,7 @@
       "photo",
       "Team2"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\team2.jpg",
+    "file_path": "src\\assets\\images\\creative\\team2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1441,7 +1441,7 @@
       "photo",
       "Team3"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\team3.jpg",
+    "file_path": "src\\assets\\images\\creative\\team3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1461,7 +1461,7 @@
       "photo",
       "Team4"
     ],
-    "file_path": "src/src\\assets\\images\\creative\\team4.jpg",
+    "file_path": "src\\assets\\images\\creative\\team4.jpg",
     "width": 0,
     "height": 0
   },
@@ -1482,7 +1482,7 @@
       "Analytics",
       "Laptop"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\analytics-laptop.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\analytics-laptop.jpg",
     "width": 0,
     "height": 0
   },
@@ -1503,7 +1503,7 @@
       "Analytics",
       "Phone"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\analytics-phone.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\analytics-phone.jpg",
     "width": 0,
     "height": 0
   },
@@ -1523,7 +1523,7 @@
       "photo",
       "Analytics"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\analytics.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\analytics.jpg",
     "width": 0,
     "height": 0
   },
@@ -1544,7 +1544,7 @@
       "Chart",
       "Notes"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\chart-notes.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\chart-notes.jpg",
     "width": 0,
     "height": 0
   },
@@ -1565,7 +1565,7 @@
       "Code",
       "Dash"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\code-dash.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\code-dash.jpg",
     "width": 0,
     "height": 0
   },
@@ -1586,7 +1586,7 @@
       "Code",
       "Editor"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\code-editor.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\code-editor.jpg",
     "width": 0,
     "height": 0
   },
@@ -1607,7 +1607,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-01.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -1628,7 +1628,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-02.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-02.jpg",
     "width": 0,
     "height": 0
   },
@@ -1649,7 +1649,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-03.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-03.jpg",
     "width": 0,
     "height": 0
   },
@@ -1670,7 +1670,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-04.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -1691,7 +1691,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-05.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-05.jpg",
     "width": 0,
     "height": 0
   },
@@ -1712,7 +1712,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-06.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-06.jpg",
     "width": 0,
     "height": 0
   },
@@ -1733,7 +1733,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-07.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-07.jpg",
     "width": 0,
     "height": 0
   },
@@ -1754,7 +1754,7 @@
       "Dash",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\dash-fill-08.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\dash-fill-08.jpg",
     "width": 0,
     "height": 0
   },
@@ -1775,7 +1775,7 @@
       "Desk",
       "Dashboard"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\desk-dashboard.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\desk-dashboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -1795,7 +1795,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\hero.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -1816,7 +1816,7 @@
       "Payments",
       "Dash"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\payments-dash.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\payments-dash.jpg",
     "width": 0,
     "height": 0
   },
@@ -1836,7 +1836,7 @@
       "photo",
       "User1"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\user1.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\user1.jpg",
     "width": 0,
     "height": 0
   },
@@ -1856,7 +1856,7 @@
       "photo",
       "User2"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\user2.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\user2.jpg",
     "width": 0,
     "height": 0
   },
@@ -1876,7 +1876,7 @@
       "photo",
       "User3"
     ],
-    "file_path": "src/src\\assets\\images\\dashboard\\user3.jpg",
+    "file_path": "src\\assets\\images\\dashboard\\user3.jpg",
     "width": 0,
     "height": 0
   },
@@ -1897,7 +1897,7 @@
       "Clothing",
       "Rack"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\clothing-rack.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\clothing-rack.jpg",
     "width": 0,
     "height": 0
   },
@@ -1917,7 +1917,7 @@
       "photo",
       "Cosmetics"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\cosmetics.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\cosmetics.jpg",
     "width": 0,
     "height": 0
   },
@@ -1938,7 +1938,7 @@
       "Denim",
       "Rack"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\denim-rack.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\denim-rack.jpg",
     "width": 0,
     "height": 0
   },
@@ -1958,7 +1958,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\hero.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -1979,7 +1979,7 @@
       "Iphone",
       "Pro"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\iphone-pro.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\iphone-pro.jpg",
     "width": 0,
     "height": 0
   },
@@ -2000,7 +2000,7 @@
       "Macbook",
       "Pro"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\macbook-pro.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\macbook-pro.jpg",
     "width": 0,
     "height": 0
   },
@@ -2021,7 +2021,7 @@
       "Product",
       "Camera"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-camera.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-camera.jpg",
     "width": 0,
     "height": 0
   },
@@ -2042,7 +2042,7 @@
       "Product",
       "Keyboard"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-keyboard.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-keyboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -2063,7 +2063,7 @@
       "Product",
       "Shoe"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-shoe.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-shoe.jpg",
     "width": 0,
     "height": 0
   },
@@ -2084,7 +2084,7 @@
       "Product",
       "Sneaker"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-sneaker.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-sneaker.jpg",
     "width": 0,
     "height": 0
   },
@@ -2105,7 +2105,7 @@
       "Product",
       "Sneaker2"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-sneaker2.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-sneaker2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2126,7 +2126,7 @@
       "Product",
       "Sunglasses"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product-sunglasses.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product-sunglasses.jpg",
     "width": 0,
     "height": 0
   },
@@ -2146,7 +2146,7 @@
       "photo",
       "Product1"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product1.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2166,7 +2166,7 @@
       "photo",
       "Product2"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product2.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2186,7 +2186,7 @@
       "photo",
       "Product3"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product3.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product3.jpg",
     "width": 0,
     "height": 0
   },
@@ -2206,7 +2206,7 @@
       "photo",
       "Product4"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product4.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product4.jpg",
     "width": 0,
     "height": 0
   },
@@ -2226,7 +2226,7 @@
       "photo",
       "Product5"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product5.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product5.jpg",
     "width": 0,
     "height": 0
   },
@@ -2246,7 +2246,7 @@
       "photo",
       "Product6"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product6.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product6.jpg",
     "width": 0,
     "height": 0
   },
@@ -2266,7 +2266,7 @@
       "photo",
       "Product7"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product7.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product7.jpg",
     "width": 0,
     "height": 0
   },
@@ -2286,7 +2286,7 @@
       "photo",
       "Product8"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\product8.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\product8.jpg",
     "width": 0,
     "height": 0
   },
@@ -2307,7 +2307,7 @@
       "Shopping",
       "Bags"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\shopping-bags.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\shopping-bags.jpg",
     "width": 0,
     "height": 0
   },
@@ -2328,7 +2328,7 @@
       "Sony",
       "Headphones"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\sony-headphones.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\sony-headphones.jpg",
     "width": 0,
     "height": 0
   },
@@ -2348,7 +2348,7 @@
       "photo",
       "Earbuds"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\earbuds.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\earbuds.jpg",
     "width": 0,
     "height": 0
   },
@@ -2369,7 +2369,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-01.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -2390,7 +2390,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-02.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-02.jpg",
     "width": 0,
     "height": 0
   },
@@ -2411,7 +2411,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-03.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-03.jpg",
     "width": 0,
     "height": 0
   },
@@ -2432,7 +2432,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-04.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -2453,7 +2453,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-05.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-05.jpg",
     "width": 0,
     "height": 0
   },
@@ -2474,7 +2474,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-06.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-06.jpg",
     "width": 0,
     "height": 0
   },
@@ -2495,7 +2495,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-07.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-07.jpg",
     "width": 0,
     "height": 0
   },
@@ -2516,7 +2516,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-08.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-08.jpg",
     "width": 0,
     "height": 0
   },
@@ -2537,7 +2537,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-09.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-09.jpg",
     "width": 0,
     "height": 0
   },
@@ -2558,7 +2558,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-10.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-10.jpg",
     "width": 0,
     "height": 0
   },
@@ -2579,7 +2579,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-11.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-11.jpg",
     "width": 0,
     "height": 0
   },
@@ -2600,7 +2600,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-12.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-12.jpg",
     "width": 0,
     "height": 0
   },
@@ -2621,7 +2621,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-13.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-13.jpg",
     "width": 0,
     "height": 0
   },
@@ -2642,7 +2642,7 @@
       "Electronics",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\electronics-fill-14.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\electronics-fill-14.jpg",
     "width": 0,
     "height": 0
   },
@@ -2663,7 +2663,7 @@
       "Fitness",
       "Band"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\fitness-band.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\fitness-band.jpg",
     "width": 0,
     "height": 0
   },
@@ -2683,7 +2683,7 @@
       "photo",
       "Gaming"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\gaming.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\gaming.jpg",
     "width": 0,
     "height": 0
   },
@@ -2703,7 +2703,7 @@
       "photo",
       "Laptop"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\laptop.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\laptop.jpg",
     "width": 0,
     "height": 0
   },
@@ -2723,7 +2723,7 @@
       "photo",
       "Phone"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\phone.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\phone.jpg",
     "width": 0,
     "height": 0
   },
@@ -2743,7 +2743,7 @@
       "photo",
       "Headset"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\vr-headset.jpg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\vr-headset.jpg",
     "width": 0,
     "height": 0
   },
@@ -2764,7 +2764,7 @@
       "Ultra",
       "Smartwatch"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\accessories\\ultra-smartwatch.svg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\accessories\\ultra-smartwatch.svg",
     "width": 0,
     "height": 0
   },
@@ -2786,7 +2786,7 @@
       "Wireless",
       "Headphones"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\headphones\\anc-wireless-headphones.svg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\headphones\\anc-wireless-headphones.svg",
     "width": 0,
     "height": 0
   },
@@ -2808,7 +2808,7 @@
       "Gaming",
       "Laptop"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\laptops\\pro-gaming-laptop.svg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\laptops\\pro-gaming-laptop.svg",
     "width": 0,
     "height": 0
   },
@@ -2829,7 +2829,7 @@
       "Flagship",
       "Smartphone"
     ],
-    "file_path": "src/src\\assets\\images\\ecommerce\\electronics\\smartphones\\flagship-smartphone.svg",
+    "file_path": "src\\assets\\images\\ecommerce\\electronics\\smartphones\\flagship-smartphone.svg",
     "width": 0,
     "height": 0
   },
@@ -2850,7 +2850,7 @@
       "Board",
       "Math"
     ],
-    "file_path": "src/src\\assets\\images\\education\\board-math.jpg",
+    "file_path": "src\\assets\\images\\education\\board-math.jpg",
     "width": 0,
     "height": 0
   },
@@ -2870,7 +2870,7 @@
       "photo",
       "Campus"
     ],
-    "file_path": "src/src\\assets\\images\\education\\campus.jpg",
+    "file_path": "src\\assets\\images\\education\\campus.jpg",
     "width": 0,
     "height": 0
   },
@@ -2891,7 +2891,7 @@
       "Child",
       "Computer"
     ],
-    "file_path": "src/src\\assets\\images\\education\\child-computer.jpg",
+    "file_path": "src\\assets\\images\\education\\child-computer.jpg",
     "width": 0,
     "height": 0
   },
@@ -2911,7 +2911,7 @@
       "photo",
       "Classroom"
     ],
-    "file_path": "src/src\\assets\\images\\education\\classroom.jpg",
+    "file_path": "src\\assets\\images\\education\\classroom.jpg",
     "width": 0,
     "height": 0
   },
@@ -2931,7 +2931,7 @@
       "photo",
       "Course1"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course1.jpg",
+    "file_path": "src\\assets\\images\\education\\course1.jpg",
     "width": 0,
     "height": 0
   },
@@ -2951,7 +2951,7 @@
       "photo",
       "Course2"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course2.jpg",
+    "file_path": "src\\assets\\images\\education\\course2.jpg",
     "width": 0,
     "height": 0
   },
@@ -2971,7 +2971,7 @@
       "photo",
       "Course3"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course3.jpg",
+    "file_path": "src\\assets\\images\\education\\course3.jpg",
     "width": 0,
     "height": 0
   },
@@ -2991,7 +2991,7 @@
       "photo",
       "Course4"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course4.jpg",
+    "file_path": "src\\assets\\images\\education\\course4.jpg",
     "width": 0,
     "height": 0
   },
@@ -3011,7 +3011,7 @@
       "photo",
       "Course5"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course5.jpg",
+    "file_path": "src\\assets\\images\\education\\course5.jpg",
     "width": 0,
     "height": 0
   },
@@ -3031,7 +3031,7 @@
       "photo",
       "Course6"
     ],
-    "file_path": "src/src\\assets\\images\\education\\course6.jpg",
+    "file_path": "src\\assets\\images\\education\\course6.jpg",
     "width": 0,
     "height": 0
   },
@@ -3052,7 +3052,7 @@
       "Hand",
       "Write"
     ],
-    "file_path": "src/src\\assets\\images\\education\\hand-write.jpg",
+    "file_path": "src\\assets\\images\\education\\hand-write.jpg",
     "width": 0,
     "height": 0
   },
@@ -3072,7 +3072,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\education\\hero.jpg",
+    "file_path": "src\\assets\\images\\education\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -3093,7 +3093,7 @@
       "Kid",
       "Study"
     ],
-    "file_path": "src/src\\assets\\images\\education\\kid-study.jpg",
+    "file_path": "src\\assets\\images\\education\\kid-study.jpg",
     "width": 0,
     "height": 0
   },
@@ -3114,7 +3114,7 @@
       "Kids",
       "Labs"
     ],
-    "file_path": "src/src\\assets\\images\\education\\kids-labs.jpg",
+    "file_path": "src\\assets\\images\\education\\kids-labs.jpg",
     "width": 0,
     "height": 0
   },
@@ -3135,7 +3135,7 @@
       "Lab",
       "Vials"
     ],
-    "file_path": "src/src\\assets\\images\\education\\lab-vials.jpg",
+    "file_path": "src\\assets\\images\\education\\lab-vials.jpg",
     "width": 0,
     "height": 0
   },
@@ -3155,7 +3155,7 @@
       "photo",
       "Microscope"
     ],
-    "file_path": "src/src\\assets\\images\\education\\microscope.jpg",
+    "file_path": "src\\assets\\images\\education\\microscope.jpg",
     "width": 0,
     "height": 0
   },
@@ -3175,7 +3175,7 @@
       "photo",
       "Notes"
     ],
-    "file_path": "src/src\\assets\\images\\education\\notes.jpg",
+    "file_path": "src\\assets\\images\\education\\notes.jpg",
     "width": 0,
     "height": 0
   },
@@ -3196,7 +3196,7 @@
       "Online",
       "Course"
     ],
-    "file_path": "src/src\\assets\\images\\education\\online-course.jpg",
+    "file_path": "src\\assets\\images\\education\\online-course.jpg",
     "width": 0,
     "height": 0
   },
@@ -3217,7 +3217,7 @@
       "Open",
       "Books"
     ],
-    "file_path": "src/src\\assets\\images\\education\\open-books.jpg",
+    "file_path": "src\\assets\\images\\education\\open-books.jpg",
     "width": 0,
     "height": 0
   },
@@ -3238,7 +3238,7 @@
       "Planning",
       "Clipboard"
     ],
-    "file_path": "src/src\\assets\\images\\education\\planning-clipboard.jpg",
+    "file_path": "src\\assets\\images\\education\\planning-clipboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -3259,7 +3259,7 @@
       "Student",
       "Library"
     ],
-    "file_path": "src/src\\assets\\images\\education\\student-library.jpg",
+    "file_path": "src\\assets\\images\\education\\student-library.jpg",
     "width": 0,
     "height": 0
   },
@@ -3279,7 +3279,7 @@
       "photo",
       "Student"
     ],
-    "file_path": "src/src\\assets\\images\\education\\student.jpg",
+    "file_path": "src\\assets\\images\\education\\student.jpg",
     "width": 0,
     "height": 0
   },
@@ -3299,7 +3299,7 @@
       "photo",
       "Students"
     ],
-    "file_path": "src/src\\assets\\images\\education\\students.jpg",
+    "file_path": "src\\assets\\images\\education\\students.jpg",
     "width": 0,
     "height": 0
   },
@@ -3320,7 +3320,7 @@
       "Study",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\education\\study-desk.jpg",
+    "file_path": "src\\assets\\images\\education\\study-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -3340,7 +3340,7 @@
       "photo",
       "University"
     ],
-    "file_path": "src/src\\assets\\images\\education\\university.jpg",
+    "file_path": "src\\assets\\images\\education\\university.jpg",
     "width": 0,
     "height": 0
   },
@@ -3362,7 +3362,7 @@
       "Analytics",
       "Screen"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\analytics-screen.jpg",
+    "file_path": "src\\assets\\images\\fintech\\analytics-screen.jpg",
     "width": 0,
     "height": 0
   },
@@ -3384,7 +3384,7 @@
       "Banking",
       "App"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\banking-app.jpg",
+    "file_path": "src\\assets\\images\\fintech\\banking-app.jpg",
     "width": 0,
     "height": 0
   },
@@ -3406,7 +3406,7 @@
       "Card",
       "Wallet"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\card-wallet.jpg",
+    "file_path": "src\\assets\\images\\fintech\\card-wallet.jpg",
     "width": 0,
     "height": 0
   },
@@ -3427,7 +3427,7 @@
       "photo",
       "Coins"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\coins.jpg",
+    "file_path": "src\\assets\\images\\fintech\\coins.jpg",
     "width": 0,
     "height": 0
   },
@@ -3449,7 +3449,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-01.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -3471,7 +3471,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-02.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-02.jpg",
     "width": 0,
     "height": 0
   },
@@ -3493,7 +3493,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-03.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-03.jpg",
     "width": 0,
     "height": 0
   },
@@ -3515,7 +3515,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-04.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -3537,7 +3537,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-05.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-05.jpg",
     "width": 0,
     "height": 0
   },
@@ -3559,7 +3559,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-06.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-06.jpg",
     "width": 0,
     "height": 0
   },
@@ -3581,7 +3581,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-07.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-07.jpg",
     "width": 0,
     "height": 0
   },
@@ -3603,7 +3603,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-08.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-08.jpg",
     "width": 0,
     "height": 0
   },
@@ -3625,7 +3625,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-09.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-09.jpg",
     "width": 0,
     "height": 0
   },
@@ -3647,7 +3647,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-10.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-10.jpg",
     "width": 0,
     "height": 0
   },
@@ -3669,7 +3669,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-11.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-11.jpg",
     "width": 0,
     "height": 0
   },
@@ -3691,7 +3691,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-12.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-12.jpg",
     "width": 0,
     "height": 0
   },
@@ -3713,7 +3713,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-13.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-13.jpg",
     "width": 0,
     "height": 0
   },
@@ -3735,7 +3735,7 @@
       "Fintech",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\fintech-fill-14.jpg",
+    "file_path": "src\\assets\\images\\fintech\\fintech-fill-14.jpg",
     "width": 0,
     "height": 0
   },
@@ -3757,7 +3757,7 @@
       "Money",
       "App"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\money-app.jpg",
+    "file_path": "src\\assets\\images\\fintech\\money-app.jpg",
     "width": 0,
     "height": 0
   },
@@ -3779,7 +3779,7 @@
       "Phone",
       "Cash"
     ],
-    "file_path": "src/src\\assets\\images\\fintech\\phone-cash.jpg",
+    "file_path": "src\\assets\\images\\fintech\\phone-cash.jpg",
     "width": 0,
     "height": 0
   },
@@ -3799,7 +3799,7 @@
       "photo",
       "Class"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\class.jpg",
+    "file_path": "src\\assets\\images\\fitness\\class.jpg",
     "width": 0,
     "height": 0
   },
@@ -3819,7 +3819,7 @@
       "photo",
       "Class1"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\class1.jpg",
+    "file_path": "src\\assets\\images\\fitness\\class1.jpg",
     "width": 0,
     "height": 0
   },
@@ -3839,7 +3839,7 @@
       "photo",
       "Class2"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\class2.jpg",
+    "file_path": "src\\assets\\images\\fitness\\class2.jpg",
     "width": 0,
     "height": 0
   },
@@ -3859,7 +3859,7 @@
       "photo",
       "Crossfit"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\crossfit.jpg",
+    "file_path": "src\\assets\\images\\fitness\\crossfit.jpg",
     "width": 0,
     "height": 0
   },
@@ -3879,7 +3879,7 @@
       "photo",
       "Dumbbells"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\dumbbells.jpg",
+    "file_path": "src\\assets\\images\\fitness\\dumbbells.jpg",
     "width": 0,
     "height": 0
   },
@@ -3900,7 +3900,7 @@
       "Gym",
       "Workout"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\gym-workout.jpg",
+    "file_path": "src\\assets\\images\\fitness\\gym-workout.jpg",
     "width": 0,
     "height": 0
   },
@@ -3920,7 +3920,7 @@
       "photo",
       "Gym1"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\gym1.jpg",
+    "file_path": "src\\assets\\images\\fitness\\gym1.jpg",
     "width": 0,
     "height": 0
   },
@@ -3940,7 +3940,7 @@
       "photo",
       "Gym2"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\gym2.jpg",
+    "file_path": "src\\assets\\images\\fitness\\gym2.jpg",
     "width": 0,
     "height": 0
   },
@@ -3961,7 +3961,7 @@
       "Hero",
       "Gym"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\hero-gym.jpg",
+    "file_path": "src\\assets\\images\\fitness\\hero-gym.jpg",
     "width": 0,
     "height": 0
   },
@@ -3981,7 +3981,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\hero.jpg",
+    "file_path": "src\\assets\\images\\fitness\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -4001,7 +4001,7 @@
       "photo",
       "Hiit"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\hiit.jpg",
+    "file_path": "src\\assets\\images\\fitness\\hiit.jpg",
     "width": 0,
     "height": 0
   },
@@ -4021,7 +4021,7 @@
       "photo",
       "Jump"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\jump.jpg",
+    "file_path": "src\\assets\\images\\fitness\\jump.jpg",
     "width": 0,
     "height": 0
   },
@@ -4041,7 +4041,7 @@
       "photo",
       "Kettlebell"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\kettlebell.jpg",
+    "file_path": "src\\assets\\images\\fitness\\kettlebell.jpg",
     "width": 0,
     "height": 0
   },
@@ -4062,7 +4062,7 @@
       "Personal",
       "Trainer"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\personal-trainer.jpg",
+    "file_path": "src\\assets\\images\\fitness\\personal-trainer.jpg",
     "width": 0,
     "height": 0
   },
@@ -4082,7 +4082,7 @@
       "photo",
       "Running"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\running.jpg",
+    "file_path": "src\\assets\\images\\fitness\\running.jpg",
     "width": 0,
     "height": 0
   },
@@ -4102,7 +4102,7 @@
       "photo",
       "Trainer1"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\trainer1.jpg",
+    "file_path": "src\\assets\\images\\fitness\\trainer1.jpg",
     "width": 0,
     "height": 0
   },
@@ -4122,7 +4122,7 @@
       "photo",
       "Trainer2"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\trainer2.jpg",
+    "file_path": "src\\assets\\images\\fitness\\trainer2.jpg",
     "width": 0,
     "height": 0
   },
@@ -4142,7 +4142,7 @@
       "photo",
       "Trainer3"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\trainer3.jpg",
+    "file_path": "src\\assets\\images\\fitness\\trainer3.jpg",
     "width": 0,
     "height": 0
   },
@@ -4162,7 +4162,7 @@
       "photo",
       "Trainer4"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\trainer4.jpg",
+    "file_path": "src\\assets\\images\\fitness\\trainer4.jpg",
     "width": 0,
     "height": 0
   },
@@ -4182,7 +4182,7 @@
       "photo",
       "Weights"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\weights.jpg",
+    "file_path": "src\\assets\\images\\fitness\\weights.jpg",
     "width": 0,
     "height": 0
   },
@@ -4203,7 +4203,7 @@
       "Woman",
       "Exercise"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\woman-exercise.jpg",
+    "file_path": "src\\assets\\images\\fitness\\woman-exercise.jpg",
     "width": 0,
     "height": 0
   },
@@ -4224,7 +4224,7 @@
       "Yoga",
       "Class"
     ],
-    "file_path": "src/src\\assets\\images\\fitness\\yoga-class.jpg",
+    "file_path": "src\\assets\\images\\fitness\\yoga-class.jpg",
     "width": 0,
     "height": 0
   },
@@ -4245,7 +4245,7 @@
       "Doc",
       "Clipboard"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doc-clipboard.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doc-clipboard.jpg",
     "width": 0,
     "height": 0
   },
@@ -4266,7 +4266,7 @@
       "Doc",
       "Consult"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doc-consult.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doc-consult.jpg",
     "width": 0,
     "height": 0
   },
@@ -4287,7 +4287,7 @@
       "Doc",
       "Female"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doc-female.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doc-female.jpg",
     "width": 0,
     "height": 0
   },
@@ -4308,7 +4308,7 @@
       "Doc",
       "Male"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doc-male.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doc-male.jpg",
     "width": 0,
     "height": 0
   },
@@ -4329,7 +4329,7 @@
       "Doc",
       "Tablet"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doc-tablet.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doc-tablet.jpg",
     "width": 0,
     "height": 0
   },
@@ -4350,7 +4350,7 @@
       "Doctor",
       "Consult"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor-consult.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor-consult.jpg",
     "width": 0,
     "height": 0
   },
@@ -4370,7 +4370,7 @@
       "photo",
       "Doctor1"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor1.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor1.jpg",
     "width": 0,
     "height": 0
   },
@@ -4390,7 +4390,7 @@
       "photo",
       "Doctor2"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor2.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor2.jpg",
     "width": 0,
     "height": 0
   },
@@ -4410,7 +4410,7 @@
       "photo",
       "Doctor3"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor3.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor3.jpg",
     "width": 0,
     "height": 0
   },
@@ -4430,7 +4430,7 @@
       "photo",
       "Doctor4"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor4.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor4.jpg",
     "width": 0,
     "height": 0
   },
@@ -4450,7 +4450,7 @@
       "photo",
       "Doctor5"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor5.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor5.jpg",
     "width": 0,
     "height": 0
   },
@@ -4470,7 +4470,7 @@
       "photo",
       "Doctor6"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\doctor6.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\doctor6.jpg",
     "width": 0,
     "height": 0
   },
@@ -4491,7 +4491,7 @@
       "Hero",
       "Doctor"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\hero-doctor.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\hero-doctor.jpg",
     "width": 0,
     "height": 0
   },
@@ -4511,7 +4511,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\hero.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -4532,7 +4532,7 @@
       "Hospital",
       "Build"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\hospital-build.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\hospital-build.jpg",
     "width": 0,
     "height": 0
   },
@@ -4553,7 +4553,7 @@
       "Hospital",
       "Hall"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\hospital-hall.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\hospital-hall.jpg",
     "width": 0,
     "height": 0
   },
@@ -4573,7 +4573,7 @@
       "photo",
       "Hospital"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\hospital.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\hospital.jpg",
     "width": 0,
     "height": 0
   },
@@ -4594,7 +4594,7 @@
       "Lab",
       "Tech"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\lab-tech.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\lab-tech.jpg",
     "width": 0,
     "height": 0
   },
@@ -4615,7 +4615,7 @@
       "Med",
       "Kit"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\med-kit.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\med-kit.jpg",
     "width": 0,
     "height": 0
   },
@@ -4636,7 +4636,7 @@
       "Med",
       "Tech"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\med-tech.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\med-tech.jpg",
     "width": 0,
     "height": 0
   },
@@ -4657,7 +4657,7 @@
       "Modern",
       "Hospital"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\modern-hospital.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\modern-hospital.jpg",
     "width": 0,
     "height": 0
   },
@@ -4677,7 +4677,7 @@
       "photo",
       "Nurse"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\nurse.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\nurse.jpg",
     "width": 0,
     "height": 0
   },
@@ -4697,7 +4697,7 @@
       "photo",
       "Pharmacy"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\pharmacy.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\pharmacy.jpg",
     "width": 0,
     "height": 0
   },
@@ -4717,7 +4717,7 @@
       "photo",
       "Telehealth"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\telehealth.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\telehealth.jpg",
     "width": 0,
     "height": 0
   },
@@ -4737,7 +4737,7 @@
       "photo",
       "Vials"
     ],
-    "file_path": "src/src\\assets\\images\\healthcare\\vials.jpg",
+    "file_path": "src\\assets\\images\\healthcare\\vials.jpg",
     "width": 0,
     "height": 0
   },
@@ -4757,7 +4757,7 @@
       "photo",
       "Avatar"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\avatar.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\avatar.jpg",
     "width": 0,
     "height": 0
   },
@@ -4777,7 +4777,7 @@
       "photo",
       "Code"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\code.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\code.jpg",
     "width": 0,
     "height": 0
   },
@@ -4798,7 +4798,7 @@
       "Designer",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\designer-desk.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\designer-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -4819,7 +4819,7 @@
       "Designer",
       "Portrait"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\designer-portrait.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\designer-portrait.jpg",
     "width": 0,
     "height": 0
   },
@@ -4840,7 +4840,7 @@
       "Dev",
       "Code"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\dev-code.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\dev-code.jpg",
     "width": 0,
     "height": 0
   },
@@ -4861,7 +4861,7 @@
       "Developer",
       "Workspace"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\developer-workspace.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\developer-workspace.jpg",
     "width": 0,
     "height": 0
   },
@@ -4881,7 +4881,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\hero.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -4901,7 +4901,7 @@
       "photo",
       "Work"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\mb-work.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\mb-work.jpg",
     "width": 0,
     "height": 0
   },
@@ -4922,7 +4922,7 @@
       "Phone",
       "Dev"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\phone-dev.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\phone-dev.jpg",
     "width": 0,
     "height": 0
   },
@@ -4943,7 +4943,7 @@
       "Portfolio",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-01.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\portfolio-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -4964,7 +4964,7 @@
       "Portfolio",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-02.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\portfolio-fill-02.jpg",
     "width": 0,
     "height": 0
   },
@@ -4985,7 +4985,7 @@
       "Portfolio",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-03.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\portfolio-fill-03.jpg",
     "width": 0,
     "height": 0
   },
@@ -5006,7 +5006,7 @@
       "Portfolio",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\portfolio-fill-04.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\portfolio-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -5026,7 +5026,7 @@
       "photo",
       "Project1"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\project1.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\project1.jpg",
     "width": 0,
     "height": 0
   },
@@ -5046,7 +5046,7 @@
       "photo",
       "Project2"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\project2.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\project2.jpg",
     "width": 0,
     "height": 0
   },
@@ -5066,7 +5066,7 @@
       "photo",
       "Project3"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\project3.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\project3.jpg",
     "width": 0,
     "height": 0
   },
@@ -5086,7 +5086,7 @@
       "photo",
       "Resume"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\resume.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\resume.jpg",
     "width": 0,
     "height": 0
   },
@@ -5107,7 +5107,7 @@
       "Saas",
       "Design"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\saas-design.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\saas-design.jpg",
     "width": 0,
     "height": 0
   },
@@ -5128,7 +5128,7 @@
       "Workspace",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\workspace-desk.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\workspace-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -5148,7 +5148,7 @@
       "photo",
       "Workspace"
     ],
-    "file_path": "src/src\\assets\\images\\portfolio\\workspace.jpg",
+    "file_path": "src\\assets\\images\\portfolio\\workspace.jpg",
     "width": 0,
     "height": 0
   },
@@ -5168,7 +5168,7 @@
       "photo",
       "Agent"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\agent.jpg",
+    "file_path": "src\\assets\\images\\realestate\\agent.jpg",
     "width": 0,
     "height": 0
   },
@@ -5189,7 +5189,7 @@
       "Apartment",
       "Living"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\apartment-living.jpg",
+    "file_path": "src\\assets\\images\\realestate\\apartment-living.jpg",
     "width": 0,
     "height": 0
   },
@@ -5210,7 +5210,7 @@
       "Arch",
       "Modern"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\arch-modern.jpg",
+    "file_path": "src\\assets\\images\\realestate\\arch-modern.jpg",
     "width": 0,
     "height": 0
   },
@@ -5231,7 +5231,7 @@
       "Beach",
       "House"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\beach-house.jpg",
+    "file_path": "src\\assets\\images\\realestate\\beach-house.jpg",
     "width": 0,
     "height": 0
   },
@@ -5252,7 +5252,7 @@
       "Cabin",
       "Lake"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\cabin-lake.jpg",
+    "file_path": "src\\assets\\images\\realestate\\cabin-lake.jpg",
     "width": 0,
     "height": 0
   },
@@ -5273,7 +5273,7 @@
       "Chair",
       "Interior"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\chair-interior.jpg",
+    "file_path": "src\\assets\\images\\realestate\\chair-interior.jpg",
     "width": 0,
     "height": 0
   },
@@ -5294,7 +5294,7 @@
       "Condo",
       "View"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\condo-view.jpg",
+    "file_path": "src\\assets\\images\\realestate\\condo-view.jpg",
     "width": 0,
     "height": 0
   },
@@ -5315,7 +5315,7 @@
       "Dusk",
       "Home"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\dusk-home.jpg",
+    "file_path": "src\\assets\\images\\realestate\\dusk-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -5335,7 +5335,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\hero.jpg",
+    "file_path": "src\\assets\\images\\realestate\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -5356,7 +5356,7 @@
       "Home",
       "Decor"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\home-decor.jpg",
+    "file_path": "src\\assets\\images\\realestate\\home-decor.jpg",
     "width": 0,
     "height": 0
   },
@@ -5377,7 +5377,7 @@
       "Interior",
       "Lux"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\interior-lux.jpg",
+    "file_path": "src\\assets\\images\\realestate\\interior-lux.jpg",
     "width": 0,
     "height": 0
   },
@@ -5397,7 +5397,7 @@
       "photo",
       "Interior"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\interior.jpg",
+    "file_path": "src\\assets\\images\\realestate\\interior.jpg",
     "width": 0,
     "height": 0
   },
@@ -5418,7 +5418,7 @@
       "Living",
       "Room"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\living-room.jpg",
+    "file_path": "src\\assets\\images\\realestate\\living-room.jpg",
     "width": 0,
     "height": 0
   },
@@ -5438,7 +5438,7 @@
       "photo",
       "Lounge"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\lounge.jpg",
+    "file_path": "src\\assets\\images\\realestate\\lounge.jpg",
     "width": 0,
     "height": 0
   },
@@ -5459,7 +5459,7 @@
       "Luxury",
       "Villa"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\luxury-villa.jpg",
+    "file_path": "src\\assets\\images\\realestate\\luxury-villa.jpg",
     "width": 0,
     "height": 0
   },
@@ -5480,7 +5480,7 @@
       "Modern",
       "Home"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\modern-home.jpg",
+    "file_path": "src\\assets\\images\\realestate\\modern-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -5501,7 +5501,7 @@
       "Modern",
       "House"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\modern-house.jpg",
+    "file_path": "src\\assets\\images\\realestate\\modern-house.jpg",
     "width": 0,
     "height": 0
   },
@@ -5522,7 +5522,7 @@
       "Pool",
       "House"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\pool-house.jpg",
+    "file_path": "src\\assets\\images\\realestate\\pool-house.jpg",
     "width": 0,
     "height": 0
   },
@@ -5542,7 +5542,7 @@
       "photo",
       "Prop1"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\prop1.jpg",
+    "file_path": "src\\assets\\images\\realestate\\prop1.jpg",
     "width": 0,
     "height": 0
   },
@@ -5562,7 +5562,7 @@
       "photo",
       "Prop2"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\prop2.jpg",
+    "file_path": "src\\assets\\images\\realestate\\prop2.jpg",
     "width": 0,
     "height": 0
   },
@@ -5582,7 +5582,7 @@
       "photo",
       "Prop3"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\prop3.jpg",
+    "file_path": "src\\assets\\images\\realestate\\prop3.jpg",
     "width": 0,
     "height": 0
   },
@@ -5602,7 +5602,7 @@
       "photo",
       "Prop4"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\prop4.jpg",
+    "file_path": "src\\assets\\images\\realestate\\prop4.jpg",
     "width": 0,
     "height": 0
   },
@@ -5622,7 +5622,7 @@
       "photo",
       "Prop5"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\prop5.jpg",
+    "file_path": "src\\assets\\images\\realestate\\prop5.jpg",
     "width": 0,
     "height": 0
   },
@@ -5642,7 +5642,7 @@
       "photo",
       "Property"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\property.jpg",
+    "file_path": "src\\assets\\images\\realestate\\property.jpg",
     "width": 0,
     "height": 0
   },
@@ -5663,7 +5663,7 @@
       "Twilight",
       "Home"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\twilight-home.jpg",
+    "file_path": "src\\assets\\images\\realestate\\twilight-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -5684,7 +5684,7 @@
       "Villa",
       "Front"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\villa-front.jpg",
+    "file_path": "src\\assets\\images\\realestate\\villa-front.jpg",
     "width": 0,
     "height": 0
   },
@@ -5706,7 +5706,7 @@
       "Desk",
       "Home"
     ],
-    "file_path": "src/src\\assets\\images\\realestate\\work-desk-home.jpg",
+    "file_path": "src\\assets\\images\\realestate\\work-desk-home.jpg",
     "width": 0,
     "height": 0
   },
@@ -5727,7 +5727,7 @@
       "Bar",
       "Tap"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\bar-tap.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\bar-tap.jpg",
     "width": 0,
     "height": 0
   },
@@ -5747,7 +5747,7 @@
       "photo",
       "Brunch"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\brunch.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\brunch.jpg",
     "width": 0,
     "height": 0
   },
@@ -5767,7 +5767,7 @@
       "photo",
       "Burger"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\burger.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\burger.jpg",
     "width": 0,
     "height": 0
   },
@@ -5788,7 +5788,7 @@
       "Chef",
       "Plating"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\chef-plating.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\chef-plating.jpg",
     "width": 0,
     "height": 0
   },
@@ -5808,7 +5808,7 @@
       "photo",
       "Chef"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\chef.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\chef.jpg",
     "width": 0,
     "height": 0
   },
@@ -5829,7 +5829,7 @@
       "Choco",
       "Dessert"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\choco-dessert.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\choco-dessert.jpg",
     "width": 0,
     "height": 0
   },
@@ -5850,7 +5850,7 @@
       "Colorful",
       "Salad"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\colorful-salad.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\colorful-salad.jpg",
     "width": 0,
     "height": 0
   },
@@ -5870,7 +5870,7 @@
       "photo",
       "Dessert"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dessert.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dessert.jpg",
     "width": 0,
     "height": 0
   },
@@ -5891,7 +5891,7 @@
       "Dish",
       "Veg"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish-veg.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish-veg.jpg",
     "width": 0,
     "height": 0
   },
@@ -5911,7 +5911,7 @@
       "photo",
       "Dish1"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish1.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish1.jpg",
     "width": 0,
     "height": 0
   },
@@ -5932,7 +5932,7 @@
       "Dish1",
       "Test"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish1_test.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish1_test.jpg",
     "width": 0,
     "height": 0
   },
@@ -5952,7 +5952,7 @@
       "photo",
       "Dish2"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish2.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish2.jpg",
     "width": 0,
     "height": 0
   },
@@ -5972,7 +5972,7 @@
       "photo",
       "Dish3"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish3.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish3.jpg",
     "width": 0,
     "height": 0
   },
@@ -5992,7 +5992,7 @@
       "photo",
       "Dish4"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish4.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish4.jpg",
     "width": 0,
     "height": 0
   },
@@ -6012,7 +6012,7 @@
       "photo",
       "Dish5"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish5.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish5.jpg",
     "width": 0,
     "height": 0
   },
@@ -6032,7 +6032,7 @@
       "photo",
       "Dish6"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\dish6.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\dish6.jpg",
     "width": 0,
     "height": 0
   },
@@ -6053,7 +6053,7 @@
       "Fine",
       "Dining"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\fine-dining.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\fine-dining.jpg",
     "width": 0,
     "height": 0
   },
@@ -6074,7 +6074,7 @@
       "Gourmet",
       "Dish"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\gourmet-dish.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\gourmet-dish.jpg",
     "width": 0,
     "height": 0
   },
@@ -6094,7 +6094,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\hero.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -6115,7 +6115,7 @@
       "Interior",
       "Tables"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\interior-tables.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\interior-tables.jpg",
     "width": 0,
     "height": 0
   },
@@ -6135,7 +6135,7 @@
       "photo",
       "Interior"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\interior.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\interior.jpg",
     "width": 0,
     "height": 0
   },
@@ -6156,7 +6156,7 @@
       "Kitchen",
       "Team"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\kitchen-team.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\kitchen-team.jpg",
     "width": 0,
     "height": 0
   },
@@ -6177,7 +6177,7 @@
       "Lavish",
       "Dish"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\lavish-dish.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\lavish-dish.jpg",
     "width": 0,
     "height": 0
   },
@@ -6198,7 +6198,7 @@
       "Meat",
       "Dish"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\meat-dish.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\meat-dish.jpg",
     "width": 0,
     "height": 0
   },
@@ -6218,7 +6218,7 @@
       "photo",
       "Pancakes"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\pancakes.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\pancakes.jpg",
     "width": 0,
     "height": 0
   },
@@ -6238,7 +6238,7 @@
       "photo",
       "Pasta"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\pasta.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\pasta.jpg",
     "width": 0,
     "height": 0
   },
@@ -6259,7 +6259,7 @@
       "Salad",
       "Bowl"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\salad-bowl.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\salad-bowl.jpg",
     "width": 0,
     "height": 0
   },
@@ -6280,7 +6280,7 @@
       "Table",
       "Setup"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\table-setup.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\table-setup.jpg",
     "width": 0,
     "height": 0
   },
@@ -6300,7 +6300,7 @@
       "photo",
       "Toast"
     ],
-    "file_path": "src/src\\assets\\images\\restaurant\\toast.jpg",
+    "file_path": "src\\assets\\images\\restaurant\\toast.jpg",
     "width": 0,
     "height": 0
   },
@@ -6321,7 +6321,7 @@
       "Dev",
       "Desk"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\dev-desk.jpg",
+    "file_path": "src\\assets\\images\\saas\\dev-desk.jpg",
     "width": 0,
     "height": 0
   },
@@ -6342,7 +6342,7 @@
       "Mobile",
       "First"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\mobile-first.jpg",
+    "file_path": "src\\assets\\images\\saas\\mobile-first.jpg",
     "width": 0,
     "height": 0
   },
@@ -6363,7 +6363,7 @@
       "Office",
       "Green"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\office-green.jpg",
+    "file_path": "src\\assets\\images\\saas\\office-green.jpg",
     "width": 0,
     "height": 0
   },
@@ -6384,7 +6384,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-01.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-01.jpg",
     "width": 0,
     "height": 0
   },
@@ -6405,7 +6405,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-02.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-02.jpg",
     "width": 0,
     "height": 0
   },
@@ -6426,7 +6426,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-03.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-03.jpg",
     "width": 0,
     "height": 0
   },
@@ -6447,7 +6447,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-04.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-04.jpg",
     "width": 0,
     "height": 0
   },
@@ -6468,7 +6468,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-05.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-05.jpg",
     "width": 0,
     "height": 0
   },
@@ -6489,7 +6489,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-06.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-06.jpg",
     "width": 0,
     "height": 0
   },
@@ -6510,7 +6510,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-07.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-07.jpg",
     "width": 0,
     "height": 0
   },
@@ -6531,7 +6531,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-08.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-08.jpg",
     "width": 0,
     "height": 0
   },
@@ -6552,7 +6552,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-09.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-09.jpg",
     "width": 0,
     "height": 0
   },
@@ -6573,7 +6573,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-10.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-10.jpg",
     "width": 0,
     "height": 0
   },
@@ -6594,7 +6594,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-11.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-11.jpg",
     "width": 0,
     "height": 0
   },
@@ -6615,7 +6615,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-12.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-12.jpg",
     "width": 0,
     "height": 0
   },
@@ -6636,7 +6636,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-13.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-13.jpg",
     "width": 0,
     "height": 0
   },
@@ -6657,7 +6657,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-14.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-14.jpg",
     "width": 0,
     "height": 0
   },
@@ -6678,7 +6678,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-15.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-15.jpg",
     "width": 0,
     "height": 0
   },
@@ -6699,7 +6699,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-16.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-16.jpg",
     "width": 0,
     "height": 0
   },
@@ -6720,7 +6720,7 @@
       "Saas",
       "Fill"
     ],
-    "file_path": "src/src\\assets\\images\\saas\\saas-fill-17.jpg",
+    "file_path": "src\\assets\\images\\saas\\saas-fill-17.jpg",
     "width": 0,
     "height": 0
   },
@@ -6739,7 +6739,7 @@
       "photo",
       "Alps"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\alps.jpg",
+    "file_path": "src\\assets\\images\\travel\\alps.jpg",
     "width": 0,
     "height": 0
   },
@@ -6759,7 +6759,7 @@
       "Beach",
       "Resort"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\beach-resort.jpg",
+    "file_path": "src\\assets\\images\\travel\\beach-resort.jpg",
     "width": 0,
     "height": 0
   },
@@ -6778,7 +6778,7 @@
       "photo",
       "Beach"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\beach.jpg",
+    "file_path": "src\\assets\\images\\travel\\beach.jpg",
     "width": 0,
     "height": 0
   },
@@ -6797,7 +6797,7 @@
       "photo",
       "Canoe"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\canoe.jpg",
+    "file_path": "src\\assets\\images\\travel\\canoe.jpg",
     "width": 0,
     "height": 0
   },
@@ -6816,7 +6816,7 @@
       "photo",
       "Coast"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\coast.jpg",
+    "file_path": "src\\assets\\images\\travel\\coast.jpg",
     "width": 0,
     "height": 0
   },
@@ -6835,7 +6835,7 @@
       "photo",
       "Dest1"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest1.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest1.jpg",
     "width": 0,
     "height": 0
   },
@@ -6854,7 +6854,7 @@
       "photo",
       "Dest2"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest2.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest2.jpg",
     "width": 0,
     "height": 0
   },
@@ -6873,7 +6873,7 @@
       "photo",
       "Dest3"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest3.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest3.jpg",
     "width": 0,
     "height": 0
   },
@@ -6892,7 +6892,7 @@
       "photo",
       "Dest4"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest4.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest4.jpg",
     "width": 0,
     "height": 0
   },
@@ -6911,7 +6911,7 @@
       "photo",
       "Dest5"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest5.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest5.jpg",
     "width": 0,
     "height": 0
   },
@@ -6930,7 +6930,7 @@
       "photo",
       "Dest6"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\dest6.jpg",
+    "file_path": "src\\assets\\images\\travel\\dest6.jpg",
     "width": 0,
     "height": 0
   },
@@ -6950,7 +6950,7 @@
       "Fog",
       "Forest"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\fog-forest.jpg",
+    "file_path": "src\\assets\\images\\travel\\fog-forest.jpg",
     "width": 0,
     "height": 0
   },
@@ -6970,7 +6970,7 @@
       "Forest",
       "Rays"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\forest-rays.jpg",
+    "file_path": "src\\assets\\images\\travel\\forest-rays.jpg",
     "width": 0,
     "height": 0
   },
@@ -6989,7 +6989,7 @@
       "photo",
       "Forest"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\forest.jpg",
+    "file_path": "src\\assets\\images\\travel\\forest.jpg",
     "width": 0,
     "height": 0
   },
@@ -7009,7 +7009,7 @@
       "Hero",
       "Mountain"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\hero-mountain.jpg",
+    "file_path": "src\\assets\\images\\travel\\hero-mountain.jpg",
     "width": 0,
     "height": 0
   },
@@ -7028,7 +7028,7 @@
       "photo",
       "Hero"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\hero.jpg",
+    "file_path": "src\\assets\\images\\travel\\hero.jpg",
     "width": 0,
     "height": 0
   },
@@ -7047,7 +7047,7 @@
       "photo",
       "Hiker"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\hiker.jpg",
+    "file_path": "src\\assets\\images\\travel\\hiker.jpg",
     "width": 0,
     "height": 0
   },
@@ -7066,7 +7066,7 @@
       "photo",
       "Map"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\map.jpg",
+    "file_path": "src\\assets\\images\\travel\\map.jpg",
     "width": 0,
     "height": 0
   },
@@ -7086,7 +7086,7 @@
       "Mountain",
       "Tour"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\mountain-tour.jpg",
+    "file_path": "src\\assets\\images\\travel\\mountain-tour.jpg",
     "width": 0,
     "height": 0
   },
@@ -7106,7 +7106,7 @@
       "Night",
       "Mtn"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\night-mtn.jpg",
+    "file_path": "src\\assets\\images\\travel\\night-mtn.jpg",
     "width": 0,
     "height": 0
   },
@@ -7126,7 +7126,7 @@
       "Palm",
       "Beach"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\palm-beach.jpg",
+    "file_path": "src\\assets\\images\\travel\\palm-beach.jpg",
     "width": 0,
     "height": 0
   },
@@ -7145,7 +7145,7 @@
       "photo",
       "Peak"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\peak.jpg",
+    "file_path": "src\\assets\\images\\travel\\peak.jpg",
     "width": 0,
     "height": 0
   },
@@ -7164,7 +7164,7 @@
       "photo",
       "Plane"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\plane.jpg",
+    "file_path": "src\\assets\\images\\travel\\plane.jpg",
     "width": 0,
     "height": 0
   },
@@ -7183,7 +7183,7 @@
       "photo",
       "Road"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\road.jpg",
+    "file_path": "src\\assets\\images\\travel\\road.jpg",
     "width": 0,
     "height": 0
   },
@@ -7202,7 +7202,7 @@
       "photo",
       "Roadtrip"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\roadtrip.jpg",
+    "file_path": "src\\assets\\images\\travel\\roadtrip.jpg",
     "width": 0,
     "height": 0
   },
@@ -7221,7 +7221,7 @@
       "photo",
       "Santorini"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\santorini.jpg",
+    "file_path": "src\\assets\\images\\travel\\santorini.jpg",
     "width": 0,
     "height": 0
   },
@@ -7240,7 +7240,7 @@
       "photo",
       "Temple"
     ],
-    "file_path": "src/src\\assets\\images\\travel\\temple.jpg",
+    "file_path": "src\\assets\\images\\travel\\temple.jpg",
     "width": 0,
     "height": 0
   }

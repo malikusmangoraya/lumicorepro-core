@@ -11,8 +11,13 @@ import Product from '../models/Product.js';
 import Payment from '../models/Payment.js';
 import Notification from '../models/Notification.js';
 import AnalyticsEvent from '../models/AnalyticsEvent.js';
+import Subscription from '../models/Subscription.js';
+import Plan from '../models/Plan.js';
+import Membership from '../models/Membership.js';
 import { protect, authorize } from '../middleware/auth.js';
 import cache from '../services/cache/cache.service.js';
+import { getUsageSummary, getUsageHistory } from '../services/usage.service.js';
+import { tenantCacheKey, tenantWhere } from '../services/tenantScope.service.js';
 
 const router = express.Router();
 
@@ -22,29 +27,32 @@ router.use(protect);
 /**
  * GET /api/dashboard/stats
  * Core KPIs: revenue, orders, users, products, conversion rate, avg order value
- * Cached for 2 min (Redis or in-memory fallback); invalidated on order writes.
+ * Tenant scoped — an organization only ever sees its own rows. `totalUsers`
+ * counts the organization's active memberships.
+ * Cached for 2 min (Redis or in-memory fallback), per organization; invalidated
+ * on order writes.
  */
 router.get('/stats', authorize('admin', 'vendor'), async (req, res, next) => {
   try {
-    const statsKey = `dashboard:stats`;
+    const statsKey = `dashboard:stats:${tenantCacheKey(req)}`;
     const cached = await cache.get('dashboard', statsKey);
     if (cached) return res.json({ success: true, data: cached, meta: { cached: true } });
 
     const [totalUsers, totalProducts, totalOrders, lowStock, revenueRow, pendingOrders] =
       await Promise.all([
-        User.count(),
-        Product.count({ where: { isActive: true } }),
-        Order.count(),
-        Product.count({ where: { stock: { [Op.lte]: 5 }, isActive: true } }),
+        Membership.count({ where: tenantWhere(req, { status: 'active' }) }),
+        Product.count({ where: tenantWhere(req, { isActive: true }) }),
+        Order.count({ where: tenantWhere(req) }),
+        Product.count({ where: tenantWhere(req, { stock: { [Op.lte]: 5 }, isActive: true }) }),
         Order.findOne({
           attributes: [
             [fn('SUM', col('totalPrice')), 'totalRevenue'],
             [fn('AVG', col('totalPrice')), 'avgOrderValue'],
           ],
-          where: { isPaid: true },
+          where: tenantWhere(req, { isPaid: true }),
           raw: true,
         }),
-        Order.count({ where: { status: 'pending' } }),
+        Order.count({ where: tenantWhere(req, { status: 'pending' }) }),
       ]);
 
     const totalRevenue   = parseFloat(revenueRow?.totalRevenue   || 0);
@@ -88,7 +96,7 @@ router.get('/charts/:type', authorize('admin', 'vendor'), async (req, res, next)
           [fn('SUM', col('totalPrice')), 'revenue'],
           [fn('COUNT', col('id')),       'orders'],
         ],
-        where: { createdAt: { [Op.gte]: startDate } },
+        where: tenantWhere(req, { createdAt: { [Op.gte]: startDate } }),
         group: [fn('DATE', col('createdAt'))],
         order: [[fn('DATE', col('createdAt')), 'ASC']],
         raw: true,
@@ -99,12 +107,13 @@ router.get('/charts/:type', authorize('admin', 'vendor'), async (req, res, next)
         orders:  parseInt(r.orders, 10),
       }));
     } else if (type === 'users') {
-      const rows = await User.findAll({
+      // Tenant membership growth (users can belong to several organizations).
+      const rows = await Membership.findAll({
         attributes: [
           [fn('DATE', col('createdAt')), 'date'],
           [fn('COUNT', col('id')),       'count'],
         ],
-        where: { createdAt: { [Op.gte]: startDate } },
+        where: tenantWhere(req, { createdAt: { [Op.gte]: startDate } }),
         group: [fn('DATE', col('createdAt'))],
         order: [[fn('DATE', col('createdAt')), 'ASC']],
         raw: true,
@@ -116,7 +125,7 @@ router.get('/charts/:type', authorize('admin', 'vendor'), async (req, res, next)
           'category',
           [fn('COUNT', col('id')), 'count'],
         ],
-        where: { isActive: true },
+        where: tenantWhere(req, { isActive: true }),
         group: ['category'],
         order: [[fn('COUNT', col('id')), 'DESC']],
         raw: true,
@@ -140,13 +149,24 @@ router.get('/activity', authorize('admin', 'vendor'), async (req, res, next) => 
   try {
     const limit = Math.min(parseInt(req.query.limit, 10) || 10, 50);
 
+    // Registrations are reported through the org's memberships (a user can
+    // belong to several organizations).
+    const memberships = await Membership.findAll({
+      where: tenantWhere(req),
+      attributes: ['user_id'],
+      raw: true,
+    });
+    const memberIds = memberships.map((m) => m.user_id);
+
     const [recentOrders, recentUsers] = await Promise.all([
       Order.findAll({
+        where: tenantWhere(req),
         include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email', 'avatar'], required: false }],
         order: [['createdAt', 'DESC']],
         limit,
       }),
       User.findAll({
+        where: { id: { [Op.in]: memberIds } },
         attributes: { exclude: ['password'] },
         order: [['createdAt', 'DESC']],
         limit: Math.ceil(limit / 2),
@@ -200,17 +220,19 @@ router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
           [fn('SUM', col('totalPrice')), 'revenue'],
           [fn('COUNT', col('id')),       'orders'],
         ],
-        where: { isPaid: true, createdAt: { [Op.gte]: startDate } },
+        where: tenantWhere(req, { isPaid: true, createdAt: { [Op.gte]: startDate } }),
         raw: true,
       }),
       // Total orders in period
-      Order.count({ where: { createdAt: { [Op.gte]: startDate } } }),
-      // New users in period
-      User.count({ where: { createdAt: { [Op.gte]: startDate } } }),
+      Order.count({ where: tenantWhere(req, { createdAt: { [Op.gte]: startDate } }) }),
+      // New members in period
+      Membership.count({
+        where: tenantWhere(req, { status: 'active', createdAt: { [Op.gte]: startDate } }),
+      }),
       // Top categories by product count
       Product.findAll({
         attributes: ['category', [fn('COUNT', col('id')), 'count']],
-        where: { isActive: true },
+        where: tenantWhere(req, { isActive: true }),
         group: ['category'],
         order: [[fn('COUNT', col('id')), 'DESC']],
         limit: 5,
@@ -220,7 +242,7 @@ router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
 
     // Top paying orders for best customers
     const topOrders = await Order.findAll({
-      where: { isPaid: true, createdAt: { [Op.gte]: startDate } },
+      where: tenantWhere(req, { isPaid: true, createdAt: { [Op.gte]: startDate } }),
       include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'], required: false }],
       order: [['totalPrice', 'DESC']],
       limit: 5,
@@ -246,6 +268,116 @@ router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
         bestCustomers,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/dashboard/me
+ * Current user's account snapshot: orders, spend, subscription, notifications, usage.
+ */
+router.get('/me', async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const [orderCount, spentRow, subscription, unread, usage] = await Promise.all([
+      Order.count({ where: { user_id: userId } }),
+      Order.findOne({
+        attributes: [[fn('SUM', col('totalPrice')), 'spent']],
+        where: { user_id: userId, isPaid: true },
+        raw: true,
+      }),
+      Subscription.findOne({
+        where: { user_id: userId, status: 'active' },
+        include: [{
+          model: Plan,
+          as: 'plan',
+          attributes: ['id', 'name', 'creditsGrant', 'price', 'features'],
+          required: false,
+        }],
+        order: [['createdAt', 'DESC']],
+      }),
+      Notification.count({ where: { recipient: userId, read: false } }),
+      getUsageSummary(userId),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        orders: {
+          total: orderCount,
+          spent: Math.round(parseFloat(spentRow?.spent || 0) * 100) / 100,
+        },
+        subscription: subscription
+          ? { id: subscription.id, status: subscription.status, plan: subscription.plan || null }
+          : null,
+        unreadNotifications: unread,
+        usage,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/dashboard/usage
+ * Current user's plan usage summary + 6-month history (per-plan limits).
+ */
+router.get('/usage', async (req, res, next) => {
+  try {
+    const [summary, history] = await Promise.all([
+      getUsageSummary(req.user.id),
+      getUsageHistory(req.user.id),
+    ]);
+    res.json({ success: true, data: { summary, history } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/dashboard/me/charts
+ * Current user's monthly order volume for the last N months (default 6).
+ */
+router.get('/me/charts', async (req, res, next) => {
+  try {
+    const months = Math.min(parseInt(req.query.months, 10) || 6, 12);
+    const startDate = new Date();
+    startDate.setUTCMonth(startDate.getUTCMonth() - (months - 1));
+    startDate.setUTCDate(1);
+    startDate.setUTCHours(0, 0, 0, 0);
+
+    const rows = await Order.findAll({
+      attributes: [
+        [fn('DATE_TRUNC', 'month', col('createdAt')), 'month'],
+        [fn('COUNT', col('id')), 'orders'],
+        [fn('SUM', col('totalPrice')), 'revenue'],
+      ],
+      where: { user_id: req.user.id, createdAt: { [Op.gte]: startDate } },
+      group: [fn('DATE_TRUNC', 'month', col('createdAt'))],
+      order: [[fn('DATE_TRUNC', 'month', col('createdAt')), 'ASC']],
+      raw: true,
+    });
+
+    // Fill in empty months so the chart is contiguous
+    const filled = [];
+    for (let i = 0; i < months; i += 1) {
+      const d = new Date(startDate);
+      d.setUTCMonth(d.getUTCMonth() + i);
+      const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+      const match = rows.find((r) => {
+        const m = typeof r.month === 'string' ? r.month.slice(0, 7) : '';
+        return m === key;
+      });
+      filled.push({
+        month: key,
+        orders: match ? parseInt(match.orders, 10) : 0,
+        revenue: match ? Math.round(parseFloat(match.revenue) * 100) / 100 : 0,
+      });
+    }
+
+    res.json({ success: true, months, data: filled });
   } catch (error) {
     next(error);
   }

@@ -1,0 +1,49 @@
+# Corporate brand playbook — LumicorePro Core
+brand: corporate
+personality: [professional, trustworthy, stable, credible, structured]
+
+typography:
+  display: neutral_sans
+  body: reliable_sans
+  weight: regular_semibold
+  size: medium
+  spacing: tight_consistent
+
+color:
+  base: clean_light
+  accent: corporate_blue
+  gradients: subtle_professional
+  saturation: medium_low
+
+spacing:
+  density: medium
+  whitespace: orderly
+  rhythm: consistent_columns
+
+motion:
+  character: restrained
+  durations: short
+  easing: standard
+  hero: simple_fade_slide
+
+imagery:
+  style: professional_corporate
+  lighting: studio_even
+  subjects: people_office_product
+  ratio: landscape_standard
+
+interaction:
+  hover: clean_highlight
+  cursors: default
+  cta: filled_primary
+
+surface:
+  depth: subtle_card
+  borders: fine
+  radius: small
+
+avoid:
+  - neon_effects
+  - playful_rounded_ui
+  - chaotic_animation
+  - loud_gradients

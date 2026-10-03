@@ -1,0 +1,69 @@
+# Education / EdTech playbook — LumicorePro Core
+industry: education
+primary_goal: enrollment
+secondary_goals: [course_sale, lead_capture, demo_request]
+business_model: courses / academy / LMS / coaching
+
+pages:
+  - home
+  - courses
+  - course_detail
+  - curriculum
+  - instructors
+  - pricing
+  - enrollment
+  - dashboard
+  - blog
+
+critical_components:
+  - course_card
+  - curriculum_preview
+  - instructor_card
+  - progress_tracker
+  - quiz
+  - certificate
+  - enrollment_form
+  - live_schedule
+
+conversion:
+  primary_cta: enroll_now
+  secondary_cta: join_waitlist
+  trust:
+    - instructor_credential
+    - student_outcomes
+    - certifications
+    - reviews
+    - alumni
+  urgency: [enrollment_deadline, limited_seats]
+
+mobile_priority:
+  course_browsing: high
+  lesson_playback: high
+  progress: high
+
+visual:
+  density: medium
+  imagery: aspirational_learners
+  typography: clear_approachable
+  motion: friendly
+  3d: optional
+  cta_style: enroll_primary
+
+ux_patterns:
+  - course_preview_modal
+  - lesson_tracking
+  - quiz_feedback
+  - certificate_sharing
+
+avoid:
+  - hidden_pricing
+  - vague_cta
+  - fake_outcomes
+  - excessive_modal_usage
+
+qa:
+  - enrollment_flow
+  - course_card_detail
+  - progress_tracking
+  - quiz_submission
+  - mobile_lesson_playback

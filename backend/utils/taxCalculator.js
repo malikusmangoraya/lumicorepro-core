@@ -98,6 +98,9 @@ const US_STATE_TAX_RATES = {
   'OK': 4.5, 'OR': 0, 'PA': 6.0, 'RI': 7.0, 'SC': 6.0,
   'SD': 4.2, 'TN': 7.0, 'TX': 6.25, 'UT': 4.85, 'VT': 6.0,
   'VA': 5.3, 'WA': 6.5, 'WV': 6.0, 'WI': 5.0, 'WY': 4.0,
+  // DC is not a state but does levy its own sales tax; omitting it silently
+  // charged 0% to District of Columbia orders.
+  'DC': 6.0,
 };
 
 /**

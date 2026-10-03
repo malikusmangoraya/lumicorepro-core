@@ -38,13 +38,14 @@
     isolation: isolate;
   }
 
-  /* All images lazy-load and prevent layout shift */
+  /* Base img behaviour: never overflow the container.
+     Layout space must be reserved by the caller (width/height attrs, an
+     aspect-ratio class, or a fixed-height wrapper) — `content-visibility`
+     does NOT reserve space and would hide above-the-fold LCP images. */
   img {
     display: block;
     max-width: 100%;
     height: auto;
-    /* Native lazy loading on all images */
-    content-visibility: auto;
   }
 
   /* Focus styles — accessible but unobtrusive */
@@ -97,6 +98,27 @@
 
 /* ── Component layer ────────────────────────────────────────────────── */
 @layer components {
+  /* Hover/tap scale wrapper (src/components/ui/ButtonMotion.jsx).
+     Tailwind's `scale-[var(--x)]` arbitrary value is not emitted by Tailwind 3,
+     so the transform is declared here against custom properties the component
+     sets inline. `.bm-motion:active` follows `.bm-motion:hover` at equal
+     specificity so the press state wins while both are true. */
+  .bm-motion {
+    transition: transform 200ms ease-out;
+    will-change: transform;
+  }
+  .bm-motion:hover {
+    transform: scale(var(--bm-hover-scale, 1.02)) translateY(var(--bm-hover-y, 0px));
+  }
+  .bm-motion:active {
+    transform: scale(var(--bm-tap-scale, 0.96));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bm-motion {
+      transition-duration: 0.01ms;
+    }
+  }
+
   /* Buttons */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2

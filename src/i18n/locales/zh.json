@@ -98,7 +98,8 @@
     "ai": "AI",
     "business": "商务",
     "logout": "退出登录",
-    "pricing": "定价"
+    "pricing": "定价",
+    "workspace": "工作空间"
   },
   "apiSettings": {
     "title": "API 配置",

@@ -1,0 +1,68 @@
+# Electronics / tech products playbook — LumicorePro Core
+industry: electronics
+primary_goal: purchase
+secondary_goals: [preorder, compare, support_request]
+business_model: manufacturer / retailer / B2B distribution
+
+pages:
+  - home
+  - products
+  - product_detail
+  - compare
+  - support
+  - repair
+  - about
+  - contact
+
+critical_components:
+  - product_card
+  - spec_table
+  - comparison
+  - variants
+  - gallery
+  - warranty
+  - support_ticket
+  - price_history
+
+conversion:
+  primary_cta: buy_or_preorder
+  secondary_cta: request_quote
+  trust:
+    - warranty
+    - certification
+    - technical_specs
+    - brand_authority
+  urgency: [launch, limited_stock, bundle_offer]
+
+mobile_priority:
+  spec_view: high
+  compare: high
+  quick_buy: high
+  support: high
+
+visual:
+  density: medium
+  imagery: tech_sleek
+  typography: precise_technical
+  motion: subtle_devices
+  3d: conditional_product_reveal
+  cta_style: high_contrast
+
+ux_patterns:
+  - spec_comparison
+  - dropdown_filter
+  - quick_view
+  - availability_checker
+
+avoid:
+  - fake_spec_claims
+  - hidden_shipping_costs
+  - vague_cta
+  - excessive_modal_usage
+
+qa:
+  - spec_table_accuracy
+  - compare_flow
+  - variant_switch
+  - warranty_display
+  - support_ticket_submit

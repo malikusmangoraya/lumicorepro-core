@@ -56,6 +56,18 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
         for root in ("frontend", "backend"):
             with open(os.path.join(self.project_dir, root, "package.json"), "w", encoding="utf-8") as fh:
                 json.dump({"name": root, "scripts": {"build": "echo build"}}, fh)
+        test_runner = mock.patch.object(
+            self.gate,
+            "run_tests",
+            new=mock.AsyncMock(return_value={
+                "configured": True,
+                "passed": True,
+                "status": "passed",
+                "suites": [{"stack": "frontend", "passed": True}],
+            }),
+        )
+        test_runner.start()
+        self.addCleanup(test_runner.stop)
 
     def tearDown(self):
         root = Path(self.project_dir).parent.parent  # <TEMP>/lumicore-test-proj
@@ -122,7 +134,7 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
         ]
         state = {"idx": 0, "heals": 0}
 
-        async def lint_side(_dir):
+        async def lint_side(_dir, **kwargs):
             value = lint_results[state["idx"]]
             state["idx"] += 1
             return value
@@ -177,6 +189,52 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
             ["frontend", "backend"],
         )
 
+    async def test_run_tests_executes_each_declared_script_in_ci_mode(self):
+        for root in ("frontend", "backend"):
+            package_path = os.path.join(self.project_dir, root, "package.json")
+            with open(package_path, encoding="utf-8") as fh:
+                package = json.load(fh)
+            package["scripts"]["test"] = "test-command"
+            with open(package_path, "w", encoding="utf-8") as fh:
+                json.dump(package, fh)
+
+        calls = []
+
+        async def run_command(args, cwd=None, env=None):
+            calls.append((args, cwd, env))
+            return _result(0, stdout="tests passed")
+
+        with mock.patch.object(self.gate, "run_command", side_effect=run_command):
+            result = await DevOpsQualityGate.run_tests(self.gate, self.project_dir)
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(len(result["suites"]), 2)
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(all(call[2]["CI"] == "1" for call in calls))
+        self.assertTrue(all(call[0][-1] == "test" for call in calls))
+
+    async def test_run_tests_reports_missing_test_scripts(self):
+        result = await DevOpsQualityGate.run_tests(self.gate, self.project_dir)
+        self.assertFalse(result["configured"])
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["status"], "not_configured")
+
+    async def test_gate_blocks_when_package_tests_fail(self):
+        failed_tests = {
+            "configured": True,
+            "passed": False,
+            "status": "failed",
+            "suites": [{"stack": "frontend", "passed": False}],
+        }
+        with mock.patch.object(self.gate, "format_project", new=_async_result(0)):
+            with mock.patch.object(self.gate, "lint_project", new=_async_result(0)):
+                with mock.patch.object(
+                    self.gate, "run_tests", new=mock.AsyncMock(return_value=failed_tests)
+                ):
+                    report = await self.gate.run_gate(self.project_dir)
+        self.assertFalse(report["passed"])
+        self.assertEqual(report["tests"]["status"], "failed")
+
     async def test_verify_build_skips_when_no_package_json(self):
         """A project with no package roots must be treated as OK (nothing to build)."""
         empty_dir = os.path.join(self.project_dir, "static-only")
@@ -206,7 +264,7 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
         state = {"idx": 0}
         errors_seen = []
 
-        async def lint_side(_dir):
+        async def lint_side(_dir, **kwargs):
             value = lint_results[state["idx"]]
             state["idx"] += 1
             return value
@@ -215,13 +273,19 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
             errors_seen.append((round_idx, error_blob))
             return {"status": "applied", "files_changed": ["frontend/src/App.jsx"]}
 
-        with mock.patch.object(gate, "format_project", new=_async_result(0)):
-            with mock.patch.object(gate, "lint_project", side_effect=lint_side):
-                with mock.patch.object(
-                    gate, "verify_build",
-                    mock.AsyncMock(return_value={"ok": True, "verified": True, "builds": []}),
-                ):
-                    report = await gate.run_gate(self.project_dir, error_fixer=fixer)
+        with mock.patch.object(gate, "run_tests", new=mock.AsyncMock(return_value={
+            "configured": True,
+            "passed": True,
+            "status": "passed",
+            "suites": [{"stack": "frontend", "passed": True}],
+        })):
+            with mock.patch.object(gate, "format_project", new=_async_result(0)):
+                with mock.patch.object(gate, "lint_project", side_effect=lint_side):
+                    with mock.patch.object(
+                        gate, "verify_build",
+                        mock.AsyncMock(return_value={"ok": True, "verified": True, "builds": []}),
+                    ):
+                        report = await gate.run_gate(self.project_dir, error_fixer=fixer)
         self.assertTrue(report["passed"])
         self.assertEqual(len(errors_seen), 1)
         self.assertIn("Unexpected token", errors_seen[0][1])

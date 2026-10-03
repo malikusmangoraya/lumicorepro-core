@@ -1,0 +1,73 @@
+# Marketplace playbook — LumicorePro Core
+industry: marketplace
+primary_goal: transaction_connect
+secondary_goals: [listing_discovery, seller_activation, repeat_transaction]
+business_model: commission / subscription / featured_listing
+
+pages:
+  - home
+  - search_results
+  - category
+  - listing_detail
+  - vendor_store
+  - seller_dashboard
+  - account
+  - checkout
+
+critical_components:
+  - search
+  - filters
+  - product_card
+  - vendor_card
+  - seller_profile
+  - reviews
+  - comparison
+  - cart
+  - checkout
+  - rating_summary
+
+conversion:
+  primary_cta: inquire_or_buy
+  secondary_cta: save_to_wishlist
+  trust:
+    - verified_vendor
+    - escrow_payment
+    - buyer_protection
+    - vendor_rating
+    - review_count
+
+mobile_priority:
+  search: high
+  filters: high
+  vendor_chat: high
+  location: high
+
+visual:
+  density: high
+  imagery: listing_dominant
+  typography: neutral_scannable
+  motion: subtle
+  3d: no
+  cta_style: high_contrast
+
+ux_patterns:
+  - saved_searches
+  - price_alert
+  - seller_chat
+  - recently_viewed
+  - filter_facets
+
+avoid:
+  - hidden_fees
+  - fake_listings
+  - unclear_seller_identity
+  - vague_cta
+  - excessive_carousels
+  - broken_filter_state
+
+qa:
+  - search_to_detail_flow
+  - filter_state_preserved
+  - seller_profile_complete
+  - checkout_fee_transparent
+  - review_submission

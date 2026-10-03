@@ -1,9 +1,14 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { SkipToContent, LicenseWatermark, ModernFooter } from '../components/common';
+import SkipToContent from '../components/common/SkipToContent';
+import LicenseWatermark from '../components/common/LicenseWatermark';
+import ModernFooter from '../components/common/ModernFooter';
 import GlassNavbar from '../components/common/GlassNavbar';
+import useCartServerSync from '../hooks/useCartServerSync';
 
 export default function MainLayout() {
   const location = useLocation();
+  // Keeps the Zustand cart in step with the account cart (no-op when logged out).
+  useCartServerSync();
 
   return (
     <div className="min-h-screen flex flex-col bg-background selection:bg-primary/20 selection:text-primary">

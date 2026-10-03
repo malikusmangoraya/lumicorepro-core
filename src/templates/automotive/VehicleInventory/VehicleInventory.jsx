@@ -21,6 +21,8 @@ export default function VehicleInventory() {
           src={img.ecommerce.product2}
           alt="Automotive"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-8">

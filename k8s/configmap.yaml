@@ -1,14 +1,79 @@
+# =============================================================================
+# LumicorePro — Kubernetes ConfigMap
+# =============================================================================
+# SECONDARY TARGET. The canonical production topology is Docker Compose on a
+# single VPS (docs/DEPLOYMENT.md). These manifests are kept in sync with the same
+# application so they are not misleading, but they are not exercised by CI and
+# have not been applied to a real cluster — see the WARNING at the bottom.
+#
+# Non-secret runtime configuration only. Anything with a credential value lives
+# in the Secret created from k8s/secret.example.yaml.
+# =============================================================================
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: lumicorepro-config
   namespace: lumicorepro
+  labels:
+    app.kubernetes.io/part-of: lumicorepro
 data:
   NODE_ENV: "production"
   PORT: "5000"
+
+  # ── Public origins ─────────────────────────────────────────────────────────
+  # The frontend calls the API through the same origin (the Ingress routes /api
+  # to backend-service), so no separate api.* host is required for the SPA. The
+  # api.* host is still allowed here because k8s/ingress.yaml exposes it for
+  # direct API clients and webhooks.
   FRONTEND_URL: "https://lumicorepro.com"
-  CORS_ORIGIN: "https://lumicorepro.com"
+  CORS_ORIGIN: "https://lumicorepro.com,https://www.lumicorepro.com,https://api.lumicorepro.com"
   JWT_EXPIRES_IN: "7d"
+
+  # ── Database ───────────────────────────────────────────────────────────────
+  # Previously MISSING entirely: backend/config/database.js throws at boot when
+  # NODE_ENV=production and DATABASE_URL is unset, so the backend pod would have
+  # crash-looped while postgres-deployment.yaml created a database no client
+  # could find. The user/database names match POSTGRES_USER/POSTGRES_DB in
+  # k8s/postgres-deployment.yaml; the password is injected by the Secret below.
+  #
+  # `postgres` is the headless Service name from postgres-deployment.yaml, which
+  # resolves to the postgres-0 pod inside this namespace.
+  DATABASE_URL: "postgresql://lumicore:$(POSTGRES_PASSWORD)@postgres:5432/lumicorepro_db"
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  # `redis-service` (ClusterIP, from redis-deployment.yaml) on port 6379, with
+  # the password from the Secret. Kept here rather than inline in the Deployment
+  # so both values are visible in one place.
+  REDIS_URL: "redis://:$(REDIS_PASSWORD)@redis-service:6379"
+
+  # ── Internal service URLs ──────────────────────────────────────────────────
+  # NOTE: there is currently NO ai-agent Deployment in k8s/. The Compose topology
+  # runs the FastAPI agent as a container; if you deploy to Kubernetes you must
+  # add an ai-agent Deployment + Service (image built from ai-agent/Dockerfile,
+  # service name `ai-agent`, port 8000) or point this at an external agent host.
+  # Do not assume AI endpoints work in this cluster until that exists.
+  AI_AGENT_URL: "http://ai-agent:8000"
+
+  # ── Email ──────────────────────────────────────────────────────────────────
   SMTP_PORT: "587"
   FROM_EMAIL: "noreply@lumicorepro.com"
-  REDIS_URL: "redis://redis-service:6379"
+
+  # ── Locale defaults ────────────────────────────────────────────────────────
+  DEFAULT_CURRENCY: "USD"
+  DEFAULT_LOCALE: "en"
+  TZ: "UTC"
+
+# =============================================================================
+# WARNING — not verified in a live cluster.
+# The following is what these manifests assume and what has NOT been tested:
+#   1. `$(POSTGRES_PASSWORD)` / `$(REDIS_PASSWORD)` in `data` above are expanded
+#      by the kubelet ONLY when the matching name also appears in the container's
+#      `env` (via secretKeyRef). backend-deployment.yaml must therefore reference
+#      both Secret keys as env vars, not just mount them — it does.
+#   2. Storage class "standard" must exist (GKE/EKS default). On a cluster
+#      without it, the PVCs stay Pending.
+#   3. nginx Ingress Controller + cert-manager with a `letsencrypt-prod`
+#      ClusterIssuer must be installed; see k8s/ingress.yaml.
+#   4. The base database schema is applied by hand — the same open item as in
+#      Compose. See docs/DEPLOYMENT.md § Migrations.
+# =============================================================================

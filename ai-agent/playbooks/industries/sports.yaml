@@ -1,0 +1,69 @@
+# Sports playbook — LumicorePro Core
+industry: sports
+primary_goal: engagement
+secondary_goals: [membership, event_ticket, merchandise]
+business_model: team / club / academy / sport brand
+
+pages:
+  - home
+  - schedule
+  - team
+  - players
+  - matches
+  - tickets
+  - membership
+  - shop
+  - academy
+  - contact
+
+critical_components:
+  - match_card
+  - schedule
+  - scoreboard
+  - player_profile
+  - merchandise
+  - membership_cta
+  - news
+  - academy_signup
+
+conversion:
+  primary_cta: get_tickets
+  secondary_cta: join_membership
+  trust:
+    - team_record
+    - achievements
+    - media_press
+    - fan_testimonials
+
+mobile_priority:
+  live_scores: high
+  tickets: high
+  schedule: high
+  membership: high
+
+visual:
+  density: medium
+  imagery: dynamic_action
+  typography: bold_condensed
+  motion: energetic
+  3d: optional_stadium
+  cta_style: bold
+
+ux_patterns:
+  - live_scores
+  - match_reminders
+  - membership_tiers
+  - fan_galleries
+
+avoid:
+  - fake_stats
+  - vague_cta
+  - excessive_animation
+  - unclear_ticket_flow
+
+qa:
+  - ticket_purchase
+  - schedule_accuracy
+  - membership_selection
+  - scoreboard_live
+  - academy_signup

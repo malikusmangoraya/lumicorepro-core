@@ -285,7 +285,7 @@
       "glow"
     ],
     "description": "Official LumicorePro 3D holographic brand logo & watermark emblem component for website headers and footers.",
-    "file_path": "src/components/common/LumicoreLogo.jsx",
+    "file_path": "src/components/common/BrandLogo.jsx",
     "dependencies": [
       "lucide-react"
     ],
@@ -395,58 +395,6 @@
     ]
   },
   {
-    "name": "DashboardLayout",
-    "type": "component",
-    "category": "dashboard",
-    "tags": [
-      "dashboard",
-      "admin",
-      "sidebar",
-      "header",
-      "layout"
-    ],
-    "description": "Admin dashboard responsive container with collapsible navigation sidebar and top header.",
-    "file_path": "src/components/dashboard/DashboardLayout.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "admin",
-      "dashboard"
-    ],
-    "features": [
-      "sidebar_nav",
-      "header_profile",
-      "responsive"
-    ]
-  },
-  {
-    "name": "RecentOrders",
-    "type": "component",
-    "category": "dashboard",
-    "tags": [
-      "orders",
-      "table",
-      "admin",
-      "dashboard",
-      "status"
-    ],
-    "description": "Admin widget showing recent orders table with customer details, order status badge, and total amount.",
-    "file_path": "src/components/dashboard/RecentOrders.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "admin",
-      "ecommerce"
-    ],
-    "features": [
-      "orders_list",
-      "status_badge",
-      "view_details"
-    ]
-  },
-  {
     "name": "RevenueCard",
     "type": "component",
     "category": "dashboard",
@@ -527,83 +475,6 @@
     ]
   },
   {
-    "name": "CartItem",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "cart",
-      "item",
-      "quantity",
-      "price",
-      "remove"
-    ],
-    "description": "Individual cart item row with quantity increment/decrement buttons and remove trigger.",
-    "file_path": "src/components/ecommerce/CartItem.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "quantity_control",
-      "item_total",
-      "remove"
-    ]
-  },
-  {
-    "name": "CartSummary",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "cart",
-      "checkout",
-      "summary",
-      "price",
-      "taxes",
-      "total",
-      "currency"
-    ],
-    "description": "Shopping cart total summary panel supporting multi-currency conversion, taxes, and checkout CTA.",
-    "file_path": "src/components/ecommerce/CartSummary.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "subtotal",
-      "tax_calc",
-      "discount_code",
-      "checkout_btn",
-      "currency_conversion"
-    ]
-  },
-  {
-    "name": "CategoryFilter",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "category",
-      "filter",
-      "sidebar",
-      "navigation"
-    ],
-    "description": "Sidebar or top tab list for filtering products by category.",
-    "file_path": "src/components/ecommerce/CategoryFilter.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "category_select",
-      "count_badge"
-    ]
-  },
-  {
     "name": "Checkout",
     "type": "component",
     "category": "ecommerce",
@@ -617,7 +488,7 @@
       "crypto"
     ],
     "description": "International multi-payment checkout supporting Stripe, PayPal, Apple Pay, and Web3 Crypto.",
-    "file_path": "src/components/ecommerce/Checkout.jsx",
+    "file_path": "src/templates/ecommerce/Checkout/Checkout.jsx",
     "dependencies": [
       "lucide-react"
     ],
@@ -654,53 +525,6 @@
     "features": [
       "percentage_badge",
       "glow_effect"
-    ]
-  },
-  {
-    "name": "OrderConfirmation",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "order",
-      "confirmation",
-      "receipt",
-      "success"
-    ],
-    "description": "Post-checkout order receipt and tracking status banner.",
-    "file_path": "src/components/ecommerce/OrderConfirmation.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "receipt",
-      "tracking_id",
-      "print_order"
-    ]
-  },
-  {
-    "name": "PriceFilter",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "price",
-      "range",
-      "slider",
-      "filter"
-    ],
-    "description": "Price range slider component for refining product results by min and max budget.",
-    "file_path": "src/components/ecommerce/PriceFilter.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "range_slider",
-      "min_max_input"
     ]
   },
   {
@@ -746,7 +570,7 @@
       "buy"
     ],
     "description": "Comprehensive product details view with image gallery, specs table, and reviews.",
-    "file_path": "src/components/ecommerce/ProductDetails.jsx",
+    "file_path": "src/templates/ecommerce/ProductDetails/ProductDetails.jsx",
     "dependencies": [
       "lucide-react"
     ],
@@ -833,87 +657,6 @@
     ]
   },
   {
-    "name": "SearchProducts",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "search",
-      "filter",
-      "input",
-      "realtime",
-      "autocomplete"
-    ],
-    "description": "Interactive search input bar with category filter dropdown and instant auto-complete suggestions.",
-    "file_path": "src/components/ecommerce/SearchProducts.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "realtime_search",
-      "category_dropdown",
-      "clear_btn"
-    ]
-  },
-  {
-    "name": "ShippingInfo",
-    "type": "component",
-    "category": "ecommerce",
-    "tags": [
-      "shipping",
-      "delivery",
-      "trust",
-      "guarantee"
-    ],
-    "description": "Trust banner highlighting free shipping, 30-day warranty, and secure checkout.",
-    "file_path": "src/components/ecommerce/ShippingInfo.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "ecommerce"
-    ],
-    "features": [
-      "free_shipping_badge",
-      "warranty_badge"
-    ]
-  },
-  {
-    "name": "VisualPageEditor",
-    "type": "component",
-    "category": "editor",
-    "tags": [
-      "editor",
-      "visual",
-      "wysiwyg",
-      "builder",
-      "dragdrop",
-      "pagebuilder",
-      "live"
-    ],
-    "description": "Live visual page editor allowing visual drag-and-drop component editing, style inspection, and live preview without touching code.",
-    "file_path": "src/components/editor/VisualPageEditor.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "editor",
-      "builder",
-      "admin",
-      "ui"
-    ],
-    "features": [
-      "visual_editor",
-      "drag_drop",
-      "style_inspector",
-      "viewport_switcher",
-      "live_preview",
-      "code_export"
-    ]
-  },
-  {
     "name": "NewsletterSignup",
     "type": "component",
     "category": "growth",
@@ -975,93 +718,6 @@
     ]
   },
   {
-    "name": "DateLocalePicker",
-    "type": "component",
-    "category": "international",
-    "tags": [
-      "date",
-      "locale",
-      "timezone",
-      "format",
-      "calendar"
-    ],
-    "description": "Date/time picker with locale-aware formatting and timezone support.",
-    "file_path": "src/components/common/DateLocalePicker.jsx",
-    "dependencies": [
-      "lucide-react",
-      "date-fns"
-    ],
-    "compatible_categories": [
-      "international",
-      "dashboard",
-      "business"
-    ],
-    "features": [
-      "locale_formatting",
-      "timezone_selector",
-      "calendar_view",
-      "date_time_combined"
-    ]
-  },
-  {
-    "name": "FontSelector",
-    "type": "component",
-    "category": "international",
-    "tags": [
-      "font",
-      "typography",
-      "language",
-      "rtl",
-      "script"
-    ],
-    "description": "Font and script selector for international text rendering including RTL support.",
-    "file_path": "src/components/common/FontSelector.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "international",
-      "content",
-      "editor"
-    ],
-    "features": [
-      "latin_fonts",
-      "cjk_fonts",
-      "arabic_fonts",
-      "rtl_ltr_toggle",
-      "script_detection"
-    ]
-  },
-  {
-    "name": "HolidayCalendar",
-    "type": "component",
-    "category": "international",
-    "tags": [
-      "holiday",
-      "calendar",
-      "national",
-      "events",
-      "cultural"
-    ],
-    "description": "International holiday calendar with country-specific celebrations and cultural events.",
-    "file_path": "src/components/common/HolidayCalendar.jsx",
-    "dependencies": [
-      "lucide-react",
-      "date-fns"
-    ],
-    "compatible_categories": [
-      "international",
-      "travel",
-      "event"
-    ],
-    "features": [
-      "country_holidays",
-      "cultural_events",
-      "reminder_signup",
-      "calendar_export"
-    ]
-  },
-  {
     "name": "LegalDisclaimer",
     "type": "component",
     "category": "international",
@@ -1087,63 +743,6 @@
       "ccpa_notices",
       "consent_management",
       "cookie_preferences"
-    ]
-  },
-  {
-    "name": "MeasurementConverter",
-    "type": "component",
-    "category": "international",
-    "tags": [
-      "measurement",
-      "converter",
-      "metric",
-      "imperial",
-      "units"
-    ],
-    "description": "Unit converter for metric/imperial systems supporting length, weight, temperature, and volume.",
-    "file_path": "src/components/common/MeasurementConverter.jsx",
-    "dependencies": [
-      "lucide-react"
-    ],
-    "compatible_categories": [
-      "international",
-      "fitness",
-      "restaurant"
-    ],
-    "features": [
-      "metric_imperial",
-      "length_weight_temp",
-      "volume_converter",
-      "quick_preset"
-    ]
-  },
-  {
-    "name": "RegionalForm",
-    "type": "component",
-    "category": "international",
-    "tags": [
-      "form",
-      "address",
-      "country",
-      "regional",
-      "validation"
-    ],
-    "description": "International address form with country/state/city cascading dropdowns and regional validation.",
-    "file_path": "src/components/forms/RegionalForm.jsx",
-    "dependencies": [
-      "lucide-react",
-      "react-hook-form"
-    ],
-    "compatible_categories": [
-      "international",
-      "ecommerce",
-      "business"
-    ],
-    "features": [
-      "country_selector",
-      "state_city_cascade",
-      "postal_code_validation",
-      "phone_international"
     ]
   },
   {
@@ -1350,7 +949,7 @@
       "slider"
     ],
     "description": "Auto-rotating testimonial carousel with star ratings, avatar, company name, and optional video testimonial embed. Supports touch swipe on mobile.",
-    "file_path": "src/components/business/Hero.jsx",
+    "file_path": "src/components/common/TestimonialGrid.jsx",
     "dependencies": [
       "lucide-react",
       "framer-motion"

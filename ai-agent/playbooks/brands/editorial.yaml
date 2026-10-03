@@ -1,0 +1,49 @@
+# Editorial brand playbook — LumicorePro Core
+brand: editorial
+personality: [distinctive, intelligent, crafted, expressive, cultural]
+
+typography:
+  display: expressive_serif
+  body: serif_reading
+  weight: light_regular
+  size: large_display
+  spacing: natural
+
+color:
+  base: paper_light
+  accent: ink_dark_plus_single
+  gradients: none
+  saturation: low_ink
+
+spacing:
+  density: medium_low
+  whitespace: article_flow
+  rhythm: drop_cap_leading
+
+motion:
+  character: literary
+  durations: medium
+  easing: editorial
+  hero: typographic_reveal
+
+imagery:
+  style: photojournalistic
+  lighting: natural
+  subjects: culture_people_place
+  ratio: mixed_editorial
+
+interaction:
+  hover: text_shift
+  cursors: text
+  cta: wordmark
+
+surface:
+  depth: paper_flat
+  borders: rules_hairlines
+  radius: none
+
+avoid:
+  - heavy_shadows
+  - playful_icons_heavy
+  - glassmorphism
+  - saturated_gradients

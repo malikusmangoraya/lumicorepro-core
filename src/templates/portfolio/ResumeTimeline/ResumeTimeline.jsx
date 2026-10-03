@@ -38,6 +38,8 @@ export default function ResumeTimeline() {
               src={img.portfolio.avatar}
               alt={profile.name}
               className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </Avatar>
           <div className="flex-1 min-w-[200px]">

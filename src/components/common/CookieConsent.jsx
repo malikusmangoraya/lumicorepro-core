@@ -30,6 +30,17 @@ export default function CookieConsent() {
     setMounted(true);
   }, []);
 
+  // The footer's "Cookie Preferences" control re-opens this banner: the stored
+  // decision is cleared so the visitor can change it (GDPR right to withdraw).
+  useEffect(() => {
+    const reopen = () => {
+      localStorage.removeItem(STORAGE_KEY);
+      setVisible(true);
+    };
+    window.addEventListener('cookiePreferences', reopen);
+    return () => window.removeEventListener('cookiePreferences', reopen);
+  }, []);
+
   const decide = (analytics, marketing) => {
     const consent = { essential: true, analytics, marketing };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));

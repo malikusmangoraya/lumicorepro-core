@@ -10,6 +10,7 @@ import CartItem from '../models/CartItem.js';
 import Product from '../models/Product.js';
 import { protect } from '../middleware/auth.js';
 import { armCartRecovery, disarmCartRecovery } from '../services/checkout/recovery.service.js';
+import { callerOrgId, tenantWhere } from '../services/tenantScope.service.js';
 import logger from '../utils/logger.js';
 
 const router = express.Router();
@@ -18,12 +19,16 @@ const router = express.Router();
 router.use(protect);
 
 /**
- * Helper — get or lazily create the user's cart
+ * Helper — get or lazily create the user's cart.
+ * One cart per user (unique `user_id`); the tenant it was opened under is
+ * stamped on creation so every cart row carries an org marker.
+ * @param {number} userId owner
+ * @param {number|null} orgId caller's active organization
  */
-async function getOrCreateCart(userId) {
+async function getOrCreateCart(userId, orgId) {
   const [cart] = await Cart.findOrCreate({
     where: { user_id: userId },
-    defaults: { user_id: userId },
+    defaults: { user_id: userId, org_id: orgId === undefined ? null : orgId },
   });
   return cart;
 }
@@ -34,7 +39,7 @@ async function getOrCreateCart(userId) {
  */
 router.get('/', async (req, res, next) => {
   try {
-    const cart = await getOrCreateCart(req.user.id);
+    const cart = await getOrCreateCart(req.user.id, callerOrgId(req));
 
     const items = await CartItem.findAll({
       where: { cart_id: cart.id },
@@ -87,8 +92,8 @@ router.post(
 
       const { productId, quantity = 1, selectedColor, selectedSize } = req.body;
 
-      // Validate product exists and has stock
-      const product = await Product.findByPk(productId);
+      // Validate product exists, belongs to the caller's org, and has stock
+      const product = await Product.findOne({ where: tenantWhere(req, { id: productId }) });
       if (!product || !product.isActive) {
         return res.status(404).json({ success: false, error: 'Product not found or unavailable' });
       }
@@ -99,7 +104,7 @@ router.post(
         });
       }
 
-      const cart = await getOrCreateCart(req.user.id);
+      const cart = await getOrCreateCart(req.user.id, callerOrgId(req));
 
       // Check if item already in cart
       const existing = await CartItem.findOne({
@@ -159,7 +164,7 @@ router.put(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const cart = await getOrCreateCart(req.user.id);
+      const cart = await getOrCreateCart(req.user.id, callerOrgId(req));
       const item = await CartItem.findOne({
         where: { id: req.params.itemId, cart_id: cart.id },
       });
@@ -177,8 +182,8 @@ router.put(
         return res.json({ success: true, message: 'Item removed from cart', removed: true });
       }
 
-      // Validate stock
-      const product = await Product.findByPk(item.product_id);
+      // Validate stock inside the caller's tenant
+      const product = await Product.findOne({ where: tenantWhere(req, { id: item.product_id }) });
       if (product && product.stock < quantity) {
         return res.status(400).json({
           success: false,
@@ -201,7 +206,7 @@ router.put(
  */
 router.delete('/items/:itemId', async (req, res, next) => {
   try {
-    const cart = await getOrCreateCart(req.user.id);
+    const cart = await getOrCreateCart(req.user.id, callerOrgId(req));
     const item = await CartItem.findOne({
       where: { id: req.params.itemId, cart_id: cart.id },
     });
@@ -224,7 +229,7 @@ router.delete('/items/:itemId', async (req, res, next) => {
  */
 router.delete('/', async (req, res, next) => {
   try {
-    const cart = await getOrCreateCart(req.user.id);
+    const cart = await getOrCreateCart(req.user.id, callerOrgId(req));
     await CartItem.destroy({ where: { cart_id: cart.id } });
     await disarmCartRecovery(req.user.id).catch(() => {});
     res.json({ success: true, message: 'Cart cleared successfully' });

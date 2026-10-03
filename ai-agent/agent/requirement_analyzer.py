@@ -191,17 +191,31 @@ class RequirementAnalyzer:
         is_ambiguous, reason, options = self.check_ambiguity(normalized_prompt)
 
         spec = None
+        analysis_source = "local_rules"
         if self.ai_provider:
             try:
-                ai_result = self.ai_provider.analyze_requirement(prompt)
+                # Spec extraction is a classification job, not a reasoning job:
+                # route it to the fast tier (cheapest adequate model) so it does
+                # not sit in front of a strong model on the critical path.
+                from agent.ai_routing import prefer
+
+                provider, provider_name, tier = prefer(
+                    "analyze", prompt, explicit=self.ai_provider
+                ) or (self.ai_provider, "explicit", "pinned")
+                agent_logger.info(f"[ROUTER] analyze_requirement -> tier={tier} provider={provider_name}")
+                ai_result = provider.analyze_requirement(prompt)
                 if ai_result and isinstance(ai_result, dict) and "website_type" in ai_result:
                     agent_logger.info("AI Provider analysis succeeded.")
                     spec = ai_result
+                    # Provenance for the run record: the spec was NOT derived by
+                    # the local rules, so the report may claim a model answered.
+                    analysis_source = "ai_provider"
             except Exception as e:
                 agent_logger.warning(f"AI analysis failed: {e}. Using local NLP.")
 
         if not spec:
             spec = self._local_rule_analysis(normalized_prompt, original_prompt=prompt)
+        spec["analysis_source"] = analysis_source
 
         self._infer_implicit_features(spec)
         self._detect_color_hints(spec, prompt)

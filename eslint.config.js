@@ -22,6 +22,31 @@ export default defineConfig([
     'k8s',
     'nginx',
     'public',
+    // Packaged buyer deliveries: 69 full project trees (8.2k files). Linting them
+    // inflated `eslint .` from ~215 real source files to 8.4k and made the lint
+    // step hang past 15 minutes. They are release artefacts, not source.
+    'delivery',
+    'delivery-new',
+    'archive',
+    'vendors',
+    'test-results',
+    'playwright-report',
+    'add-kimi-openmuse-lumicor-model',
+    'ecommerce-website-generator-engine',
+    'full-project-upgrade-and-perfection',
+    'free-tier-api-implementation',
+    'critical-bundle-optimization-and-cleanup',
+    'lumicorepro-core-integration-query',
+    'new rebuilt',
+    // Local data / env dirs that are not code.
+    'pgdata',
+    'venv',
+    'logs',
+    '.cursor',
+    '.kiro',
+    '.opencode',
+    '.qodo',
+    '.xgrok',
   ]),
   {
     files: ['**/*.{js,jsx}'],

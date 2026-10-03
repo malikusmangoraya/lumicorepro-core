@@ -1,0 +1,49 @@
+# Bold brand playbook — LumicorePro Core
+brand: bold
+personality: [assertive, direct, confident, memorable, energetic]
+
+typography:
+  display: heavy_condensed
+  body: strong_sans
+  weight: bold_extrabold
+  size: extra_large
+  spacing: tight_impact
+
+color:
+  base: high_contrast
+  accent: saturated_primary
+  gradients: flat_mono
+  saturation: high
+
+spacing:
+  density: medium
+  whitespace: grounded
+  rhythm: strong_blocks
+
+motion:
+  character: assertive
+  durations: short
+  easing: sharp
+  hero: block_reveal
+
+imagery:
+  style: confident_editorial
+  lighting: dramatic_direct
+  subjects: statement_objects
+  ratio: wide_impact
+
+interaction:
+  hover: box_shift
+  cursors: pointer
+  cta: full_bleed_button
+
+surface:
+  depth: flat_hard
+  borders: thick_rules
+  radius: none_to_small
+
+avoid:
+  - soft_pastels
+  - subtle_borders
+  - timid_typography
+  - glassmorphism_surfaces

@@ -98,7 +98,8 @@
     "ai": "IA",
     "business": "Entreprise",
     "logout": "Déconnexion",
-    "pricing": "Tarifs"
+    "pricing": "Tarifs",
+    "workspace": "Espace de travail"
   },
   "apiSettings": {
     "title": "Configuration de l'API",

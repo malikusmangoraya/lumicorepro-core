@@ -1,1 +1,5717 @@
-[]
+[
+  {
+    "id": "agency/creativeportfolio",
+    "name": "CreativePortfolio",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "creativeportfolio"
+    ],
+    "keywords": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CreativePortfolio agency template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/agency/CreativePortfolio",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "agency"
+    ],
+    "features": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "agency/getintouch",
+    "name": "GetInTouch",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "getintouch"
+    ],
+    "keywords": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GetInTouch agency template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/agency/GetInTouch",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "agency"
+    ],
+    "features": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "agency/processsteps",
+    "name": "ProcessSteps",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "processsteps"
+    ],
+    "keywords": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ProcessSteps agency template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/agency/ProcessSteps",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "agency"
+    ],
+    "features": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "agency/serviceslist",
+    "name": "ServicesList",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "serviceslist"
+    ],
+    "keywords": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ServicesList agency template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/agency/ServicesList",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "agency"
+    ],
+    "features": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "agency/teamculture",
+    "name": "TeamCulture",
+    "type": "template",
+    "category": "agency",
+    "industry": "agency",
+    "tags": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "teamculture"
+    ],
+    "keywords": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "agency",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TeamCulture agency template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/agency/TeamCulture",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "agency"
+    ],
+    "features": [
+      "creative",
+      "studio",
+      "services",
+      "portfolio",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ai/aigenerator",
+    "name": "AIGenerator",
+    "type": "template",
+    "category": "ai",
+    "industry": "ai",
+    "tags": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "aigenerator"
+    ],
+    "keywords": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AIGenerator ai template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ai/AIGenerator",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ai"
+    ],
+    "features": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ai/chatinterface",
+    "name": "ChatInterface",
+    "type": "template",
+    "category": "ai",
+    "industry": "ai",
+    "tags": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "chatinterface"
+    ],
+    "keywords": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ChatInterface ai template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ai/ChatInterface",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ai"
+    ],
+    "features": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ai/generationhistory",
+    "name": "GenerationHistory",
+    "type": "template",
+    "category": "ai",
+    "industry": "ai",
+    "tags": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "generationhistory"
+    ],
+    "keywords": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GenerationHistory ai template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ai/GenerationHistory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ai"
+    ],
+    "features": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ai/modelselection",
+    "name": "ModelSelection",
+    "type": "template",
+    "category": "ai",
+    "industry": "ai",
+    "tags": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "modelselection"
+    ],
+    "keywords": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ModelSelection ai template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ai/ModelSelection",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ai"
+    ],
+    "features": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ai/usagedashboard",
+    "name": "UsageDashboard",
+    "type": "template",
+    "category": "ai",
+    "industry": "ai",
+    "tags": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "usagedashboard"
+    ],
+    "keywords": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "ai",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "UsageDashboard ai template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ai/UsageDashboard",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ai"
+    ],
+    "features": [
+      "chatbot",
+      "generator",
+      "ai",
+      "machine learning",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "automotive/automotivehero",
+    "name": "AutomotiveHero",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "automotivehero"
+    ],
+    "keywords": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AutomotiveHero automotive template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/automotive/AutomotiveHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "automotive"
+    ],
+    "features": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "automotive/financecalculator",
+    "name": "FinanceCalculator",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "financecalculator"
+    ],
+    "keywords": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "FinanceCalculator automotive template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/automotive/FinanceCalculator",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "automotive"
+    ],
+    "features": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "automotive/serviceschedule",
+    "name": "ServiceSchedule",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "serviceschedule"
+    ],
+    "keywords": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ServiceSchedule automotive template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/automotive/ServiceSchedule",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "automotive"
+    ],
+    "features": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "automotive/vehiclecardgrid",
+    "name": "VehicleCardGrid",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "vehiclecardgrid"
+    ],
+    "keywords": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "VehicleCardGrid automotive template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/automotive/VehicleCardGrid",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "automotive"
+    ],
+    "features": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "automotive/vehicleinventory",
+    "name": "VehicleInventory",
+    "type": "template",
+    "category": "automotive",
+    "industry": "automotive",
+    "tags": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "vehicleinventory"
+    ],
+    "keywords": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "automotive",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "VehicleInventory automotive template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/automotive/VehicleInventory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "automotive"
+    ],
+    "features": [
+      "cars",
+      "dealership",
+      "vehicles",
+      "auto",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "business/contactpage",
+    "name": "ContactPage",
+    "type": "template",
+    "category": "business",
+    "industry": "business",
+    "tags": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "contactpage"
+    ],
+    "keywords": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ContactPage business template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/business/ContactPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business"
+    ],
+    "features": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "business/landingpage",
+    "name": "LandingPage",
+    "type": "template",
+    "category": "business",
+    "industry": "business",
+    "tags": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "landingpage"
+    ],
+    "keywords": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "LandingPage business template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/business/LandingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business"
+    ],
+    "features": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "business/portfoliopage",
+    "name": "PortfolioPage",
+    "type": "template",
+    "category": "business",
+    "industry": "business",
+    "tags": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "portfoliopage"
+    ],
+    "keywords": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PortfolioPage business template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/business/PortfolioPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business"
+    ],
+    "features": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "business/pricingpage",
+    "name": "PricingPage",
+    "type": "template",
+    "category": "business",
+    "industry": "business",
+    "tags": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "pricingpage"
+    ],
+    "keywords": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PricingPage business template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/business/PricingPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business"
+    ],
+    "features": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "business/servicespage",
+    "name": "ServicesPage",
+    "type": "template",
+    "category": "business",
+    "industry": "business",
+    "tags": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "servicespage"
+    ],
+    "keywords": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "business",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ServicesPage business template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/business/ServicesPage",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "business"
+    ],
+    "features": [
+      "corporate",
+      "company",
+      "startup",
+      "professional",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "creative/creativestudio",
+    "name": "CreativeStudio",
+    "type": "template",
+    "category": "creative",
+    "industry": "creative",
+    "tags": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "creativestudio"
+    ],
+    "keywords": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CreativeStudio creative template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/creative/CreativeStudio",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative"
+    ],
+    "features": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "creative/getintouch",
+    "name": "GetInTouch",
+    "type": "template",
+    "category": "creative",
+    "industry": "creative",
+    "tags": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "getintouch"
+    ],
+    "keywords": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GetInTouch creative template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/creative/GetInTouch",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative"
+    ],
+    "features": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "creative/serviceslist",
+    "name": "ServicesList",
+    "type": "template",
+    "category": "creative",
+    "industry": "creative",
+    "tags": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "serviceslist"
+    ],
+    "keywords": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ServicesList creative template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/creative/ServicesList",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative"
+    ],
+    "features": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "creative/teamculture",
+    "name": "TeamCulture",
+    "type": "template",
+    "category": "creative",
+    "industry": "creative",
+    "tags": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "teamculture"
+    ],
+    "keywords": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TeamCulture creative template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/creative/TeamCulture",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative"
+    ],
+    "features": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "creative/worksgallery",
+    "name": "WorksGallery",
+    "type": "template",
+    "category": "creative",
+    "industry": "creative",
+    "tags": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "worksgallery"
+    ],
+    "keywords": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "creative",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "WorksGallery creative template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/creative/WorksGallery",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "creative"
+    ],
+    "features": [
+      "design",
+      "studio",
+      "creative",
+      "works",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "dashboard/analytics",
+    "name": "Analytics",
+    "type": "template",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "tags": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "analytics"
+    ],
+    "keywords": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "Analytics dashboard template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/dashboard/Analytics",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard"
+    ],
+    "features": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "dashboard/dashboardoverview",
+    "name": "DashboardOverview",
+    "type": "template",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "tags": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "dashboardoverview"
+    ],
+    "keywords": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "DashboardOverview dashboard template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/dashboard/DashboardOverview",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard"
+    ],
+    "features": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "dashboard/profile",
+    "name": "Profile",
+    "type": "template",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "tags": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "profile"
+    ],
+    "keywords": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "Profile dashboard template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/dashboard/Profile",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard"
+    ],
+    "features": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "dashboard/settings",
+    "name": "Settings",
+    "type": "template",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "tags": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "settings"
+    ],
+    "keywords": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "Settings dashboard template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/dashboard/Settings",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard"
+    ],
+    "features": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "dashboard/usersmanagement",
+    "name": "UsersManagement",
+    "type": "template",
+    "category": "dashboard",
+    "industry": "dashboard",
+    "tags": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "usersmanagement"
+    ],
+    "keywords": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "dashboard",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "UsersManagement dashboard template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/dashboard/UsersManagement",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "dashboard"
+    ],
+    "features": [
+      "admin",
+      "analytics",
+      "saas",
+      "dashboard",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ecommerce/checkout",
+    "name": "Checkout",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "tags": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "checkout"
+    ],
+    "keywords": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "Checkout ecommerce template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ecommerce/Checkout",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ecommerce/ordershistory",
+    "name": "OrdersHistory",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "tags": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "ordershistory"
+    ],
+    "keywords": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "OrdersHistory ecommerce template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ecommerce/OrdersHistory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ecommerce/productdetails",
+    "name": "ProductDetails",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "tags": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "productdetails"
+    ],
+    "keywords": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ProductDetails ecommerce template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ecommerce/ProductDetails",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ecommerce/productlisting",
+    "name": "ProductListing",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "tags": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "productlisting"
+    ],
+    "keywords": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ProductListing ecommerce template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ecommerce/ProductListing",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "ecommerce/shoppingcart",
+    "name": "ShoppingCart",
+    "type": "template",
+    "category": "ecommerce",
+    "industry": "ecommerce",
+    "tags": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "shoppingcart"
+    ],
+    "keywords": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "ecommerce",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ShoppingCart ecommerce template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/ecommerce/ShoppingCart",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "ecommerce"
+    ],
+    "features": [
+      "shop",
+      "store",
+      "commerce",
+      "cart",
+      "products",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "education/careerresources",
+    "name": "CareerResources",
+    "type": "template",
+    "category": "education",
+    "industry": "education",
+    "tags": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "careerresources"
+    ],
+    "keywords": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CareerResources education template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/education/CareerResources",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education"
+    ],
+    "features": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "education/coursecatalog",
+    "name": "CourseCatalog",
+    "type": "template",
+    "category": "education",
+    "industry": "education",
+    "tags": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "coursecatalog"
+    ],
+    "keywords": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CourseCatalog education template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/education/CourseCatalog",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education"
+    ],
+    "features": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "education/coursedetails",
+    "name": "CourseDetails",
+    "type": "template",
+    "category": "education",
+    "industry": "education",
+    "tags": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "coursedetails"
+    ],
+    "keywords": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CourseDetails education template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/education/CourseDetails",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education"
+    ],
+    "features": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "education/instructordirectory",
+    "name": "InstructorDirectory",
+    "type": "template",
+    "category": "education",
+    "industry": "education",
+    "tags": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "instructordirectory"
+    ],
+    "keywords": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "InstructorDirectory education template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/education/InstructorDirectory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education"
+    ],
+    "features": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "education/studentdashboard",
+    "name": "StudentDashboard",
+    "type": "template",
+    "category": "education",
+    "industry": "education",
+    "tags": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "studentdashboard"
+    ],
+    "keywords": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "education",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "StudentDashboard education template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/education/StudentDashboard",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "education"
+    ],
+    "features": [
+      "courses",
+      "learning",
+      "school",
+      "training",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "fitness/classschedule",
+    "name": "ClassSchedule",
+    "type": "template",
+    "category": "fitness",
+    "industry": "fitness",
+    "tags": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "classschedule"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ClassSchedule fitness template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/fitness/ClassSchedule",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "fitness/gymlanding",
+    "name": "GymLanding",
+    "type": "template",
+    "category": "fitness",
+    "industry": "fitness",
+    "tags": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "gymlanding"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GymLanding fitness template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/fitness/GymLanding",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "fitness/membershipplans",
+    "name": "MembershipPlans",
+    "type": "template",
+    "category": "fitness",
+    "industry": "fitness",
+    "tags": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "membershipplans"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "MembershipPlans fitness template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/fitness/MembershipPlans",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "fitness/nutritionplans",
+    "name": "NutritionPlans",
+    "type": "template",
+    "category": "fitness",
+    "industry": "fitness",
+    "tags": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "nutritionplans"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "NutritionPlans fitness template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/fitness/NutritionPlans",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "fitness/trainerprofiles",
+    "name": "TrainerProfiles",
+    "type": "template",
+    "category": "fitness",
+    "industry": "fitness",
+    "tags": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "trainerprofiles"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "fitness",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TrainerProfiles fitness template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/fitness/TrainerProfiles",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "fitness"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "health",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "gym/classschedule",
+    "name": "ClassSchedule",
+    "type": "template",
+    "category": "gym",
+    "industry": "gym",
+    "tags": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "classschedule"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ClassSchedule gym template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/gym/ClassSchedule",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "gym"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "gym/gymhero",
+    "name": "GymHero",
+    "type": "template",
+    "category": "gym",
+    "industry": "gym",
+    "tags": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "gymhero"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GymHero gym template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/gym/GymHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "gym"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "gym/membershipplans",
+    "name": "MembershipPlans",
+    "type": "template",
+    "category": "gym",
+    "industry": "gym",
+    "tags": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "membershipplans"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "MembershipPlans gym template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/gym/MembershipPlans",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "gym"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "gym/successstories",
+    "name": "SuccessStories",
+    "type": "template",
+    "category": "gym",
+    "industry": "gym",
+    "tags": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "successstories"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "SuccessStories gym template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/gym/SuccessStories",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "gym"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "gym/trainerprofiles",
+    "name": "TrainerProfiles",
+    "type": "template",
+    "category": "gym",
+    "industry": "gym",
+    "tags": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "trainerprofiles"
+    ],
+    "keywords": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "gym",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TrainerProfiles gym template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/gym/TrainerProfiles",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "gym"
+    ],
+    "features": [
+      "workout",
+      "gym",
+      "coaching",
+      "fitness",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "healthcare/appointmentbooking",
+    "name": "AppointmentBooking",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "tags": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "appointmentbooking"
+    ],
+    "keywords": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AppointmentBooking healthcare template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/healthcare/AppointmentBooking",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare"
+    ],
+    "features": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "healthcare/doctordirectory",
+    "name": "DoctorDirectory",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "tags": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "doctordirectory"
+    ],
+    "keywords": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "DoctorDirectory healthcare template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/healthcare/DoctorDirectory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare"
+    ],
+    "features": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "healthcare/medicalportal",
+    "name": "MedicalPortal",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "tags": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "medicalportal"
+    ],
+    "keywords": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "MedicalPortal healthcare template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/healthcare/MedicalPortal",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare"
+    ],
+    "features": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "healthcare/patientdashboard",
+    "name": "PatientDashboard",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "tags": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "patientdashboard"
+    ],
+    "keywords": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PatientDashboard healthcare template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/healthcare/PatientDashboard",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare"
+    ],
+    "features": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "healthcare/telehealthroom",
+    "name": "TelehealthRoom",
+    "type": "template",
+    "category": "healthcare",
+    "industry": "healthcare",
+    "tags": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "telehealthroom"
+    ],
+    "keywords": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "healthcare",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TelehealthRoom healthcare template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/healthcare/TelehealthRoom",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "healthcare"
+    ],
+    "features": [
+      "clinic",
+      "doctors",
+      "medical",
+      "health",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "insurance/agentlocator",
+    "name": "AgentLocator",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "agentlocator"
+    ],
+    "keywords": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AgentLocator insurance template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/insurance/AgentLocator",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "insurance"
+    ],
+    "features": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "insurance/claimsprocess",
+    "name": "ClaimsProcess",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "claimsprocess"
+    ],
+    "keywords": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ClaimsProcess insurance template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/insurance/ClaimsProcess",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "insurance"
+    ],
+    "features": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "insurance/coveragedetails",
+    "name": "CoverageDetails",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "coveragedetails"
+    ],
+    "keywords": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CoverageDetails insurance template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/insurance/CoverageDetails",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "insurance"
+    ],
+    "features": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "insurance/insurancehero",
+    "name": "InsuranceHero",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "insurancehero"
+    ],
+    "keywords": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "InsuranceHero insurance template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/insurance/InsuranceHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "insurance"
+    ],
+    "features": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "insurance/insuranceplans",
+    "name": "InsurancePlans",
+    "type": "template",
+    "category": "insurance",
+    "industry": "insurance",
+    "tags": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "insuranceplans"
+    ],
+    "keywords": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "insurance",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "InsurancePlans insurance template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/insurance/InsurancePlans",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "insurance"
+    ],
+    "features": [
+      "coverage",
+      "claims",
+      "policy",
+      "insurance",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "marketplace/categorygrid",
+    "name": "CategoryGrid",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "marketplace",
+    "tags": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "categorygrid"
+    ],
+    "keywords": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CategoryGrid marketplace template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/marketplace/CategoryGrid",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "marketplace"
+    ],
+    "features": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "marketplace/featuredvendors",
+    "name": "FeaturedVendors",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "marketplace",
+    "tags": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "featuredvendors"
+    ],
+    "keywords": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "FeaturedVendors marketplace template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/marketplace/FeaturedVendors",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "marketplace"
+    ],
+    "features": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "marketplace/marketplacehero",
+    "name": "MarketplaceHero",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "marketplace",
+    "tags": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "marketplacehero"
+    ],
+    "keywords": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "MarketplaceHero marketplace template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/marketplace/MarketplaceHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "marketplace"
+    ],
+    "features": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "marketplace/trustbadges",
+    "name": "TrustBadges",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "marketplace",
+    "tags": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "trustbadges"
+    ],
+    "keywords": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TrustBadges marketplace template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/marketplace/TrustBadges",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "marketplace"
+    ],
+    "features": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "marketplace/vendoronboarding",
+    "name": "VendorOnboarding",
+    "type": "template",
+    "category": "marketplace",
+    "industry": "marketplace",
+    "tags": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "vendoronboarding"
+    ],
+    "keywords": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "marketplace",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "VendorOnboarding marketplace template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/marketplace/VendorOnboarding",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "marketplace"
+    ],
+    "features": [
+      "marketplace",
+      "vendors",
+      "buyers",
+      "commerce",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "newsletter/featuredtopics",
+    "name": "FeaturedTopics",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "newsletter",
+    "tags": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "featuredtopics"
+    ],
+    "keywords": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "FeaturedTopics newsletter template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/newsletter/FeaturedTopics",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "newsletter"
+    ],
+    "features": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "newsletter/issuearchive",
+    "name": "IssueArchive",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "newsletter",
+    "tags": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "issuearchive"
+    ],
+    "keywords": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "IssueArchive newsletter template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/newsletter/IssueArchive",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "newsletter"
+    ],
+    "features": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "newsletter/newsletterhero",
+    "name": "NewsletterHero",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "newsletter",
+    "tags": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "newsletterhero"
+    ],
+    "keywords": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "NewsletterHero newsletter template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/newsletter/NewsletterHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "newsletter"
+    ],
+    "features": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "newsletter/previousissue",
+    "name": "PreviousIssue",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "newsletter",
+    "tags": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "previousissue"
+    ],
+    "keywords": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PreviousIssue newsletter template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/newsletter/PreviousIssue",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "newsletter"
+    ],
+    "features": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "newsletter/subscribeform",
+    "name": "SubscribeForm",
+    "type": "template",
+    "category": "newsletter",
+    "industry": "newsletter",
+    "tags": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "subscribeform"
+    ],
+    "keywords": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "newsletter",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "SubscribeForm newsletter template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/newsletter/SubscribeForm",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "newsletter"
+    ],
+    "features": [
+      "newsletter",
+      "magazine",
+      "email",
+      "content",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "podcast/audioplayer",
+    "name": "AudioPlayer",
+    "type": "template",
+    "category": "podcast",
+    "industry": "podcast",
+    "tags": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "audioplayer"
+    ],
+    "keywords": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AudioPlayer podcast template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/podcast/AudioPlayer",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "podcast"
+    ],
+    "features": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "podcast/guestprofiles",
+    "name": "GuestProfiles",
+    "type": "template",
+    "category": "podcast",
+    "industry": "podcast",
+    "tags": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "guestprofiles"
+    ],
+    "keywords": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "GuestProfiles podcast template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/podcast/GuestProfiles",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "podcast"
+    ],
+    "features": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "podcast/latestepisodes",
+    "name": "LatestEpisodes",
+    "type": "template",
+    "category": "podcast",
+    "industry": "podcast",
+    "tags": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "latestepisodes"
+    ],
+    "keywords": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "LatestEpisodes podcast template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/podcast/LatestEpisodes",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "podcast"
+    ],
+    "features": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "podcast/podcasthero",
+    "name": "PodcastHero",
+    "type": "template",
+    "category": "podcast",
+    "industry": "podcast",
+    "tags": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "podcasthero"
+    ],
+    "keywords": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PodcastHero podcast template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/podcast/PodcastHero",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "podcast"
+    ],
+    "features": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "podcast/showlistings",
+    "name": "ShowListings",
+    "type": "template",
+    "category": "podcast",
+    "industry": "podcast",
+    "tags": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "showlistings"
+    ],
+    "keywords": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "podcast",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ShowListings podcast template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/podcast/ShowListings",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "podcast"
+    ],
+    "features": [
+      "podcast",
+      "audio",
+      "episodes",
+      "media",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "portfolio/contactme",
+    "name": "ContactMe",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "tags": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "contactme"
+    ],
+    "keywords": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ContactMe portfolio template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/portfolio/ContactMe",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio"
+    ],
+    "features": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "portfolio/personalportfolio",
+    "name": "PersonalPortfolio",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "tags": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "personalportfolio"
+    ],
+    "keywords": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PersonalPortfolio portfolio template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/portfolio/PersonalPortfolio",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio"
+    ],
+    "features": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "portfolio/projectshowcase",
+    "name": "ProjectShowcase",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "tags": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "projectshowcase"
+    ],
+    "keywords": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ProjectShowcase portfolio template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/portfolio/ProjectShowcase",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio"
+    ],
+    "features": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "portfolio/resumetimeline",
+    "name": "ResumeTimeline",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "tags": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "resumetimeline"
+    ],
+    "keywords": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ResumeTimeline portfolio template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/portfolio/ResumeTimeline",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio"
+    ],
+    "features": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "portfolio/servicesoffering",
+    "name": "ServicesOffering",
+    "type": "template",
+    "category": "portfolio",
+    "industry": "portfolio",
+    "tags": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "servicesoffering"
+    ],
+    "keywords": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "portfolio",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ServicesOffering portfolio template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/portfolio/ServicesOffering",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "portfolio"
+    ],
+    "features": [
+      "portfolio",
+      "resume",
+      "personal",
+      "brand",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "realestate/agentdirectory",
+    "name": "AgentDirectory",
+    "type": "template",
+    "category": "realestate",
+    "industry": "realestate",
+    "tags": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "agentdirectory"
+    ],
+    "keywords": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "AgentDirectory realestate template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/realestate/AgentDirectory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate"
+    ],
+    "features": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "realestate/compareproperties",
+    "name": "CompareProperties",
+    "type": "template",
+    "category": "realestate",
+    "industry": "realestate",
+    "tags": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "compareproperties"
+    ],
+    "keywords": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "CompareProperties realestate template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/realestate/CompareProperties",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate"
+    ],
+    "features": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "realestate/mortgagecalculator",
+    "name": "MortgageCalculator",
+    "type": "template",
+    "category": "realestate",
+    "industry": "realestate",
+    "tags": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "mortgagecalculator"
+    ],
+    "keywords": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "MortgageCalculator realestate template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/realestate/MortgageCalculator",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate"
+    ],
+    "features": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "realestate/propertydetails",
+    "name": "PropertyDetails",
+    "type": "template",
+    "category": "realestate",
+    "industry": "realestate",
+    "tags": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "propertydetails"
+    ],
+    "keywords": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PropertyDetails realestate template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/realestate/PropertyDetails",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate"
+    ],
+    "features": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "realestate/propertylisting",
+    "name": "PropertyListing",
+    "type": "template",
+    "category": "realestate",
+    "industry": "realestate",
+    "tags": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "propertylisting"
+    ],
+    "keywords": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "realestate",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PropertyListing realestate template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/realestate/PropertyListing",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "realestate"
+    ],
+    "features": [
+      "properties",
+      "listing",
+      "agent",
+      "real estate",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "restaurant/chefmenu",
+    "name": "ChefMenu",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "tags": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "chefmenu"
+    ],
+    "keywords": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ChefMenu restaurant template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/restaurant/ChefMenu",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant"
+    ],
+    "features": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "restaurant/onlineorders",
+    "name": "OnlineOrders",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "tags": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "onlineorders"
+    ],
+    "keywords": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "OnlineOrders restaurant template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/restaurant/OnlineOrders",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant"
+    ],
+    "features": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "restaurant/reservationsystem",
+    "name": "ReservationSystem",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "tags": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "reservationsystem"
+    ],
+    "keywords": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "ReservationSystem restaurant template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/restaurant/ReservationSystem",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant"
+    ],
+    "features": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "restaurant/restaurantevents",
+    "name": "RestaurantEvents",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "tags": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "restaurantevents"
+    ],
+    "keywords": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "RestaurantEvents restaurant template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/restaurant/RestaurantEvents",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant"
+    ],
+    "features": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "restaurant/restaurantmenu",
+    "name": "RestaurantMenu",
+    "type": "template",
+    "category": "restaurant",
+    "industry": "restaurant",
+    "tags": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "restaurantmenu"
+    ],
+    "keywords": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "restaurant",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "RestaurantMenu restaurant template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/restaurant/RestaurantMenu",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "restaurant"
+    ],
+    "features": [
+      "restaurant",
+      "menu",
+      "food",
+      "dining",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "travel/flightsearch",
+    "name": "FlightSearch",
+    "type": "template",
+    "category": "travel",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "flightsearch"
+    ],
+    "keywords": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "FlightSearch travel template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/travel/FlightSearch",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel"
+    ],
+    "features": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "travel/hotelbooking",
+    "name": "HotelBooking",
+    "type": "template",
+    "category": "travel",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "hotelbooking"
+    ],
+    "keywords": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "HotelBooking travel template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/travel/HotelBooking",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel"
+    ],
+    "features": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "travel/tourpackages",
+    "name": "TourPackages",
+    "type": "template",
+    "category": "travel",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "tourpackages"
+    ],
+    "keywords": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TourPackages travel template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/travel/TourPackages",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel"
+    ],
+    "features": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "travel/travelagency",
+    "name": "TravelAgency",
+    "type": "template",
+    "category": "travel",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "travelagency"
+    ],
+    "keywords": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TravelAgency travel template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/travel/TravelAgency",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel"
+    ],
+    "features": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "travel/travelblog",
+    "name": "TravelBlog",
+    "type": "template",
+    "category": "travel",
+    "industry": "travel",
+    "tags": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "travelblog"
+    ],
+    "keywords": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "travel",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "TravelBlog travel template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/travel/TravelBlog",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "travel"
+    ],
+    "features": [
+      "travel",
+      "hotel",
+      "booking",
+      "tour",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "wedding/eventtimeline",
+    "name": "EventTimeline",
+    "type": "template",
+    "category": "wedding",
+    "industry": "wedding",
+    "tags": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "eventtimeline"
+    ],
+    "keywords": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "EventTimeline wedding template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/wedding/EventTimeline",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "wedding"
+    ],
+    "features": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "wedding/herocouple",
+    "name": "HeroCouple",
+    "type": "template",
+    "category": "wedding",
+    "industry": "wedding",
+    "tags": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "herocouple"
+    ],
+    "keywords": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "HeroCouple wedding template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/wedding/HeroCouple",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "wedding"
+    ],
+    "features": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "wedding/ourstory",
+    "name": "OurStory",
+    "type": "template",
+    "category": "wedding",
+    "industry": "wedding",
+    "tags": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "ourstory"
+    ],
+    "keywords": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "OurStory wedding template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/wedding/OurStory",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "wedding"
+    ],
+    "features": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "wedding/photogallery",
+    "name": "PhotoGallery",
+    "type": "template",
+    "category": "wedding",
+    "industry": "wedding",
+    "tags": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "photogallery"
+    ],
+    "keywords": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "PhotoGallery wedding template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/wedding/PhotoGallery",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "wedding"
+    ],
+    "features": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  },
+  {
+    "id": "wedding/registrygifts",
+    "name": "RegistryGifts",
+    "type": "template",
+    "category": "wedding",
+    "industry": "wedding",
+    "tags": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "registrygifts"
+    ],
+    "keywords": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "wedding",
+      "luxury",
+      "modern",
+      "responsive",
+      "react",
+      "tailwind"
+    ],
+    "description": "RegistryGifts wedding template section. Built with React 19, Tailwind CSS and responsive utility components.",
+    "file_path": "src/templates/wedding/RegistryGifts",
+    "dependencies": [
+      "react",
+      "react-dom",
+      "lucide-react",
+      "tailwindcss",
+      "framer-motion"
+    ],
+    "compatible_categories": [
+      "wedding"
+    ],
+    "features": [
+      "wedding",
+      "couple",
+      "ceremony",
+      "celebration",
+      "responsive",
+      "dark-mode-ready",
+      "accessibility"
+    ],
+    "compatible_styles": [],
+    "conversion_optimized": true,
+    "quality_score": 90.0,
+    "complexity": "medium",
+    "preview_screenshot": "",
+    "last_updated": "2026-09-15",
+    "sections_used": [],
+    "rating": 4.8,
+    "usage_count": 0
+  }
+]

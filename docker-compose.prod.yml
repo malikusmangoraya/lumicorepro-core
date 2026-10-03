@@ -1,15 +1,44 @@
-# ============================================================
-# LumicorePro — Production Docker Compose
-# ============================================================
-# Usage:
-#   cp .env.example .env.production
-#   docker-compose -f docker-compose.prod.yml up -d --build
+# =============================================================================
+# LumicorePro — PRODUCTION Docker Compose (single VPS)
+# =============================================================================
+# This is the canonical production topology. Everything else (k8s/) is secondary
+# and documented as such in docs/DEPLOYMENT.md.
 #
-# Includes: Nginx (SSL termination), Frontend, Backend, PostgreSQL,
-#           Redis, Certbot (auto-renew Let's Encrypt)
-# ============================================================
+#   ┌──────────────┐   :80/:443   ┌──────────────────────────────────────────┐
+#   │  Internet    │─────────────▶│ nginx  (TLS, routing, security headers)  │
+#   └──────────────┘              └───────┬───────────────────────┬──────────┘
+#                                    /    │                       │  /api, /uploads,
+#                                         ▼                       ▼  /socket.io, /api-docs
+#                              ┌────────────────────┐   ┌────────────────────┐
+#                              │ frontend (nginx)   │   │ backend (Express)  │
+#                              │ static dist :8080  │   │ :5000              │
+#                              └────────────────────┘   └─────┬──────────────┘
+#                                                             │ AI_AGENT_URL
+#                                                             ▼
+#                                                   ┌────────────────────┐
+#                                                   │ ai-agent (FastAPI) │
+#                                                   │ :8000 internal only│
+#                                                   └────────────────────┘
+#                                        backend ──▶ db (Postgres) + redis
+#
+# Only `nginx` publishes host ports. Postgres, Redis, the backend and the AI
+# agent are reachable only on the `lumicore-net` bridge network.
+#
+# FIRST DEPLOY (full procedure in docs/DEPLOYMENT.md):
+#   1. cp .env.production.example .env.production  &&  edit every REQUIRED value
+#   2. bash scripts/dev-certs.sh is NOT used here — obtain real certificates
+#      (see nginx/ssl/README.md "Production")
+#   3. docker compose -f docker-compose.prod.yml --env-file .env.production pull
+#   4. docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+#   5. Apply the base schema + migrations (docs/DEPLOYMENT.md § Migrations)
+#
+# The whole file refuses to start without POSTGRES_PASSWORD, REDIS_PASSWORD,
+# JWT_SECRET and JWT_REFRESH_SECRET — `${VAR:?message}` is intentional, it is not
+# a missing default. Previously the DB used a literal `postgres/postgres` and
+# Redis had no password at all.
+# =============================================================================
 
-version: "3.9"
+name: lumicorepro
 
 x-restart: &default-restart
   restart: unless-stopped
@@ -23,7 +52,7 @@ x-logging: &default-logging
 
 services:
 
-  # ── PostgreSQL ──────────────────────────────────────────────────
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: lumicorepro-db
@@ -31,13 +60,20 @@ services:
     environment:
       POSTGRES_DB:       ${POSTGRES_DB:-lumicorepro_db}
       POSTGRES_USER:     ${POSTGRES_USER:-lumicore}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?DB password required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env.production}
       PGDATA:            /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # NOTE: there is deliberately no docker-entrypoint-initdb.d mount here.
+      # The previous file mounted ./database/schema.sql, which does not exist in
+      # this repository — Docker created a *directory* with that name, so the
+      # database was initialised empty while the file looked like a working init
+      # step. The base schema is applied by hand (or restored from a dump); see
+      # docs/DEPLOYMENT.md § Migrations and the "Fresh database" checklist.
     ports:
-      - "127.0.0.1:5432:5432"          # Bind to loopback only — not public
+      # Loopback only, for `psql`/pgAdmin over an SSH tunnel. Remove this block
+      # entirely if the VPS is not administered over SSH.
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lumicore} -d ${POSTGRES_DB:-lumicorepro_db}"]
       interval: 10s
@@ -47,30 +83,45 @@ services:
     networks:
       - lumicore-net
 
-  # ── Redis (caching + session + Bull queues) ─────────────────────
+  # ── Redis (cache + sessions + BullMQ queues) ────────────────────────────────
   redis:
     image: redis:7-alpine
     container_name: lumicorepro-redis
     <<: [*default-restart, *default-logging]
-    command: redis-server --requirepass ${REDIS_PASSWORD:?Redis password required} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required — set it in .env.production}
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - "60"
+      - "1"
+      - --appendonly
+      - "no"
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6379:6379"      # loopback only — see the note on db
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks:
       - lumicore-net
 
-  # ── Backend API ─────────────────────────────────────────────────
+  # ── Backend API (Express + Sequelize) ───────────────────────────────────────
   backend:
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER is required — GitHub owner, lowercase}/lumicorepro-core-backend:${IMAGE_TAG:-latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: production
     container_name: lumicorepro-api
     <<: [*default-restart, *default-logging]
     depends_on:
@@ -78,34 +129,44 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ai-agent:
+        condition: service_started
     environment:
       NODE_ENV:             production
       PORT:                 5000
-      MONGODB_URI:          ${MONGODB_URI}
       DATABASE_URL:         postgresql://${POSTGRES_USER:-lumicore}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lumicorepro_db}
-      JWT_SECRET:           ${JWT_SECRET:?JWT secret required}
-      JWT_EXPIRES_IN:       ${JWT_EXPIRES_IN:-7d}
-      STRIPE_SECRET_KEY:    ${STRIPE_SECRET_KEY}
-      STRIPE_WEBHOOK_SECRET:${STRIPE_WEBHOOK_SECRET}
       REDIS_URL:            redis://:${REDIS_PASSWORD}@redis:6379
-      SENTRY_DSN:           ${SENTRY_DSN}
-      FRONTEND_URL:         ${FRONTEND_URL:-https://lumicorepro.com}
-      CORS_ORIGIN:          ${FRONTEND_URL:-https://lumicorepro.com}
-      SMTP_HOST:            ${SMTP_HOST}
+      JWT_SECRET:           ${JWT_SECRET:?JWT_SECRET is required (>= 32 chars)}
+      JWT_REFRESH_SECRET:   ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required (>= 32 chars)}
+      JWT_EXPIRE:            ${JWT_EXPIRE:-15m}
+      JWT_REFRESH_EXPIRE:    ${JWT_REFRESH_EXPIRE:-7d}
+      # Public origins. The SPA is served from the same origin as the API, so
+      # both values are normally the site origin (e.g. https://example.com).
+      FRONTEND_URL:         ${PUBLIC_ORIGIN:?PUBLIC_ORIGIN is required — e.g. https://example.com}
+      ALLOWED_ORIGINS:      ${ALLOWED_ORIGINS:-${PUBLIC_ORIGIN}}
+      # The AI agent is an internal service. This URL is never a public host.
+      AI_AGENT_URL:         http://ai-agent:8000
+      STRIPE_SECRET_KEY:    ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      SENTRY_DSN:           ${SENTRY_DSN:-}
+      SMTP_HOST:            ${SMTP_HOST:-}
       SMTP_PORT:            ${SMTP_PORT:-587}
-      SMTP_USER:            ${SMTP_USER}
-      SMTP_PASS:            ${SMTP_PASS}
-      FROM_EMAIL:           ${FROM_EMAIL:-noreply@lumicorepro.com}
+      SMTP_USER:            ${SMTP_USER:-}
+      SMTP_PASS:            ${SMTP_PASS:-}
+      FROM_EMAIL:           ${FROM_EMAIL:-noreply@example.com}
+      # DEMO_MODE is intentionally absent: it changes application behaviour and
+      # must never be enabled in production.
     expose:
       - "5000"
     volumes:
       - backend_uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 40s
     networks:
       - lumicore-net
     deploy:
@@ -117,26 +178,92 @@ services:
           cpus: "0.25"
           memory: 128M
 
-  # ── Frontend (Nginx serving built React app) ────────────────────
+  # ── AI agent (FastAPI) — internal only, no published port ───────────────────
+  ai-agent:
+    image: ghcr.io/${GHCR_OWNER}/lumicorepro-core-ai-agent:${IMAGE_TAG:-latest}
+    build:
+      # Repo-root context so the Dockerfile can copy the repository assets the
+      # agent resolves PROJECT_ROOT-relative (src/templates, registry,
+      # database/schemas). ai-agent/.dockerignore is used automatically.
+      context: .
+      dockerfile: ./ai-agent/Dockerfile
+      args:
+        INSTALL_HEAVY_ML: ${AI_AGENT_INSTALL_HEAVY_ML:-false}
+    container_name: lumicorepro-ai-agent
+    <<: [*default-restart, *default-logging]
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      # Only the backend talks to the agent (server-to-server through the
+      # internal network) and it does not send an API key, so AGENT_API_KEY
+      # stays empty here. If you set it, the Express passthrough must start
+      # forwarding an X-API-Key header — see docs/DEPLOYMENT.md
+      # "AI agent authentication" before enabling it, otherwise every AI call
+      # fails with 401/503.
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      ALLOWED_HOSTS: ${AI_AGENT_ALLOWED_HOSTS:-ai-agent,127.0.0.1,localhost}
+      CORS_ORIGINS: ${PUBLIC_ORIGIN}
+      GENERATED_PROJECTS_DIR: /app/generated-projects
+      ACTIVE_AI_PROVIDER: ${ACTIVE_AI_PROVIDER:-grok}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GROK_API_KEY: ${GROK_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      RATE_LIMIT_REQUESTS: ${AI_AGENT_RATE_LIMIT_REQUESTS:-30}
+      RATE_LIMIT_WINDOW: ${AI_AGENT_RATE_LIMIT_WINDOW:-60}
+    volumes:
+      # Agent SQLite state (accounts, pipeline runs, memory) and the projects it
+      # generates. Both are stateful — back them up alongside the database.
+      - agent_state:/app/database
+      - agent_projects:/app/generated-projects
+    expose:
+      - "8000"
+    healthcheck:
+      # The FastAPI app exposes /health (ai-agent/server.py), not /api/health.
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).status == 200 else 1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - lumicore-net
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── Frontend: static bundle served by nginx (internal, 8080) ────────────────
   frontend:
+    image: ghcr.io/${GHCR_OWNER}/lumicorepro-core-frontend:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile.frontend
       args:
-        VITE_API_URL:       ${VITE_API_URL:-https://api.lumicorepro.com}
-        VITE_STRIPE_KEY:    ${STRIPE_PUBLISHABLE_KEY}
-        VITE_APP_ENV:       production
+        # Baked into the bundle at build time. Set PUBLIC_ORIGIN to the real site
+        # origin (e.g. https://example.com); the SPA then calls the same origin
+        # and nginx routes /api to the backend. Leave this wrong and the bundle
+        # calls a host that does not exist. Changing it requires a rebuild.
+        VITE_API_URL: ${PUBLIC_ORIGIN}
+        VITE_STRIPE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+        VITE_APP_ENV: production
     container_name: lumicorepro-web
     <<: [*default-restart, *default-logging]
     depends_on:
       backend:
         condition: service_healthy
     expose:
-      - "80"
+      - "8080"
     networks:
       - lumicore-net
 
-  # ── Nginx Reverse Proxy + SSL Termination ───────────────────────
+  # ── Edge reverse proxy + TLS termination ───────────────────────────────────
   nginx:
     image: nginx:1.27-alpine
     container_name: lumicorepro-nginx
@@ -147,18 +274,34 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      # Substituted into /etc/nginx/templates/nginx.conf.template by the nginx
+      # image entrypoint (envsubst). Only these names are substituted — nginx
+      # runtime variables such as $host/$uri are left untouched.
+      SERVER_NAME: ${SERVER_NAME:?SERVER_NAME is required — the TLS host name, e.g. example.com}
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".template"
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.prod.conf:/etc/nginx/templates/nginx.conf.template:ro
+      # Security headers live at this exact path because the include directives
+      # in both nginx configs reference /etc/nginx/conf.d/security-headers.conf.
+      - ./nginx/security-headers.conf:/etc/nginx/conf.d/security-headers.conf:ro
       - ./ssl/certs:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
       - lumicore-net
 
-  # ── Certbot (Let's Encrypt auto-renewal) ───────────────────────
+  # ── Certbot (Let's Encrypt renewal, webroot + nginx ACME location) ──────────
   certbot:
-    image: certbot/certbot:latest
+    image: certbot/certbot:v2.11.0
     container_name: lumicorepro-certbot
+    <<: [*default-restart, *default-logging]
     volumes:
       - ./ssl/certs:/etc/letsencrypt
       - certbot_www:/var/www/certbot
@@ -171,12 +314,12 @@ services:
     networks:
       - lumicore-net
 
-  # ── Adminer (DB GUI — disable in strict production) ─────────────
+  # ── DB GUI — never enabled by default ──────────────────────────────────────
   adminer:
     image: adminer:4-standalone
     container_name: lumicorepro-adminer
     restart: "no"
-    profiles: ["debug"]          # Only starts with: --profile debug
+    profiles: ["debug"]
     ports:
       - "127.0.0.1:8080:8080"
     environment:
@@ -188,6 +331,8 @@ volumes:
   postgres_data:    { name: lumicorepro-postgres }
   redis_data:       { name: lumicorepro-redis }
   backend_uploads:  { name: lumicorepro-uploads }
+  agent_state:      { name: lumicorepro-agent-state }
+  agent_projects:   { name: lumicorepro-agent-projects }
   certbot_www:      { name: lumicorepro-certbot-www }
 
 networks:

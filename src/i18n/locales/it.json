@@ -98,7 +98,8 @@
     "ai": "IA",
     "business": "Business",
     "logout": "Esci",
-    "pricing": "Prezzi"
+    "pricing": "Prezzi",
+    "workspace": "Workspace"
   },
   "apiSettings": {
     "title": "Configurazione API",

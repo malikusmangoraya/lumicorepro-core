@@ -47,6 +47,8 @@ COMPONENT_LIBRARY: Dict[str, tuple] = {
 }
 
 # Library-owned directories are copied, never rewritten by the sweep.
+# NOTE: generated `layouts/` are NOT skipped — they carry raw semantic buttons
+# that must be upgraded to ButtonMotion to pass the no-restricted-syntax gate.
 _LIBRARY_DIRS = {
     "components/ui",
     "components/ui/",
@@ -55,8 +57,6 @@ _LIBRARY_DIRS = {
     "components/icons",
     "components/common",
     "components/navigation",
-    "components/layout",
-    "layouts",
     "components/Navbar.jsx",
     "components/Footer.jsx",
     "components/UniqueLogo.jsx",

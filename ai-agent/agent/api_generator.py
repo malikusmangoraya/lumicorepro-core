@@ -72,12 +72,30 @@ class APIGenerator:
         "table_orders": ["orders"],
     }
 
+    # Always-on SaaS base feature set — every generated project ships the full
+    # boilerplate: auth (JWT + OAuth + RBAC + MFA), users/profiles, billing,
+    # subscriptions, notifications, analytics and internationalization.
+    SAAS_BASE_FEATURES = [
+        "jwt_auth",
+        "oauth",
+        "role_based_access",
+        "multi_factor_auth",
+        "users",
+        "profiles",
+        "subscriptions",
+        "notifications",
+        "stripe_payments",
+        "analytics",
+        "i18n_multilingual",
+    ]
+
     def generate_full_backend(self, target_dir: Path, plan: Dict[str, Any]) -> None:
         """Generate complete backend with all necessary APIs."""
         spec = plan.get("spec", {})
         website_type = spec.get("website_type", "business")
         industry = spec.get("industry", "general")
-        features = spec.get("features", [])
+        spec_features = spec.get("features", [])
+        features = [f for f in self.SAAS_BASE_FEATURES if f not in spec_features] + list(spec_features)
         backend_info = plan.get("backend", {})
         
         agent_logger.info(f"Generating full backend for {website_type} ({industry}) with {len(features)} features")
@@ -351,6 +369,8 @@ require('dotenv').config();
 {socket_io_import}
 
 const {{ errorHandler, notFound }} = require('./middleware/errorHandler');
+const usageLimiter = require('./middleware/usageLimiter');
+const {{ auditRequest }} = require('./middleware/auditLogger');
 {swagger_import}
 
 const app = express();
@@ -385,6 +405,16 @@ app.use(compression());
 if (process.env.NODE_ENV !== 'test') {{
   app.use(morgan('combined'));
 }}
+
+// Audit logging (opt-in via AUDIT_LOG env, defaults on)
+if (process.env.AUDIT_LOG !== 'false') {{
+  app.use(auditRequest);
+}}
+
+// Plan usage limits
+app.get('/api/usage/limits', (req, res) => {{
+  res.json({{ success: true, data: usageLimiter.defaultLimits }});
+}});
 
 {routes_mounts_str}
 
@@ -503,13 +533,14 @@ module.exports = { notFound, errorHandler };
         FileManager.write_file(str(mw_dir / "errorHandler.js"), err_js)
 
         auth_js = """const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../utils/jwtSecret');
 
 const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+      const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
       req.user = decoded;
       return next();
     } catch (error) {
@@ -533,6 +564,125 @@ module.exports = { protect, adminOnly };
 """
         FileManager.write_file(str(mw_dir / "auth.js"), auth_js)
 
+        usage_limiter_js = """/**
+ * Usage Limiter — per-plan monthly metering and enforcement (fail-open).
+ * Attach per route: router.get('/', enforceLimit('api', { limit: 1000 }), handler);
+ * Individual metrics are configurable via the USAGE_LIMITS env (JSON).
+ */
+let limitConfig = {};
+try {
+  limitConfig = process.env.USAGE_LIMITS ? JSON.parse(process.env.USAGE_LIMITS) : {};
+} catch (_) { /* invalid env, use defaults */ }
+
+const defaultLimits = Object.assign(
+  {
+    api: 1000,
+    ai_generation: 50,
+    ai_chat: 200,
+    uploads: 100,
+    exports: 50,
+  },
+  limitConfig && typeof limitConfig === 'object' ? limitConfig : {}
+);
+
+const monthKey = () => {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+};
+
+const counters = new Map();
+
+const usageOf = (metric) => counters.get(`${monthKey()}:${metric}`) || 0;
+
+const bump = (metric, n = 1) => {
+  const key = `${monthKey()}:${metric}`;
+  const next = usageOf(metric) + n;
+  counters.set(key, next);
+  return next;
+};
+
+const planMultiplier = (user) => {
+  const map = { free: 1, starter: 1, pro: 5, growth: 20, scale: 100, enterprise: 1000 };
+  return map[(user && (user.plan || user.role)) || 'free'] || 1;
+};
+
+const enforceLimit = (metric, options = {}) => (req, res, next) => {
+  try {
+    const limit = (options.limit || defaultLimits[metric] || 1000) * planMultiplier(req.user);
+    if (usageOf(metric) >= limit) {
+      return res.status(429).json({
+        success: false,
+        code: 'PLAN_LIMIT_EXCEEDED',
+        message: `Monthly ${metric} limit of ${limit} reached. Upgrade your plan to continue.`,
+      });
+    }
+    res.setHeader('X-Plan-Limit', limit);
+    res.setHeader('X-Plan-Usage', usageOf(metric));
+    res.once('finish', () => {
+      if (res.statusCode < 500) bump(metric, 1);
+    });
+    next();
+  } catch (err) {
+    next();
+  }
+};
+
+const meter = (metric) => (req, res, next) => {
+  res.once('finish', () => {
+    if (res.statusCode < 500) {
+      try { bump(metric, 1); } catch (_) { /* noop */ }
+    }
+  });
+  next();
+};
+
+module.exports = { enforceLimit, meter, defaultLimits, counters };
+"""
+        FileManager.write_file(str(mw_dir / "usageLimiter.js"), usage_limiter_js)
+
+        audit_logger_js = """/**
+ * Audit Logger — request audit trail, opt-in and fail-open.
+ * Enable with AUDIT_LOG=true (default) or configure AUDIT_LOG_FILE.
+ */
+const fs = require('fs');
+const path = require('path');
+
+const enabled = process.env.AUDIT_LOG !== 'false';
+const logFile = path.resolve(process.env.AUDIT_LOG_FILE || './audit.log');
+
+const persist = (entry) => {
+  try {
+    fs.appendFileSync(logFile, entry + '\\n');
+    if (process.env.AUDIT_LOG_STDOUT !== 'false') {
+      console.log(`[AUDIT] ${entry}`);
+    }
+  } catch (_) { /* noop */ }
+};
+
+const auditRequest = (req, res, next) => {
+  if (!enabled) return next();
+  const startedAt = Date.now();
+  res.once('finish', () => {
+    try {
+      persist(JSON.stringify({
+        ts: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl,
+        status: res.statusCode,
+        durationMs: Date.now() - startedAt,
+        user: (req.user && (req.user.id || req.user.sub || req.user.email)) || null,
+        ip: req.ip || (req.socket && req.socket.remoteAddress) || null,
+        ua: req.headers['user-agent'] || null,
+      }));
+    } catch (_) { /* noop */ }
+  });
+  next();
+};
+
+module.exports = { auditRequest, persist };
+"""
+        FileManager.write_file(str(mw_dir / "auditLogger.js"), audit_logger_js)
+
     def _generate_controllers(self, target_dir: Path, features: List[str], website_type: str, industry: str) -> List[str]:
         """Generate controllers based on detected features."""
         ctrl_dir = target_dir / "controllers"
@@ -542,11 +692,12 @@ module.exports = { protect, adminOnly };
         # Auth Controller
         auth_ctrl = """const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { jwtSecret } = require('../utils/jwtSecret');
 
 exports.register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    const token = jwt.sign({ email, role: 'user' }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    const token = jwt.sign({ email, role: 'user' }, jwtSecret, { expiresIn: '7d' });
     res.status(201).json({ success: true, message: 'User registered successfully', token, user: { email, name } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -556,7 +707,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const token = jwt.sign({ email, role: 'user' }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    const token = jwt.sign({ email, role: 'user' }, jwtSecret, { expiresIn: '7d' });
     res.json({ success: true, message: 'Login successful', token, user: { email } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -741,12 +892,81 @@ module.exports = EmailService;
 """
         FileManager.write_file(str(utils_dir / "response.js"), resp_js)
 
+        # Fail-closed JWT secret resolution. Plain (non-f) Python string literal:
+        # JS braces/$, backticks and newlines are emitted verbatim, so no brace
+        # doubling is needed here.
+        jwt_secret_js = """/**
+ * Fail-closed JWT secret resolution.
+ *
+ * Refuses to boot when JWT_SECRET is missing, shorter than MIN_LENGTH, or a
+ * well-known placeholder, so a publicly known value can never be used to forge
+ * tokens (including admin tokens).
+ *
+ * Generate a secret with:
+ *   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+ *   # or: openssl rand -hex 32
+ */
+const DENIED_SECRETS = [
+  'secret',
+  'changeme',
+  'change_me',
+  'change-me-in-production',
+  'change_this_secret_in_production',
+  'change_this_to_a_random_64_char_string',
+  'lumi_jwt_secret',
+  'replace-me',
+  'replace_with_a_random_64_character_secret',
+  'replace_with_secure_random_key',
+  'secret_jwt_key',
+  'secret_jwt_key_2026',
+  'super_secret_production_key_2026',
+  'your_jwt_secret_key_here',
+  'your_super_secret_key_here_change_this',
+  'your-super-secret-jwt-key-change-this',
+  'your_super_secret_jwt_key_change_this_minimum_32_characters',
+];
+
+const MIN_LENGTH = 32;
+
+function fail(reason) {
+  console.error(`[fatal] JWT_SECRET ${reason}. Refusing to start.
+Generate a strong secret with one of:
+  node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+  # or: openssl rand -hex 32
+Then set JWT_SECRET in your .env file.`);
+  process.exit(1);
+}
+
+function resolveJwtSecret(env) {
+  const source = env || process.env;
+  const raw = source.JWT_SECRET;
+  if (typeof raw !== 'string' || raw.trim() === '') fail('is not set');
+  const secret = raw.trim();
+  if (secret.length < MIN_LENGTH) {
+    fail(`must be at least ${MIN_LENGTH} characters (got ${secret.length})`);
+  }
+  if (DENIED_SECRETS.indexOf(secret.toLowerCase()) !== -1) {
+    fail('is a well-known placeholder value');
+  }
+  return secret;
+}
+
+const jwtSecret = Object.freeze(resolveJwtSecret(process.env));
+
+module.exports = { jwtSecret, MIN_LENGTH };
+"""
+        FileManager.write_file(str(utils_dir / "jwtSecret.js"), jwt_secret_js)
+
     def _generate_env_files(self, target_dir: Path, features: List[str]) -> None:
         """Generate environment example file."""
         env_content = """PORT=5000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:5173
-JWT_SECRET=your_jwt_secret_key_here
+# REQUIRED, minimum 32 chars. Generate one with:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+#   # or: openssl rand -hex 32
+# The backend refuses to start if this is missing, short, or a known placeholder.
+JWT_SECRET=
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_db
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX=100

@@ -98,7 +98,8 @@
     "ai": "Yapay Zeka",
     "business": "İşletme",
     "logout": "Çıkış Yap",
-    "pricing": "Fiyatlandırma"
+    "pricing": "Fiyatlandırma",
+    "workspace": "Çalışma Alanı"
   },
   "apiSettings": {
     "title": "API Yapılandırması",

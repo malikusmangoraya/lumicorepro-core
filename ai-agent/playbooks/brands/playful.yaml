@@ -1,0 +1,49 @@
+# Playful brand playbook — LumicorePro Core
+brand: playful
+personality: [friendly, energetic, cheerful, approachable, whimsical]
+
+typography:
+  display: rounded_soft
+  body: friendly_sans
+  weight: bold
+  size: large
+  spacing: loose
+
+color:
+  base: bright_warm
+  accent: multi_vibrant
+  gradients: playful_duo
+  saturation: high
+
+spacing:
+  density: medium
+  whitespace: comfortable
+  rhythm: bouncy
+
+motion:
+  character: bouncy_spring
+  durations: short
+  easing: spring
+  hero: energetic_pop
+
+imagery:
+  style: cheerful_illustration
+  lighting: bright_flat
+  subjects: characters_objects
+  ratio: square_to_landscape
+
+interaction:
+  hover: bubble_scale
+  cursors: pointer
+  cta: chunky_rounded
+
+surface:
+  depth: soft_shadow
+  borders: rounded_thick
+  radius: large
+
+avoid:
+  - corporate_serifs
+  - dark_heavy_tones
+  - rigid_grids
+  - minimal_stark_layouts

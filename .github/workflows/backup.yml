@@ -1,32 +1,99 @@
+# =============================================================================
+# LumicorePro — nightly database backup WITH restore verification
+# =============================================================================
+# The previous version produced a dump, uploaded it and stopped. A dump that has
+# never been restored is an assumption, not a backup — so this workflow now fails
+# unless the archive it just produced can be restored into a scratch database and
+# answers a real query.
+#
+# Jobs
+#   backup        pg_dump of the live database via scripts/backup-db.sh, then
+#                 verify the archive contains the expected members and that the
+#                 recorded sha256 still matches. Upload as an artifact.
+#   restore-check RESTORE the dump into a throwaway Postgres, then assert:
+#                   * the restored database is queryable      (SELECT 1)
+#                   * the schema came back                    (users table exists)
+#                   * the data came back                      (row count > 0)
+#                 A failing restore fails the run. Silent backup rot is worse
+#                 than a loud failure.
+#
+# Required secret: DATABASE_URL — full connection string of the PRODUCTION
+# database (e.g. postgres://user:pass@host:5432/lumicorepro_db). If it is not
+# configured the run FAILS with a clear message instead of reporting success on
+# an empty dump.
+#
+# Retention: artifacts expire after 14 days. That is deliberately short — this is
+# a working copy for verification, not the system of record. Long-term retention
+# belongs in object storage (see docs/RUNBOOK.md § Backup).
+# =============================================================================
+
 name: Database Backup
 
 on:
   schedule:
-    # Daily at 03:10 UTC — pg_dump of the live DB
+    # Daily at 03:10 UTC
     - cron: '10 3 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
 jobs:
   backup:
+    name: Dump production database
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install PostgreSQL client
+      - name: Require DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "::error::DATABASE_URL secret is not configured. Refusing to run a backup that would produce an empty archive."
+            exit 1
+          fi
+          echo "DATABASE_URL is configured (value not printed)."
+
+      - name: Install PostgreSQL 16 client
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client > /dev/null 2>&1
+          sudo apt-get install -y -qq postgresql-client > /dev/null
 
       - name: Run backup script
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BACKUP_ROOT: ./backups
           ARTIFACTS_DIR: ./uploads
+        run: bash scripts/backup-db.sh
+
+      - name: Verify the archive
         run: |
-          bash scripts/backup-db.sh
+          set -euo pipefail
+          archive=$(ls -1t backups/lumicorepro-*.tar.gz | head -n 1)
+          echo "Archive: $archive"
+          # 1) checksum recorded by the script must still match
+          sha256sum -c "${archive}.sha256"
+          # 2) both dumps must exist inside the archive and be non-trivial
+          tar -tzf "$archive"
+          tar -xzf "$archive" -C /tmp
+          dump_dir=$(find /tmp -maxdepth 2 -type d -name 'lumicorepro-*' | head -n 1)
+          for member in db.pg.dump db.sql; do
+            f="$dump_dir/$member"
+            [ -s "$f" ] || { echo "::error::$member is missing or empty"; exit 1; }
+            echo "$member: $(stat -c%s "$f") bytes"
+          done
+          # 3) a plain SQL dump must contain at least one CREATE TABLE statement
+          if ! grep -qi 'CREATE TABLE' "$dump_dir/db.sql"; then
+            echo "::error::db.sql contains no CREATE TABLE — the dump is not a usable schema"
+            exit 1
+          fi
+          echo "OK: archive verified"
 
       - name: Upload backup artifact (retained 14 days)
         uses: actions/upload-artifact@v4
@@ -34,11 +101,115 @@ jobs:
           name: lumicorepro-db-${{ github.run_id }}
           path: backups/*.tar.gz
           retention-days: 14
+          if-no-files-found: error
 
-      - name: Prune old artifacts (delete expired actions)
-        run: echo "Old artifacts auto-expire per retention-days."
-
-      - name: Report size
+      - name: Report
         run: |
           ls -lh backups/
-          sha256sum backups/*.sha256
+          cat backups/*.sha256
+
+  restore-check:
+    name: Restore into scratch DB and verify
+    runs-on: ubuntu-latest
+    needs: backup
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: restore
+          POSTGRES_PASSWORD: restore
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U restore"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: restore
+    steps:
+      - name: Install PostgreSQL 16 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client > /dev/null
+
+      - name: Download backup artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lumicorepro-db-${{ github.run_id }}
+          path: ./restore-src
+
+      - name: Restore and verify
+        run: |
+          set -euo pipefail
+          PSQL="psql -h localhost -U restore -d postgres -v ON_ERROR_STOP=1 -q"
+
+          archive=$(ls -1t restore-src/*.tar.gz | head -n 1)
+          echo "Restoring from: $archive"
+          tar -xzf "$archive" -C /tmp
+          dump_dir=$(find /tmp -maxdepth 2 -type d -name 'lumicorepro-*' | head -n 1)
+          [ -n "$dump_dir" ] || { echo "::error::could not locate the extracted dump directory"; exit 1; }
+
+          # Scratch database — never the source database.
+          $PSQL -c "DROP DATABASE IF EXISTS restorecheck;"
+          $PSQL -c "CREATE DATABASE restorecheck;"
+
+          # --no-owner / --no-privileges: the dump carries the production role
+          # names, which do not exist on this throwaway server. Exit code 0 is
+          # required; warnings about roles are not silently swallowed because
+          # `set -e` plus `--exit-on-error` makes a real failure fatal.
+          pg_restore \
+            --host localhost --username restore --dbname restorecheck \
+            --no-owner --no-privileges --exit-on-error \
+            "$dump_dir/db.pg.dump"
+          echo "OK: pg_restore completed with no errors"
+
+          # ── Verification 1: the database answers a query ────────────────────
+          $PSQL -d restorecheck -c "SELECT 1 AS restore_ok;"
+
+          # ── Verification 2: the schema is present ──────────────────────────
+          tables=$($PSQL -d restorecheck -tAc "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';")
+          echo "public tables restored: $tables"
+          if [ "${tables:-0}" -lt 1 ]; then
+            echo "::error::restored database has no tables in the public schema"
+            exit 1
+          fi
+
+          # ── Verification 3: row-count sanity check ─────────────────────────
+          # `users` is the one table every deployment of this application has.
+          # Zero rows means the dump captured an empty database — a backup that
+          # would restore a working schema with no data.
+          users=$($PSQL -d restorecheck -tAc "SELECT count(*) FROM users;")
+          echo "users rows restored: $users"
+          if [ "${users:-0}" -lt 1 ]; then
+            echo "::error::restored users table is EMPTY — the dump contains no data. Investigate before trusting this backup."
+            exit 1
+          fi
+
+          # Informational only (never a gate): per-table counts.
+          $PSQL -d restorecheck -c "
+            SELECT relname AS table, n_live_tup AS approx_rows
+            FROM pg_stat_user_tables
+            ORDER BY n_live_tup DESC
+            LIMIT 15;"
+
+          echo "RESTORE VERIFIED — the archive is usable."
+
+      - name: Record the verify result
+        if: always()
+        run: |
+          {
+            echo "### Restore verification"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "The nightly dump was restored into a scratch database, queried"
+              echo "with \`SELECT 1\`, and the \`users\` table contained rows."
+            else
+              echo "**Restore verification FAILED.** The archive for run"
+              echo "${{ github.run_id }} could not be restored or is empty."
+              echo ""
+              echo "Do not treat last night's backup as valid. See docs/RUNBOOK.md"
+              echo "§ \"Backup and restore\" for the manual procedure."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

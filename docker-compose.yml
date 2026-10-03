@@ -1,40 +1,75 @@
-version: '3.8'
+# =============================================================================
+# LumicorePro — LOCAL development stack
+# =============================================================================
+# Intended for a developer machine. Production uses docker-compose.prod.yml
+# (see docs/DEPLOYMENT.md for the canonical topology).
+#
+#   cp .env.example .env          # then set the values marked REQUIRED below
+#   bash scripts/dev-certs.sh     # self-signed TLS cert for the local edge
+#   docker compose up -d
+#   https://localhost             # app (self-signed warning is expected)
+#   http://localhost/api/health   # redirects to HTTPS
+#
+# Hardening already applied here (do not relax without a reason):
+#   * Postgres and Redis are NOT published on host ports. Nothing outside the
+#     Compose network needs to reach them, and `0.0.0.0:5432` historically
+#     exposed the development database with a literal `postgres/postgres`
+#     password to the whole LAN.
+#   * Postgres and Redis passwords come from the environment. Compose refuses to
+#     start (`:?`) when they are unset instead of falling back to a default.
+#   * DEMO_MODE=true stays here ONLY. It is a development convenience that
+#     changes application behaviour and must never reach production.
+# =============================================================================
+
+name: lumicorepro-dev
 
 services:
-  # PostgreSQL Database (Sequelize)
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: lumicorepro-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: lumicorepro
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-lumicorepro}
+    # No `ports:` — reach it with `docker compose exec postgres psql -U postgres`
+    # or a separate adminer container on the same network.
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - lumicorepro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-lumicorepro}"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 20s
 
-  # Redis Cache (system config, sessions, BullMQ queues)
+  # ── Redis (system config cache, sessions, BullMQ queues) ───────────────────
   redis:
     image: redis:7-alpine
     container_name: lumicorepro-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    # Password required even locally so the app is exercised against the same
+    # `redis://:password@host` URL shape it uses in production.
+    #
+    # NOTE: this container declares a fallback (`:-redis_dev_password`) instead of
+    # the hard requirement (`:?`) used by docker-compose.prod.yml, so a fresh
+    # clone can start with only JWT secrets set. The password is only meaningful
+    # for the p2p network: there is no host port mapping either way.
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_dev_password} --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     networks:
       - lumicorepro-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_dev_password}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Backend API Server (Express)
+  # ── Backend API (Express) ──────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
@@ -42,62 +77,134 @@ services:
     container_name: lumicorepro-backend
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - PORT=5000
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/lumicorepro
-      - REDIS_URL=redis://redis:6379
-      - FRONTEND_URL=http://localhost
-      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-random-string}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-this-refresh-secret-too}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
-      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY:-}
-      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
-      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-}
-      - SMTP_HOST=${SMTP_HOST:-}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER:-}
-      - SMTP_PASS=${SMTP_PASS:-}
-      - DEMO_MODE=true
-    ports:
-      - "5000:5000"
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-lumicorepro}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_password}@redis:6379
+      # The browser reaches the app through the edge on localhost:443.
+      FRONTEND_URL: ${FRONTEND_URL:-https://localhost}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-${FRONTEND_URL:-https://localhost,https://127.0.0.1}}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (>= 32 chars) — node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required (>= 32 chars) — openssl rand -hex 32}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      # Internal service name — the AI agent is never published to the host.
+      AI_AGENT_URL: http://ai-agent:8000
+      # DEVELOPMENT ONLY. Production must not set this.
+      DEMO_MODE: "true"
+    expose:
+      - "5000"
+    volumes:
+      - backend_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - lumicorepro-network
 
-  # Frontend (Vite build served for production preview)
+  # ── AI agent (FastAPI) ─────────────────────────────────────────────────────
+  ai-agent:
+    build:
+      # Repo-root context so the Dockerfile can copy the repository assets the
+      # agent resolves PROJECT_ROOT-relative (src/templates, registry,
+      # database/schemas). ai-agent/.dockerignore is used automatically.
+      context: .
+      dockerfile: ./ai-agent/Dockerfile
+      args:
+        INSTALL_HEAVY_ML: ${AI_AGENT_INSTALL_HEAVY_ML:-false}
+    container_name: lumicorepro-ai-agent
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 8000
+      # Browser origins allowed to call the agent directly. The backend proxies
+      # server-to-server, so this only matters for direct browser calls.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,https://localhost}
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      GENERATED_PROJECTS_DIR: /app/generated-projects
+      ACTIVE_AI_PROVIDER: ${ACTIVE_AI_PROVIDER:-grok}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GROK_API_KEY: ${GROK_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      # GITHUB_TOKEN enables the agent's Pages/repo publishing features.
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      # Generated sites and the agent's SQLite state must survive a restart.
+      - agent_state:/app/database
+      - agent_projects:/app/generated-projects
+    expose:
+      - "8000"
+    networks:
+      - lumicorepro-network
+
+  # ── Frontend: static bundle served by nginx (internal, port 8080) ──────────
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        # Local dev normally runs `npm run dev` instead of this container. When
+        # the container IS used, point the bundle at the local edge.
+        VITE_API_URL: ${PUBLIC_ORIGIN:-https://localhost}
+        VITE_APP_ENV: development
     container_name: lumicorepro-frontend
     restart: unless-stopped
-    ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:5000
+    expose:
+      - "8080"
     depends_on:
       - backend
     networks:
       - lumicorepro-network
 
-  # Nginx Reverse Proxy (single entry point on :80)
+  # ── Edge reverse proxy: TLS termination, routing, security headers ─────────
   nginx:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
     container_name: lumicorepro-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      # Bound to loopback: a development edge should not be reachable from the
+      # LAN. Remove the 127.0.0.1 prefix only if you need to test from a phone.
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Same path the include directives reference inside the container.
+      - ./nginx/security-headers.conf:/etc/nginx/conf.d/security-headers.conf:ro
+      # Generated by scripts/dev-certs.sh. nginx will not start without it.
       - ./nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
       - frontend
       - backend
+    networks:
+      - lumicorepro-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── Optional: database GUI (docker compose --profile debug up -d) ──────────
+  adminer:
+    image: adminer:4-standalone
+    container_name: lumicorepro-adminer
+    restart: "no"
+    profiles: ["debug"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
     networks:
       - lumicorepro-network
 
@@ -108,3 +215,6 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  backend_uploads:
+  agent_state:
+  agent_projects:

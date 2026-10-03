@@ -16,6 +16,23 @@ const Empty = React.forwardRef(
     },
     ref
   ) => {
+    const renderAction = () => {
+      if (React.isValidElement(action)) {
+        if (action.props.onClick || !onAction) return action;
+        return React.cloneElement(action, { onClick: onAction });
+      }
+      if (!onAction) return null;
+      return (
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          {action}
+        </button>
+      );
+    };
+
     return (
       <div
         ref={ref}
@@ -33,11 +50,7 @@ const Empty = React.forwardRef(
         {description && (
           <p className="mt-1 text-sm text-muted-foreground max-w-sm">{description}</p>
         )}
-        {(action || onAction) && (
-          <div className="mt-5" onClick={onAction}>
-            {action}
-          </div>
-        )}
+        {(action || onAction) && <div className="mt-5">{renderAction()}</div>}
       </div>
     );
   }

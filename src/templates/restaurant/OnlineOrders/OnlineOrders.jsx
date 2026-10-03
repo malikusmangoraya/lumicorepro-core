@@ -30,6 +30,8 @@ export default function OnlineOrders() {
           src={img.restaurant.hero}
           alt="Restaurant"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex items-end p-8">

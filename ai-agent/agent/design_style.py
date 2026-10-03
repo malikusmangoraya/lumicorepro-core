@@ -365,6 +365,223 @@ _STYLE_CATALOG: Dict[str, Dict[str, Any]] = {
         'effects': {'blur': '0px', 'glow': '0 0 24px rgba(139,92,246,0.3)'},
         'composition': 'chrome', 'weight': 'bold',
     },
+    'maximalism': {
+        'id': 'maximalism', 'name': 'Maximalism',
+        'dna': 'Bold clashing colors, high density, rich layered textures, expressive energy.',
+        'best_for': ['creative', 'fashion', 'festivals', 'arts', 'youth culture'],
+        'color': {
+            'primary': '#ff0055', 'secondary': '#ffe600', 'accent': '#00f0ff',
+            'bg': '#1a0033', 'card': '#2a0845', 'surface': '#3d0c63',
+            'text': '#ffffff', 'muted': '#ff77aa', 'border': '#ffe600',
+        },
+        'fonts': {'display': 'Syne', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '16px', 'button': '9999px'},
+        'shadow': {'card': '0 10px 30px rgba(255,0,85,0.35)', 'button': '0 4px 15px rgba(255,230,0,0.4)'},
+        'border': {'card': '2px solid #ffe600', 'button': '2px solid #ff0055'},
+        'effects': {'blur': '0px', 'glow': '0 0 30px rgba(255,0,85,0.4)'},
+        'composition': 'bold', 'weight': 'bold',
+    },
+    'retro': {
+        'id': 'retro', 'name': 'Retro Vintage (70s/80s)',
+        'dna': 'Warm mustard/rust hues, chunky serif typography, analog warmth.',
+        'best_for': ['vinyl', 'vintage cafe', 'diner', 'apparel', 'photography'],
+        'color': {
+            'primary': '#d97706', 'secondary': '#b45309', 'accent': '#059669',
+            'bg': '#fef3c7', 'card': '#fffbeb', 'surface': '#fde68a',
+            'text': '#451a03', 'muted': '#78350f', 'border': '#d97706',
+        },
+        'fonts': {'display': 'Playfair Display', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '8px', 'button': '4px'},
+        'shadow': {'card': '4px 4px 0px #b45309', 'button': '2px 2px 0px #b45309'},
+        'border': {'card': '2px solid #d97706', 'button': '2px solid #b45309'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'retro', 'weight': 'bold',
+    },
+    'collage': {
+        'id': 'collage', 'name': 'Collage / Scrapbook',
+        'dna': 'Torn paper edges, mixed media textures, scrapbook aesthetic, tactile cutouts.',
+        'best_for': ['art', 'design studio', 'zines', 'musicians', 'portfolios'],
+        'color': {
+            'primary': '#4f46e5', 'secondary': '#ec4899', 'accent': '#eab308',
+            'bg': '#f5f5f4', 'card': '#ffffff', 'surface': '#e7e5e4',
+            'text': '#1c1917', 'muted': '#78716c', 'border': '#d6d3d1',
+        },
+        'fonts': {'display': 'Fraunces', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '2px', 'button': '4px'},
+        'shadow': {'card': '0 10px 25px rgba(0,0,0,0.1)', 'button': '0 2px 5px rgba(0,0,0,0.08)'},
+        'border': {'card': '1px dashed #78716c', 'button': '1px solid #1c1917'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'collage', 'weight': 'medium',
+    },
+    'vector': {
+        'id': 'vector', 'name': 'Vector & Flat Art',
+        'dna': 'Clean crisp SVG geometric shapes, isometric illustrations, vibrant flat gradients.',
+        'best_for': ['software', 'saas', 'fintech', 'apps', 'tech blogs'],
+        'color': {
+            'primary': '#3b82f6', 'secondary': '#10b981', 'accent': '#8b5cf6',
+            'bg': '#f8fafc', 'card': '#ffffff', 'surface': '#f1f5f9',
+            'text': '#0f172a', 'muted': '#64748b', 'border': '#cbd5e1',
+        },
+        'fonts': {'display': 'Outfit', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '16px', 'button': '10px'},
+        'shadow': {'card': '0 4px 16px rgba(59,130,246,0.08)', 'button': '0 2px 8px rgba(59,130,246,0.2)'},
+        'border': {'card': '1px solid #e2e8f0', 'button': '0'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'flat', 'weight': 'medium',
+    },
+    'futuristic': {
+        'id': 'futuristic', 'name': 'Futuristic Sci-Fi',
+        'dna': 'Sleek carbon tones, cyan data feeds, holographic HUD rings, ultra-modern tech.',
+        'best_for': ['aerospace', 'ai', 'robotics', 'autonomous vehicles', 'quantum'],
+        'color': {
+            'primary': '#00e5ff', 'secondary': '#7c4dff', 'accent': '#00b0ff',
+            'bg': '#070913', 'card': '#0d1322', 'surface': '#121b2f',
+            'text': '#e0f2fe', 'muted': '#64748b', 'border': 'rgba(0,229,255,0.3)',
+        },
+        'fonts': {'display': 'Orbitron', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '8px', 'button': '4px'},
+        'shadow': {'card': '0 0 25px rgba(0,229,255,0.15)', 'button': '0 0 15px rgba(0,229,255,0.3)'},
+        'border': {'card': '1px solid rgba(0,229,255,0.35)', 'button': '1px solid #00e5ff'},
+        'effects': {'blur': '12px', 'glow': '0 0 30px rgba(0,229,255,0.35)'},
+        'composition': 'holographic', 'weight': 'bold',
+    },
+    'handwritten': {
+        'id': 'handwritten', 'name': 'Handwritten & Organic',
+        'dna': 'Organic sketch lines, notebook paper warmth, cursive script accents, human touch.',
+        'best_for': ['craft', 'artisanal', 'recipes', 'personal memoirs', 'organic goods'],
+        'color': {
+            'primary': '#292524', 'secondary': '#b45309', 'accent': '#0284c7',
+            'bg': '#fdfbf7', 'card': '#ffffff', 'surface': '#fef9ee',
+            'text': '#1c1917', 'muted': '#78716c', 'border': '#e7e5e4',
+        },
+        'fonts': {'display': 'Caveat', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '12px', 'button': '8px'},
+        'shadow': {'card': '0 2px 8px rgba(0,0,0,0.06)', 'button': '0 1px 3px rgba(0,0,0,0.1)'},
+        'border': {'card': '1px solid #e7e5e4', 'button': '1px solid #292524'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'organic', 'weight': 'medium',
+    },
+    'bohemian': {
+        'id': 'bohemian', 'name': 'Bohemian & Earthy',
+        'dna': 'Earthy terracotta, olive greens, botanical motifs, relaxed warm sanctuary.',
+        'best_for': ['boutique', 'interior design', 'yoga', 'sustainable living', 'wellness'],
+        'color': {
+            'primary': '#c2410c', 'secondary': '#65a30d', 'accent': '#d97706',
+            'bg': '#faf5ef', 'card': '#ffffff', 'surface': '#f4ede4',
+            'text': '#431407', 'muted': '#78716c', 'border': '#e2d9cd',
+        },
+        'fonts': {'display': 'Cinzel', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '20px', 'button': '9999px'},
+        'shadow': {'card': '0 8px 24px rgba(194,65,12,0.08)', 'button': '0 2px 8px rgba(194,65,12,0.15)'},
+        'border': {'card': '1px solid #e2d9cd', 'button': '0'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'blob', 'weight': 'medium',
+    },
+    'graffiti': {
+        'id': 'graffiti', 'name': 'Graffiti & Urban Street',
+        'dna': 'Street art spray paint splatters, bold stencil lettering, high-energy counterculture.',
+        'best_for': ['skate', 'hiphop', 'urban apparel', 'extreme sports', 'music festivals'],
+        'color': {
+            'primary': '#f43f5e', 'secondary': '#eab308', 'accent': '#06b6d4',
+            'bg': '#111827', 'card': '#1f2937', 'surface': '#374151',
+            'text': '#f9fafb', 'muted': '#9ca3af', 'border': '#f43f5e',
+        },
+        'fonts': {'display': 'Space Grotesk', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '4px', 'button': '0px'},
+        'shadow': {'card': '5px 5px 0px #f43f5e', 'button': '3px 3px 0px #eab308'},
+        'border': {'card': '2px solid #f43f5e', 'button': '2px solid #eab308'},
+        'effects': {'blur': '0px', 'glow': '0 0 15px rgba(244,63,94,0.3)'},
+        'composition': 'neo', 'weight': 'bold',
+    },
+    'victorian': {
+        'id': 'victorian', 'name': 'Victorian & Vintage Luxury',
+        'dna': 'Intricate filigree, deep emerald & royal burgundy, gold leaf accents, heritage elegance.',
+        'best_for': ['luxury hotel', 'antique', 'fine jewelry', 'heritage whiskey', 'premium tailoring'],
+        'color': {
+            'primary': '#d4af37', 'secondary': '#800020', 'accent': '#1a4d2e',
+            'bg': '#0c0a08', 'card': '#17130e', 'surface': '#231c15',
+            'text': '#f7f1e5', 'muted': '#a89f91', 'border': 'rgba(212,175,55,0.35)',
+        },
+        'fonts': {'display': 'Playfair Display', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '6px', 'button': '4px'},
+        'shadow': {'card': '0 10px 30px rgba(0,0,0,0.6), 0 0 15px rgba(212,175,55,0.15)', 'button': '0 2px 10px rgba(212,175,55,0.2)'},
+        'border': {'card': '1px solid rgba(212,175,55,0.4)', 'button': '1px solid #d4af37'},
+        'effects': {'blur': '0px', 'glow': '0 0 20px rgba(212,175,55,0.25)'},
+        'composition': 'editorial', 'weight': 'serif',
+    },
+    'pixel_art': {
+        'id': 'pixel_art', 'name': 'Pixel Art (8-Bit / 16-Bit)',
+        'dna': 'Retro arcade raster grids, chiptune energy, crisp pixel borders.',
+        'best_for': ['indie games', 'retro gaming', 'web3', 'developer fun', 'collectibles'],
+        'color': {
+            'primary': '#38bdf8', 'secondary': '#4ade80', 'accent': '#f43f5e',
+            'bg': '#0f172a', 'card': '#1e293b', 'surface': '#334155',
+            'text': '#f8fafc', 'muted': '#94a3b8', 'border': '#38bdf8',
+        },
+        'fonts': {'display': 'Space Grotesk', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '0px', 'button': '0px'},
+        'shadow': {'card': '4px 4px 0px #000000', 'button': '2px 2px 0px #000000'},
+        'border': {'card': '3px solid #38bdf8', 'button': '3px solid #4ade80'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'neo', 'weight': 'bold',
+    },
+    'pop_art': {
+        'id': 'pop_art', 'name': 'Pop Art (Comic / Halftone)',
+        'dna': 'Ben-Day halftone dots, bold speech lines, primary color punch, comic energy.',
+        'best_for': ['pop culture', 'comic', 'creative marketing', 'beverage', 'modern art'],
+        'color': {
+            'primary': '#ef4444', 'secondary': '#eab308', 'accent': '#3b82f6',
+            'bg': '#ffffff', 'card': '#fffbeb', 'surface': '#fee2e2',
+            'text': '#000000', 'muted': '#475569', 'border': '#000000',
+        },
+        'fonts': {'display': 'Space Grotesk', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '0px', 'button': '0px'},
+        'shadow': {'card': '6px 6px 0px #000000', 'button': '3px 3px 0px #000000'},
+        'border': {'card': '3px solid #000000', 'button': '3px solid #000000'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'neo', 'weight': 'bold',
+    },
+    'surreal': {
+        'id': 'surreal', 'name': 'Surrealism & Dreamscape',
+        'dna': 'Dreamscapes, unexpected juxtaposition, deep violet nebulae, floating geometric forms.',
+        'best_for': ['immersive 3d', 'creative labs', 'digital art', 'metaverse', 'perfumes'],
+        'color': {
+            'primary': '#c084fc', 'secondary': '#38bdf8', 'accent': '#f472b6',
+            'bg': '#090514', 'card': '#140b2b', 'surface': '#1e113f',
+            'text': '#fdf4ff', 'muted': '#a855f7', 'border': 'rgba(192,132,252,0.3)',
+        },
+        'fonts': {'display': 'Outfit', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '24px', 'button': '9999px'},
+        'shadow': {'card': '0 20px 50px rgba(192,132,252,0.2)', 'button': '0 4px 20px rgba(244,114,182,0.3)'},
+        'border': {'card': '1px solid rgba(192,132,252,0.3)', 'button': '0'},
+        'effects': {'blur': '30px', 'glow': '0 0 35px rgba(192,132,252,0.35)'},
+        'composition': 'aurora', 'weight': 'medium',
+    },
+}
+
+STYLE_ALIASES = {
+    'y2k': 'retro_futurism',
+    'clay': 'claymorphism',
+    'clay_style': 'claymorphism',
+    'swiss_design': 'swiss',
+    'vintage': 'retro',
+    'urban': 'graffiti',
+    'street': 'graffiti',
+    'streetwear': 'graffiti',
+    'scrapbook': 'collage',
+    '8bit': 'pixel_art',
+    '16bit': 'pixel_art',
+    'arcade': 'pixel_art',
+    'comic': 'pop_art',
+    'warhol': 'pop_art',
+    'dreamscape': 'surreal',
+    'scifi': 'futuristic',
+    'sci-fi': 'futuristic',
+    'luxury': 'victorian',
+    'craft': 'handwritten',
+    'sketch': 'handwritten',
+    'earthy': 'bohemian',
+    'botanical': 'bohemian',
 }
 
 # Industry / website type → auto-suggested style (Lovable-style defaults)
@@ -373,19 +590,23 @@ _INDUSTRY_STYLE_MAP: List[Tuple[str, str]] = [
     ('crypto', 'glassmorphism'), ('web3', 'glassmorphism'), ('fintech', 'glassmorphism'),
     ('saas', 'glassmorphism'), ('dashboard', 'glassmorphism'), ('platform', 'glassmorphism'),
     ('creator', 'neo_brutalism'), ('ecommerce', 'neo_brutalism'), ('fashion', 'retro_futurism'),
-    ('streetwear', 'neo_brutalism'), ('media', 'neo_brutalism'), ('gaming', 'cyberpunk'),
+    ('streetwear', 'graffiti'), ('skate', 'graffiti'), ('media', 'neo_brutalism'), ('gaming', 'cyberpunk'),
     ('esports', 'cyberpunk'), ('cybersecurity', 'cyberpunk'), ('security', 'cyberpunk'),
     ('developer', 'cyberpunk'),
     ('ai', 'aurora'), ('machine learning', 'aurora'), ('ml', 'aurora'), ('artificial intelligence', 'aurora'),
-    ('wellness', 'organic'), ('eco', 'organic'), ('sustainability', 'organic'), ('yoga', 'organic'),
+    ('wellness', 'organic'), ('eco', 'organic'), ('sustainability', 'organic'), ('yoga', 'bohemian'),
     ('health', 'organic'), ('fitness', 'organic'),
     ('design agency', 'swiss'), ('architecture', 'swiss'), ('agency', 'swiss'),
     ('blog', 'editorial'), ('news', 'editorial'), ('media', 'editorial'), ('journalism', 'editorial'),
     ('portfolio', 'minimalism'), ('personal', 'minimalism'), ('resume', 'minimalism'), ('product', 'minimalism'),
     ('startup', 'corporate_memphis'), ('onboarding', 'corporate_memphis'), ('community', 'corporate_memphis'),
-    ('audio', 'skeuomorphism'), ('daw', 'skeuomorphism'), ('music', 'skeuomorphism'), ('vintage', 'skeuomorphism'),
+    ('audio', 'skeuomorphism'), ('daw', 'skeuomorphism'), ('music', 'retro'), ('vintage', 'retro'),
     ('smart home', 'neumorphism'), ('iot', 'neumorphism'), ('control', 'neumorphism'),
     ('productivity', 'flat_design'), ('tool', 'flat_design'), ('utility', 'flat_design'),
+    ('luxury', 'victorian'), ('jewelry', 'victorian'), ('hotel', 'victorian'),
+    ('arcade', 'pixel_art'), ('indie game', 'pixel_art'),
+    ('aerospace', 'futuristic'), ('robotics', 'futuristic'),
+    ('comic', 'pop_art'), ('festival', 'maximalism'), ('art', 'collage'),
 ]
 
 _DEFAULT_STYLE = 'minimalism'
@@ -408,20 +629,26 @@ class DesignStyleEngine:
     # ── Style resolution ───────────────────────────────────────────────────
     def resolve_style(self, spec: Dict[str, Any]) -> Dict[str, Any]:
         """User-selected style wins; otherwise auto-suggest from industry."""
-        requested = str(spec.get('design_style') or '').strip().lower()
+        raw_requested = str(spec.get('design_style') or '').strip().lower().replace('-', '_').replace(' ', '_')
+        requested = STYLE_ALIASES.get(raw_requested, raw_requested)
         if requested in self.STYLES:
             style = self.STYLES[requested]
         else:
             look = ' '.join(
                 str(spec.get(k) or '')
-                for k in ('industry', 'website_type', 'template', 'category')
+                for k in ('industry', 'website_type', 'template', 'category', 'design_style')
             ).lower()
             style_id = self.DEFAULT_STYLE
-            for keyword, candidate in _INDUSTRY_STYLE_MAP:
-                if keyword in look:
-                    style_id = candidate
+            for alias_k, target_style in STYLE_ALIASES.items():
+                if alias_k in look:
+                    style_id = target_style
                     break
-            style = self.STYLES[style_id]
+            else:
+                for keyword, candidate in _INDUSTRY_STYLE_MAP:
+                    if keyword in look:
+                        style_id = candidate
+                        break
+            style = self.STYLES.get(style_id, self.STYLES[self.DEFAULT_STYLE])
         return style
 
     # ── Tokens ─────────────────────────────────────────────────────────────

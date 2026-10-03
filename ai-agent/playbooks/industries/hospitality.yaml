@@ -1,0 +1,70 @@
+# Hospitality / hotel playbook — LumicorePro Core
+industry: hospitality
+primary_goal: booking
+secondary_goals: [reservation_inquiry, package_sale, event_hosting]
+business_model: hotel / resort / spa / tourism
+
+pages:
+  - home
+  - rooms
+  - room_detail
+  - amenities
+  - dining
+  - packages
+  - booking
+  - events
+  - gallery
+  - contact
+
+critical_components:
+  - room_card
+  - availability_calendar
+  - booking_engine
+  - gallery
+  - amenities
+  - reviews
+  - special_offers
+  - loyalty
+
+conversion:
+  primary_cta: book_now
+  secondary_cta: check_availability
+  trust:
+    - tripadvisor_rating
+    - awards
+    - photo_authenticity
+    - hygiene_standards
+  urgency: [limited_rooms, seasonal_offer, free_breakfast]
+
+mobile_priority:
+  booking: high
+  availability: high
+  gallery: high
+  contact: high
+
+visual:
+  density: low
+  imagery: panoramic_aspirational
+  typography: refined_serif
+  motion: slow_ambiance
+  3d: optional_walkthrough
+  cta_style: booking_primary
+
+ux_patterns:
+  - availability_calendar
+  - package_builder
+  - room_comparison
+  - instant_booking
+
+avoid:
+  - hidden_fees
+  - fake_photos
+  - unclear_cancellation
+  - excessive_modal_usage
+
+qa:
+  - booking_engine_flow
+  - availability_search
+  - package_selection
+  - room_detail_complete
+  - cancellation_clarity

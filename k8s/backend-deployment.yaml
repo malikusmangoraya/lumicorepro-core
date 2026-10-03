@@ -1,3 +1,16 @@
+# =============================================================================
+# LumicorePro — backend Deployment + Service + uploads PVC
+# =============================================================================
+# SECONDARY TARGET. Canonical production is Docker Compose on one VPS; see
+# docs/DEPLOYMENT.md. Not applied by CI and not verified on a live cluster.
+#
+# Image tags: `1.0.0` is a PLACEHOLDER for a real released tag. The release
+# workflow (.github/workflows/deploy.yml) publishes ghcr.io/<owner>/<repo>-backend
+# tagged with the semver version AND the commit SHA. Replace the placeholder with
+# a real tag (or the SHA) and use `imagePullPolicy: IfNotPresent`; a floating
+# `:latest` with `Always` makes a rollout non-reproducible and a rollback
+# impossible to reason about.
+# =============================================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +19,7 @@ metadata:
   labels:
     app: lumicorepro-backend
     tier: api
+    app.kubernetes.io/part-of: lumicorepro
 spec:
   replicas: 2
   selector:
@@ -26,68 +40,100 @@ spec:
         prometheus.io/port: "5000"
         prometheus.io/path: "/api/health/metrics"
     spec:
-      # Graceful shutdown
+      # Graceful shutdown: the server closes HTTP, sockets, Redis and BullMQ.
       terminationGracePeriodSeconds: 30
 
-      # Security context — run as non-root
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
 
+      # Spread replicas so a single node failure cannot take out both.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: lumicorepro-backend
+
       containers:
         - name: backend
-          image: ghcr.io/lumicorepro/backend:latest
-          imagePullPolicy: Always
+          # PLACEHOLDER TAG — replace with the released version or commit SHA.
+          image: ghcr.io/lumicorepro/backend:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
               name: http
               protocol: TCP
 
-          # Environment from ConfigMap
+          # Non-secret configuration (NODE_ENV, DATABASE_URL, REDIS_URL, ...).
           envFrom:
             - configMapRef:
                 name: lumicorepro-config
 
-          # Sensitive vars from Secret
           env:
+            # POSTGRES_PASSWORD and REDIS_PASSWORD are listed explicitly because
+            # the kubelet only expands `$(POSTGRES_PASSWORD)` / `$(REDIS_PASSWORD)`
+            # inside ConfigMap values when a variable of that exact name exists in
+            # this container's env. Without these two entries DATABASE_URL and
+            # REDIS_URL stay literal and the app fails to connect.
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-secrets
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-secrets
+                  key: REDIS_PASSWORD
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: lumicorepro-secrets
+                  key: JWT_REFRESH_SECRET
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: STRIPE_SECRET_KEY
+                  optional: true
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: STRIPE_WEBHOOK_SECRET
-            - name: MONGODB_URI
-              valueFrom:
-                secretKeyRef:
-                  name: lumicorepro-secrets
-                  key: MONGODB_URI
+                  optional: true
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: SENTRY_DSN
+                  optional: true
             - name: SMTP_USER
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: SMTP_USER
+                  optional: true
             - name: SMTP_PASS
               valueFrom:
                 secretKeyRef:
                   name: lumicorepro-secrets
                   key: SMTP_PASS
+                  optional: true
+            # MONGODB_URI was removed: this application is PostgreSQL-only, and a
+            # secret key nothing reads invites credentials into the cluster for no
+            # reason.
 
-          # Liveness — container restart if unhealthy
           livenessProbe:
             httpGet:
               path: /api/health
@@ -97,7 +143,6 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
 
-          # Readiness — traffic only when ready
           readinessProbe:
             httpGet:
               path: /api/health
@@ -107,19 +152,25 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
 
-          # Resource limits
+          # Resource REQUESTS are what the scheduler and the HPA use; without
+          # them the HPA has no denominator and cannot compute utilisation.
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "256Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
 
-          # Mounted volumes
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # winston writes /app/logs
+            capabilities:
+              drop: ["ALL"]
 
       volumes:
         - name: uploads
@@ -134,6 +185,7 @@ metadata:
   namespace: lumicorepro
   labels:
     app: lumicorepro-backend
+    app.kubernetes.io/part-of: lumicorepro
 spec:
   selector:
     app: lumicorepro-backend
@@ -145,6 +197,14 @@ spec:
   type: ClusterIP
 
 ---
+# Uploaded user content is shared by every backend replica, so the access mode
+# must be ReadWriteMany. NOT every cluster has an RWX-capable default storage
+# class (EBS gp2/gp3 on EKS is RWO-only and the PVC will stay Pending). If yours
+# does not, either install an RWX provisioner (EFS/NFS/CephFS/Longhorn) or run
+# the backend as a StatefulSet with a per-pod RWO volume — but then a given
+# upload is only readable from the pod that received it, so that alternative
+# needs object storage instead. Verify with:
+#   kubectl -n lumicorepro get pvc backend-uploads-pvc
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -157,3 +217,21 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: standard
+
+---
+# PodDisruptionBudget — keeps the API available during a node drain or upgrade.
+# minAvailable: 1 pairs with the HPA's minReplicas: 2, so a voluntary disruption
+# can take one pod while the other keeps serving. A drain that would drop both
+# is blocked (use `kubectl drain --disable-eviction` only as a last resort).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: lumicorepro
+  labels:
+    app.kubernetes.io/part-of: lumicorepro
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: lumicorepro-backend

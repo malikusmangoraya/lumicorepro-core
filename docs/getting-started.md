@@ -156,10 +156,30 @@ python main.py --dry-run --prompt "Build me a SaaS dashboard with analytics"
 ```bash
 npm run dev                     # Frontend (5173)
 npm run dev:full                # Frontend + Backend
+npm run dev:ai                  # AI Agent only
 npm run dev:all                 # Frontend + Backend + AI Agent
 npm run test                    # Vitest unit tests
+npm run test:coverage           # Vitest with V8 coverage
+npm run test:e2e                # Playwright E2E
 npm run test:backend            # Jest backend tests
 ```
+
+## Frontend State Helpers
+
+Use `useLocalStorage` for persistent browser preferences and `useDebounce` for values that
+should settle before triggering work:
+
+```jsx
+import { useDebounce, useLocalStorage } from './hooks';
+
+const [theme, setTheme, removeTheme] = useLocalStorage('theme', 'dark');
+const debouncedSearch = useDebounce(search, 300);
+```
+
+The app exposes authentication, theme, currency, and notification APIs through their
+corresponding providers. Notification state remains backed by `AppContext` for compatibility.
+Set `VITE_AI_URL` in `.env` when the browser needs to reach the AI agent at a host other
+than `http://localhost:8000`; its HTTP and WebSocket endpoints use this setting.
 
 ## Troubleshooting
 
@@ -172,5 +192,5 @@ pip install -r ai-agent/requirements.txt
 ## Next Steps
 
 - [API Reference](/api-reference) — Explore REST endpoints
-- [Deployment Guide](/deployment) — Production deployment options
+- [Deployment Guide](/DEPLOYMENT) — Production deployment options
 - See `docs/` folder for: `MASTER_AGENT_PROMPT_v3.md`, `SECURITY_AUDIT.md`, and `LUMICOREPRO_IMPROVEMENTS_ROADMAP.md`

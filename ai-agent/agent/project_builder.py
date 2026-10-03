@@ -1857,12 +1857,97 @@ export default function Pricing() {{
             generate_marketplace_readme(spec, mode="fullstack"),
         )
 
+        # Enforce Master Prompt folder structure
+        frontend_src = target_dir / "frontend" / "src"
+        if frontend_src.exists():
+            for sub in ["api", "assets", "components", "hooks", "pages", "routes", "themes", "utils", "validators"]:
+                FileManager.ensure_dir(str(frontend_src / sub))
+
+        backend_dir = target_dir / "backend"
+        if backend_dir.exists():
+            FileManager.ensure_dir(str(backend_dir / "prisma"))
+            for sub in ["config", "controllers", "helpers", "middlewares", "models", "routes", "services", "validators"]:
+                FileManager.ensure_dir(str(backend_dir / "src" / sub))
+
+            # Prisma SQLite Schema (Zero-budget default)
+            prisma_schema = """// Zero-cost SQLite database by default (100% Free local & cloud hosting)
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+"""
+            FileManager.write_file(str(backend_dir / "prisma" / "schema.prisma"), prisma_schema)
+
+            # Mock controller & demo mode logic (Zero-budget standard)
+            demo_controller = """// CLIENT: Add your API key here to activate this feature.
+// LumicorePro Zero-Budget Architecture: Mock responses allow 100% functionality without paid keys.
+
+export function mock_response(featureName, payload = {}) {
+  return {
+    success: true,
+    demo_mode: true,
+    feature: featureName,
+    message: `Demo response for ${featureName}. Add client API keys in .env to activate live integration.`,
+    data: payload,
+    timestamp: new Date().toISOString()
+  };
+}
+
+export const handleAiQuery = async (req, res) => {
+  const { prompt } = req.body;
+  // CLIENT: Add your OpenAI/Gemini API key here to activate real AI generation:
+  // const apiKey = process.env.OPENAI_API_KEY;
+  const mockAiOutput = mock_response('AI Generation', {
+    prompt: prompt || 'Default prompt',
+    generated_text: 'This is a simulated AI response. The application operates in Demo Mode until live API keys are provided.'
+  });
+  return res.json(mockAiOutput);
+};
+
+export const handlePaymentCheckout = async (req, res) => {
+  const { items, amount } = req.body;
+  // CLIENT: Add your Stripe/LemonSqueezy Secret Key here to activate live checkout:
+  // const stripeKey = process.env.STRIPE_SECRET_KEY;
+  const mockPayment = mock_response('Payment Gateway', {
+    session_id: 'demo_session_' + Math.random().toString(36).substring(2, 10),
+    amount: amount || 49.00,
+    status: 'paid_simulation',
+    checkout_url: '/checkout/success'
+  });
+  return res.json(mockPayment);
+};
+"""
+            FileManager.write_file(str(backend_dir / "src" / "controllers" / "demoController.js"), demo_controller)
+
         env_content = """# Environment Config — copy to .env (never commit .env)
+# ZERO-BUDGET & DEMO-MODE READY (Runs 100% free locally and on Cloudflare / Render)
 PORT=5000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lumicore_db
-JWT_SECRET=replace_with_a_random_64_character_secret
+DATABASE_URL="file:./dev.db"
+# REQUIRED, minimum 32 chars. Generate one with:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+#   # or: openssl rand -hex 32
+# The backend refuses to start if this is missing, short, or a known placeholder.
+JWT_SECRET=
 CORS_ORIGIN=http://localhost:5173
 VITE_API_URL=http://localhost:5000
+
+# CLIENT: Add your API key here to activate this feature
+OPENAI_API_KEY=YOUR_KEY_HERE
+STRIPE_SECRET_KEY=YOUR_KEY_HERE
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
 REDIS_URL=redis://localhost:6379
 """
         FileManager.write_file(str(target_dir / ".env.example"), env_content)
@@ -1873,7 +1958,7 @@ REDIS_URL=redis://localhost:6379
             "\n".join([
                 "node_modules/", "dist/", "build/", ".env", ".env.local",
                 ".env.production", ".env.staging", "*.log", "coverage/",
-                ".DS_Store", "uploads/",
+                ".DS_Store", "uploads/", "*.db", "*.db-journal",
             ]) + "\n",
         )
         license_name = spec.get("project_name") or "Project"
@@ -1890,6 +1975,15 @@ REDIS_URL=redis://localhost:6379
             ),
         )
         FileManager.ensure_dir(str(target_dir / "screenshots"))
+
+        # Generate full marketplace documentation suite, free deployment configs & .vscode settings
+        try:
+            from .marketplace_docs import MarketplaceDocsGenerator
+            docs_gen = MarketplaceDocsGenerator(str(target_dir), spec)
+            docs_gen.generate_all()
+        except Exception as exc:
+            agent_logger.warning(f"MarketplaceDocsGenerator failed: {exc}")
+
         self._generate_instructions_guide(target_dir, plan)
         self._generate_docker_setup(target_dir, plan)
         self._generate_seo_files(target_dir, plan)
@@ -2147,7 +2241,7 @@ services:
       NODE_ENV: production
       PORT: 5000
       DATABASE_URL: postgresql://${{POSTGRES_USER:-postgres}}:${{POSTGRES_PASSWORD:-changeme}}@db:5432/{db_name}
-      JWT_SECRET: ${{JWT_SECRET:-change_this_secret_in_production}}
+      JWT_SECRET: ${{JWT_SECRET:?JWT_SECRET is required - see backend/.env.example}}
       CORS_ORIGIN: ${{CORS_ORIGIN:-http://localhost}}
     ports:
       - "5000:5000"
@@ -2801,7 +2895,8 @@ Open `backend/.env` and update these values:
 ```
 PORT=5000
 DATABASE_URL=postgresql://YOUR_USER:YOUR_PASSWORD@localhost:5432/{pname.replace("-", "_")}_db
-JWT_SECRET=your_super_secret_key_here_change_this
+# Generate with: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+JWT_SECRET=
 ```
 
 ### Step 4.5 — Start the backend server
@@ -2868,8 +2963,11 @@ DB_NAME={pname.replace("-", "_")}_db
 DB_USER=postgres
 DB_PASSWORD=YOUR_POSTGRESQL_PASSWORD
 
-# Security — CHANGE THESE IN PRODUCTION
-JWT_SECRET=change_this_to_a_random_64_char_string
+# Security — REQUIRED IN PRODUCTION
+# Generate with: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+#             or: openssl rand -hex 32
+# The backend refuses to start if this is missing, short (<32), or a known placeholder.
+JWT_SECRET=
 JWT_EXPIRES_IN=7d
 BCRYPT_ROUNDS=12
 
@@ -3013,8 +3111,8 @@ lsof -ti:5000 | xargs kill
 ```
 
 ### ❌ `JWT_SECRET` errors
-- Make sure you set a proper secret in `backend/.env`
-- Minimum 32 characters recommended
+- The backend exits on boot if `JWT_SECRET` is missing, shorter than 32 characters, or a known placeholder
+- Generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` or `openssl rand -hex 32`
 
 ### ❌ Build fails with Tailwind errors
 ```bash

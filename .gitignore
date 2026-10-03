@@ -1,5 +1,13 @@
 # Environment files
+# Only *.example templates are tracked. Every real environment file (which will
+# eventually hold credentials) stays local.
 .env
+.env.*
+!.env.example
+!*.env.example
+!.env.production.example
+!.env.staging.example
+!.env.development.example
 .env.local
 
 # Logs
@@ -37,8 +45,23 @@ coverage/
 ai-agent/.env
 ai-agent/database/*.db
 ai-agent/logs/
+
+# Local AI provider routing tiers (machine-specific ordering, written by
+# ai-agent/console.py). Commit only if you want to pin a default for the team.
+ai-agent/.router.json
 generated-projects/
 backend-library/*/data/
+
+# Offline public-development benchmark corpus (large binaries: 129 *.tgz
+# snapshots + vectors). Fetch/mount it, then point BENCH_DATA_DIR at it.
+benchmarks-data/
+benchmark-data/
+bench-data/
+**/snapshots/*.tgz
+**/embeddings/*.npy
+**/embeddings/*.npz
+**/wheels/*.whl
+.bench-cache/
 
 # Python
 __pycache__/
@@ -46,3 +69,36 @@ __pycache__/
 venv/
 .pytest_cache/
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Repo hygiene (2026-10-03 audit)
+# Everything below is build output, generated artifacts, or orphaned agent
+# working copies — not source. Keeping them out of git keeps the tree reviewable
+# and stops `git add -A` from committing gigabytes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Canonical delivery package: zips + per-brand dist folders are release
+# artifacts (~270 MB). Only the manifest stays tracked.
+delivery/*
+!delivery/DELIVERY_MANIFEST.md
+!delivery/README.md
+
+# Superseded / duplicate delivery + archive trees
+delivery-new/
+archive/
+new rebuilt/
+lumicorepro-core-integration-query/
+
+# Orphaned git worktrees that were copied into the checkout (git reports them as
+# "prunable"; their real location is ../lumicorepro-core.worktrees/<name>).
+add-kimi-openmuse-lumicor-model/
+critical-bundle-optimization-and-cleanup/
+ecommerce-website-generator-engine/
+free-tier-api-implementation/
+full-project-upgrade-and-perfection/
+
+# Local state, caches and tool output
+pgdata/
+vendors/
+playwright-report/
+test-results/
+.artifacts/

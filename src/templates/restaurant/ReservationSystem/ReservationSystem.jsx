@@ -32,6 +32,8 @@ export default function ReservationSystem() {
           src={img.restaurant.interior}
           alt="Dining room"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-8">
@@ -165,6 +167,8 @@ export default function ReservationSystem() {
                       src={DISH_IMGS[i % DISH_IMGS.length]}
                       alt={s.name}
                       className="h-12 w-12 rounded-xl object-cover shrink-0"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="min-w-0">
                       <p className="text-sm font-semibold truncate">{s.name}</p>

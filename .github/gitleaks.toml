@@ -1,0 +1,64 @@
+# gitleaks configuration — LumicorePro
+# https://github.com/gitleaks/gitleaks#configuration
+#
+# This config is used by the `security` job in .github/workflows/ci.yml via the
+# GITLEAKS_CONFIG environment variable. It scans full git history (fetch-depth: 0),
+# so a credential that was committed and later deleted still fails the gate.
+#
+# Policy: the default ruleset is kept in full. Allow-listing is per-path and
+# narrow — never add a broad regex allow-list, because that silently disables
+# detection for the whole repo.
+
+title = "LumicorePro"
+
+[extend]
+# Keep every built-in detector (AWS, Stripe, GitHub, generic API keys, ...).
+useDefault = true
+
+[allowlist]
+description = "Documented, non-secret placeholders and generated artefacts"
+
+# Paths that cannot contain a real production credential:
+#   *.example / *.sample  — committed templates, values are placeholders by design
+#   delivery/             — packaged buyer artefacts (release output, gitignored)
+#   node_modules/         — vendored dependencies
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.[a-z]+\.example$''',
+  '''\.example$''',
+  '''\.sample$''',
+  '''(^|/)node_modules/''',
+  '''(^|/)delivery/''',
+  '''(^|/)delivery-new/''',
+  '''(^|/)archive/''',
+  '''(^|/)coverage/''',
+  '''(^|/)dist/''',
+]
+
+# Literal values that appear in this repository and are provably not secrets.
+# Each entry must be justified inline — do not append without a reason.
+regexes = [
+  # Committed documentation/CI placeholders (gitleaks' generic-api-key rule
+  # flags these when a variable name contains "key"/"secret").
+  '''change-this-to-a-secure-random-string''',
+  '''change-this-to-a-different-secure-random-string''',
+  '''your_gemini_key''',
+  '''your_openai_key''',
+  '''your_deepseek_key''',
+  '''your_openrouter_key''',
+  '''your_grok_key''',
+  '''your_nvidia_key''',
+  '''your_cloud_name''',
+  '''your_api_key''',
+  '''your_api_secret''',
+  '''your_twilio_sid''',
+  '''your_twilio_token''',
+  '''sk_test_your_key_here''',
+  '''pk_test_your_key_here''',
+  '''whsec_your_webhook_secret''',
+  '''your_username''',
+  '''your_password''',
+  # Base64 of the literal string "change_this_secret_in_production" and the
+  # like, used by k8s/secret.example.yaml (a template, not a credential).
+  '''Y2hhbmdlX3RoaXNfc2VjcmV0X2luX3Byb2R1Y3Rpb24=''',
+]

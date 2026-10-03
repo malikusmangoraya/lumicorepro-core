@@ -65,7 +65,10 @@ export default function TestimonialGrid({
               <img
                 src={t.avatar}
                 alt={t.name}
+                width={40}
+                height={40}
                 loading="lazy"
+                decoding="async"
                 className="h-10 w-10 rounded-full object-cover ring-2 ring-cyan-500/20"
               />
               <div>

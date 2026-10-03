@@ -66,6 +66,9 @@ export default function LandingPage() {
           src={img.business.hero}
           alt="Hero"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20" />
         <div className="relative px-8 py-20 text-center">

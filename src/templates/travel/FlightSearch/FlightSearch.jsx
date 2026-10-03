@@ -167,6 +167,8 @@ export default function FlightSearch() {
           src={img.travel.plane}
           alt="Plane"
           className="h-10 w-10 rounded-xl object-cover hidden sm:block"
+          loading="lazy"
+          decoding="async"
         />
         <p className="text-sm text-muted-foreground flex-1 min-w-[200px]">
           <span className="font-semibold text-foreground">Price promise:</span> found a lower fare

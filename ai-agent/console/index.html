@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LumicorePro Operator Console</title>
+<meta name="description" content="Single-page control console for LumicorePro AI agent: provider health, routing tiers, local models and pipeline runs." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ffc978'/%3E%3Cstop offset='55%25' stop-color='%23e8b04b'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 3 L27 9.5 L27 22.5 L16 29 L5 22.5 L5 9.5 Z' fill='none' stroke='url(%23g)' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='16' r='4' fill='url(%23g)'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/assets/console.css" />
+</head>
+<body>
+
+<!-- Ambient layers: canvas aurora + animated grid. Purely decorative. -->
+<canvas id="fx" class="fx-canvas" aria-hidden="true"></canvas>
+<div class="fx-grid" aria-hidden="true"></div>
+<div class="fx-vignette" aria-hidden="true"></div>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ── Animated brand lockup ─────────────────────────────────────────────── -->
+<svg class="logo-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <linearGradient id="lcp-core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe3b0" />
+      <stop offset="38%" stop-color="#f5a524" />
+      <stop offset="72%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#6d5efc" />
+    </linearGradient>
+    <linearGradient id="lcp-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5eead4" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <radialGradient id="lcp-nucleus" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#fffaf0" />
+      <stop offset="45%" stop-color="#ffc978" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </radialGradient>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg class="logo" viewBox="0 0 64 64" role="img" aria-label="LumicorePro">
+        <g class="logo-rays">
+          <line x1="32" y1="1.5" x2="32" y2="8" />
+          <line x1="32" y1="56" x2="32" y2="62.5" />
+          <line x1="1.5" y1="32" x2="8" y2="32" />
+          <line x1="56" y1="32" x2="62.5" y2="32" />
+        </g>
+        <g class="logo-orbit">
+          <circle cx="32" cy="32" r="23" fill="none" stroke="url(#lcp-ring)" stroke-width="1.6"
+                  stroke-dasharray="5 9" stroke-linecap="round" opacity="0.9" />
+          <circle class="logo-satellite logo-satellite--a" cx="55" cy="32" r="2.6" fill="#5eead4" />
+          <circle class="logo-satellite logo-satellite--b" cx="32" cy="55" r="2.2" fill="#c084fc" />
+          <circle class="logo-satellite logo-satellite--c" cx="9" cy="32" r="2.2" fill="#ffc978" />
+        </g>
+        <path class="logo-shell" d="M32 8 L52.7 20 L52.7 44 L32 56 L11.3 44 L11.3 20 Z"
+              fill="url(#lcp-core)" fill-opacity="0.14" stroke="url(#lcp-core)" stroke-width="2.4"
+              stroke-linejoin="round" />
+        <path class="logo-shell-inner" d="M32 18 L43.8 25 L43.8 39 L32 46 L20.2 39 L20.2 25 Z"
+              fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.2" stroke-linejoin="round" />
+        <circle class="logo-pulse" cx="32" cy="32" r="7.2" fill="url(#lcp-nucleus)" />
+        <path class="logo-glyph" d="M27.4 37.2 V26.8 h3.2 l2.1 3.4 h-1.9 l1.6 2.4 1.6-2.4 h-1.9 l2.1-3.4 h3.2 v10.4"
+              fill="none" stroke="#2a1a06" stroke-opacity="0.72" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" />
+        <path class="logo-sweep" d="M32 8 L52.7 20 L52.7 44 L32 56 L11.3 44 L11.3 20 Z"
+              fill="none" stroke="#ffffff" stroke-width="1.1" stroke-opacity="0.9"
+              stroke-linejoin="round" stroke-dasharray="40 400" />
+      </svg>
+    </span>
+    <div class="brand-text">
+      <p class="brand-name"><span class="brand-lumi">Lumi</span><span class="brand-core">core</span><span class="brand-pro">Pro</span></p>
+      <p class="brand-sub">Operator Console</p>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <p class="clock" id="clock" aria-hidden="true"><span id="clock-time">--:--:--</span></p>
+    <p class="agent-status" id="agent-status" role="status">
+      <span class="dot" data-state="idle" aria-hidden="true"></span>
+      <span id="agent-status-text">Connecting to agent…</span>
+    </p>
+    <button type="button" class="btn ghost small palette-trigger" id="palette-btn"
+            aria-label="Open command palette" aria-keyshortcuts="Control+K">
+      <span aria-hidden="true">⌘</span> K
+    </button>
+    <button type="button" class="btn ghost" id="refresh-btn">
+      <span aria-hidden="true">↻</span> Refresh
+    </button>
+    <button type="button" class="btn ghost icon-only" id="theme-btn" aria-label="Switch colour theme" title="Switch colour theme">
+      <span aria-hidden="true">◐</span>
+    </button>
+  </div>
+</header>
+
+<main id="main" class="shell">
+
+  <!-- ── Hero: live headline + measured KPIs ─────────────────────────────── -->
+  <section class="hero" aria-labelledby="h-hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Agent control plane</p>
+      <h1 id="h-hero">Build anything,<br /><span class="grad-text">watch every route.</span></h1>
+      <p class="hero-lede">
+        One page for the whole pipeline — prompt in any language, pick a tier strategy, and read
+        measured provider telemetry while the agent works. Keys stay on the server, never in the browser.
+      </p>
+      <div class="tier-ribbon" id="tier-ribbon" aria-label="Provider preference chain per tier">
+        <p class="ribbon-empty">Loading routing tiers…</p>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpi-grid">
+      <article class="kpi kpi--ring" data-reveal>
+        <div class="kpi-ring">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="ring-track" cx="50" cy="50" r="42" />
+            <circle class="ring-value" id="kpi-ring-value" cx="50" cy="50" r="42" />
+          </svg>
+          <span class="ring-readout"><span id="kpi-ring-pct">0</span><span class="ring-unit">%</span></span>
+        </div>
+        <div class="kpi-body">
+          <p class="kpi-label">Provider readiness</p>
+          <p class="kpi-sub" id="kpi-ready-sub">waiting for the agent API</p>
+        </div>
+      </article>
+
+      <article class="kpi" data-reveal>
+        <p class="kpi-label">Routed calls</p>
+        <p class="kpi-value" id="kpi-calls">0</p>
+        <p class="kpi-sub" id="kpi-calls-sub">measured in this process</p>
+        <canvas class="spark" id="spark" width="220" height="46" aria-hidden="true"></canvas>
+        <p class="kpi-foot">sampled in this tab, every poll</p>
+      </article>
+
+      <article class="kpi" data-reveal>
+        <p class="kpi-label">Average latency</p>
+        <p class="kpi-value"><span id="kpi-latency">0</span><span class="kpi-unit">s</span></p>
+        <p class="kpi-sub" id="kpi-latency-sub">no calls yet</p>
+        <div class="meter" aria-hidden="true"><span class="meter-fill" id="kpi-latency-meter"></span></div>
+        <p class="kpi-foot">slower is a longer bar</p>
+      </article>
+
+      <article class="kpi" data-reveal>
+        <p class="kpi-label">Cache hit rate</p>
+        <p class="kpi-value"><span id="kpi-cache">0</span><span class="kpi-unit">%</span></p>
+        <p class="kpi-sub" id="kpi-cache-sub">no cache activity yet</p>
+        <div class="meter meter--accent" aria-hidden="true"><span class="meter-fill" id="kpi-cache-meter"></span></div>
+        <p class="kpi-foot">cache hits ÷ (hits + calls)</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Bento grid ──────────────────────────────────────────────────────── -->
+  <div class="layout">
+
+    <section class="panel panel--launch" id="sec-launch" aria-labelledby="h-launch" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-launch">Run the pipeline</h2>
+          <p class="panel-hint">Prompt in any language. Run status is polled into the log.</p>
+        </div>
+        <span class="panel-badge">phase 1–15</span>
+      </div>
+
+      <form id="run-form" class="run-form">
+        <div class="field">
+          <label for="prompt">What should be built?</label>
+          <textarea id="prompt" name="prompt" rows="3" required minlength="8"
+            placeholder="e.g. A premium skincare store for the Gulf market with Stripe checkout and Arabic RTL support"
+            aria-describedby="prompt-hint"></textarea>
+          <p class="hint" id="prompt-hint">At least 8 characters.</p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="project-name">Project name</label>
+            <input id="project-name" name="project_name" type="text" value="console-project" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="industry">Industry</label>
+            <select id="industry" name="industry">
+              <option value="saas">SaaS</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="real-estate">Real estate</option>
+              <option value="fintech">Fintech</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="portfolio">Portfolio</option>
+              <option value="fashion">Fashion</option>
+              <option value="automotive">Automotive</option>
+              <option value="travel">Travel</option>
+              <option value="fitness">Fitness</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="industrial">Industrial</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="design-style">Design style</label>
+            <select id="design-style" name="design_style">
+              <option value="auto">Auto (recommended)</option>
+              <option value="minimal">Minimal</option>
+              <option value="luxury">Luxury</option>
+              <option value="playful">Playful</option>
+              <option value="corporate">Corporate</option>
+              <option value="bold">Bold</option>
+              <option value="editorial">Editorial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field field-inline">
+          <input type="checkbox" id="fast-mode" name="fast_mode" />
+          <label for="fast-mode">Fast mode — route everything to the fast tier (lower quality, much faster)</label>
+        </div>
+
+        <div class="result" id="result-box" hidden>
+          <h3 class="result-title">Result</h3>
+          <p class="hint" id="result-status" role="status"></p>
+          <code class="result-path" id="result-path"></code>
+          <div class="row-actions">
+            <button type="button" class="btn ghost small" id="open-folder-btn" hidden>Open project folder</button>
+            <button type="button" class="btn ghost small" id="copy-path-btn" hidden>Copy path</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary btn--launch" id="launch-btn">
+            <span class="btn-shine" aria-hidden="true"></span>
+            <span class="btn-label">Start build</span>
+          </button>
+          <button type="button" class="btn ghost" id="cancel-btn" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel panel--log" id="sec-log" aria-labelledby="h-log" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-log">Activity log</h2>
+          <p class="panel-hint">Live stream from this console and the agent.</p>
+        </div>
+        <button type="button" class="btn ghost small" id="clear-log">Clear</button>
+      </div>
+      <div class="log" id="log" role="log" aria-live="polite" aria-label="Pipeline activity"></div>
+    </section>
+
+    <section class="panel panel--providers" id="sec-providers" aria-labelledby="h-providers" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-providers">AI providers</h2>
+          <p class="panel-hint">Keys are masked server-side and never reach the browser.</p>
+        </div>
+        <span class="panel-badge" id="provider-count">0 ready</span>
+      </div>
+      <div class="cards" id="provider-cards"></div>
+      <div class="row-actions">
+        <button type="button" class="btn ghost small" id="probe-all-btn">Test all providers</button>
+        <span class="hint" id="probe-all-state" role="status"></span>
+      </div>
+    </section>
+
+    <section class="panel panel--tiers" id="sec-tiers" aria-labelledby="h-tiers" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-tiers">Routing tiers</h2>
+          <p class="panel-hint">First entry of each tier is preferred. Drag to reorder. Saved to <code>.router.json</code>.</p>
+        </div>
+      </div>
+
+      <form id="tier-form" class="tier-form">
+        <div class="tier" data-tier="fast">
+          <div class="tier-head">
+            <h3>Fast</h3>
+            <span class="tier-why">classification, analysis, research, critique</span>
+          </div>
+          <div class="tier-body" id="tier-fast" role="group" aria-labelledby="tier-fast-label"></div>
+          <p class="visually-hidden" id="tier-fast-label">Providers in the fast tier</p>
+        </div>
+
+        <div class="tier" data-tier="balanced">
+          <div class="tier-head">
+            <h3>Balanced</h3>
+            <span class="tier-why">new files, small edits</span>
+          </div>
+          <div class="tier-body" id="tier-balanced" role="group" aria-labelledby="tier-balanced-label"></div>
+          <p class="visually-hidden" id="tier-balanced-label">Providers in the balanced tier</p>
+        </div>
+
+        <div class="tier" data-tier="reasoning">
+          <div class="tier-head">
+            <h3>Reasoning</h3>
+            <span class="tier-why">build repair, bespoke design, architecture</span>
+          </div>
+          <div class="tier-body" id="tier-reasoning" role="group" aria-labelledby="tier-reasoning-label"></div>
+          <p class="visually-hidden" id="tier-reasoning-label">Providers in the reasoning tier</p>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save tiers</button>
+          <span class="save-state" id="tier-state" role="status"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel panel--local" id="sec-local" aria-labelledby="h-local" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-local">No-key cloud</h2>
+          <p class="panel-hint">Local open-weight servers need no API key and no login.</p>
+        </div>
+        <span class="panel-badge panel-badge--oss">offline-first</span>
+      </div>
+      <div id="local-list" class="local-list"></div>
+    </section>
+
+    <section class="panel panel--stats" id="sec-stats" aria-labelledby="h-stats" data-reveal>
+      <div class="panel-head">
+        <div>
+          <h2 id="h-stats">Routing report</h2>
+          <p class="panel-hint">Measured call counts and latency from this process, not estimates.</p>
+        </div>
+      </div>
+      <div class="bars" id="tier-bars" role="img" aria-label="Routed calls per tier"></div>
+      <div class="stats" id="stats-grid"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">
+    <span aria-hidden="true">
+      <svg viewBox="0 0 64 64" class="logo logo--mini">
+        <path d="M32 8 L52.7 20 L52.7 44 L32 56 L11.3 44 L11.3 20 Z" fill="none" stroke="url(#lcp-core)" stroke-width="3" stroke-linejoin="round" />
+        <circle cx="32" cy="32" r="6" fill="url(#lcp-nucleus)" />
+      </svg>
+    </span>
+    <p class="footer-name">LumicorePro</p>
+  </div>
+  <p class="footer-note">
+    Operator Console — local-only by default. This page talks to <code id="footer-agent">the agent API</code>;
+    the browser never sees a provider key. Last state sync <span id="last-sync">—</span>.
+  </p>
+</footer>
+
+<!-- ── Command palette ──────────────────────────────────────────────────── -->
+<div class="palette-backdrop" id="palette" hidden>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <input type="text" id="palette-input" class="palette-input" placeholder="Jump to a section or run an action…"
+           autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" />
+    <ul class="palette-list" id="palette-list" role="listbox" aria-label="Commands"></ul>
+    <p class="palette-foot">↑ ↓ to move · Enter to run · Esc to close</p>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-label="Notifications"></div>
+
+<script src="/assets/console.js"></script>
+</body>
+</html>

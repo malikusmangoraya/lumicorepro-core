@@ -97,10 +97,13 @@ export function buildCode(parts) {
 
 /** Parse a license code (accepts any dash/space grouping) into payload parts or null. */
 export function parseCode(code) {
-  const raw = String(code || '').trim();
-  const m = raw.match(/^LMC-?([A-Za-z2-7]+)$/i);
-  if (!m) return null;
-  return decodePayload(m[1]);
+  // Reuse normalizeCode so the grouped display form emitted by groupCode() -
+  // the canonical output of generateLicenseKey() - parses just as well as a
+  // bare code. The previous regex allowed only [A-Za-z2-7], so any grouped key
+  // returned null despite the contract documented above.
+  const body = normalizeCode(code).replace(/^LMC-/, '');
+  if (!body || !/^[A-Z2-7]+$/.test(body)) return null;
+  return decodePayload(body);
 }
 
 /** Group a code into LMC-XXXXX-XXXXX-… display form. */

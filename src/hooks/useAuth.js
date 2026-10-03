@@ -2,4 +2,4 @@
  * Auth hook re-export for `@/hooks` convenience.
  */
 export { useAuth } from '../context/AuthContext';
-export { useCart } from '../context/CartContext';
+export { useCart } from '../store/cartStore';

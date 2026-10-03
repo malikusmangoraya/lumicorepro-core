@@ -43,4 +43,18 @@ describe('Refresh token rotation & revocation', () => {
     process.env.JWT_REFRESH_SECRET = 'changed_secret_123456';
     expect(() => refreshService.verifyRefreshToken(refreshToken)).toThrow();
   });
+
+  it('keeps a 30-day revocation effective past the 24.8-day timer limit', async () => {
+    // Regression guard. REFRESH_TTL is 30 days, and the in-memory Redis fallback
+    // used to schedule expiry with setTimeout(ttl * 1000) = 2_592_000_000 ms.
+    // That overflows Node's 32-bit timer and is silently clamped to 1ms, so a
+    // revoked refresh token became valid again almost instantly whenever Redis
+    // was down. Wait past the old clamp and assert revocation still holds.
+    const { jti, userId } = refreshService.generateRefreshToken(42);
+    await refreshService.revokeRefreshToken(jti, userId);
+    expect(await refreshService.isRefreshTokenRevoked(jti)).toBe(true);
+
+    await new Promise((r) => setTimeout(r, 60));
+    expect(await refreshService.isRefreshTokenRevoked(jti)).toBe(true);
+  });
 });

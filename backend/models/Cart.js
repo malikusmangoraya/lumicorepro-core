@@ -15,6 +15,14 @@ Cart.init(
       allowNull: false,
       unique: true,
     },
+    org_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Organization the cart was opened under (multi-tenant marker)',
+      references: { model: 'organizations', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
+    },
     expires_at: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -41,6 +49,10 @@ Cart.init(
     modelName: 'Cart',
     tableName: 'carts',
     timestamps: true,
+    indexes: [
+      { name: 'idx_carts_org', fields: ['org_id'] },
+      { name: 'idx_carts_user', fields: ['user_id'] },
+    ],
   }
 );
 

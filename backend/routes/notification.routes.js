@@ -60,7 +60,17 @@ router.post('/', protect, async (req, res, next) => {
   try {
     const { recipientId, type, title, message, link, metadata } = req.body;
 
-    const targetRecipient = recipientId ? parseInt(recipientId, 10) : req.user.id;
+    // Only admins may notify another user; everyone else can only self-notify.
+    // Without this, any authenticated user could spam arbitrary recipients.
+    const requestedRecipient = recipientId ? parseInt(recipientId, 10) : null;
+    const isAdmin = req.user?.role === 'admin';
+    if (requestedRecipient && !isAdmin && requestedRecipient !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to notify another user',
+      });
+    }
+    const targetRecipient = requestedRecipient || req.user.id;
 
     const notification = await Notification.create({
       recipient: targetRecipient,

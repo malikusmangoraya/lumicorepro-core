@@ -1,0 +1,215 @@
+{
+  "description": "Open-source component libraries, design systems, galleries and curated resource lists registered with LumicorePro. All entries are MIT-style or open docs/tools; attribute profiles exist for inspiration decomposition only (never template copies).",
+  "version": "1.0",
+  "resources": [
+    {
+      "slug": "penpot",
+      "name": "Penpot",
+      "role": "design_tool",
+      "license": "MPL-2.0",
+      "stack": ["Clojure", "React", "Postgres"],
+      "url": "https://penpot.app",
+      "repo": "https://github.com/penpot/penpot",
+      "description": "Open-source design and prototyping platform (Figma alternative) for teams, web-first and self-hostable.",
+      "keywords": ["penpot", "open source figma", "design tool", "prototyping", "collaborative design"],
+      "attributes": {
+        "typography": 0.6, "color_saturation": 0.4, "interaction_complexity": 0.6,
+        "craft": 0.6, "minimalism": 0.55, "whitespace": 0.55, "motion": 0.3, "cta_focus": 0.5
+      }
+    },
+    {
+      "slug": "astryx",
+      "name": "Astryx",
+      "role": "design_system",
+      "license": "MIT",
+      "stack": ["React 19", "StyleX", "DCaffold"],
+      "url": "https://astryx.bot",
+      "repo": "https://github.com/dingzhanjun/astryx-ui",
+      "description": "Agent-ready open-source design system (Meta-origin) with 150+ components on React 19 + StyleX; ships CLI and MCP for AI-generation.",
+      "keywords": ["astryx", "meta design system", "stylex", "react 19 components", "agent ready ui"],
+      "attributes": {
+        "minimalism": 0.6, "whitespace": 0.6, "typography": 0.8, "motion": 0.3,
+        "visual_density": 0.55, "content_density": 0.6, "color_saturation": 0.3,
+        "navigation": 0.6, "cta_focus": 0.6, "craft": 0.85
+      }
+    },
+    {
+      "slug": "appica-ui",
+      "name": "Appica UI",
+      "role": "component_library",
+      "license": "MIT",
+      "stack": ["React", "Base UI", "Motion", "Tailwind v4"],
+      "url": "https://appica.dev",
+      "repo": "https://github.com/AppicaDev/appica",
+      "description": "Free open-source React UI component library (60+ components) built on Base UI + Motion + Tailwind CSS v4.",
+      "keywords": ["appica", "component library", "base ui", "tailwind v4 components", "free react ui"],
+      "attributes": {
+        "minimalism": 0.65, "whitespace": 0.6, "typography": 0.7, "motion": 0.5,
+        "color_saturation": 0.4, "craft": 0.7, "cta_focus": 0.65, "navigation": 0.55
+      }
+    },
+    {
+      "slug": "shadcn-ui",
+      "name": "Shadcn UI",
+      "role": "component_library",
+      "license": "MIT",
+      "stack": ["React", "Tailwind CSS", "Radix UI"],
+      "url": "https://ui.shadcn.com",
+      "repo": "https://github.com/shadcn-ui/ui",
+      "description": "150+ copy-paste React components built on Radix UI and Tailwind; accessible, themeable, dependency-clean.",
+      "keywords": ["shadcn", "shadcn ui", "radix", "tailwind components", "copy paste components"],
+      "attributes": {
+        "minimalism": 0.75, "whitespace": 0.7, "typography": 0.8, "motion": 0.3,
+        "visual_density": 0.5, "content_density": 0.55, "color_saturation": 0.35,
+        "cta_focus": 0.7, "craft": 0.75, "navigation": 0.6
+      }
+    },
+    {
+      "slug": "magic-ui",
+      "name": "Magic UI",
+      "role": "component_library",
+      "license": "MIT",
+      "stack": ["React", "Framer Motion", "Tailwind CSS"],
+      "url": "https://magicui.design",
+      "repo": "https://github.com/magicuidesign/magicui",
+      "description": "Animated React + Tailwind components (shimmering borders, animated logo clouds, glass dashboard) for modern SaaS marketing sites.",
+      "keywords": ["magic ui", "magicui", "animated components", "shimmer", "motion components"],
+      "attributes": {
+        "motion": 0.9, "futuristic": 0.55, "interaction_complexity": 0.6,
+        "cinematic": 0.4, "dark_canvas": 0.5, "typography": 0.6, "cta_focus": 0.6
+      }
+    },
+    {
+      "slug": "aceternity-ui",
+      "name": "Aceternity UI",
+      "role": "component_library",
+      "license": "MIT",
+      "stack": ["React", "Framer Motion", "Tailwind CSS"],
+      "url": "https://ui.aceternity.com",
+      "repo": "https://github.com/aceternity?tab=repositories",
+      "description": "Animated UI components and effects (spotlight cards, glow, gradient buttons, bento grids) for premium landing pages.",
+      "keywords": ["aceternity", "animated ui", "spotlight", "glow", "gradient components"],
+      "attributes": {
+        "motion": 0.85, "futuristic": 0.7, "cinematic": 0.6, "bold": 0.5,
+        "interaction_complexity": 0.6, "dark_canvas": 0.55, "typography": 0.6, "cta_focus": 0.65
+      }
+    },
+    {
+      "slug": "cult-ui",
+      "name": "Cult UI",
+      "role": "component_library",
+      "license": "MIT",
+      "stack": ["React", "Framer Motion", "Tailwind CSS"],
+      "url": "https://cult-ui.com",
+      "repo": "https://github.com/Zaeem20/cult-ui",
+      "description": "Animated React component library with Framer Motion + Tailwind; prebuilt shadcn-style components with view-transition polish.",
+      "keywords": ["cult ui", "cult-ui", "animated components", "motion blocks"],
+      "attributes": {
+        "motion": 0.8, "interaction_complexity": 0.6, "minimalism": 0.5,
+        "typography": 0.65, "craft": 0.65, "cta_focus": 0.6
+      }
+    },
+    {
+      "slug": "chonks-ui",
+      "name": "Chonks UI",
+      "role": "design_system",
+      "license": "MIT",
+      "stack": ["React", "Tailwind CSS"],
+      "url": "https://www.npmjs.com/package/chonks-ui-react",
+      "repo": "https://npmjs.com/package/chonks-ui-react",
+      "description": "Retro brutalist React design system: heavy borders, hard shadows, chunky components with a lo-fi personality.",
+      "keywords": ["chonks", "chonks ui", "brutalist react", "retro ui", "hard shadow components"],
+      "attributes": {
+        "bold": 0.9, "visual_density": 0.65, "interaction_complexity": 0.4,
+        "color_saturation": 0.5, "warmth": 0.5, "craft": 0.55, "motion": 0.2
+      }
+    },
+    {
+      "slug": "uiverse",
+      "name": "Uiverse",
+      "role": "component_gallery",
+      "license": "Mixed/Open",
+      "stack": ["HTML", "CSS", "Tailwind CSS"],
+      "url": "https://uiverse.io",
+      "repo": "https://github.com/uiverse-io/uiverse",
+      "description": "Community-built open-source UI elements library — thousands of CSS/Tailwind buttons, loaders, toggles and cards.",
+      "keywords": ["uiverse", "css components", "community ui", "buttons", "loaders"],
+      "attributes": {
+        "craft": 0.6, "visual_density": 0.5, "interaction_complexity": 0.5,
+        "color_saturation": 0.55, "typography": 0.5, "motion": 0.4
+      }
+    },
+    {
+      "slug": "codrops",
+      "name": "Codrops",
+      "role": "inspiration",
+      "license": "Free/docs",
+      "stack": ["Tutorials", "Demos", "CSS", "JS"],
+      "url": "https://tympanus.net/codrops/",
+      "repo": "https://github.com/codrops",
+      "description": "Web design magazine by Tympanus: tutorials, demos, Playground experiments and creative front-end inspiration.",
+      "keywords": ["codrops", "tympanus", "web design tutorials", "css experiments", "playground demos"],
+      "attributes": {
+        "typography": 0.8, "cinematic": 0.5, "craft": 0.8,
+        "interaction_complexity": 0.6, "motion": 0.5, "color_saturation": 0.55
+      }
+    },
+    {
+      "slug": "webzibition",
+      "name": "Webzibition",
+      "role": "inspiration",
+      "license": "Free/docs",
+      "stack": ["Curated gallery", "Websites"],
+      "url": "https://tympanus.net/codrops/webzibition/",
+      "repo": "https://github.com/codrops",
+      "description": "Webzibition by Codrops: a hand-picked gallery of about 2,300 outstanding websites collected into one curated showcase.",
+      "keywords": ["webzibition", "website gallery", "web design showcase", "curated websites"],
+      "attributes": {
+        "typography": 0.7, "cinematic": 0.5, "craft": 0.7,
+        "motion": 0.5, "interaction_complexity": 0.55
+      }
+    },
+    {
+      "slug": "design-resources-for-developers",
+      "name": "Design Resources for Developers",
+      "role": "curated_list",
+      "license": "MIT",
+      "stack": ["Curated list", "Markdown"],
+      "url": "https://github.com/bradtraversy/design-resources-for-developers",
+      "repo": "https://github.com/bradtraversy/design-resources-for-developers",
+      "description": "Curated list of free design and UI resources — stock photos, web templates, CSS frameworks, UI libraries and online tools.",
+      "keywords": ["design resources for developers", "design resources", "free design resources", "ui resources list"],
+      "attributes": {
+        "craft": 0.7, "color_saturation": 0.45, "typography": 0.6, "visual_density": 0.5
+      }
+    },
+    {
+      "slug": "awesome-ui-libraries",
+      "name": "Awesome UI Libraries",
+      "role": "curated_list",
+      "license": "MIT",
+      "stack": ["Curated list", "Markdown"],
+      "url": "https://github.com/dalisoft/awesome-ui-libraries",
+      "repo": "https://github.com/dalisoft/awesome-ui-libraries",
+      "description": "Curated list of UI libraries, templates and inspirations — grouped by framework (React, Tailwind, shadcn ecosystem).",
+      "keywords": ["awesome ui libraries", "ui libraries list", "ui templates", "ui inspirations"],
+      "attributes": {
+        "craft": 0.7, "typography": 0.6, "visual_density": 0.5, "color_saturation": 0.45
+      }
+    },
+    {
+      "slug": "ui-ux-design-resources",
+      "name": "UI/UX Design Resources",
+      "role": "curated_list",
+      "license": "MIT",
+      "stack": ["Curated list", "Markdown"],
+      "url": "https://github.com/AyushWarrier/ui-ux-design-resources",
+      "repo": "https://github.com/AyushWarrier/ui-ux-design-resources",
+      "description": "Comprehensive collection of UI/UX designer resources — libraries, websites, plugins, courses and workflow hubs.",
+      "keywords": ["ui ux resources", "ui ux design resources", "designer resources", "ux libraries", "design plugins"],
+      "attributes": {
+        "craft": 0.7, "typography": 0.6, "interaction_complexity": 0.6, "color_saturation": 0.45
+      }
+    }
+  ]
+}

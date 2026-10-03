@@ -45,6 +45,9 @@ export default function MedicalPortal() {
           src={img.healthcare.hero}
           alt="Medical"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-8">
@@ -110,6 +113,8 @@ export default function MedicalPortal() {
                 src={DOCTOR_IMGS[i % DOCTOR_IMGS.length]}
                 alt={doc.name}
                 className="h-16 w-16 rounded-2xl object-cover shrink-0 ring-2 ring-border group-hover:ring-emerald-400/50 transition-all"
+                loading="lazy"
+                decoding="async"
               />
               <div className="flex-1 min-w-0">
                 <h3 className="font-display font-bold text-sm truncate">{doc.name}</h3>

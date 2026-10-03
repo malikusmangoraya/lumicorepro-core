@@ -371,7 +371,11 @@ export default function Chat() {
                     <img
                       src={a.preview || a.data}
                       alt={a.name}
+                      width={48}
+                      height={48}
                       className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -436,6 +440,8 @@ export default function Chat() {
                           src={a.preview || a.data}
                           alt={a.name}
                           className="max-h-32 w-auto rounded-lg"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <span

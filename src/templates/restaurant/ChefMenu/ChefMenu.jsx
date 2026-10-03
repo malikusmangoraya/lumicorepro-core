@@ -37,6 +37,8 @@ export default function ChefMenu() {
           src={img.restaurant.chef}
           alt="Executive Chef"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex items-end justify-between p-8">
@@ -46,6 +48,8 @@ export default function ChefMenu() {
                 src={img.restaurant.chef}
                 alt={chef.name}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </Avatar>
             <div>
@@ -96,6 +100,8 @@ export default function ChefMenu() {
                 src={DISH_IMGS[i % DISH_IMGS.length]}
                 alt={d.name}
                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                decoding="async"
               />
               <Badge className="absolute top-3 left-3">{d.tag}</Badge>
               <span className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur px-2 py-0.5 rounded-full text-xs font-bold text-amber-300">

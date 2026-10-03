@@ -1,23 +1,85 @@
-# Build stage — install deps and compile the production bundle
-FROM node:20-alpine AS build
+# =============================================================================
+# LumicorePro — frontend production image (two stages)
+# =============================================================================
+# Stage 1 builds the static bundle with Node.
+# Stage 2 serves ONLY the static `dist/` output from nginx.
+#
+# The previous version copied `node_modules` into the runtime stage and started
+# `npx vite preview`. That shipped vite, rolldown, eslint, playwright and every
+# other devDependency into production, ran a development HTTP server as root,
+# and had no healthcheck. This version has no Node runtime in the final image at
+# all: only nginx, the built assets and a config file.
+#
+# Build arguments
+# ---------------
+# Vite inlines VITE_* at BUILD time, so they are build args, not runtime env.
+# docker-compose.prod.yml passes VITE_API_URL / VITE_STRIPE_KEY / VITE_APP_ENV
+# here; before this file declared them, those values were silently discarded and
+# every image shipped the localhost fallback from src/services/api.js.
+#
+#   VITE_API_URL   API origin. Leave EMPTY for the canonical Compose topology:
+#                  nginx serves the SPA and proxies /api to the backend on the
+#                  same origin, so the frontend must call a relative path.
+#                  Setting it to a full origin (https://api.example.com) sends
+#                  API calls cross-origin and requires CORS_ORIGIN to include
+#                  the site origin. See docs/DEPLOYMENT.md "VITE_API_URL".
+#   VITE_STRIPE_KEY Stripe publishable key (safe to bake; it is public).
+#   VITE_APP_ENV    'production'.
+# =============================================================================
+
+# ── Stage 1: build ───────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+# Declared before install so the VITE_* values are exported for `vite build`.
+ARG VITE_API_URL=""
+ARG VITE_STRIPE_KEY=""
+ARG VITE_APP_ENV="production"
+ARG VITE_AI_URL=""
+ARG VITE_SITE_URL=""
+
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_STRIPE_KEY=$VITE_STRIPE_KEY \
+    VITE_APP_ENV=$VITE_APP_ENV \
+    VITE_AI_URL=$VITE_AI_URL \
+    VITE_SITE_URL=$VITE_SITE_URL
+
+# Copy manifests first so the dependency layer is cached across source changes.
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 COPY . .
+
+# `vite build` emits dist/ plus dist/.vite/manifest.json (build.manifest = true).
 RUN npm run build
 
-# Runtime stage — serve the static build with Vite preview on :5173
-FROM node:20-alpine
+# ── Stage 2: serve ───────────────────────────────────────────────────────────
+# nginx-unprivileged runs as the non-root user `nginx` (UID 101) and already
+# listens on 8080 with /tmp-based pid and temp paths, so no chown hackery and no
+# root process in the final image.
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 
-WORKDIR /app
+USER root
 
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package.json ./
-COPY --from=build /app/node_modules ./node_modules
+# Runtime config. Because the base image already listens on 8080 unprivileged,
+# only the server block has to be replaced.
+COPY nginx/frontend.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 5173
+# Static bundle. The frontend image intentionally does NOT contain the
+# repository, node_modules or any source file.
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-CMD ["npx", "vite", "preview", "--host", "--port", "5173"]
+# A small static health endpoint the container healthcheck hits directly, so the
+# probe never depends on the SPA bundle parsing.
+RUN printf 'ok\n' > /usr/share/nginx/html/healthz.txt
+
+USER nginx
+
+EXPOSE 8080
+
+# nginx-unprivileged ships curl; --fail makes a non-200 exit non-zero.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8080/healthz.txt || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

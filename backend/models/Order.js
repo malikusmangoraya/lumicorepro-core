@@ -15,9 +15,12 @@ Order.init(
       allowNull: true,
     },
     org_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+      references: { model: 'organizations', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     orderNumber: {
       type: DataTypes.STRING(50),
@@ -113,6 +116,11 @@ Order.init(
       type: DataTypes.TEXT,
       defaultValue: '',
     },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Soft-delete marker (paranoid)',
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -129,6 +137,16 @@ Order.init(
     modelName: 'Order',
     tableName: 'orders',
     timestamps: true,
+    paranoid: true,
+    deletedAt: 'deleted_at',
+    indexes: [
+      { name: 'idx_orders_org', fields: ['org_id'] },
+      { name: 'idx_orders_org_status', fields: ['org_id', 'status'] },
+      { name: 'idx_orders_status', fields: ['status'] },
+      { name: 'idx_orders_user', fields: ['user_id'] },
+      { name: 'idx_orders_created_at', fields: ['createdAt'] },
+      { name: 'idx_orders_deleted_at', fields: ['deleted_at'] },
+    ],
   }
 );
 

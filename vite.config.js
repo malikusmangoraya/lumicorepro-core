@@ -5,6 +5,57 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Manual chunk groups are limited to third-party runtimes that are always large,
+// always on the initial path, and change rarely. Everything under src/ is
+// deliberately NOT grouped.
+//
+// `three`, `recharts` AND `framer-motion` are deliberately ABSENT from this list
+// even though they are large. Naming them in manualChunks made rolldown emit them
+// as STATIC imports of the entry chunk: the forced chunk became a static
+// dependency of every chunk that touched the group, so `three` (~218 KB gzip)
+// shipped on first paint even though the only importer is the lazy HeroCanvas,
+// and `recharts` (~97 KB gzip) did the same from lazy admin/dashboard routes.
+//
+// `framer-motion` was the same bug: all of its consumers sit on lazy routes
+// (advanced/motion/ui primitives, AIDashboard, ApiSettings), yet grouping it forced
+// ~38 KB gzip onto the critical path. Large + lazily reachable is exactly the case
+// that must NOT be pre-hoisted - let the bundler split it at the dynamic-import
+// boundary instead.
+//
+// Measured (`npm run size`, hard gate 300 KB initial JS gzip):
+//   before any of this        15 chunks / 225.1 KB gzip  -> FAIL
+//   drop the framer-motion group ALONE
+//                             15 chunks / 224.9 KB gzip  -> still FAIL
+//   + CSS-ify Tooltip + ButtonMotion, lazy NotFound
+//                             13 chunks / 182.8 KB gzip  -> PASS
+// The group was the reason to look, not the cause: the real cost was two *statically
+// reachable* components importing framer-motion above the lazy boundary. Removing only
+// the group fixes nothing on its own - do not re-add it and do not re-measure by hand.
+const VENDOR_GROUPS = [
+  {
+    name: 'vendor-react',
+    packages: ['react', 'react-dom', 'react-router', 'react-router-dom', 'scheduler'],
+  },
+  { name: 'vendor-icons', packages: ['lucide-react'] },
+  { name: 'vendor-http', packages: ['axios', 'qs'] },
+];
+
+// Matches the package that owns a resolved module id, so project rules can never
+// capture a dependency's internals (e.g. framer-motion/dist/es/render/components).
+const PKG_RE = /(?:^|\/)node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?((?:@[^/]+\/)?[^/]+)\//;
+
+function manualChunks(id) {
+  const match = PKG_RE.exec(id.replace(/\\/g, '/'));
+  if (!match) return undefined;
+  const pkg = match[1];
+  for (const group of VENDOR_GROUPS) {
+    if (group.packages.includes(pkg) || group.packages.some((p) => pkg.startsWith(`${p}/`))) {
+      return group.name;
+    }
+  }
+  return undefined;
+}
+
 export default defineConfig({
   plugins: [
     react({
@@ -18,7 +69,28 @@ export default defineConfig({
     globals: true,
     css: true,
     setupFiles: ['./src/test/setup.js'],
-    exclude: ['node_modules', 'dist', '.history', 'generated-projects', 'backend-library', 'ai-agent', 'backend', 'database', 'docs', 'k8s', 'nginx', 'public', 'templates', 'src/templates', 'e2e'],
+    // Unit tests live under src/ per AGENTS.md §6. Without an explicit include,
+    // vitest globs the whole repo and collects test files from .opencode/ and
+    // backend/node_modules/, which report hundreds of bogus suite failures.
+    include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.history/**',
+      '.opencode/**',
+      'generated-projects/**',
+      'backend-library/**',
+      'ai-agent/**',
+      'backend/**',
+      'database/**',
+      'docs/**',
+      'k8s/**',
+      'nginx/**',
+      'public/**',
+      'templates/**',
+      'src/templates/**',
+      'e2e/**',
+    ],
   },
 
   resolve: {
@@ -28,8 +100,10 @@ export default defineConfig({
   },
 
   build: {
-    // Raise warning threshold — we know images are large
-    chunkSizeWarningLimit: 600,
+    // Uncompressed KB per chunk. Mirrors the gzip budget in AGENTS.md §7
+    // (JS < 200 KB target / < 300 KB hard limit gzip) — see `npm run size`,
+    // which is the real gate because this limit is measured before gzip.
+    chunkSizeWarningLimit: 300,
 
     // Target modern browsers for smaller output
     target: 'es2020',
@@ -37,86 +111,13 @@ export default defineConfig({
     // Enable CSS code splitting per chunk
     cssCodeSplit: true,
 
+    // Emits .vite/manifest.json so `npm run size` can walk the entry chunk's
+    // real static-import graph instead of summing every lazy route in the app.
+    manifest: true,
+
     rollupOptions: {
       output: {
-        // Manual chunk strategy — split vendor libs from app code
-        manualChunks(id) {
-          // Core React runtime — smallest, most cached chunk
-          if (id.includes('node_modules/react/') ||
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/react-router')) {
-            return 'vendor-react';
-          }
-          // Framer Motion — lazy-loaded per-chunk (NOT a shared vendor chunk)
-          // Each template that uses motion will include motion in its own chunk
-          if (id.includes('node_modules/framer-motion') ||
-              id.includes('node_modules/motion-dom') ||
-              id.includes('node_modules/motion-utils')) {
-            return 'vendor-motion';
-          }
-          // Lucide icons — large, rarely changes
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-          // Three.js / GSAP — very large, lazy load only
-          if (id.includes('node_modules/three') ||
-              id.includes('node_modules/gsap')) {
-            return 'vendor-3d';
-          }
-          // Axios + other HTTP libs
-          if (id.includes('node_modules/axios') ||
-              id.includes('node_modules/qs')) {
-            return 'vendor-http';
-          }
-          // Charts libraries (recharts)
-          if (id.includes('node_modules/recharts') ||
-              id.includes('node_modules/d3-') ||
-              id.includes('node_modules/victory')) {
-            return 'vendor-charts';
-          }
-          // Form libraries
-          if (id.includes('node_modules/react-hook-form') ||
-              id.includes('node_modules/formik') ||
-              id.includes('node_modules/yup') ||
-              id.includes('node_modules/zod')) {
-            return 'vendor-forms';
-          }
-          // Utility libraries (date-fns, uuid, etc.)
-          if (id.includes('node_modules/date-fns') ||
-              id.includes('node_modules/uuid') ||
-              id.includes('node_modules/classnames') ||
-              id.includes('node_modules/clsx')) {
-            return 'vendor-utils';
-          }
-          // UI libraries (react-select, react-spring, etc.)
-          if (id.includes('node_modules/react-select') ||
-              id.includes('node_modules/react-spring') ||
-              id.includes('node_modules/@radix-ui') ||
-              id.includes('node_modules/tailwind-')) {
-            return 'vendor-ui';
-          }
-          // All other node_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor-misc';
-          }
-          // Template chunks — group by category so each is only loaded on demand
-          if (id.includes('/templates/dashboard/'))   return 'templates-dashboard';
-          if (id.includes('/templates/ecommerce/'))   return 'templates-ecommerce';
-          if (id.includes('/templates/ai/'))          return 'templates-ai';
-          if (id.includes('/templates/business/'))    return 'templates-business';
-          if (id.includes('/templates/restaurant/'))  return 'templates-restaurant';
-          if (id.includes('/templates/realestate/'))  return 'templates-realestate';
-          if (id.includes('/templates/healthcare/'))  return 'templates-healthcare';
-          if (id.includes('/templates/fitness/'))     return 'templates-fitness';
-          if (id.includes('/templates/education/'))   return 'templates-education';
-          if (id.includes('/templates/travel/'))      return 'templates-travel';
-          if (id.includes('/templates/portfolio/'))   return 'templates-portfolio';
-          if (id.includes('/templates/creative/'))    return 'templates-creative';
-          // Motion components — keep separate from vendor-motion
-          if (id.includes('/components/motion/'))     return 'components-motion-ui';
-          // Dashboard components — heavy charts, only on dashboard routes
-          if (id.includes('/components/dashboard/'))  return 'components-dashboard';
-        },
+        manualChunks,
 
         // Deterministic file names for better caching
         entryFileNames:   'assets/[name]-[hash].js',
@@ -157,6 +158,6 @@ export default defineConfig({
       'lucide-react',
       'framer-motion',
     ],
-    exclude: ['three', 'gsap'],    // load 3D libs only when actually needed
+    exclude: ['three'],    // load 3D libs only when actually needed
   },
 });

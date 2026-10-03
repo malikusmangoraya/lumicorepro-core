@@ -3,14 +3,16 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Home, BarChart3, Settings, Bell, ChevronRight } from 'lucide-react';
 import { BrandLogo } from '../components/common';
+import NotificationBell from '../components/common/NotificationBell';
 import SkipToContent from '../components/common/SkipToContent';
 import { useTheme } from '../components/common/ThemeProvider';
 import { cn } from '../utils';
 
 const sidebarItems = [
   { path: '/dashboard', label: 'Overview', icon: Home },
-  { path: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { path: '/dashboard/usage', label: 'Usage', icon: BarChart3 },
+  { path: '/notifications', label: 'Notifications', icon: Bell },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function DashboardLayout() {
@@ -118,17 +120,9 @@ export default function DashboardLayout() {
 
             <div className="flex-1" />
 
-            <button
-              type="button"
-              className="rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" aria-hidden="true" />
-              <span
-                className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary"
-                aria-hidden="true"
-              />
-            </button>
+            <span className="hidden md:inline-flex">
+              <NotificationBell />
+            </span>
           </header>
 
           <main id="main-content" role="main" aria-label="Dashboard content" className="flex-1">

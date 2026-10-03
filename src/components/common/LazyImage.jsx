@@ -11,15 +11,22 @@ const LazyImage = ({
   fallback = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
   width,
   height,
+  aspectRatio,
+  loading = 'lazy',
+  decoding = 'async',
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   const imageSrc = hasError ? fallback : src;
+  const ratio = aspectRatio || (width && height ? `${width} / ${height}` : undefined);
 
   return (
-    <div className={`relative overflow-hidden bg-muted ${className}`} style={{ width, height }}>
+    <div
+      className={`relative overflow-hidden bg-muted ${className}`}
+      style={{ width, height, aspectRatio: ratio }}
+    >
       {/* Skeleton Blur Placeholder */}
       {!isLoaded && !hasError && (
         <div className="absolute inset-0 animate-pulse bg-muted-foreground/10" />
@@ -29,8 +36,10 @@ const LazyImage = ({
       <img
         src={imageSrc}
         alt={alt}
-        loading="lazy"
-        decoding="async"
+        width={width}
+        height={height}
+        loading={loading}
+        decoding={decoding}
         onLoad={() => setIsLoaded(true)}
         onError={() => {
           setHasError(true);

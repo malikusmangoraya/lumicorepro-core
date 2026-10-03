@@ -53,6 +53,9 @@ export default function RestaurantMenu() {
           src={img.restaurant.hero}
           alt="Restaurant"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-8">
@@ -115,6 +118,8 @@ export default function RestaurantMenu() {
                 src={DISH_IMGS[item.category] || img.restaurant.dish2}
                 alt={item.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               {item.badge && (

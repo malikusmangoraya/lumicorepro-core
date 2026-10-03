@@ -1,7 +1,7 @@
 # AGENTS.md — LumicorePro Core
 
-> v5.1 (Marketplace Delivery) | 2026-09-12
-> Monorepo: React 19 + Vite + Tailwind 3 | Express + MySQL + Redis | Python FastAPI AI Agent
+> v7.13 (Marketplace Delivery) | audit remediation in progress (target v8.0)
+> Monorepo: React 19 + Vite + Tailwind 3 | Express + PostgreSQL + Redis | Python FastAPI AI Agent
 
 ---
 
@@ -27,7 +27,7 @@ backend-library/{shared,ecommerce-base,electronics-backend,fintech-backend,saas-
 | DB | `database/schemas/`, `backend/models/` |
 | AI | `ai-agent/main.py`, `server.py` |
 
-Architecture: `User → React → Hook/Context → Axios → Express → MySQL/Redis`
+Architecture: `User → React → Hook/Context → Axios → Express → PostgreSQL/Redis`
 
 ---
 
@@ -73,7 +73,7 @@ Max 300 lines. Props: `variant`/`size`/`disabled`/`className`. States: default/h
 - **Variants**: primary/secondary/success/danger/warning/info/outline/ghost/glow. Sizes: xs/sm/md/lg/xl.
 
 ### Backend
-Response: `{success,status,message,data,timestamp}`. Errors: `success:false` + code + user message. Middleware: auth → validate → route → error. Mongoose schemas + validation. Structured logging.
+Response: `{success,status,message,data,timestamp}`. Errors: `success:false` + code + user message. Middleware: auth → validate → route → error. Sequelize models + validation. Structured logging.
 
 ### Database
 Snake case. Foreign keys + constraints. Index queried columns. Versioned migrations. Soft deletes (`deleted_at`).
@@ -97,13 +97,28 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 
 ## 6. TESTING
 
-| Type | Tool | Location | Target |
-|------|------|----------|--------|
-| Unit | Vitest | `src/__tests__/` | 80%+ |
-| Backend | Jest | `backend/__tests__/` | 80%+ |
-| Integration | Jest | `backend/__tests__/` | 70%+ |
-| E2E | Playwright | `e2e/` | Key paths |
-| Mock | MSW | `src/test/` | As needed |
+| Type | Tool | Location | Target | Measured (2026-09-28) |
+|------|------|----------|--------|------------------------|
+| Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **Very low — 27 tests / 4 files, no coverage gate** |
+| Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **37.9% statements (871/2300) — 21 suites / 210 tests** |
+| AI agent | pytest | `ai-agent/tests/` | 80%+ | 629 tests green |
+| E2E | Playwright | `e2e/` | Key paths | 1 file, 3 tests green |
+| Mock | MSW | `src/test/` | As needed | In place |
+
+Targets are goals, **not** the current state. Measured on 2026-09-28: backend
+statement coverage is 37.9% (871/2300 statements covered, 32.8% branches, 34.3%
+functions, 38.6% lines) against an 80% target, up from 26.3% (598/2274) earlier the
+same day. The frontend has 27 tests across 4 files and no coverage gate at all.
+Backend and frontend coverage remain the largest open gaps in the repo. `ai-agent` is
+the only suite near its target, and its count is a test count, not a measured
+coverage percentage. Run the backend suite from `backend/` with
+`node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage`; the
+root `npm run test:backend` script is not the instrumented path.
+
+Still at 0% or near-0% and worth covering next: `middleware/usageGuard.js`,
+`services/systemConfig.service.js`, `services/aiCost/*`, `utils/monitoring.js`,
+`services/email.service.js`, and the remaining payment gateways (PayPal, Stripe,
+Flutterwave, Paytm, Mollie, MercadoPago, Razorpay, LiqPay, Square).
 
 Mock externals (MSW). Test error paths. Isolated tests. Descriptive names. Await async.
 
@@ -124,6 +139,10 @@ Mock externals (MSW). Test error paths. Isolated tests. Descriptive names. Await
 - WebP preferred, `loading="lazy"`, `font-display: swap`
 - `useMemo`/`useCallback` for expensive ops. Windowing >100 items. Debounce 300ms. Animate `transform`/`opacity` only
 - React Query: `staleTime: 5min`, `gcTime: 30min`. SW: hashed assets indefinite. `localStorage` for prefs only
+
+Measured 2026-09-28 (`npm run size`): initial JS **193.2 KB** gzip across 9 chunks, CSS 24.7 KB, largest chunk `HeroCanvas` 219.5 KB. This **passes the enforced script budgets** (200 KB initial JS, 50 KB CSS, 300 KB largest chunk) but **misses the 150 KB "JS Bundle" target row** by 43 KB. Report the two claims separately — do not describe the 200 KB gate as if it were the 150 KB target. Headroom is ~7 KB and most of the earlier saving is committed, so treat a small regression here as a gate failure, not noise.
+
+**Manual chunks are a trap on this bundler.** Naming a large lazily-reachable package (`three`, `recharts`, `framer-motion`) in `manualChunks` makes rolldown emit it as a *static* import of the entry chunk, hoisting it onto first paint and negating the lazy boundary. Group only runtimes that are large, always-initial, and slow-moving. Do not name an icon/animation library that lazy routes import.
 
 ---
 
@@ -223,7 +242,7 @@ JSDoc on public components/functions. Inline comments for complex logic only (wh
 
 ---
 
-## 18. SELLABLE PROJECT DELIVERY (mandatory)
+## 17. SELLABLE PROJECT DELIVERY (mandatory)
 
 Every **new project** this agent creates must be listable on Gumroad, Lemon Squeezy, ThemeForest, Creative Market, GitHub, and Product Hunt.
 
@@ -237,14 +256,94 @@ Rule file: `.cursor/rules/marketplace-ready-projects.mdc`
 
 ---
 
-## 17. CHANGE LOG
+## 18. AI WEBSITE FACTORY — MASTER PROMPT WORKFLOW (MANDATORY)
 
-| Date | Ver | Changes |
+The complete engine lives in `project-rules/MASTER_PROMPT.md` (READ before any new-project work, alongside the Architecture files). It is binding for website/app creation. Core rules:
+
+### Role
+Act as a senior Product Engineer + Creative Director + UX/UI + Frontend/Backend/Motion/3D/A11y/SEO/Performance engineer combined. Never code before understanding the product.
+
+### Final Integrated Pipeline (Part 1 + 1b + 2 + 3)
+`Business Analysis → Audience/Persona → Brand Strategy → Reference Intelligence → Industry Playbook → UX/IA → Visual Direction → Design System → Design Benchmark → Implementation → Visual/UX/Conversion QA → Automated Design Scoring → Self-Healing → Performance/A11y/SEO → Live Deployment → Live Verification → Final Report`
+
+### Part 1 — Mandatory Pipeline (never skip conceptually)
+`Prompt → Business Analysis → Audience Analysis → Brand Positioning → Content Strategy → Information Architecture → User Journey → Visual Direction → Design System → Page Architecture → Interaction Plan → Technical Architecture → Implementation`
+
+### Part 1b — Reference Intelligence (Design Benchmarking)
+Cited references (e.g. "Apple-style clarity, Aesop-style restraint, Stripe-style UX") are never copied. Decompose each into attributes — typography, spacing, navigation behavior, image treatment, motion principles, content density, CTA hierarchy, interaction patterns, brand emotion — then synthesize an original design system carrying those qualities, documenting the source→translation mapping in the project brief. Reference = inspiration attributes, NOT template extraction.
+
+### Part 2 — QA + Critic + Self-Healing + Deployment (mandatory after every build)
+`Build Verify → Playwright → Visual Regression → Collapse Detection → Accessibility QA → Responsive QA → Performance QA → External Request Audit → SEO QA → Visual Critic → UX Critic → Conversion Critic → Anti-Generic Critic → Multi-Critic Review → Issue Priority → Self-Heal → Failure Protection → Quality Score → Deployment → Live Verification → Final QA Gate`
+
+Never declare success without evidence. Build succeeded ≠ Website completed. Every project must pass the final QA gate (Part 2 Section 24) before COMPLETE.
+
+### Part 2b — Visual Benchmarkability
+Design scoring is measurable, not taste: Visual Quality = Typography 15% + Composition 15% + Spacing 15% + Color 10% + Imagery 10% + Hierarchy 10% + Consistency 10% + Brand Fit 10% + Motion 5% + Originality 10% (total 100). Match implementation against pre-written benchmark targets (typography 9/10, spacing 8/10, density 7/10, distinctiveness 9/10, motion restraint 8/10, CTA 9/10, imagery 9/10) using Playwright screenshots + DesignLint output.
+
+### Part 2c — DesignLint (design Linter like ESLint)
+Rules: DL001 wide hero heading · DL002 low CTA contrast · DL003 >4 identical cards · DL004 spacing inconsistency · DL005 too many rounded containers · DL006 too many gradients · DL007 repeated decorative effects · DL008 broken heading hierarchy · DL009 mobile hero too tall · DL010 CTA below fold · DL011 visual density too high · DL012 empty section · DL013 generic placeholder copy · DL014 repeated animation pattern · DL015 brand differentiation too low. Output severity (P1-P3) + code + message; findings feed the self-healing loop.
+
+### Part 2d — Redesign Authority + Design Gate
+If visual quality < threshold: DO NOT PATCH ONLY — the agent may redesign hero composition, section order, spacing, card structure, typography scale, CTA placement, interaction model, visual treatment (as long as core requirements stay satisfied). Before deployment: Design Gate — Brand clarity, Visual hierarchy, Typography, Spacing, Originality, CTA clarity, Mobile design, Interaction quality each ≥ 85, else `REDESIGN_REQUIRED`. A project is complete only when TECHNICAL QA + UX QA + VISUAL QA + DESIGN SCORE all pass — never just because it compiles.
+
+### Part 3 — Intelligence + Benchmarking + Playbooks (planning layer inside Part 1)
+`Industry Playbook (strategy/ux/pages/components/conversion/content/visual/qa) + Brand Playbook (personality/typography/spacing/motion/color/imagery/interaction) + User Requirements + Reference Attributes → Design Decision Engine → single design spec (hero, navigation, grid, typography, motion, 3d, image_ratio, cta_style, surface_style, card_usage) → saved as machine-readable `design-manifest.json`.`
+
+- Supported industries: ecommerce, marketplace, saas, automotive, food, fintech, portfolio, education, healthcare, real-estate, electronics, industrial, hospitality, entertainment, sports, fashion
+- Brand playbooks: luxury, minimal, futuristic, editorial, playful, corporate, bold
+- UX anti-patterns to avoid: hidden pricing, excessive modals, weak search, unclear checkout, fake reviews, vague CTA, unnecessary carousels
+- **Constraint Resolver:** when requirements conflict (e.g. "lots of animation" vs "super-fast mobile"), resolve per context — desktop: rich motion, mobile: simplified, reduced-motion: minimal; record the resolution in the manifest
+- **Design Memory:** `.artifacts/01-business.json → 02-audience → 03-brand → 04-reference → 05-playbook → 06-ux → 07-design → 08-architecture → 09-build → 10-designlint → 11-visual-score → 12-critic-review → 13-qa → 14-deployment` makes every decision traceable for later "change the hero" requests
+
+### Implementation Mapping (use existing modules, no duplicates)
+Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`, `design_style.py` · Playbooks → `theme_matrix.py`, `design_vault.py` · Blueprint → `planner.py`, `project_mode_engine.py` · Manifest/Memory → `memory_retriever.py`, `.artifacts/` · Benchmark/Lint → `vision_pipeline.py`, `quality_gates.py` · Scoring → `quality_gate.py`, `quality_gates.py` · Self-heal/Redesign → `enterprise_repair.py`, `iterate_engine.py`, `restyle_all.py` · Orchestration → `orchestrator.py`, `pipeline.py`. Central orchestrator controls task/state; agents must not randomly modify files outside the plan.
+
+### Quality Gates (Part 2 hard rules)
+- **Evidence-based QA only:** pass badges ("WCAG AA ✅", "LCP <1.5s") only when the actual check ran and the measurement supports it; otherwise report "not measured". Never invent metrics.
+- **Independent critics:** the builder never grades their own work. Critics judge only actual artifacts (screenshots, DOM, network timings, console logs, audit output) — a pass without artifact evidence is invalid.
+- **Regression detection mandatory:** after every fix, re-verify across all breakpoints (375/768/1024/1440/1920 + reduced-motion) and compare before/after evidence. A fix that breaks another viewport is itself a bug.
+- **Measurable design review:** Visual Critic passes concrete checks (hierarchy, whitespace, typography, composition, brand distinctiveness, CTA prominence, repeated patterns) with pass/fail + evidence — not taste opinions.
+
+### Quality Score Targets
+- **STANDARD** = 80+ (usability, clean design, speed)
+- **PREMIUM** = 88+ (stronger identity, custom motion, richer imagery)
+- **SIGNATURE** = 92+ (custom storytelling, advanced interaction, editorial layouts)
+
+### Anti-Generic Design
+No gratuitous glassmorphism, gradient text, floating cards, glow, particles, blur, parallax, giant headings. Every decorative element must justify hierarchy/storytelling/interaction/emotion/usability or be removed. Never reuse one visual formula on every project.
+
+### 3D Is Optional
+Use only when it improves understanding/emotion/storytelling/value. Otherwise choose video / editorial / typographic / UI-preview / minimal hero. Always: mobile fallback, reduced-motion safe, no zero-height canvas.
+
+### Foundations Required
+- Semantic color + design tokens (no random hex/colors)
+- Typography engine matched to brand (max 2-3 fonts, coherent scale)
+- Real product functionality (cart/checkout/auth/filters/builders) with full loading/success/error/empty/retry
+- UX journeys: START → ACTION → RESPONSE → NEXT → SUCCESS → ERROR → RECOVERY
+- Explicit responsive intent for 320→1920px, WCAG AA, `prefers-reduced-motion`
+- Zustand (client) + React Query (server) only; no unnecessary global state
+- SEO: honest JSON-LD + OG + sitemap; images sourced/downloaded/optimized/verified locally
+- Self-healing loop for all issues; failure protection after 3 attempts
+- Delivery package: README, LICENSE, QA report, performance report, a11y report
+
+### Quality Bar
+Clearer hierarchy, stronger brand, better UX, deliberate typography, restrained effects, coherent system — over more effects, more pages, more 3D, more code.
+
+---
+
+## 19. CHANGE LOG
+
+The full history lives in [`CHANGELOG.md`](./CHANGELOG.md). It is deliberately not
+inlined here: AGENTS.md is loaded into every agent session as instructions, and the old
+inline changelog pushed the file past the workspace instruction budget, which silently
+truncated its final sections (this one included).
+
+| Date | Ver | Summary |
 |------|-----|---------|
-| 2026-09-14 | 5.5 | Full-stack hardening — `repair_any_layout` last-gate `repair_component_imports` fixes broken `@/` imports (known stubs input/textarea/select, passthrough stubs, default→named alias `export { defaultName as X }`); project-builder rejects non-project templates; api_generator backend gets npm auto-fix; schema/template seeding only keeps real files |
-| 2026-09-14 | 5.4 | Planning-first: new `design_brand_planning` phase resolves the full international design blueprint (style + region + palette + vault source) BEFORE code generation; writes DESIGN_PLAN.md + style/region-aware design-tokens.json; palette resolution shared between plan and restyle via `_resolve_style_blueprint` |
-| 2026-09-14 | 5.3 | International design — region-aware color combos (GCC/South-Asia/East-Asia/EU/NA/LatAm/Africa) + Design Vault that registers legally-obtained kits (e.g. HorizonX exports) as agent-native ui_styles via token extraction |
-| 2026-09-14 | 5.2 | UI Style Wheel — 9 design languages (minimal/glass/neo-brutalism/bento/neumorphism/flat/clay/skeuomorphism/dark) auto-detected from prompt; style-aware palette/CSS/tailwind/home/nav; JSON-safe self-heal; package.json pin-merge; JSON-LD @graph + OG meta + tinyshining-cs-vars gate scaffold |
-| 2026-09-12 | 5.1 | Marketplace delivery — sellable README, pro UI, international, zero-error bar |
-| 2026-09-04 | 5.0 | Speed optimized — 867→compact, merged duplicates, removed verbosity |
-| 2026-09-04 | 4.0 | Enterprise — a11y, i18n/RTL, PWA, state tree, performance budgets |
+| 2026-10-03 | 8.0 | Audit remediation: repo hygiene + `.gitignore`, P0 email-logger crash fix, CI gate un-masked, security / tenancy / AI-agent / frontend / ops workstreams |
+| 2026-09-24 | 7.13 | 10 vertical AI-agent SaaS products shipped — 69/69 full-stack packaged |
+| 2026-09-21 | 7.12 | Full-stack delivery completed — 59/59 packaged with honest manifests |
+| 2026-09-18 | 7.11 | Per-brand content pipeline + comparison table + full routes 43/43 |
+| 2026-09-17 | 7.10 | System-level anatomy verification + changelog honesty inventory |
+
+Older entries: see `CHANGELOG.md` or `git log`.

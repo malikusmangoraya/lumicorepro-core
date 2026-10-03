@@ -51,6 +51,8 @@ export default function TeamCulture() {
                 src={TEAM_IMGS[i]}
                 alt={m.name}
                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3">

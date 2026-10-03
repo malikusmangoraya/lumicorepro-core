@@ -237,24 +237,46 @@ class BespokeUIDesignEngine:
             agent_logger.warning("BespokeUIDesignEngine: no reasoning provider — skipping AI pass.")
             return {"active": False, "reason": "no_reasoning_provider"}
 
+        # Bespoke section code is the highest-value generation step in the build
+        # (Phase 5.5), so it routes to a reasoning-tier model. An explicit
+        # provider_name / REASONING_PROVIDER still wins.
+        from agent.ai_routing import prefer
+
+        provider, provider_name_used, tier = prefer("design", struct_ctx) or (provider, "explicit", "pinned")
+        agent_logger.info(
+            f"[ROUTER] bespoke design -> tier={tier} provider={provider_name_used} blocks={len(targets)}"
+        )
+
+        # Section generation is independent per block, so the *model calls* run
+        # concurrently while the file writes stay sequential and ordered. This is
+        # the real wall-clock win: N blocks cost ~1 model call, not N.
+        atomic = AtomicDesignEngine(project_dir)
+        wanted = [b for b in targets if not registry.has(b)]
+        jobs = [("design", "generate_code", (self._prompt_for(atomic, spec, struct_ctx, block),)) for block in wanted]
+
+        from agent.ai_routing import get_router
+
+        outputs = get_router().map_parallel(jobs) if jobs else []
+
         generated = []
-        for block in targets:
-            if not registry.has(block):
+        for block, (content, meta) in zip(wanted, outputs):
+            provider_tag = f"{meta.get('provider', provider_name_used)}/{meta.get('tier', tier)}"
+            if meta.get("error"):
+                agent_logger.warning(f"Bespoke UI generation failed for {block}: {meta['error']}")
+                continue
+            if content and len(str(content).strip()) > 50:
                 try:
-                    content = provider.generate_code(
-                        self._prompt_for(AtomicDesignEngine(project_dir), spec, struct_ctx, block)
-                    )
-                    if content and len(content.strip()) > 50:
-                        rel = self.atomic_reuse_or_create(project_dir, block, content, target_dir)
-                        if rel:
-                            generated.append({"block": block, "file": rel})
+                    rel = self.atomic_reuse_or_create(project_dir, block, content, target_dir)
+                    if rel:
+                        generated.append({"block": block, "file": rel, "via": provider_tag})
                 except Exception as exc:
-                    agent_logger.warning(f"Bespoke UI generation failed for {block}: {exc}")
+                    agent_logger.warning(f"Bespoke UI write failed for {block}: {exc}")
         return {
             "active": bool(generated),
             "generated_blocks": generated,
             "target_dir": os.path.relpath(target_dir, project_dir).replace(os.sep, "/"),
             "structure_context_chars": len(struct_ctx),
+            "routing": {"tier": tier, "provider": provider_name_used, "blocks": len(wanted)},
         }
 
     def _prompt_for(self, atomic: AtomicDesignEngine, spec, struct_ctx, block: str) -> str:

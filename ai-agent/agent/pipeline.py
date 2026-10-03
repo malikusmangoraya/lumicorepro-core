@@ -1,6 +1,6 @@
 """Event-Driven Streaming Pipeline
 ===================================
-Replaces sequential 15-phase execution with a DAG-aware parallel pipeline.
+Replaces sequential 18-phase execution with a DAG-aware parallel pipeline.
 
 Critical Path (fast TTFR): P1→P2→P3→P4→P5→P6→P7  (~8-15s)
 Background Workers:         P8,P9,P10,P11,P12,P13,P14 (run after P7, finish asynchronously)
@@ -55,6 +55,7 @@ class PhaseNode:
 CRITICAL_PATH = [
     "market_analysis",
     "requirement_analysis",
+    "design_planner",
     "tech_stack_selection",
     "trending_features_injection",
     "resource_assembly_planning",
@@ -63,6 +64,7 @@ CRITICAL_PATH = [
 ]
 
 BACKGROUND_PHASES = [
+    "browser_qa",
     "improvement_recommendations",
     "competitive_benchmark_delivery",
     "international_delivery",
@@ -75,7 +77,8 @@ BACKGROUND_PHASES = [
 
 # Background phases that share dependencies (can all run after quality_verification)
 BACKGROUND_DEPENDENCIES: Dict[str, List[str]] = {
-    "improvement_recommendations": ["quality_verification"],
+    "browser_qa": ["quality_verification"],
+    "improvement_recommendations": ["quality_verification", "browser_qa"],
     "competitive_benchmark_delivery": ["quality_verification"],
     "international_delivery": ["code_generation"],
     "localization_and_i18n": ["code_generation"],

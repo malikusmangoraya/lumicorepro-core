@@ -98,7 +98,8 @@
     "ai": "AI",
     "business": "ビジネス",
     "logout": "ログアウト",
-    "pricing": "料金"
+    "pricing": "料金",
+    "workspace": "ワークスペース"
   },
   "apiSettings": {
     "title": "API設定",

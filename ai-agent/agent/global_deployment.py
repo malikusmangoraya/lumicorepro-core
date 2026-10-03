@@ -583,8 +583,11 @@ spec:
             "MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname",
             "",
             "# ── Auth ─────────────────────────────────────────────",
-            "JWT_SECRET=change_this_to_64_char_random_string",
+            "# Generate with: node -e \"console.log(require('crypto').randomBytes(48).toString('hex'))\"",
+            "# Minimum 32 chars. The backend refuses to start if missing/weak/placeholder.",
+            "JWT_SECRET=",
             "JWT_EXPIRES_IN=7d",
+
             "",
         ]
         if has_payments:
@@ -639,7 +642,7 @@ spec:
             "# 4. Set environment variables",
             "railway variables set NODE_ENV=production",
             "railway variables set MONGODB_URI='your_uri'",
-            "railway variables set JWT_SECRET='your_secret'",
+            "railway variables set JWT_SECRET='<node -e \"console.log(require('crypto').randomBytes(48).toString('hex'))\">'",
         ]
         if has_payments:
             lines += [

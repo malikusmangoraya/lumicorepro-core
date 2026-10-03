@@ -155,6 +155,22 @@ export const dashboardAPI = {
   reports: (params = {}) => api.get('/dashboard/reports', { params }),
   charts: (type) => api.get(`/dashboard/charts/${type}`),
   recentActivity: (limit = 10) => api.get('/dashboard/activity', { params: { limit } }),
+  me: () => api.get('/dashboard/me'),
+  usage: () => api.get('/dashboard/usage'),
+  myCharts: (months = 6) => api.get('/dashboard/me/charts', { params: { months } }),
+};
+
+// Audit Log (admin)
+export const auditAPI = {
+  list: (params = {}) => api.get('/audit', { params }),
+  exportCSV: (params = {}) =>
+    api.get('/audit/export', { params, responseType: 'blob' }),
+};
+
+// Organization invites
+export const inviteAPI = {
+  resolve: (token) => api.get(`/orgs/invite/${token}`),
+  accept: (token, data = {}) => api.post(`/orgs/invite/${token}/accept`, data),
 };
 
 // AI - Enhanced with dynamic API key support
@@ -223,6 +239,21 @@ export const aiAgentAPI = {
   createPreview: (runId) => api.post('/ai/preview', { run_id: runId }),
   deployRun: (runId, platform = 'vercel') => api.post('/ai/deploy', { run_id: runId, platform }),
   connectDomain: (payload) => api.post('/ai/deploy/domain', payload),
+};
+
+// Enterprise extensions (marketing kit, browser QA, Stripe, visual editor, watchtower)
+export const extensionsAPI = {
+  marketingKit: (runId) => api.post('/ai/marketing-kit', { run_id: runId }),
+  browserQA: (runId) => api.post('/ai/browser-qa', { run_id: runId }),
+  checkoutStripe: (runId) => api.post('/ai/checkout-stripe', { run_id: runId }),
+  editElement: (payload) => api.post('/ai/edit-element', payload),
+  watchtower: () => api.get('/ai/watchtower'),
+  githubPagesDeploy: (runId) =>
+    api.post('/ai/deploy', { run_id: runId, platform: 'github-pages' }),
+  deliveryReport: (runId) => api.post('/ai/delivery-report', { run_id: runId }),
+  getWebhooks: () => api.get('/ai/notifications/webhooks'),
+  updateWebhooks: (urls) => api.put('/ai/notifications/webhooks', { urls }),
+  testWebhook: (url) => api.post('/ai/notifications/test', { url: url || null }),
 };
 
 // Payments

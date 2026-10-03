@@ -44,6 +44,8 @@ export default function PropertyDetails() {
             src={GALLERY[active]}
             alt={gallery[active]?.label || property.title}
             className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <Badge className="absolute top-3 left-3 bg-primary/90">{property.type}</Badge>
@@ -67,6 +69,8 @@ export default function PropertyDetails() {
               src={GALLERY[i]}
               alt={g.label}
               className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
             <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur px-2 py-0.5 rounded-full text-[11px] font-medium text-white">
               {g.label}
@@ -143,6 +147,8 @@ export default function PropertyDetails() {
                 src={img.realestate.agent}
                 alt={agent.name}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </Avatar>
             <h4 className="font-display font-bold text-center">{agent.name}</h4>

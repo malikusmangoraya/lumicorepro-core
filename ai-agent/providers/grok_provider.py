@@ -9,7 +9,7 @@ from .base_provider import BaseAIProvider
 class GrokProvider(BaseAIProvider):
     """Groq Cloud API Provider — OpenAI-compatible chat completions endpoint (gsk_ keys, 14+ models)."""
 
-    def __init__(self, api_key: str = None, model_name: str = "openai/gpt-oss-120b", timeout: int = 30):
+    def __init__(self, api_key: str = None, model_name: str = "llama-3.3-70b-versatile", timeout: int = 30):
         api_key = api_key or os.getenv("GROQ_API_KEY", os.getenv("GROK_API_KEY", ""))
         super().__init__(api_key, model_name, timeout)
         self.endpoint = "https://api.groq.com/openai/v1/chat/completions"

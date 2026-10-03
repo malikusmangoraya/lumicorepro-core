@@ -98,7 +98,8 @@
     "ai": "IA",
     "business": "Negocios",
     "logout": "Cerrar sesión",
-    "pricing": "Precios"
+    "pricing": "Precios",
+    "workspace": "Área de trabajo"
   },
   "apiSettings": {
     "title": "Configuración de API",

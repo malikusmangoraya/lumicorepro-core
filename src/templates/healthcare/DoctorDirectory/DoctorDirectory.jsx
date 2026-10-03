@@ -67,7 +67,7 @@ export default function DoctorDirectory() {
             className="overflow-hidden"
           >
             <div className="relative h-40">
-              <img src={DOC_IMGS[d.img]} alt={d.name} className="h-full w-full object-cover" />
+              <img src={DOC_IMGS[d.img]} alt={d.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <Badge className="absolute top-3 left-3 bg-rose-500/90">
                 <Stethoscope className="h-3 w-3 mr-1" />

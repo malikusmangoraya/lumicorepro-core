@@ -38,24 +38,23 @@ import {
   MonitorPlay,
   MessageSquare,
 } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  ButtonMotion,
-  Card,
-  Progress,
-  Modal,
-  IconButton,
-  Input,
-  Textarea,
-} from '@/components/ui';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import ButtonMotion from '@/components/ui/ButtonMotion';
+import Card from '@/components/ui/Card';
+import Progress from '@/components/ui/Progress';
+import Modal from '@/components/ui/Modal';
+import IconButton from '@/components/ui/IconButton';
+import Input from '@/components/forms/Input';
+import Textarea from '@/components/forms/Textarea';
 import { aiAgentAPI, previewAPI, resolvePreviewUrl } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
 import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
 import { trackEvent, AnalyticsEvents } from '@/utils/analytics';
+import { AI_AGENT_URL } from '@/config/aiAgent';
 
-/* ── 15 pipeline phases (mirrors ai-agent/orchestrator.py) ───────── */
+/* ── 16 pipeline phases (mirrors ai-agent/orchestrator.py) ──────── */
 const PHASES = [
   {
     id: 'market',
@@ -72,6 +71,14 @@ const PHASES = [
     color: 'text-violet-400',
     bg: 'bg-violet-500/15',
     desc: 'NLP prompt parsing → structured spec',
+  },
+  {
+    id: 'design',
+    label: 'International Design Research',
+    icon: Palette,
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/15',
+    desc: 'Global references, playbooks & design direction',
   },
   {
     id: 'tech',
@@ -178,6 +185,30 @@ const PHASES = [
     desc: 'Ready-to-push output for 4 clouds',
   },
 ];
+
+const PHASE_ALIASES = {
+  market: 'market analysis',
+  requirement: 'requirement analysis',
+  design: 'design brand',
+  tech: 'tech stack selection',
+  trending: 'trending features',
+  assembly: 'resource assembly',
+  codegen: 'code generation',
+  quality: 'quality verification',
+  improve: 'improvement',
+  benchmark: 'competitive benchmark',
+  intl: 'international delivery',
+  i18n: 'localization',
+  compliance: 'compliance',
+  seo: 'seo',
+  growth: 'performance',
+  deploy: 'deployment',
+};
+
+function resolvePhaseIndex(phaseName = '') {
+  const normalizedName = phaseName.toLowerCase().replace(/[_&-]+/g, ' ');
+  return PHASES.findIndex((phase) => normalizedName.includes(PHASE_ALIASES[phase.id]));
+}
 
 /* ── AI Providers with rich metadata ─────────────────────────────── */
 const PROVIDERS = [
@@ -321,6 +352,7 @@ export default function GeneratePage() {
   const [provider, setProvider] = useState('gemini');
   const [targetLang, setTargetLang] = useState(currentLang || 'en');
   const [targetRegion, setTargetRegion] = useState('GLOBAL');
+  const [animationIntensity, setAnimationIntensity] = useState('high');
   const [status, setStatus] = useState('idle');
   const [phases, setPhases] = useState(
     PHASES.map((p) => ({ ...p, state: 'pending', duration: null }))
@@ -525,6 +557,7 @@ export default function GeneratePage() {
         provider,
         language: targetLang,
         region: targetRegion !== 'GLOBAL' ? targetRegion : undefined,
+        animation_intensity: animationIntensity,
       };
       if (screenshot) payload.image = screenshot;
       trackEvent(AnalyticsEvents.GENERATE_CLICK, { provider, language: targetLang });
@@ -546,44 +579,55 @@ export default function GeneratePage() {
             try {
               const msg = JSON.parse(event.data);
               if (msg.type === 'phase_start') {
-                setActivePhaseIdx(msg.index);
-                setPhases((prev) =>
-                  prev.map((p, j) => (j === msg.index ? { ...p, state: 'running' } : p))
-                );
+                const phaseIndex = Number.isInteger(msg.index)
+                  ? msg.index
+                  : resolvePhaseIndex(msg.phase);
+                if (phaseIndex >= 0) {
+                  setActivePhaseIdx(phaseIndex);
+                  setPhases((prev) =>
+                    prev.map((p, j) => (j === phaseIndex ? { ...p, state: 'running' } : p))
+                  );
+                }
                 addLog(
-                  `▶ [Live] Phase ${msg.index + 1}: ${PHASES[msg.index]?.label || msg.phase}…`
+                  `▶ [Live] ${PHASES[phaseIndex]?.label || msg.phase}…`
                 );
               } else if (msg.type === 'phase_done') {
-                setPhases((prev) =>
-                  prev.map((p, j) =>
-                    j === msg.index
-                      ? { ...p, state: 'done', duration: `${(msg.duration ?? 0.4).toFixed(2)}s` }
-                      : p
-                  )
-                );
-                addLog(`✓ [Live] ${PHASES[msg.index]?.label || msg.phase} done`);
+                const phaseIndex = Number.isInteger(msg.index)
+                  ? msg.index
+                  : resolvePhaseIndex(msg.phase);
+                if (phaseIndex >= 0) {
+                  setPhases((prev) =>
+                    prev.map((p, j) =>
+                      j === phaseIndex
+                        ? { ...p, state: 'done', duration: `${(msg.duration ?? 0).toFixed(2)}s` }
+                        : p
+                    )
+                  );
+                }
+                addLog(`✓ [Live] ${PHASES[phaseIndex]?.label || msg.phase} done`);
               } else if (msg.type === 'complete' || msg.type === 'finished') {
                 setStatus('done');
                 trackEvent(AnalyticsEvents.GENERATE_SUCCESS, { engine: 'live_agent' });
                 setActivePhaseIdx(-1);
                 addLog('━━━ Live AI Generation Complete! ━━━');
                 const rep = msg.result || {};
+                const workflowAgents = rep.workflow_agents || null;
+                const qaRole = workflowAgents?.qa_deployment || {};
+                const releaseGate = qaRole.handoff?.release_gate || {};
+                const deploymentStatus = qaRole.handoff?.deployment_status || 'not_attempted';
                 setResult({
                   projectName: rep.project_name || 'generated-website',
-                  template: rep.selected_resources?.template || 'Dynamic Match',
-                  components: rep.selected_resources?.components?.length || 16,
-                  backend: rep.selected_resources?.backend || 'Express.js',
-                  database: 'PostgreSQL',
-                  qualityScore: rep.quality_gates?.overall_score || 96,
-                  launchReady: true,
-                  executionTime: '4.2',
-                  trendingFeatures: rep.trending_features_applied || [
-                    'AI Chat',
-                    'Smart Search',
-                    'RTL Support',
-                    'GDPR Ready',
-                  ],
-                  zipSize: '4.1 MB',
+                  template: rep.selected_resources?.template || 'Not reported',
+                  components: rep.selected_resources?.components?.length ?? 0,
+                  backend: rep.selected_resources?.backend || 'Not reported',
+                  database: rep.selected_resources?.database_schemas?.join(', ') || 'Not reported',
+                  qualityScore: rep.quality_gates?.overall_score ?? 0,
+                  launchReady: releaseGate.passed === true,
+                  deploymentStatus,
+                  workflowAgents,
+                  executionTime: (rep.execution_time_seconds ?? 0).toFixed(1),
+                  trendingFeatures: rep.selected_resources?.trending_features || [],
+                  zipSize: rep.zip_size || 'See package details',
                   instructions: [
                     'npm install',
                     'cp .env.example .env',
@@ -762,15 +806,18 @@ export default function GeneratePage() {
     setRevisionApplyResult(null);
     try {
       // Step 1: Submit revision request
-      const submitRes = await fetch(`http://localhost:8000/api/runs/${runId}/revise`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          changes,
-          client_name: revisionClientName || undefined,
-          client_email: revisionClientEmail || undefined,
-        }),
-      });
+      const submitRes = await fetch(
+        `${AI_AGENT_URL}/api/runs/${encodeURIComponent(runId)}/revise`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            changes,
+            client_name: revisionClientName || undefined,
+            client_email: revisionClientEmail || undefined,
+          }),
+        }
+      );
       if (!submitRes.ok) {
         const err = await submitRes.json().catch(() => ({ detail: 'Failed to submit revision' }));
         throw new Error(err.detail || 'Revision request failed');
@@ -780,11 +827,14 @@ export default function GeneratePage() {
 
       // Step 2: Auto-apply the revision
       addLog('Applying changes with AI...');
-      const applyRes = await fetch(`http://localhost:8000/api/runs/${runId}/revise/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ revision_id: submitData.revision_id }),
-      });
+      const applyRes = await fetch(
+        `${AI_AGENT_URL}/api/runs/${encodeURIComponent(runId)}/revise/apply`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ revision_id: submitData.revision_id }),
+        }
+      );
       if (!applyRes.ok) {
         const err = await applyRes.json().catch(() => ({ detail: 'Failed to apply revision' }));
         throw new Error(err.detail || 'Revision apply failed');
@@ -1102,6 +1152,26 @@ export default function GeneratePage() {
               ))}
             </select>
           </div>
+          <div>
+            <label
+              className="mb-1.5 block text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+              htmlFor="animation-intensity"
+            >
+              Premium Motion
+            </label>
+            <select
+              id="animation-intensity"
+              value={animationIntensity}
+              onChange={(e) => setAnimationIntensity(e.target.value)}
+              disabled={status === 'running'}
+              className="w-full rounded-xl border border-border bg-background/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
+            >
+              <option value="high">High — full scroll reveals + hover lift</option>
+              <option value="medium">Medium — subtle reveals</option>
+              <option value="low">Low — minimal</option>
+              <option value="none">None — reduced motion</option>
+            </select>
+          </div>
         </div>
 
         {/* Generate Button Row */}
@@ -1284,8 +1354,15 @@ export default function GeneratePage() {
           {/* Header Row */}
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <Badge variant="success" className="mb-2">
-                🚀 Website Ready to Deploy
+              <Badge
+                variant={result.deploymentStatus === 'deployed' ? 'success' : result.launchReady ? 'info' : 'danger'}
+                className="mb-2"
+              >
+                {result.deploymentStatus === 'deployed'
+                  ? 'Website Deployed'
+                  : result.launchReady
+                    ? 'QA Passed · Ready to Deploy'
+                    : 'QA Blocked · Review Required'}
               </Badge>
               <h2 className="font-display text-xl font-bold break-all">{result.projectName}</h2>
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
@@ -1325,7 +1402,7 @@ export default function GeneratePage() {
               { icon: Download, label: 'ZIP Package', value: result.zipSize },
               { icon: Globe, label: 'Compliance', value: targetRegion },
               { icon: Brain, label: 'Language', value: targetLang.toUpperCase() },
-              { icon: Shield, label: 'Quality Gates', value: 'Passed (6/6) ✓' },
+              { icon: Shield, label: 'Release Gate', value: result.launchReady ? 'Passed' : 'Blocked' },
             ].map((item, i) => {
               const Icon = item.icon;
               return (
@@ -1344,6 +1421,51 @@ export default function GeneratePage() {
               );
             })}
           </div>
+
+          {result.workflowAgents && (
+            <section aria-labelledby="workflow-team-heading">
+              <h3
+                id="workflow-team-heading"
+                className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Workflow Team
+              </h3>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {Object.entries(result.workflowAgents).map(([key, agent]) => {
+                  const roleStatus = agent.status || 'unknown';
+                  const variant = ['completed', 'deployed'].includes(roleStatus)
+                    ? 'success'
+                    : roleStatus === 'ready'
+                      ? 'info'
+                      : ['blocked', 'failed'].includes(roleStatus)
+                        ? 'danger'
+                        : 'warning';
+                  const handoff = agent.handoff || {};
+                  const detail = key === 'design_researcher'
+                    ? `${handoff.research_source || 'Research unavailable'} · ${(handoff.benchmark_peers || []).length} references`
+                    : key === 'planner'
+                      ? `${handoff.requirements_count || 0} requirements · ${handoff.assembly_steps || 0} plan steps`
+                      : key === 'qa_deployment'
+                        ? `Tests: ${handoff.tests?.status || 'not reported'} · Deploy: ${handoff.deployment_status || 'not attempted'}`
+                        : `Code changes: ${handoff.ai_calls ?? 0} AI passes`;
+                  return (
+                    <div
+                      key={key}
+                      className="flex min-w-0 items-start justify-between gap-3 border-b border-border/60 py-2"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{agent.name}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>
+                      </div>
+                      <Badge variant={variant} className="shrink-0 capitalize">
+                        {roleStatus}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* Trending Features */}
           <div>

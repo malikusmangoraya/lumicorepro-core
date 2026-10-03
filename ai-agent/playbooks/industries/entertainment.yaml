@@ -1,0 +1,66 @@
+# Entertainment playbook — LumicorePro Core
+industry: entertainment
+primary_goal: engagement
+secondary_goals: [ticket_sale, streaming, fan_community]
+business_model: events / media / gaming / streaming
+
+pages:
+  - home
+  - shows
+  - events
+  - event_detail
+  - media
+  - community
+  - tickets
+  - faq
+
+critical_components:
+  - event_card
+  - ticket_purchase
+  - media_player
+  - schedule
+  - artist_profile
+  - notifications
+  - fan_actions
+  - share
+
+conversion:
+  primary_cta: get_tickets
+  secondary_cta: set_reminder
+  trust:
+    - venue_reviews
+    - line_up
+    - previous_shows
+    - media_coverage
+
+mobile_priority:
+  ticket_purchase: high
+  schedule: high
+  notification: high
+
+visual:
+  density: high
+  imagery: dramatic_rich
+  typography: bold_expressive
+  motion: dynamic
+  3d: optional_stage
+  cta_style: bold_glow
+
+ux_patterns:
+  - event_reminder
+  - countdown
+  - seat_map
+  - fan_wall
+
+avoid:
+  - fake_tickets
+  - excessive_animation
+  - vague_cta
+  - auto_playing_media
+
+qa:
+  - ticket_flow
+  - event_detail_complete
+  - schedule_accurate
+  - media_playback
+  - mobile_ticket_purchase

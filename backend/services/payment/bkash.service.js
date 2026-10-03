@@ -114,7 +114,9 @@ class BkashService {
     }
 
     const data = await res.json();
-    return { success: data.paymentStatusCode === '0000', ...data, mock: false };
+    // Spread first: bKash echoes fields we also compute, and a later `...data`
+    // would silently overwrite the authoritative `success` flag.
+    return { ...data, success: data.paymentStatusCode === '0000', mock: false };
   }
 
   async refund({ paymentId, amount }) {
@@ -144,7 +146,7 @@ class BkashService {
     }
 
     const data = await res.json();
-    return { success: data.paymentStatusCode === '0000', ...data };
+    return { ...data, success: data.paymentStatusCode === '0000' };
   }
 
   async handleWebhook(event) {

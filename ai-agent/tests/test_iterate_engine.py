@@ -49,7 +49,31 @@ def _blanked_provider_keys():
         stack.enter_context(
             patch.dict(vars(providers_mod), {"PROVIDER_CONFIGS": _blanked(providers_mod.PROVIDER_CONFIGS)})
         )
+        # Blanking keys is not enough on its own: the chain also contains
+        # keyless local gateways (ninerouter/omniroute/openmuse), so a provider
+        # would still resolve and a real hosted call could be attempted. AI_OFFLINE
+        # is the explicit, product-level switch that guarantees no AI call, which
+        # is what these offline/determinism tests actually assert.
+        stack.enter_context(patch.dict(os.environ, {"AI_OFFLINE": "1"}))
         yield
+
+
+class _FencedProvider:
+    """Stands in for a real model that wraps its answer in a markdown fence.
+
+    Deliberately NOT a BaseAIProvider subclass so the router pins it as an
+    explicit hand-injected provider and no network call is ever attempted.
+    """
+
+    def __init__(self, reply=None):
+        self.reply = reply or (
+            "Sure! Here is the updated file:\n\n"
+            "```jsx\nexport default function Home() {\n  return null;\n}\n```\n\n"
+            "Let me know if you need anything else."
+        )
+
+    def modify_code(self, original, instruction):
+        return self.reply
 
 
 class TestIterateEngine(unittest.TestCase):
@@ -116,21 +140,67 @@ class TestIterateEngine(unittest.TestCase):
         dir_b = os.path.join(self._tmp, "acme-site-b")
         shutil.copytree(self.project_dir, dir_a)
         shutil.copytree(self.project_dir, dir_b)
-        with patch.dict(os.environ, EMPTY_ENV):
+        # The offline contract must hold for the whole test, not just for
+        # orchestrator construction: `.iterate()` resolves the provider lazily,
+        # so with the real environment restored it would pick a live provider
+        # out of the global pool and two identical runs would diverge.
+        with patch.dict(os.environ, EMPTY_ENV), _blanked_provider_keys():
             orch_a = self._orch()
             orch_b = self._orch()
-        first = orch_a.iterate(dir_a, "change the hero heading text and make it red")
-        second = orch_b.iterate(dir_b, "change the hero heading text and make it red")
+            first = orch_a.iterate(dir_a, "change the hero heading text and make it red")
+            second = orch_b.iterate(dir_b, "change the hero heading text and make it red")
+            with open(os.path.join(dir_a, "frontend", "src", "Home.jsx"), "r", encoding="utf-8") as f:
+                content_a = f.read()
+            with open(os.path.join(dir_b, "frontend", "src", "Home.jsx"), "r", encoding="utf-8") as f:
+                content_b = f.read()
         self.assertTrue(first["success"], first.get("reason"))
         self.assertTrue(second["success"], second.get("reason"))
-        with open(os.path.join(dir_a, "frontend", "src", "Home.jsx"), "r", encoding="utf-8") as f:
-            content_a = f.read()
-        with open(os.path.join(dir_b, "frontend", "src", "Home.jsx"), "r", encoding="utf-8") as f:
-            content_b = f.read()
         self.assertEqual(content_a, content_b)
         # Deterministic patch = no AI used
         self.assertFalse(first["ai_used"])
         self.assertFalse(second["ai_used"])
+        # Offline rules must never leak markdown fences into a source file.
+        self.assertNotIn("```", content_a)
+
+
+    def test_fenced_model_reply_never_corrupts_source(self):
+        """A real model that wraps its reply in ```jsx must not write the fence.
+
+        Regression: the AI branch of `_patch_file` used to persist the reply
+        verbatim, so a fenced answer left `Home.jsx` unable to compile.
+        `AI_OFFLINE` stays off here on purpose (that is the other test); the
+        injected stub is pinned by the router, so no network call is made.
+        """
+        with patch.dict(os.environ, EMPTY_ENV):
+            orch = self._orch()
+            orch.iteration_engine.provider = _FencedProvider()
+            result = orch.iterate(
+                project_dir=self.project_dir, instruction="rewrite the hero section"
+            )
+        self.assertTrue(result["success"], result.get("reason"))
+        home = os.path.join(self.project_dir, "frontend", "src", "Home.jsx")
+        with open(home, "r", encoding="utf-8") as f:
+            updated = f.read()
+        self.assertNotIn("```", updated)
+        self.assertNotIn("Here is the updated file", updated)
+        self.assertIn("export default function Home", updated)
+
+    def test_unparsable_fenced_reply_falls_back_offline(self):
+        """Fence markers that survive unwrapping must be refused, not persisted."""
+        with patch.dict(os.environ, EMPTY_ENV):
+            orch = self._orch()
+            orch.iteration_engine.provider = _FencedProvider(
+                reply="Here you go:\n```jsx\nunclosed fence and no home component\n"
+            )
+            result = orch.iterate(
+                project_dir=self.project_dir, instruction="change the hero heading text"
+            )
+        self.assertTrue(result["success"], result.get("reason"))
+        home = os.path.join(self.project_dir, "frontend", "src", "Home.jsx")
+        with open(home, "r", encoding="utf-8") as f:
+            updated = f.read()
+        self.assertNotIn("```", updated)
+        self.assertIn("export default function Home", updated)
 
 
 class TestSecurityPostureEngine(unittest.TestCase):

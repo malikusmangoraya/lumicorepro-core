@@ -7,6 +7,25 @@ const SITE_NAME = import.meta.env.VITE_APP_NAME || 'LumiCorePro';
 const TWITTER_HANDLE = import.meta.env.VITE_TWITTER_HANDLE || '@lumicorepro';
 const OG_IMAGE = import.meta.env.VITE_DEFAULT_OG_IMAGE || `${SITE_URL}/lumicorepro-brand-logo.png`;
 
+/* Brand fallback must match index.html + manifest until the theme loads. */
+const FALLBACK_THEME_COLOR = '#0D9488';
+
+/**
+ * Resolve the active theme-color to a concrete CSS color. `var()` references
+ * are invalid in theme-color, so read the computed custom property and fall
+ * back to the brand teal when stylesheets are unavailable (SSR/tests).
+ */
+export const resolveThemeColor = () => {
+  try {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue('--t-primary')
+      .trim();
+    return value || FALLBACK_THEME_COLOR;
+  } catch {
+    return FALLBACK_THEME_COLOR;
+  }
+};
+
 /* ── Language → OpenGraph locale mapping ───────────────────────────────── */
 export const seoLocales = {
   en: 'en_US',
@@ -379,7 +398,9 @@ const SEO = ({
     setMeta('name', 'description', description);
     setMeta('name', 'keywords', keywords);
     setMeta('name', 'robots', noIndex ? 'noindex,nofollow' : 'index,follow');
-    setMeta('name', 'theme-color', 'var(--t-primary)');
+    // theme-color must be a concrete color, not a var() reference (browsers
+    // ignore var() here). Resolve --t-primary against the live stylesheet.
+    setMeta('name', 'theme-color', resolveThemeColor());
     setMeta('name', 'viewport', 'width=device-width, initial-scale=1');
 
     /* ── 4. Open Graph ────────────────────────────────────────── */

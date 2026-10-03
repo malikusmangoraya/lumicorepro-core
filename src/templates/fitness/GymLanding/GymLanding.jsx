@@ -36,6 +36,9 @@ export default function GymLanding() {
           src={img.fitness.hero}
           alt="Gym"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center p-8">
@@ -68,6 +71,8 @@ export default function GymLanding() {
           src={img.fitness.gym1}
           alt="Gym interior"
           className="absolute right-0 top-0 h-full w-1/2 object-cover opacity-40"
+          loading="lazy"
+          decoding="async"
         />
       </div>
 
@@ -199,6 +204,8 @@ export default function GymLanding() {
                 src={TRAINER_IMGS[i % TRAINER_IMGS.length]}
                 alt={t.name}
                 className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover ring-2 ring-border"
+                loading="lazy"
+                decoding="async"
               />
               <h4 className="font-semibold text-sm">{t.name}</h4>
               <p className="text-xs text-primary mt-0.5">{t.specialty}</p>

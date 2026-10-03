@@ -25,6 +25,7 @@ import time
 from typing import Dict, Any, List, Optional, Tuple
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
+from agent import run_status as rs
 from agent.code_modifier import CodeModifier
 
 
@@ -145,7 +146,13 @@ class AgentIterationEngine:
                 "changes": [],
                 "failures": failures,
                 "reason": "No files could be safely patched. "
-                          "Check failures or provide an AI provider key for smarter edits."
+                          "Check failures or provide an AI provider key for smarter edits.",
+                **rs.status_block(
+                    status=rs.STATUS_FAILED,
+                    providers_used=[],
+                    fallback_used=True,
+                    reason="no_files_patched",
+                ),
             }
 
         # ── Partial phase re-run (only verification/publishing phases) ─────
@@ -205,6 +212,18 @@ class AgentIterationEngine:
             "zip_archive_path": zip_path,
             "ai_used": ai_used,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            # Status vocabulary: an offline (deterministic-rule) edit must not read
+            # like an AI-served one. Files that could not be patched are reported
+            # as skips rather than being dropped silently.
+            **rs.status_block(
+                status=rs.resolve_status(failed=not changes, skipped=bool(failures)),
+                providers_used=[self.provider.__class__.__name__] if ai_used and self.provider else [],
+                fallback_used=not ai_used,
+                reason=None if ai_used else rs.REASON_LOCAL_FALLBACK,
+                skipped_phases=[
+                    rs.skipped_phase("iteration_target", failure) for failure in failures
+                ],
+            ),
         }
 
     # ── Target discovery ───────────────────────────────────────────────────
@@ -276,7 +295,16 @@ class AgentIterationEngine:
                 f"Files:\n{names}\n"
                 "Reply with ONLY the filename (exactly as listed), nothing else."
             )
-            answer = (self.provider._call_api(prompt, system_instruction="You are a file-routing assistant.") or "").strip()
+            # Picking a filename from a short list is a classify job: fast tier.
+            from agent.ai_routing import offline, prefer
+
+            if offline():
+                return None
+            provider, pname, ptier = prefer("classify", prompt, explicit=self.provider)
+            if provider is None:
+                return None
+            agent_logger.info(f"[ROUTER] file-routing -> tier={ptier} provider={pname}")
+            answer = (provider._call_api(prompt, system_instruction="You are a file-routing assistant.") or "").strip()
             return answer.splitlines()[0] if answer else None
         except Exception:
             return None
@@ -290,9 +318,40 @@ class AgentIterationEngine:
 
         if self.provider:
             try:
-                new_content = self.provider.modify_code(original, instruction)
-                if new_content and len(new_content.strip()) > 10 and new_content != original:
+                from agent.ai_routing import offline
+
+                if offline():
+                    # AI_OFFLINE: never touch the network, even with a provider.
+                    return self._apply_offline_patch(original, instruction, file_path), False
+                # Patching an existing file is a repair: same reasoning tier the
+                # self-heal loop uses, so an update never lands on a weak model.
+                from agent.ai_routing import prefer
+
+                provider, pname, ptier = prefer(
+                    "edit", f"{original}\n{instruction}", explicit=self.provider
+                )
+                if provider is None:
+                    return self._apply_offline_patch(original, instruction, file_path), False
+                agent_logger.info(f"[ROUTER] iterate patch -> tier={ptier} provider={pname}")
+                new_content = provider.modify_code(original, instruction)
+                # Models often wrap the reply in a markdown fence and prefix a
+                # sentence. Writing that verbatim corrupts the source file, so
+                # unwrap first and refuse the reply if any fence survives.
+                from agent.code_modifier import has_code_fence, strip_diff_fence
+
+                if new_content:
+                    new_content = strip_diff_fence(new_content)
+                if (
+                    new_content
+                    and len(new_content.strip()) > 10
+                    and new_content != original
+                    and not has_code_fence(new_content)
+                ):
                     return new_content, True
+                if new_content and has_code_fence(new_content):
+                    agent_logger.warning(
+                        f"IterateEngine: discarding fenced/unparsable AI reply for {file_path}"
+                    )
             except Exception as e:
                 agent_logger.warning(f"IterateEngine: AI patch failed for {file_path}: {e}")
 
@@ -482,4 +541,9 @@ class AgentIterationEngine:
 
     @staticmethod
     def _rel(project_dir: str, path: str) -> str:
-        return os.path.relpath(path, project_dir).replace("\\", "/")
+        if not os.path.isabs(path):
+            return path.replace("\\", "/")
+        try:
+            return os.path.relpath(path, project_dir).replace("\\", "/")
+        except (ValueError, Exception):
+            return os.path.basename(path)

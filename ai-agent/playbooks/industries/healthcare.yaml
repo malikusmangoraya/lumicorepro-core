@@ -1,0 +1,69 @@
+# Healthcare playbook — LumicorePro Core
+industry: healthcare
+primary_goal: appointment_booking
+secondary_goals: [consultation, prescription_renew, information_request]
+business_model: clinic / hospital / telemedicine / pharmacy
+
+pages:
+  - home
+  - departments
+  - doctor_detail
+  - services
+  - appointments
+  - telemedicine
+  - pharmacy
+  - blog
+  - contact
+
+critical_components:
+  - doctor_card
+  - appointment_scheduler
+  - department_nav
+  - consultation_form
+  - telemedicine_room
+  - prescription
+  - insurance_logos
+  - emergency_contact
+
+conversion:
+  primary_cta: book_appointment
+  secondary_cta: ask_a_question
+  trust:
+    - medical_credential
+    - certifications
+    - patient_reviews
+    - insurance_partners
+    - accreditation
+
+mobile_priority:
+  appointment: high
+  doctor_search: high
+  telemedicine_join: high
+  emergency: high
+
+visual:
+  density: medium
+  imagery: calm_trusting
+  typography: clean_clinical
+  motion: gentle
+  3d: no
+  cta_style: clear_primary
+
+ux_patterns:
+  - doctor_filter_by_specialty
+  - appointment_time_slots
+  - symptom_guide
+  - followup_reminder
+
+avoid:
+  - medical_claim_guarantee
+  - fake_reviews
+  - confusing_emergency_info
+  - hidden_consultation_fees
+
+qa:
+  - appointment_booking_flow
+  - doctor_search_filter
+  - telemedicine_join
+  - insurance_display
+  - emergency_contact_visible

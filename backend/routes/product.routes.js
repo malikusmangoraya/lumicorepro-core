@@ -7,8 +7,58 @@ import User from '../models/User.js';
 import { protect, authorize } from '../middleware/auth.js';
 import cache from '../services/cache/cache.service.js';
 import logger from '../utils/logger.js';
+import { callerOrgId, tenantCacheKey, tenantWhere } from '../services/tenantScope.service.js';
 
 const router = express.Router();
+
+/**
+ * Mass-assignment guard.
+ * Never pass `req.body` straight into `Product.create/update` — that lets any
+ * vendor set privileged columns (rating, isActive, vendor_id, org_id...).
+ * Only these catalogue fields are writable by a vendor; anything else is dropped.
+ */
+const VENDOR_WRITABLE_FIELDS = [
+  'title',
+  'description',
+  'price',
+  'comparePrice',
+  'discountPercentage',
+  'sku',
+  'stock',
+  'category',
+  'tags',
+  'images',
+  'thumbnail',
+  'attributes',
+  'category_id',
+  'isFeatured',
+];
+
+/** Fields only an admin may set. */
+const ADMIN_ONLY_FIELDS = ['rating', 'reviewCount', 'isActive', 'vendor_id', 'org_id'];
+
+/**
+ * Build a safe Product payload from req.body.
+ * @param {object} body raw request body
+ * @param {string} role requester role
+ */
+export function pickProductFields(body, role) {
+  const source = body && typeof body === 'object' ? body : {};
+  const allowed = role === 'admin' ? [...VENDOR_WRITABLE_FIELDS, ...ADMIN_ONLY_FIELDS] : VENDOR_WRITABLE_FIELDS;
+  const payload = {};
+  const dropped = [];
+  for (const [key, value] of Object.entries(source)) {
+    if (allowed.includes(key)) {
+      payload[key] = value;
+    } else {
+      dropped.push(key);
+    }
+  }
+  if (dropped.length) {
+    logger.warn(`Blocked mass-assignment attempt on Product: ${dropped.join(', ')} (role=${role})`);
+  }
+  return payload;
+}
 
 /** Build a stable cache key for GET list requests (filters+page+sort). */
 function listKey(query) {
@@ -33,7 +83,8 @@ router.get('/', async (req, res, next) => {
 
     const { category, minPrice, maxPrice, rating, inStock, search, sort, isFeatured } = req.query;
 
-    const where = { isActive: true };
+    // Tenant boundary: every catalogue query is pinned to the caller's org.
+    const where = tenantWhere(req, { isActive: true });
 
     if (category && category !== 'all') {
       where.category = { [Op.iLike]: category };
@@ -71,7 +122,7 @@ router.get('/', async (req, res, next) => {
     else if (sort === 'popular') order = [['reviewCount', 'DESC']];
     else if (sort === 'oldest') order = [['createdAt', 'ASC']];
 
-    const key = listKey(req.query);
+    const key = `${tenantCacheKey(req)}|${listKey(req.query)}`;
     const cached = await cache.get('products', key);
     if (cached) return res.json({ success: true, ...cached, meta: { cached: true, ...(cached.meta || {}) } });
 
@@ -112,7 +163,8 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/categories', async (req, res, next) => {
   try {
-    const cached = await cache.get('products', 'categories');
+    const cacheKey = `categories:${tenantCacheKey(req)}`;
+    const cached = await cache.get('products', cacheKey);
     if (cached) return res.json({ success: true, data: cached, meta: { cached: true } });
 
     const { sequelize } = await import('../config/database.js');
@@ -121,14 +173,14 @@ router.get('/categories', async (req, res, next) => {
         'category',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
       ],
-      where: { isActive: true },
+      where: tenantWhere(req, { isActive: true }),
       group: ['category'],
       order: [[sequelize.literal('count'), 'DESC']],
       raw: true,
     });
 
     const data = categories.map((c) => ({ name: c.category, count: parseInt(c.count, 10) }));
-    await cache.set('products', 'categories', data, cache.TTL.PRODUCT_LIST);
+    await cache.set('products', cacheKey, data, cache.TTL.PRODUCT_LIST);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -146,7 +198,7 @@ router.get('/featured', async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 8;
     const products = await Product.findAll({
-      where: { isFeatured: true, isActive: true },
+      where: tenantWhere(req, { isFeatured: true, isActive: true }),
       include: [
         {
           model: User,
@@ -184,14 +236,14 @@ router.get('/search', async (req, res, next) => {
     }
 
     const products = await Product.findAll({
-      where: {
+      where: tenantWhere(req, {
         isActive: true,
         [Op.or]: [
           { title: { [Op.iLike]: `%${query}%` } },
           { description: { [Op.iLike]: `%${query}%` } },
           { category: { [Op.iLike]: `%${query}%` } },
         ],
-      },
+      }),
       limit: 20,
     });
 
@@ -217,8 +269,11 @@ router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
     const isNumericId = /^\d+$/.test(id);
 
+    // A product from another tenant is indistinguishable from a missing one (404).
     const product = await Product.findOne({
-      where: isNumericId ? { id } : { slug: id, isActive: true },
+      where: isNumericId
+        ? tenantWhere(req, { id })
+        : tenantWhere(req, { slug: id, isActive: true }),
       include: [
         {
           model: User,
@@ -234,7 +289,7 @@ router.get('/:id', async (req, res, next) => {
     }
 
     const reviews = await Review.findAll({
-      where: { product_id: product.id },
+      where: { product_id: product.id, org_id: product.org_id },
       include: [
         {
           model: User,
@@ -286,9 +341,13 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
+      const picked = pickProductFields(req.body, req.user.role);
+      // `org_id` is admin-writable, but a vendor can never pick the tenant:
+      // it always comes from the caller's active organization.
       const productData = {
-        ...req.body,
+        ...picked,
         vendor_id: req.user.id,
+        org_id: picked.org_id === undefined ? callerOrgId(req) : picked.org_id,
       };
 
       const product = await Product.create(productData);
@@ -316,7 +375,7 @@ router.post(
  */
 router.put('/:id', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({ where: tenantWhere(req, { id: req.params.id }) });
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
@@ -325,7 +384,12 @@ router.put('/:id', protect, authorize('admin', 'vendor'), async (req, res, next)
       return res.status(403).json({ success: false, error: 'Not authorized to update this product' });
     }
 
-    await product.update(req.body);
+    const updates = pickProductFields(req.body, req.user.role);
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, error: 'No updatable fields supplied' });
+    }
+
+    await product.update(updates);
     await cache.bust('products');
 
     res.json({
@@ -341,14 +405,18 @@ router.put('/:id', protect, authorize('admin', 'vendor'), async (req, res, next)
  * @swagger
  * /api/products/{id}:
  *   delete:
- *     summary: Delete product (Vendor/Admin only)
+ *     summary: Delete product (Vendor/Admin only, soft delete)
+ *     description: >
+ *       Soft-deletes the product (`deleted_at`) and keeps the row and its reviews
+ *       in the database. An admin may pass `?hard=true` to permanently destroy the
+ *       product together with its reviews — that is the only hard-delete path.
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
  */
 router.delete('/:id', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({ where: tenantWhere(req, { id: req.params.id }) });
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
@@ -357,15 +425,33 @@ router.delete('/:id', protect, authorize('admin', 'vendor'), async (req, res, ne
       return res.status(403).json({ success: false, error: 'Not authorized to delete this product' });
     }
 
-    await Review.destroy({ where: { product_id: req.params.id } });
+    const hardDelete = String(req.query.hard || '').toLowerCase() === 'true';
+    if (hardDelete) {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: 'Only an admin can permanently delete a product',
+        });
+      }
+      await Review.destroy({ where: { product_id: product.id } });
+      await product.destroy({ force: true });
+      await cache.bust('products');
+      logger.info(`Product permanently deleted: ${product.title} (${product.id}) by ${req.user.email}`);
+      return res.json({
+        success: true,
+        message: 'Product and associated reviews permanently deleted',
+      });
+    }
+
+    // Soft delete — reviews (and the product row) stay in the database.
     await product.destroy();
     await cache.bust('products');
 
-    logger.info(`Product deleted: ${product.title} (${req.params.id})`);
+    logger.info(`Product soft-deleted: ${product.title} (${product.id}) by ${req.user.email}`);
 
     res.json({
       success: true,
-      message: 'Product and associated reviews deleted successfully',
+      message: 'Product deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -395,7 +481,7 @@ router.post(
         return res.status(400).json({ success: false, errors: errors.array() });
       }
 
-      const product = await Product.findByPk(req.params.id);
+      const product = await Product.findOne({ where: tenantWhere(req, { id: req.params.id }) });
       if (!product) {
         return res.status(404).json({ success: false, error: 'Product not found' });
       }
@@ -414,6 +500,7 @@ router.post(
       const review = await Review.create({
         product_id: req.params.id,
         user_id: req.user.id,
+        org_id: product.org_id,
         userName: req.user.name,
         userAvatar: req.user.avatar || '',
         rating: req.body.rating,
@@ -441,8 +528,14 @@ router.post(
  */
 router.get('/:id/reviews', async (req, res, next) => {
   try {
+    // Reviews are only readable through a product the caller's tenant can see.
+    const product = await Product.findOne({ where: tenantWhere(req, { id: req.params.id }) });
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
     const reviews = await Review.findAll({
-      where: { product_id: req.params.id },
+      where: { product_id: product.id, org_id: product.org_id },
       include: [
         {
           model: User,

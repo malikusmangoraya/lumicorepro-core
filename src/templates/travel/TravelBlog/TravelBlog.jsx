@@ -36,7 +36,7 @@ export default function TravelBlog() {
         <Card animate="fade-up" className="overflow-hidden mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="relative h-56 lg:h-auto">
-              <img src={POST_IMGS[0]} alt={posts[0].title} className="h-full w-full object-cover" />
+              <img src={POST_IMGS[0]} alt={posts[0].title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
               <Badge className="absolute top-4 left-4 bg-rose-500/90">Featured</Badge>
             </div>
             <div className="p-6 lg:p-8 flex flex-col justify-center">
@@ -54,6 +54,8 @@ export default function TravelBlog() {
                     src={img.travel.plane}
                     alt={posts[0].author}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </Avatar>
                 <div>
@@ -103,6 +105,8 @@ export default function TravelBlog() {
                 src={POST_IMGS[i % POST_IMGS.length]}
                 alt={p.title}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <Badge variant="secondary" className="absolute top-3 left-3 text-[10px]">
                 {p.tag}

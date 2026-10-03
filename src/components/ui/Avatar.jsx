@@ -9,6 +9,14 @@ const sizes = {
   xl: 'h-20 w-20 text-2xl',
 };
 
+const sizePx = {
+  xs: 24,
+  sm: 32,
+  md: 40,
+  lg: 56,
+  xl: 80,
+};
+
 const statusColors = {
   online: 'bg-green-500',
   offline: 'bg-gray-400',
@@ -47,6 +55,13 @@ const Avatar = React.forwardRef(
       onError?.(e);
     };
 
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick(e);
+      }
+    };
+
     return (
       <div
         ref={ref}
@@ -61,8 +76,16 @@ const Avatar = React.forwardRef(
           <img
             src={src}
             alt={alt || name}
+            width={sizePx[size]}
+            height={sizePx[size]}
+            loading="lazy"
+            decoding="async"
             onError={handleError}
             onClick={onClick}
+            role={onClick ? 'button' : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            aria-label={alt || name || 'Avatar'}
+            onKeyDown={onClick ? handleKeyDown : undefined}
             className={cn(
               sizes[size],
               'rounded-full object-cover border-2 border-border transition-transform duration-200',
@@ -80,16 +103,7 @@ const Avatar = React.forwardRef(
             role={onClick ? 'button' : undefined}
             tabIndex={onClick ? 0 : undefined}
             aria-label={alt || name || 'Avatar'}
-            onKeyDown={
-              onClick
-                ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onClick(e);
-                    }
-                  }
-                : undefined
-            }
+            onKeyDown={onClick ? handleKeyDown : undefined}
           >
             {initials || '?'}
           </div>

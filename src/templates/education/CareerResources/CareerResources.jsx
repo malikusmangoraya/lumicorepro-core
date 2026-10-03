@@ -96,6 +96,8 @@ export default function CareerResources() {
                   src={i === 0 ? img.portfolio.avatar : img.education.student}
                   alt={s.name}
                   className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </Avatar>
               <div>

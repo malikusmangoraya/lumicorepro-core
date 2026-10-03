@@ -41,6 +41,9 @@ export default function CourseDetails() {
                 src={img.education.hero}
                 alt={course.title}
                 className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
@@ -73,6 +76,8 @@ export default function CourseDetails() {
                   src={img.education.student}
                   alt={instructor.name}
                   className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </Avatar>
               <div className="flex-1 min-w-0">
@@ -162,6 +167,8 @@ export default function CourseDetails() {
                 src={img.education.course1}
                 alt="Course preview"
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <div className="h-14 w-14 rounded-full bg-white/90 flex items-center justify-center hover-lift">

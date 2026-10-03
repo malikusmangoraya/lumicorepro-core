@@ -39,6 +39,8 @@ export default function RestaurantEvents() {
           src={img.restaurant.hero}
           alt="Event venue"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-0 flex items-end p-8">
@@ -134,21 +136,29 @@ export default function RestaurantEvents() {
                 src={img.restaurant.interior}
                 alt="Banquet hall"
                 className="h-24 w-full object-cover rounded-xl"
+                loading="lazy"
+                decoding="async"
               />
               <img
                 src={img.restaurant.dish3}
                 alt="Buffet setup"
                 className="h-24 w-full object-cover rounded-xl"
+                loading="lazy"
+                decoding="async"
               />
               <img
                 src={img.restaurant.dish5}
                 alt="Gourmet catering"
                 className="h-24 w-full object-cover rounded-xl"
+                loading="lazy"
+                decoding="async"
               />
               <img
                 src={img.restaurant.hero}
                 alt="Evening event"
                 className="h-24 w-full object-cover rounded-xl"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </Card>

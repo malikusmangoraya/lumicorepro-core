@@ -17,6 +17,7 @@ import passport from 'passport';
 import { recordAudit } from '../middleware/audit.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { registerSchema, loginSchema, changePasswordSchema, forgotPasswordSchema } from '../middleware/validations/index.js';
+import { parseDurationMs } from '../config/env.js';
 
 const router = express.Router();
 
@@ -26,41 +27,75 @@ const inMemoryUsers = new Map();
 // Register the store with auth middleware so protect() can use it as fallback
 registerInMemoryStore(inMemoryUsers);
 
-// Seed default users for immediate out-of-the-box local testing
-(async () => {
-  const hash = await bcrypt.hash('Password123!', 10);
-  const demoUsers = [
-    {
-      id: 1,
-      name: 'Demo User',
-      email: 'demo@lumicorepro.com',
-      password: hash,
-      role: 'user',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      isActive: true,
-      twoFactorEnabled: false,
-      preferences: { theme: 'dark', language: 'en' },
-    },
-    {
-      id: 2,
-      name: 'Admin User',
-      email: 'admin@lumicorepro.com',
-      password: hash,
-      role: 'admin',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-      isActive: true,
-      twoFactorEnabled: false,
-      preferences: { theme: 'dark', language: 'en' },
-    },
-  ];
-  for (const u of demoUsers) {
-    inMemoryUsers.set(u.email.toLowerCase(), {
-      ...u,
-      comparePassword: async function (cand) { return bcrypt.compare(cand, this.password); },
-      save: async function () { return this; },
-    });
+// ── Dev demo accounts — OFF by default ──────────────────────────────────────
+// SECURITY: these are fixed-credential accounts. They are created ONLY when all
+// three hold:
+//   1. SEED_DEMO_USERS=true
+//   2. NODE_ENV is not 'production'
+//   3. DEMO_USER_PASSWORD is set explicitly (no built-in fallback password)
+// With the flag off nothing is seeded, so the demo login path behaves as if it
+// does not exist. The plaintext password is never logged.
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const DEMO_SEEDING_ENABLED =
+  !IS_PRODUCTION &&
+  process.env.SEED_DEMO_USERS === 'true' &&
+  Boolean(process.env.DEMO_USER_PASSWORD);
+
+// Refresh-cookie lifetime mirrors the refresh-token TTL: 7 days per the
+// documented policy, overridable with JWT_REFRESH_EXPIRE ('7d', '12h', …).
+const DEFAULT_REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const REFRESH_COOKIE_MAX_AGE =
+  parseDurationMs(process.env.JWT_REFRESH_EXPIRE) || DEFAULT_REFRESH_MAX_AGE_MS;
+
+if (!DEMO_SEEDING_ENABLED) {
+  if (IS_PRODUCTION) {
+    logger.warn('Production mode: demo account seeding is disabled — no fixed-credential accounts created.');
+  } else {
+    logger.info(
+      'Demo accounts are disabled (SEED_DEMO_USERS is not "true"). Set SEED_DEMO_USERS=true and ' +
+        'DEMO_USER_PASSWORD=<local password> in a non-production env to enable the local demo logins.',
+    );
   }
-})();
+} else {
+  (async () => {
+    const hash = await bcrypt.hash(process.env.DEMO_USER_PASSWORD, 12);
+    const demoUsers = [
+      {
+        id: 1,
+        name: 'Demo User',
+        email: 'demo@lumicorepro.com',
+        password: hash,
+        role: 'user',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        isActive: true,
+        twoFactorEnabled: false,
+        preferences: { theme: 'dark', language: 'en' },
+      },
+      {
+        id: 2,
+        name: 'Admin User',
+        email: 'admin@lumicorepro.com',
+        password: hash,
+        role: 'admin',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+        isActive: true,
+        twoFactorEnabled: false,
+        preferences: { theme: 'dark', language: 'en' },
+      },
+    ];
+    for (const u of demoUsers) {
+      inMemoryUsers.set(u.email.toLowerCase(), {
+        ...u,
+        comparePassword: async function (cand) { return bcrypt.compare(cand, this.password); },
+        save: async function () { return this; },
+      });
+    }
+    logger.warn(
+      `Seeded ${demoUsers.length} dev-only demo accounts (${demoUsers.map((u) => u.email).join(', ')}) ` +
+        'because SEED_DEMO_USERS=true. They authenticate with DEMO_USER_PASSWORD and must never exist in production.',
+    );
+  })().catch((err) => logger.error(`Demo user seed failed: ${err.message}`));
+}
 
 async function findUserByEmail(email) {
   const normEmail = email.toLowerCase().trim();
@@ -156,7 +191,7 @@ router.post(
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
+        maxAge: REFRESH_COOKIE_MAX_AGE,
         path: '/api/auth',
       });
       logger.info(`New user registered: ${user.email} (${user.id})`);
@@ -254,7 +289,7 @@ router.post(
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
+        maxAge: REFRESH_COOKIE_MAX_AGE,
         path: '/api/auth',
       });
       logger.info(`User logged in: ${user.email}`);
@@ -406,7 +441,7 @@ router.post('/refresh', authLimiter, async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_COOKIE_MAX_AGE,
       path: '/api/auth',
     });
 
@@ -466,6 +501,7 @@ router.post('/2fa/setup', protect, async (req, res, next) => {
 router.post(
   '/2fa/confirm',
   protect,
+  authLimiter,
   [body('otp').isLength({ min: 6, max: 6 }).withMessage('6-digit OTP is required')],
   async (req, res, next) => {
     try {
@@ -515,6 +551,7 @@ router.post('/2fa/send-otp', protect, async (req, res, next) => {
 
 router.post(
   '/2fa/login-verify',
+  authLimiter,
   [
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('otp').isLength({ min: 6, max: 6 }).withMessage('6-digit OTP is required'),
@@ -613,6 +650,7 @@ router.post('/2fa/authenticator/setup', protect, async (req, res, next) => {
 router.post(
   '/2fa/authenticator/confirm',
   protect,
+  authLimiter,
   [body('code').isLength({ min: 6, max: 6 }).withMessage('6-digit code is required')],
   async (req, res, next) => {
     try {
@@ -652,6 +690,7 @@ router.post(
  */
 router.post(
   '/2fa/authenticator/verify',
+  authLimiter,
   [
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('code').isLength({ min: 6, max: 6 }).withMessage('6-digit code is required'),

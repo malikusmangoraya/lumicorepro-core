@@ -83,30 +83,35 @@ export async function queuedAI(fn, { queueKind = 'generation', maxRetries = 3, t
   clearTimeout(waitTimer);
 
   let lastError;
-  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    const started = Date.now();
-    try {
-      const result = await Promise.race([
-        fn(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('AI request timeout')), timeoutMs)),
-      ]);
-      logger.info(`AI ${queueKind} call succeeded (attempt ${attempt + 1}) in ${Date.now() - started}ms`);
-      return result;
-    } catch (err) {
-      lastError = err;
-      const status = err?.status || err?.statusCode || err?.response?.status || 500;
-      const retryAfter = err?.response?.headers?.get?.('retry-after') || err?.retryAfter;
-      const shouldRetry = typeof retriable === 'function' ? retriable(err) : (status === 429 || status >= 500);
-      if (!shouldRetry || attempt === maxRetries - 1) break;
+  try {
+    for (let attempt = 0; attempt < maxRetries; attempt += 1) {
+      const started = Date.now();
+      try {
+        const result = await Promise.race([
+          fn(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('AI request timeout')), timeoutMs)),
+        ]);
+        logger.info(`AI ${queueKind} call succeeded (attempt ${attempt + 1}) in ${Date.now() - started}ms`);
+        return result;
+      } catch (err) {
+        lastError = err;
+        const status = err?.status || err?.statusCode || err?.response?.status || 500;
+        const retryAfter = err?.response?.headers?.get?.('retry-after') || err?.retryAfter;
+        const shouldRetry = typeof retriable === 'function' ? retriable(err) : (status === 429 || status >= 500);
+        if (!shouldRetry || attempt === maxRetries - 1) break;
 
-      const delay = computeBackoff(status, retryAfter, attempt);
-      logger.warn(`AI ${queueKind} attempt ${attempt + 1}/${maxRetries} failed (${status}) — backing off ${delay}ms`);
-      await new Promise((r) => setTimeout(r, delay));
+        const delay = computeBackoff(status, retryAfter, attempt);
+        logger.warn(`AI ${queueKind} attempt ${attempt + 1}/${maxRetries} failed (${status}) — backing off ${delay}ms`);
+        await new Promise((r) => setTimeout(r, delay));
+      }
     }
-  }
 
-  release(queue);
-  throw lastError || new Error('AI request failed');
+    throw lastError || new Error('AI request failed');
+  } finally {
+    // Successful calls return inside the loop, so capacity must be released in
+    // finally rather than only on the failure path.
+    release(queue);
+  }
 }
 
 /**

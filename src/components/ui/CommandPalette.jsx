@@ -89,6 +89,19 @@ export function CommandPalette({
     }
   };
 
+  const handleOptionKeyDown = (e, item, idx) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleSelect(item);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((idx + 1) % (filtered.length || 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((idx - 1 + filtered.length) % (filtered.length || 1));
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -124,7 +137,7 @@ export function CommandPalette({
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type a command or search pages..."
-                className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none"
+                className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <div className="flex items-center gap-1.5 ml-2">
                 <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
@@ -147,64 +160,70 @@ export function CommandPalette({
                   No matching commands found.
                 </div>
               ) : (
-                filtered.map((item, idx) => {
-                  const Icon = item.icon || Layers;
-                  const isSelected = idx === selectedIndex;
-                  return (
-                    <div
-                      key={item.id || item.title}
-                      onClick={() => handleSelect(item)}
-                      onMouseEnter={() => setSelectedIndex(idx)}
-                      className={cn(
-                        'flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors select-none',
-                        isSelected ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-accent/50'
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            'flex h-8 w-8 items-center justify-center rounded-lg',
-                            isSelected ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
-                          )}
-                        >
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium leading-none">{item.title}</span>
-                          <span
-                            className={cn(
-                              'text-xs mt-1',
-                              isSelected ? 'text-primary-foreground/75' : 'text-muted-foreground'
-                            )}
-                          >
-                            {item.category}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {item.badge && (
-                          <span
-                            className={cn(
-                              'rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                              isSelected
-                                ? 'bg-primary-foreground/20 text-primary-foreground'
-                                : 'bg-primary/10 text-primary'
-                            )}
-                          >
-                            {item.badge}
-                          </span>
+                <div role="listbox" aria-label="Commands">
+                  {filtered.map((item, idx) => {
+                    const Icon = item.icon || Layers;
+                    const isSelected = idx === selectedIndex;
+                    return (
+                      <div
+                        key={item.id || item.title}
+                        role="option"
+                        aria-selected={isSelected}
+                        tabIndex={0}
+                        onClick={() => handleSelect(item)}
+                        onKeyDown={(e) => handleOptionKeyDown(e, item, idx)}
+                        onMouseEnter={() => setSelectedIndex(idx)}
+                        className={cn(
+                          'flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors select-none focus:outline-none focus:ring-2 focus:ring-primary/50',
+                          isSelected ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-accent/50'
                         )}
-                        <ArrowRight
-                          className={cn(
-                            'h-4 w-4 transition-transform',
-                            isSelected ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1'
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={cn(
+                              'flex h-8 w-8 items-center justify-center rounded-lg',
+                              isSelected ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium leading-none">{item.title}</span>
+                            <span
+                              className={cn(
+                                'text-xs mt-1',
+                                isSelected ? 'text-primary-foreground/75' : 'text-muted-foreground'
+                              )}
+                            >
+                              {item.category}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {item.badge && (
+                            <span
+                              className={cn(
+                                'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                                isSelected
+                                  ? 'bg-primary-foreground/20 text-primary-foreground'
+                                  : 'bg-primary/10 text-primary'
+                              )}
+                            >
+                              {item.badge}
+                            </span>
                           )}
-                        />
+                          <ArrowRight
+                            className={cn(
+                              'h-4 w-4 transition-transform',
+                              isSelected ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1'
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               )}
             </div>
 

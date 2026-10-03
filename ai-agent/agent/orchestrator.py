@@ -2,11 +2,11 @@ import os
 import sys
 import json
 import time
+import hashlib
 import traceback
 import copy
-import random
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List, Sequence, Callable
 
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
@@ -15,6 +15,7 @@ from config.settings import GENERATED_PROJECTS_DIR
 from providers.base_provider import BaseAIProvider
 from providers.provider_pool import get_pool
 
+from . import run_status as rs
 from .memory_retriever import MemoryRetriever
 from .requirement_analyzer import RequirementAnalyzer
 from .market_analyzer import MarketAnalyzer
@@ -30,6 +31,24 @@ from .project_builder import ProjectBuilder
 from .code_modifier import CodeModifier
 from .validator import ProjectValidator
 from .quality_gates import QualityGates
+from .intelligence.design_planner import (
+    create_design_plan,
+    validate_design_plan,
+    write_design_plan_artifacts,
+)
+from .intelligence.screenshot_to_code import (
+    screenshot_to_design_spec,
+    screenshot_to_design_spec_multi,
+    design_spec_to_prompt,
+    to_plan_inputs,
+)
+from .intelligence.browser_integration import (
+    deep_browser_audit,
+    responsive_check,
+    network_audit,
+    performance_audit,
+    remediate_findings,
+)
 from .improvement_recommender import ImprovementRecommender
 from .competitive_benchmark import CompetitiveBenchmark
 from .currency_localizer import CurrencyLocalizer
@@ -51,18 +70,31 @@ from .design_style import DesignStyleEngine
 from .theme_matrix import ThemeMatrixEngine
 from .quality_gate import DevOpsQualityGate, GateNotAvailableError
 from .project_mode_engine import ProjectModeEngine
+from .international_website_engine import InternationalWebsiteEngine
+from .modern_3d_engine import Modern3DWebsiteEngine
+from .omni_repair_engine import OmniRepairEngine
+from .turbo_acceleration_engine import TurboAcceleratorEngine
+from .update_engine import UpdateUpgradeEngine
+from .motion_website_engine import MotionWebsiteEngine
+from .hyper_unique_site_engine import HyperUniqueSiteEngine
+from .fullstack_ultra_engine import FullStackUltraEngine
+from .benchmark_3d_factory import Benchmark3DFactory
 
+
+from config.master_prompt import get_master_prompt, MASTER_20_DESIGN_STYLES
 
 class OrchestratorError(Exception):
     """Raised when pipeline execution encounters unrecoverable errors."""
     pass
 
 
-# Shopping-friendly style packs. When the user does not pick a design style,
-# the orchestrator rotates through these so every generation looks distinct.
+# 20 Master Prompt design styles + dynamic rotation pool.
 _STYLE_POOL = [
-    "animaster", "skipper", "vengeance", "glassmorphism", "bento_grid",
-    "minimalism", "flat_design", "neumorphism", "claymorphism", "organic", "editorial", "swiss",
+    "minimalism", "maximalism", "glassmorphism", "cyberpunk", "swiss",
+    "retro_futurism", "editorial", "retro", "collage", "vector",
+    "futuristic", "handwritten", "bohemian", "graffiti", "aurora",
+    "victorian", "pixel_art", "claymorphism", "pop_art", "surreal",
+    "bento_grid", "animaster", "skipper", "vengeance", "organic"
 ]
 
 
@@ -79,17 +111,27 @@ class PhaseError(Exception):
 
 
 class AgentOrchestrator:
-    """Master controller — 15-phase state-of-the-art enterprise AI project generation pipeline."""
+    """Master controller — 18-phase state-of-the-art enterprise AI project generation pipeline.
+
+    Provider decisions are made by `agent.ai_routing` (the single routed entry
+    point): tier classification, explicit pin, offline mode, dedupe cache,
+    circuit breaker and EWMA latency all live there. Every run report carries the
+    `run_status` vocabulary (`status`, `providers_used`, `fallback_used`,
+    `reason`, `skipped_phases`) so a deterministic local build is never reported
+    as if a model produced it.
+    """
 
     PHASES = [
         "market_analysis",
         "requirement_analysis",
         "design_brand_planning",
+        "design_planner",
         "tech_stack_selection",
         "trending_features_injection",
         "resource_assembly_planning",
         "code_generation",
         "quality_verification",
+        "browser_qa",
         "improvement_recommendations",
         "competitive_benchmark_delivery",
         "international_delivery",
@@ -118,14 +160,17 @@ class AgentOrchestrator:
 
     # Phase dependency graph
     PHASE_DEPENDENCIES = {
+        "market_analysis": [],
         "requirement_analysis": [],
         "design_brand_planning": ["requirement_analysis", "market_analysis"],
+        "design_planner": ["requirement_analysis", "design_brand_planning"],
         "tech_stack_selection": ["requirement_analysis"],
         "trending_features_injection": ["requirement_analysis", "market_analysis"],
         "resource_assembly_planning": ["requirement_analysis", "tech_stack_selection"],
-        "code_generation": ["resource_assembly_planning"],
+        "code_generation": ["resource_assembly_planning", "design_planner"],
         "quality_verification": ["code_generation"],
-        "improvement_recommendations": ["quality_verification"],
+        "browser_qa": ["quality_verification"],
+        "improvement_recommendations": ["quality_verification", "browser_qa"],
         "competitive_benchmark_delivery": ["quality_verification", "market_analysis"],
         "international_delivery": ["code_generation"],
         "localization_and_i18n": ["code_generation"],
@@ -137,6 +182,15 @@ class AgentOrchestrator:
 
     def __init__(self, provider_name: Optional[str] = None):
         self.provider_pool = get_pool()
+        # ── Run-scoped provenance ────────────────────────────────────────────
+        # Evidence that a *live model* actually served this run. Everything the
+        # pipeline produces without one is a deterministic local build, and the
+        # report says so instead of implying a provider answered.
+        self.ai_provider_name: str = ""
+        self.providers_used: List[str] = []
+        self.ai_model_calls_succeeded: int = 0
+        self.ai_model_calls_failed: int = 0
+        self.skipped_phases: List[Dict[str, str]] = []
         self.ai_provider = self._init_provider(provider_name)
         self.memory_retriever = MemoryRetriever()
         self.phase_timings: Dict[str, float] = {}
@@ -192,52 +246,207 @@ class AgentOrchestrator:
         self.design_engine = DesignStyleEngine()
         self.theme_engine = ThemeMatrixEngine()
         self.mode_engine = ProjectModeEngine()
+        # Next-gen engines: International inspection, 3D experience, omni-repair & turbo
+        self.international_engine = InternationalWebsiteEngine()
+        self.modern_3d_engine = Modern3DWebsiteEngine()
+        self.omni_repair_engine = OmniRepairEngine()
+        self.turbo_engine = TurboAcceleratorEngine()
+        self.update_engine = UpdateUpgradeEngine()
+        self.motion_engine = MotionWebsiteEngine()
+        self.hyper_unique_engine = HyperUniqueSiteEngine()
+        self.fullstack_engine = FullStackUltraEngine()
+        self.benchmark_3d_factory = Benchmark3DFactory()
         try:
             self.devops_gate = DevOpsQualityGate()
         except GateNotAvailableError as exc:
             agent_logger.error(f"DevOps quality gate unavailable: {exc}")
             self.devops_gate = None
 
-    def _init_provider(self, provider_name: Optional[str] = None):
-        """Instantiate AI provider via the rotating provider pool (fallback chain + cycle-back)."""
-        primary_name = (provider_name or os.getenv("ACTIVE_AI_PROVIDER", "gemini")).lower()
+    def inspect_and_replicate_website(self, target: str, brand_override: Optional[str] = None) -> Dict[str, Any]:
+        """Inspect an international website or reference profile and replicate its structure."""
+        return self.international_engine.replicate_website_spec(target, brand_override)
 
-        # Position pool at primary provider first
-        pool = self.provider_pool
+    def inject_3d_experience(
+        self,
+        project_dir: str,
+        archetype: str = "floating_crystal",
+        brand_name: str = "Lumicore",
+        primary_color: str = "#3b82f6",
+    ) -> Dict[str, Any]:
+        """Inject modern 3D Three.js experience into project."""
+        return self.modern_3d_engine.inject_3d_experience(
+            project_dir=project_dir,
+            archetype=archetype,
+            brand_name=brand_name,
+            primary_color=primary_color,
+        )
+
+    def run_omni_repair(self, project_dir: str) -> Dict[str, Any]:
+        """Run deep self-healing omni-repair across the project."""
+        return self.omni_repair_engine.scan_and_repair_project(project_dir)
+
+    def run_turbo_synthesis(
+        self,
+        pages: List[str],
+        synthesis_fn: Callable[[str], Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Synthesize pages concurrently with turbo acceleration."""
+        return self.turbo_engine.synthesize_pages_parallel(pages, synthesis_fn)
+
+    def run_system_update(self) -> Dict[str, Any]:
+        """Run automated system audit, database verification, and config maintenance."""
+        return self.update_engine.run_full_system_update()
+
+    def inject_advanced_motion(
+        self,
+        project_dir: str,
+        preset: str = "kinetic_text",
+        brand: str = "Lumicore",
+        primary_color: str = "#3b82f6",
+    ) -> Dict[str, Any]:
+        """Inject advanced Framer Motion / GSAP animations into project."""
+        return self.motion_engine.inject_motion_layer(
+            project_dir=project_dir,
+            preset=preset,
+            brand=brand,
+            primary_color=primary_color,
+        )
+
+    def generate_hyper_unique_blueprint(self, prompt: str, brand_name: Optional[str] = None) -> Dict[str, Any]:
+        """Generate guaranteed unique palette, SVG logo, typography, and architecture."""
+        return self.hyper_unique_engine.synthesize_hyper_unique_blueprint(prompt, brand_name)
+
+    def generate_fullstack_project(
+        self,
+        destination_dir: str,
+        prompt: str = "Enterprise AI Cloud Platform",
+        brand_name: Optional[str] = None,
+        industry: str = "saas",
+        primary_color: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Generate clean, complete full-stack web application with React 19 frontend and Express backend."""
+        return self.fullstack_engine.generate_project(
+            destination_dir=destination_dir,
+            prompt=prompt,
+            brand_name=brand_name,
+            industry=industry,
+            primary_color=primary_color,
+        )
+
+    def synthesize_benchmark_3d_site(
+        self,
+        destination_dir: str,
+        prompt: str = "3d luxury realestate website with architectural villa",
+        brand_name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Synthesize complete full 3D website benchmarking international category leaders."""
+        return self.benchmark_3d_factory.generate_full_3d_website(
+            destination_dir=destination_dir,
+            prompt=prompt,
+            brand_name=brand_name,
+        )
+
+    def _provider_name(self) -> str:
+        """Name of the provider currently serving this run ("" when none)."""
+        if self.ai_provider is None:
+            return ""
+        if self.ai_provider_name:
+            return self.ai_provider_name
         try:
-            if primary_name in pool.available:
-                idx = pool._order.index(primary_name)
-                if pool._current_index != idx and primary_name in pool._providers:
-                    pass  # pool handles ordering internally
+            name = self.provider_pool.get_provider_name(self.ai_provider)
         except Exception:
-            pass
+            name = None
+        return name or type(self.ai_provider).__name__
 
-        provider_inst = pool.get_active()
-        if provider_inst:
-            agent_logger.info(f"[ORCH] Active AI Provider via pool: '{pool.get_current_name()}'")
-            return provider_inst
+    def _record_model_evidence(self, source: str, provider_name: str = "") -> None:
+        """Record a confirmed live model response for this run."""
+        self.ai_model_calls_succeeded += 1
+        name = provider_name or self._provider_name()
+        if name and name not in self.providers_used:
+            self.providers_used.append(name)
+        agent_logger.info(f"[EVIDENCE] live model response ({source}) from '{name or 'unknown'}'")
 
-        agent_logger.info("No external AI provider API keys configured. Operating in local-first offline mode.")
+    def _record_model_failure(self, source: str) -> None:
+        """Record a model call that was attempted and failed."""
+        self.ai_model_calls_failed += 1
+        agent_logger.info(f"[EVIDENCE] model call failed ({source})")
+
+    def _mark_skipped(self, phase: str, reason: str) -> None:
+        """Record a phase that was skipped (never silently) with its reason."""
+        entry = rs.skipped_phase(phase, reason)
+        if entry not in self.skipped_phases:
+            self.skipped_phases.append(entry)
+            agent_logger.warning(f"[PHASE SKIPPED] {phase} — {reason}")
+
+    def _init_provider(self, provider_name: Optional[str] = None):
+        """Resolve the run's AI provider through the task router.
+
+        `agent.ai_routing.prefer` is the single routed entry point: it owns the
+        explicit pin (`provider_name` / AI_PROVIDER / REASONING_PROVIDER), the
+        AI_OFFLINE switch, tier classification, cooldowns and the latency-aware
+        ranking. The orchestrator no longer calls `pool.get_active()` directly,
+        so there is exactly one place that decides which provider serves a call.
+        """
+        from agent import ai_routing
+
+        self.ai_provider_name = ""
+        if ai_routing.offline():
+            # AI_OFFLINE=1 is a product-level switch, not a router preference: it
+            # must win over the pool too, otherwise the keyless local gateways
+            # (ninerouter/omniroute/openmuse) still resolve and local-first runs
+            # quietly reach the network. This is also what makes the offline and
+            # determinism tests hermetic.
+            agent_logger.info("[ORCH] AI_OFFLINE=1: local-first mode, no provider resolved.")
+            return None
+
+        inst, name, tier = ai_routing.prefer("codegen", "", pin=provider_name)
+        if inst is not None:
+            self.ai_provider_name = name
+            agent_logger.info(
+                f"[ORCH] Routed AI provider: '{name}' (tier={tier}, pin={provider_name or 'none'})"
+            )
+            return inst
+
+        if provider_name:
+            agent_logger.warning(
+                f"[ORCH] Requested provider '{provider_name}' is not usable — "
+                "continuing with deterministic local engines."
+            )
+        else:
+            agent_logger.info(
+                "No external AI provider is configured/usable. Operating in local-first offline mode."
+            )
         return None
 
     def _rotate_provider(self):
-        """Rotate to the next available provider and propagate to all sub-engines."""
-        pool = self.provider_pool
-        old_name = pool.get_current_name()
-        provider_inst = pool.get_active()
-        if provider_inst and provider_inst is not self.ai_provider:
-            new_name = pool.get_provider_name(provider_inst)
-            agent_logger.info(f"[ORCH] Rotating provider: '{old_name}' -> '{new_name}'")
-            self.ai_provider = provider_inst
-            self.analyzer.ai_provider = provider_inst
-            self.code_modifier.ai_provider = provider_inst
-            try:
-                self.iterate_engine.provider = provider_inst
-                self.iterate_engine.code_modifier = CodeModifier(provider_inst)
-            except Exception:
-                pass
-            return True
-        return False
+        """Move to the next routed provider and propagate it to all sub-engines.
+
+        Rotation goes through `agent.ai_routing.rotate` so it obeys the same
+        tier/cooldown/circuit-breaker decision as primary selection and can never
+        land back on the provider that just failed.
+        """
+        from agent import ai_routing
+
+        if ai_routing.offline():
+            return False
+        current = self._provider_name()
+        inst, name, tier = ai_routing.rotate("repair", current)
+        if inst is None or inst is self.ai_provider:
+            agent_logger.info(
+                f"[ORCH] No alternative provider for retry (current='{current or 'none'}')."
+            )
+            return False
+        agent_logger.info(f"[ORCH] Rotating provider: '{current}' -> '{name}' (tier={tier})")
+        self.ai_provider = inst
+        self.ai_provider_name = name
+        self.analyzer.ai_provider = inst
+        self.code_modifier.ai_provider = inst
+        try:
+            self.iterate_engine.provider = inst
+            self.iterate_engine.code_modifier = CodeModifier(inst)
+        except Exception:
+            pass
+        return True
 
     def _run_phase(self, phase_name: str, func, *args, **kwargs) -> Any:
         """Execute a single phase with error isolation, retry logic, recovery fallback, timing, and callbacks."""
@@ -264,7 +473,10 @@ class AgentOrchestrator:
 
         phase_start = time.time()
         try:
-            result = func(*args, **kwargs)
+            if phase_name.startswith("Phase") and self.PHASE_TIMEOUT_SECS > 0:
+                result = self._run_with_hard_timeout(phase_name, func, args, kwargs)
+            else:
+                result = func(*args, **kwargs)
             phase_time = round(time.time() - phase_start, 3)
             self.phase_timings[phase_name] = phase_time
             retries_used = initial_retries - retries
@@ -299,12 +511,22 @@ class AgentOrchestrator:
                     pass
 
             if retries > 0:
-                # If rate limited, rotate to next provider before retrying
-                if self.ai_provider and BaseAIProvider.is_rate_limited(e):
-                    current_name = (self.provider_pool.get_provider_name(self.ai_provider)
-                                    or self.ai_provider.__class__.__name__)
-                    self.provider_pool.mark_rate_limited(current_name)
-                    agent_logger.warning(f"[PHASE ROTATE] {phase_name} hit rate limit on '{current_name}' — rotating provider")
+                # Rotate provider before retrying on rate limits or connectivity
+                # failures (e.g. OmniRoute gateway unreachable → fall back fast).
+                rotate_reason = None
+                current_name = self._provider_name()
+                if self.ai_provider:
+                    if BaseAIProvider.is_rate_limited(e):
+                        rotate_reason = "rate limit"
+                        self.provider_pool.mark_rate_limited(current_name)
+                    elif BaseAIProvider.is_connectivity_error(e):
+                        rotate_reason = "connectivity failure"
+                        self.provider_pool.mark_failed(current_name)
+                if rotate_reason and self.ai_provider:
+                    self._record_model_failure(f"phase:{phase_name}:{rotate_reason}")
+                    agent_logger.warning(
+                        f"[PHASE ROTATE] {phase_name} hit {rotate_reason} on '{current_name}' — rotating provider"
+                    )
                     self._rotate_provider()
 
                 agent_logger.warning(f"[PHASE RETRY] Retrying {phase_name} ({retries - 1} attempts left)...")
@@ -321,6 +543,40 @@ class AgentOrchestrator:
                 return fallback
             agent_logger.error(f"[PHASE UNRECOVERABLE] {phase_name} failed with no fallback.")
             raise
+
+    def _persist_design_plan_artifacts(
+        self,
+        project_dir: str,
+        design_plan: Dict[str, Any],
+        phase_log: Dict[str, Any],
+        artifact_key: str = "artifacts",
+    ) -> Dict[str, Any]:
+        """Persist the pre-coding design contract next to the generated project.
+
+        The planner runs before `project_dir` exists, so the first attempt is
+        expected to report a missing directory. The build phase calls this again
+        after the directory exists; both attempts are recorded instead of
+        letting one silent no-op imply persistence.
+        """
+        entry = phase_log.setdefault("phase_5b_design_planner", {})
+        if not design_plan:
+            written = {"ok": False, "reason": "no design plan"}
+            entry[artifact_key] = written
+            return written
+        try:
+            written = write_design_plan_artifacts(project_dir, design_plan)
+        except PipelineCancelled:
+            raise
+        except Exception as exc:
+            written = {"ok": False, "reason": str(exc)[:200]}
+            agent_logger.warning(f"Design plan artifacts skipped: {exc}")
+        entry[artifact_key] = written
+        if written.get("ok"):
+            agent_logger.info(
+                "Design plan artifacts written: %s",
+                (written.get("paths") or {}).get("json"),
+            )
+        return written
 
     def _checkpoint_cancel(self) -> None:
         """Abort immediately when the WebSocket loop raised a cancel token."""
@@ -386,6 +642,94 @@ class AgentOrchestrator:
             }
         return report
 
+    @staticmethod
+    def _deployment_release_gate(
+        validation_report: Dict[str, Any],
+        quality_report: Dict[str, Any],
+        devops_gate: Dict[str, Any],
+        architect_gate: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Allow deployment only after project, DevOps, and architecture checks pass."""
+        blockers = []
+        if not validation_report.get("valid", False):
+            blockers.append("project_validation_failed")
+        if quality_report.get("overall_score", 0) < 80:
+            blockers.append("quality_score_below_80")
+        if not devops_gate.get("passed", False):
+            blockers.append("devops_quality_gate_failed")
+        if not (architect_gate.get("skipped") or architect_gate.get("passed")):
+            blockers.append("enterprise_architecture_gate_failed")
+        return {"passed": not blockers, "blockers": blockers}
+
+    @staticmethod
+    def _build_workflow_agents_report(
+        phase_log: Dict[str, Any],
+        spec: Dict[str, Any],
+        project_dir: str,
+    ) -> Dict[str, Any]:
+        """Summarize role ownership and the artifacts handed between specialists."""
+        requirements = phase_log.get("phase_2_requirement_analysis") or {}
+        assembly = phase_log.get("phase_5_assembly_plan") or {}
+        research = spec.get("benchmark_first") or {}
+        design = phase_log.get("phase_2_design_decision") or {}
+        design_plan = phase_log.get("phase_2b_design_plan") or {}
+        code = phase_log.get("phase_6_code_generation") or {}
+        release_gate = phase_log.get("qa_release_gate") or {}
+        deployment = phase_log.get("live_deployment") or {}
+        qa_status = (
+            "blocked" if not release_gate.get("passed")
+            else "deployed" if deployment.get("status") == "deployed"
+            else "ready"
+        )
+
+        return {
+            "planner": {
+                "name": "Product Planner",
+                "status": "completed" if requirements and assembly else "partial",
+                "handoff": {
+                    "project_name": assembly.get("project_name"),
+                    "requirements_count": len(requirements.get("features") or []),
+                    "assembly_steps": assembly.get("steps", 0),
+                },
+            },
+            "design_researcher": {
+                "name": "International Design Researcher",
+                "status": "completed" if research and design else "partial",
+                "handoff": {
+                    "research_source": research.get("source", "unavailable"),
+                    "industry": research.get("industry"),
+                    "benchmark_peers": research.get("benchmark_peers", []),
+                    "design_blueprint": bool(design_plan),
+                    "design_direction": {
+                        key: design.get(key)
+                        for key in ("hero", "motion", "cta_style", "references")
+                        if design.get(key) is not None
+                    },
+                },
+            },
+            "coder": {
+                "name": "Implementation Engineer",
+                "status": "completed" if project_dir and code else "failed",
+                "handoff": {
+                    "project_dir": project_dir,
+                    "ai_calls": code.get("ai_calls", 0),
+                },
+            },
+            "qa_deployment": {
+                "name": "QA and Deployment Engineer",
+                "status": qa_status,
+                "handoff": {
+                    "release_gate": release_gate,
+                    "tests": (phase_log.get("quality_gate_devops") or {}).get("tests", {}),
+                    "deployment_status": deployment.get("status", "not_attempted"),
+                    "live_url": deployment.get("url", ""),
+                    "quality_score": (phase_log.get("phase_7_quality_verification") or {}).get(
+                        "overall_score", 0
+                    ),
+                },
+            },
+        }
+
     def _run_phase_safe(self, phase_name: str, func, func_args=None, fallback=None, critical=False, retryable=False):
         """Run a phase and only recover automatically when it is non-critical."""
         args = func_args or []
@@ -433,6 +777,33 @@ class AgentOrchestrator:
         self.phase_timings = {}
         self.retry_counts = {}
 
+    def _run_with_hard_timeout(self, phase_name: str, func, args, kwargs) -> Any:
+        """Execute a blocking phase in a worker with a hard wall-clock timeout.
+
+        The AI providers use 30s×3 synchronous retries; without a hard cap a
+        hung/gated provider stalls the pipeline for ~90s per call. Running the
+        phase in a detached daemon thread lets `PHASE_TIMEOUT_SECS` bound
+        wall-clock time and rebuild ETA predictability. Only the finished result
+        is committed; a timed-out worker is abandoned (daemon, killed on exit)
+        and its phase falls back to `_run_phase_safe`'s fallback.
+        """
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+        timeout = self.PHASE_TIMEOUT_SECS
+        executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="phase")
+        try:
+            future = executor.submit(func, *args, **kwargs)
+            try:
+                return future.result(timeout=timeout)
+            except FutureTimeout:
+                agent_logger.error(
+                    f"[PHASE TIMEOUT] {phase_name} exceeded {timeout}s — "
+                    "abandoning worker and continuing with fallback."
+                )
+                future.cancel()
+                raise TimeoutError(f"{phase_name} exceeded {timeout}s")
+        finally:
+            executor.shutdown(wait=False)
+
     def _get_project_main_files(self, project_dir: str, max_files: int = None) -> List[str]:
         """Discover key project files for AI modification by searching frontend/src."""
         from config.settings import AI_MAX_CONTEXT_FILES
@@ -449,12 +820,16 @@ class AgentOrchestrator:
 
     def _calculate_health(self, phase_failures: List[str]) -> Dict[str, Any]:
         """Calculate pipeline health score based on failures and critical phase impact."""
-        health = 100
-        critical_failures = [f for f in phase_failures if f in {"phase_2_requirement_analysis",
-                                                                 "phase_5_assembly_planning",
-                                                                 "phase_6_code_generation"}]
-        non_critical_failures = [f for f in phase_failures if f not in critical_failures]
+        failed_phases = self._phase_failure_names(phase_failures)
+        critical_failures = sorted(failed_phases & self.CRITICAL_PHASES)
+        non_critical_failures = sorted(failed_phases - self.CRITICAL_PHASES)
+        # Gate identifiers (quality_gate_devops, architect_enterprise_verification,
+        # final_production_validation) are not phases but still degrade the run.
+        non_critical_failures += sorted(
+            f for f in phase_failures if isinstance(f, str) and not f.startswith("phase_")
+        )
 
+        health = 100
         health -= len(critical_failures) * 20
         health -= len(non_critical_failures) * 4
 
@@ -466,12 +841,72 @@ class AgentOrchestrator:
         }
 
     def _phase_failure_names(self, phase_failures: List[str]) -> set:
-        """Map report identifiers such as phase_6_code_generation to canonical phase IDs."""
-        return {
-            failure.split("_", 2)[-1]
-            for failure in phase_failures
-            if failure.startswith("phase_") and "_" in failure
-        }
+        """Map report identifiers such as phase_6_code_generation to canonical phase IDs.
+
+        Several steps were appended under their historical names (`phase_3_tech_stack`,
+        `phase_5_assembly_planning`, …) which never matched a `PHASES` id, so a
+        failed phase was still listed in `phases_completed`. `_PHASE_FAILURE_ALIASES`
+        is the single mapping from every emitted failure id to its real phase.
+        """
+        names = set()
+        for failure in phase_failures:
+            if not isinstance(failure, str) or not failure.startswith("phase_"):
+                continue
+            raw = failure.split("_", 2)[-1]
+            names.add(self._PHASE_FAILURE_ALIASES.get(raw, raw))
+        return names
+
+    # Failure identifiers that were emitted under a name that is not a PHASES id.
+    _PHASE_FAILURE_ALIASES = {
+        "tech_stack": "tech_stack_selection",
+        "trending_features": "trending_features_injection",
+        "assembly_planning": "resource_assembly_planning",
+        "improvements": "improvement_recommendations",
+        "benchmark": "competitive_benchmark_delivery",
+        "localization": "localization_and_i18n",
+        "compliance_accessibility": "compliance_and_accessibility",
+    }
+
+    @staticmethod
+    def _seeded_choice(options: Sequence[str], *inputs: str) -> str:
+        """Deterministic choice: the same inputs always pick the same option.
+
+        Replaces `random.choice` for style/palette-style decisions. `hash()` is
+        deliberately not used — it is salted per process (PYTHONHASHSEED) and would
+        make the same prompt produce a different design on a rerun.
+        """
+        if not options:
+            return ""
+        digest = hashlib.sha256("\x1f".join(str(i) for i in inputs).encode("utf-8", "replace"))
+        return options[int(digest.hexdigest()[:8], 16) % len(options)]
+
+    @staticmethod
+    def _design_seed(*inputs: str) -> str:
+        """Stable digest of the run's design inputs (recorded in the manifest)."""
+        digest = hashlib.sha256("\x1f".join(str(i) for i in inputs).encode("utf-8", "replace"))
+        return digest.hexdigest()[:16]
+
+    def _resolve_design_style(
+        self,
+        explicit: Optional[str],
+        prompt: str,
+        spec: Dict[str, Any],
+    ) -> str:
+        """Explicit style wins; otherwise the seeded decision engine picks one.
+
+        Same prompt + same website type ⇒ same style, in this process and the next.
+        """
+        if explicit:
+            return explicit
+        current = spec.get("design_style")
+        if current:
+            return str(current)
+        return self._seeded_choice(
+            _STYLE_POOL,
+            prompt,
+            str(spec.get("website_type", "")),
+            str(spec.get("industry", "")),
+        )
 
     def _collect_user_design_preferences(
         self,
@@ -483,6 +918,27 @@ class AgentOrchestrator:
         website_type = spec.get("website_type", "ecommerce")
         industry = spec.get("industry", "general")
         project_name = spec.get("project_name", "my-project")
+
+        # Benchmark-First (mandatory, deterministic): decode the industry
+        # playbook + international benchmark attributes BEFORE design, so every
+        # fresh build follows global best-in-class style. Falls back to a fully
+        # deterministic profile when the provider is unavailable -- never empty.
+        try:
+            from agent.intelligence.benchmark_first import run_benchmark_first
+            import logging
+            _log = logging.getLogger("lumicorepro.orchestrator")
+            _bench = run_benchmark_first(spec, provider=getattr(self, "ai_provider", None))
+            spec["benchmark_first"] = _bench
+            _log.info(
+                "Benchmark-First: source=%s industry=%s peers=%d",
+                _bench.get("source"), _bench.get("industry"),
+                len(_bench.get("benchmark_peers") or []),
+            )
+        except Exception as bench_err:
+            import logging as _l
+            _l.getLogger("lumicorepro.orchestrator").warning(
+                "Benchmark-First research failed (non-blocking): %s", bench_err)
+        # -- end Benchmark-First hook
 
         # Smart defaults based on industry & website type
         defaults = {
@@ -700,6 +1156,35 @@ class AgentOrchestrator:
         critical_failure = any(
             name in self.CRITICAL_PHASES for name in failed_phase_names
         )
+
+        # ── Status vocabulary (agent/run_status.py) ──────────────────────────
+        # failed  : a critical phase failed (no usable project)
+        # partial : something failed but the pipeline finished
+        # skipped : nothing failed, but at least one phase was skipped
+        # succeeded: everything that was applicable ran
+        from agent import ai_routing
+
+        fallback_reason = rs.fallback_reason(
+            offline=ai_routing.offline(),
+            provider_resolved=self.ai_provider is not None,
+            calls_succeeded=self.ai_model_calls_succeeded,
+            calls_failed=self.ai_model_calls_failed,
+        )
+        fallback_used = fallback_reason is not None
+        if critical_failure:
+            run_state = rs.STATUS_FAILED
+        else:
+            run_state = rs.resolve_status(
+                failed=bool(phase_failures), skipped=bool(self.skipped_phases)
+            )
+        status_fields = rs.status_block(
+            status=run_state,
+            providers_used=self.providers_used,
+            fallback_used=fallback_used,
+            reason=fallback_reason,
+            skipped_phases=self.skipped_phases,
+        )
+
         report = {
             "user_prompt": prompt,
             "project_name": spec.get("project_name", "generated-website"),
@@ -709,18 +1194,30 @@ class AgentOrchestrator:
             "architect_enterprise_gate": architect_gate or {},
             "instructions_file_path": instructions_file_path,
             "execution_time_seconds": execution_time,
-            "pipeline_version": "15-phase-enterprise-v3.5",
-            "status": "failed" if critical_failure else "partial" if phase_failures else "succeeded",
+            "pipeline_version": "18-phase-enterprise-v3.6",
+        }
+        # Status vocabulary fields (agent/run_status.py) live at the top level:
+        # status / providers_used / fallback_used / reason / skipped_phases.
+        report.update(status_fields)
+        report.update({
             "pipeline_health": self._calculate_health(phase_failures),
             "phase_statistics": {
                 "total_phases": len(self.PHASES),
-                "phases_failed": len(phase_failures),
+                "phases_failed": len(failed_phase_names),
                 "phase_timings": self.phase_timings,
                 "retries_per_phase": self.retry_counts,
+                "phases_skipped": len(self.skipped_phases),
             },
-            "phases_completed": [p for p in self.PHASES if p not in failed_phase_names],
+            "phases_completed": [
+                p for p in self.PHASES if p not in failed_phase_names
+            ],
             "phase_failures": phase_failures,
             "phase_results": phase_log,
+            "ai_evidence": {
+                "provider_resolved": self._provider_name() or None,
+                "model_calls_succeeded": self.ai_model_calls_succeeded,
+                "model_calls_failed": self.ai_model_calls_failed,
+            },
             "project_layout": {
                 "mode": spec.get("layout_mode", "enterprise"),
                 "has_api": spec.get("has_api", True),
@@ -766,7 +1263,23 @@ class AgentOrchestrator:
             "multi_cloud_deployment": phase_log.get("phase_15_global_deployment", {}),
             "design_style": phase_log.get("phase_6_design_style", {}),
             "theme_variant": phase_log.get("phase_6_theme_matrix", {}),
-        }
+            "design_decision": phase_log.get("phase_2_design_decision", {}),
+            "design_memory": phase_log.get("phase_6_design_memory", {}),
+            "design_scan": phase_log.get("phase_7_1_design_scan", {}),
+            "visual_critic": phase_log.get("phase_7_1_design_scan", {}).get(
+                "visual_critic", {}),
+            "browser_qa": phase_log.get("browser_qa", {}),
+            "design_plan": {
+                "industry": (phase_log.get("phase_5b_design_planner", {}) or {}).get("industry"),
+                "brand_style": (phase_log.get("phase_5b_design_planner", {}) or {}).get("brand_style"),
+                "pages": (phase_log.get("phase_5b_design_planner", {}) or {}).get("pages", 0),
+                "playbooks_loaded": (phase_log.get("phase_5b_design_planner", {}) or {}).get("playbooks_loaded"),
+                "issues": (phase_log.get("phase_5b_design_planner", {}) or {}).get("issues", []),
+            },
+            "learned_gaps": phase_log.get("phase_2_design_decision", {}).get(
+                "learned_gaps") or (phase_log.get("phase_2_design_decision", {}).get(
+                    "design_decision", {}) or {}).get("learned_gaps", []),
+        })
 
         report_path = os.path.join(project_dir, "generation-report.json")
         try:
@@ -819,12 +1332,18 @@ class AgentOrchestrator:
         design_style: Optional[str] = None,
         extra_spec: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Execute 15-phase enterprise project generation pipeline with error isolation and callbacks."""
+        """Execute the 18-phase enterprise project generation pipeline with error isolation and callbacks."""
         self._reset_phase_tracking()
         self.progress_callback = progress_callback
         start_time = time.time()
         phase_log: Dict[str, Any] = {}
         phase_failures: List[str] = []
+
+        # Per-run provenance: reset so a reused orchestrator reports this run only.
+        self.providers_used = []
+        self.ai_model_calls_succeeded = 0
+        self.ai_model_calls_failed = 0
+        self.skipped_phases = []
 
         # Defaults for downstream safety
         market_analysis = {}
@@ -843,6 +1362,9 @@ class AgentOrchestrator:
         ai_calls_count = 0
         validation_report = {"valid": True, "errors": [], "warnings": []}
         quality_report = {"overall_score": 0, "enterprise_ready": False}
+        design_decision: Dict[str, Any] = {}
+        design_plan: Dict[str, Any] = {}
+        browser_qa_report: Dict[str, Any] = {}
         improvements = {"total_recommendations": 0, "recommendations": []}
         benchmark = {"launch_ready": False}
         plan = {
@@ -857,7 +1379,7 @@ class AgentOrchestrator:
         }
 
         agent_logger.info("==================================================")
-        agent_logger.info("  LUMICOREPRO 15-PHASE ENTERPRISE GENERATION AGENT")
+        agent_logger.info("  LUMICOREPRO 18-PHASE ENTERPRISE GENERATION AGENT")
         agent_logger.info("==================================================")
         agent_logger.info(f"User Prompt: '{prompt}'")
 
@@ -878,6 +1400,7 @@ class AgentOrchestrator:
                 # real key is given a shot before we degrade to heuristics.
                 vision_candidates = [VISION_PROVIDER, "openrouter", "grok"]
                 vp_provider = None
+                vp_provider_name = ""
                 for vp_name in vision_candidates:
                     try:
                         from config.providers import get_active_provider_config, validate_provider_key
@@ -887,6 +1410,7 @@ class AgentOrchestrator:
                             inst = instantiate_provider(vp_name)
                             if inst is not None:
                                 vp_provider = inst
+                                vp_provider_name = vp_name
                                 break
                     except Exception:
                         continue
@@ -895,14 +1419,24 @@ class AgentOrchestrator:
                 overlays = vision_pipe.to_spec_overlays(vision_layout)
                 mapper = LayoutMapper()
                 mapped = mapper.map_regions(vision_layout)
+                vision_used_model = vision_layout.get("source") == "ai_vision"
                 phase_log["phase_0_vision"] = {
                     "parsed": vision_layout.get("parsed", False),
                     "source": vision_layout.get("source", "unknown"),
+                    "provider": vp_provider_name or None,
                     "regions": overlays.get("vision_layout_regions", []),
                     "design_tokens": overlays.get("design_tokens", {}),
                     "regions_mapped": mapped,
                     "reason": vision_layout.get("reason"),
                 }
+                if vision_used_model:
+                    self._record_model_evidence("phase_0_vision", vp_provider_name)
+                else:
+                    self._mark_skipped(
+                        "vision_analysis",
+                        rs.REASON_VISION_FALLBACK
+                        + (f":{vp_provider_name}" if vp_provider_name else ":no_vision_provider"),
+                    )
                 agent_logger.info(
                     f"Phase 0 vision: parsed={vision_layout.get('parsed')} "
                     f"source={vision_layout.get('source')} regions={len(overlays.get('vision_layout_regions', []))}"
@@ -912,21 +1446,31 @@ class AgentOrchestrator:
             except Exception as exc:
                 agent_logger.warning(f"Phase 0 vision extraction skipped: {exc}")
                 phase_log["phase_0_vision"] = {"parsed": False, "reason": str(exc)}
+                self._mark_skipped("vision_analysis", f"vision_error:{str(exc)[:80]}")
 
         # ── Phase 1: Market Analysis ─────────────────────────────────────────
         try:
+            # Fast lane: a streamed pipeline may already own the market pass —
+            # never analyze twice when `extra_spec["market_analysis"]` exists.
+            streamed_market = (extra_spec or {}).get("market_analysis") or {}
+            streamed_prelim = (extra_spec or {}).get("market_prelim_spec")
             prelim_spec = self._run_phase_safe(
                 "Phase 1 - Market Analysis",
                 self.analyzer._local_rule_analysis,
                 func_args=[prompt],
                 fallback={"website_type": "ecommerce", "industry": "general", "features": []}
             )
-            market_analysis = self._run_phase_safe(
-                "Phase 1 - Market Analysis",
-                self.market_analyzer.analyze,
-                func_args=[prelim_spec],
-                fallback={}
-            )
+            if streamed_market:
+                market_analysis = streamed_market
+                agent_logger.info("Phase 1 market analysis reused from streamed pipeline (no re-analyze).")
+                prelim_spec = streamed_prelim or prelim_spec
+            else:
+                market_analysis = self._run_phase_safe(
+                    "Phase 1 - Market Analysis",
+                    self.market_analyzer.analyze,
+                    func_args=[prelim_spec],
+                    fallback={}
+                )
             # Phase 1b: Agent Reach social signal research (Reddit + Twitter/X).
             # Runs only via asyncio.create_subprocess_exec in a worker-thread
             # loop; degrades to an empty payload when channels are unavailable.
@@ -957,12 +1501,27 @@ class AgentOrchestrator:
                 fallback={"is_ambiguous": False, "website_type": "ecommerce",
                           "industry": "general", "features": []}
             )
-            # Explicit overrides win over analyzer heuristics
-            if design_style:
-                spec["design_style"] = design_style
-            elif not spec.get("design_style"):
-                # Deterministic variety: rotate theme pack when none requested.
-                spec["design_style"] = random.choice(_STYLE_POOL)
+            # Explicit overrides win over analyzer heuristics; otherwise the
+            # seeded decision engine picks the style (same prompt ⇒ same style,
+            # identical on a rerun — random.choice used to reshuffle it).
+            spec["design_style"] = self._resolve_design_style(
+                design_style, prompt, spec
+            )
+            # Stable digest of every input the design decision is derived from.
+            # It is written into design-manifest.json so a run can be reproduced.
+            spec["design_seed"] = self._design_seed(
+                prompt,
+                str(spec.get("website_type", "")),
+                str(spec.get("industry", "")),
+                str(spec.get("design_style", "")),
+                str((extra_spec or {}).get("target_region", "") or spec.get("target_region", "")),
+            )
+            # Provenance: only a real provider answer counts as live evidence, and
+            # only a provider that was actually consulted can count as a failure.
+            if spec.get("analysis_source") == "ai_provider":
+                self._record_model_evidence("phase_2_requirement_analysis")
+            elif self.ai_provider is not None:
+                self._record_model_failure("phase_2_requirement_analysis")
             if extra_spec:
                 spec.update(extra_spec)
             # Pass Agent Reach social signals into the planner engine
@@ -1102,12 +1661,209 @@ class AgentOrchestrator:
         except Exception:
             phase_failures.append("phase_5_assembly_planning")
 
+        # ── Phase 5b: Explicit Design Planner (pre-coding design contract) ──
+        # Locks page/section structure, design system and UX flow BEFORE any
+        # code is generated, so generation has a concrete blueprint instead of
+        # improvising. Observational: a planner failure never blocks the build.
+        try:
+            _industry = (
+                (design_decision or {}).get("industry")
+                or spec.get("industry")
+                or market_analysis.get("industry")
+                or "saas"
+            )
+            _brand_style = (
+                (design_decision or {}).get("brand")
+                or spec.get("brand_style")
+                or spec.get("design_style")
+                or "corporate"
+            )
+            _tokens = {}
+            _palette = {}
+            try:
+                _blueprint = spec.get("design_blueprint") or {}
+                _palette = _blueprint.get("palette") or {}
+            except Exception:
+                _palette = {}
+            if isinstance(_palette, dict):
+                for key in ("primary", "primary_light", "primary_dark", "accent"):
+                    value = _palette.get(key)
+                    if isinstance(value, str) and value.strip():
+                        _tokens[key] = value.strip()
+
+            # Screenshot-driven reference: if the user supplied a mockup/screenshot,
+            # extract its real section order, components and measured colours and
+            # hand them to the planner as the structural contract. A failed or
+            # absent vision parse degrades to the industry playbook — never blocks.
+            _reference_sections: list = []
+            _reference_intelligence: dict = {}
+            _screenshot_spec: dict = {}
+            if vision_source:
+                try:
+                    _screenshot_spec = screenshot_to_design_spec_multi(
+                        [vision_source],
+                        business_type=str(
+                            spec.get("business_type") or market_analysis.get("business_type")
+                            or spec.get("website_type") or "project"
+                        ),
+                    )
+                    _plan_inputs = to_plan_inputs(_screenshot_spec)
+                    _reference_sections = _plan_inputs.get("reference_sections") or []
+                    _reference_intelligence = _plan_inputs.get("reference_intelligence") or {}
+                    if _plan_inputs.get("palette"):
+                        _palette = dict(_palette, **_plan_inputs["palette"])
+                    if _plan_inputs.get("design_tokens"):
+                        _tokens = dict(_tokens, **_plan_inputs["design_tokens"])
+                    phase_log["phase_5b_screenshot_spec"] = {
+                        "analyzed": bool(_screenshot_spec.get("analyzed")),
+                        "colors_measured": bool(_screenshot_spec.get("colors_measured")),
+                        "sections": _reference_sections,
+                        "failed_shots": _screenshot_spec.get("failed_shots") or [],
+                        "vision_source": _screenshot_spec.get("vision_source"),
+                    }
+                except Exception as spec_exc:
+                    agent_logger.warning(f"Screenshot design-spec skipped: {spec_exc}")
+                    phase_log["phase_5b_screenshot_spec"] = {
+                        "skipped": True,
+                        "error": str(spec_exc)[:200],
+                    }
+
+            design_plan = create_design_plan(
+                business_type=str(
+                    spec.get("business_type") or market_analysis.get("business_type")
+                    or spec.get("website_type") or "project"
+                ),
+                industry=_industry,
+                brand_style=_brand_style,
+                palette=_palette,
+                design_tokens=_tokens,
+                reference_sections=_reference_sections or None,
+                reference_intelligence=_reference_intelligence or None,
+            )
+            _plan_issues = validate_design_plan(design_plan or {})
+            if _plan_issues:
+                agent_logger.warning(
+                    f"Design planner reported {len(_plan_issues)} issue(s): {_plan_issues[:3]}"
+                )
+            spec["design_plan"] = design_plan
+            spec["screenshot_spec"] = _screenshot_spec
+            phase_log["phase_5b_design_planner"] = {
+                "industry": design_plan.get("industry"),
+                "brand_style": design_plan.get("brand_style"),
+                "pages": len(design_plan.get("pages") or []),
+                "page_plans": len(design_plan.get("page_plans") or {}),
+                "playbooks_loaded": design_plan.get("playbooks_loaded"),
+                "design_system_present": bool(design_plan.get("design_system")),
+                "issues": _plan_issues,
+                "structure_from_reference": bool(
+                    _reference_intelligence.get("structure_from_reference")
+                ),
+            }
+            # Persist the plan + markdown so the build and any later "change the
+            # hero" request can read the contract instead of re-deriving it.
+            # The project directory does not exist yet, so this attempt usually
+            # records why persistence is deferred until after the build.
+            self._persist_design_plan_artifacts(
+                project_dir,
+                design_plan,
+                phase_log,
+                artifact_key="prebuild_artifacts",
+            )
+            agent_logger.info(
+                f"Phase 5b design planner: industry={design_plan.get('industry')} "
+                f"pages={len(design_plan.get('pages') or [])} "
+                f"playbooks_loaded={design_plan.get('playbooks_loaded')}"
+            )
+        except PipelineCancelled:
+            raise
+        except Exception as dp_exc:
+            agent_logger.warning(f"Design planner skipped: {dp_exc}")
+            spec.setdefault("design_plan", {})
+            phase_log["phase_5b_design_planner"] = {
+                "skipped": True,
+                "error": str(dp_exc)[:200],
+            }
+
         # ── Phase 6: Code Generation & REST API Scaffolding ──────────────────
         try:
             self._checkpoint_cancel()
             self._bind_engineering_matrix(spec, phase_log)
+
+            # ── Phase 6a: Design Decision Engine (Part 3) ────────────────────
+            # Merges industry playbook + brand playbook + reference intelligence
+            # into a single machine-readable design spec before generation.
+            # Observational: failures never block code generation.
+            design_decision: Dict[str, Any] = {}
+            try:
+                from agent.intelligence.design_decision_engine import (
+                    decide_design,
+                    detect_industry,
+                )
+                design_spec = dict(spec or {})
+                design_spec["prompt"] = prompt
+                design_spec["project_name"] = plan.get("project_name", "generated-website")
+                if design_plan:
+                    design_spec["design_plan"] = design_plan
+                    design_spec.setdefault(
+                        "planned_pages",
+                        list(design_plan.get("pages") or []),
+                    )
+                    design_spec.setdefault(
+                        "design_system",
+                        design_plan.get("design_system") or {},
+                    )
+                if not design_spec.get("industry"):
+                    design_spec["industry"] = detect_industry(design_spec)
+                # Cross-project learning: consult prior builds for this
+                # industry/brand and bias the new decision toward known gaps.
+                try:
+                    from agent.intelligence.lessons_store import LessonsStore
+                    bias = LessonsStore().to_bias_payload(
+                        design_spec.get("industry") or "general",
+                        (design_spec.get("brand") or "general"),
+                    )
+                    if bias.get("attention"):
+                        design_spec["prior_attention"] = bias["attention"]
+                        agent_logger.info(
+                            f"Phase 6a learned gaps for {design_spec.get('industry')}: "
+                            f"{bias['attention']}"
+                        )
+                except Exception as bias_exc:
+                    agent_logger.warning(f"Lessons bias skipped: {bias_exc}")
+                design_decision = decide_design(
+                    design_spec,
+                    reference_analysis=(spec.get("reference_spec") or {}).get(
+                        "reference_intelligence"),
+                ) or {}
+                spec.setdefault("design_decision", {})
+                spec["design_decision"].update(design_decision)
+                agent_logger.info(
+                    f"Phase 6a design decision: industry={design_decision.get('industry')} "
+                    f"brand={design_decision.get('brand')} hero={design_decision.get('hero')} "
+                    f"cta={design_decision.get('cta_style')} 3d={design_decision.get('3d')}"
+                )
+            except Exception as de_exc:
+                agent_logger.warning(f"Design Decision Engine skipped: {de_exc}")
+            phase_log["phase_2_design_decision"] = {
+                "industry": design_decision.get("industry"),
+                "brand": design_decision.get("brand"),
+                "hero": design_decision.get("hero"),
+                "motion": design_decision.get("motion"),
+                "3d": design_decision.get("3d"),
+                "cta_style": design_decision.get("cta_style"),
+                "conversion_primary_cta": (design_decision.get("conversion") or {}).get("primary_cta"),
+                "references": design_decision.get("reference_hints") or [],
+                "reproducibility": (
+                    design_decision.get("design_manifest") or {}
+                ).get("reproducibility") or {"seed": spec.get("design_seed")},
+            }
+
             plan["spec"] = copy.deepcopy(spec)
             project_dir = self.project_builder.build_project(plan)
+            if project_dir:
+                self._persist_design_plan_artifacts(
+                    project_dir, design_plan, phase_log, artifact_key="artifacts"
+                )
 
             # ── Buyer-Directed Project Layout Mode ─────────────────────────────
             # Renders the workspace under one of two STRICT execution modes:
@@ -1177,26 +1933,63 @@ class AgentOrchestrator:
                     # VFS mode: 1 model call returns a unified diff applied across
                     # any number of files — the 50+ file path without token blowup.
                     vfs_results: List[Dict[str, Any]] = []
-                    for task_item in tasks:
+                    # Combine every task into ONE batched diff call when the tasks
+                    # are small (default), collapsing the N-call fan-out to a
+                    # single reasoning pass. Toggle off with AI_COMBINE_TASKS=0.
+                    combine = (os.getenv("AI_COMBINE_TASKS", "1").strip().lower() in ("1", "true", "yes"))
+                    combined_ok = False
+                    if combine and len(tasks) > 1:
+                        combined_task = (
+                            "Apply ALL of the following feature/customization "
+                            "requests to the website. Handle each one precisely "
+                            "in a single unified diff — touch only the files that "
+                            "each request needs, and do not leave placeholder "
+                            "logic. Return ONE diff covering every request.\n\n"
+                            + "\n".join(f"{i+1}. {t}" for i, t in enumerate(tasks))
+                        )
                         try:
                             res = self.code_modifier.apply_ai_diff_batch(
-                                project_dir, task_item,
+                                project_dir, combined_task,
                                 max_context_files=AI_MAX_CONTEXT_FILES,
                             )
-                            vfs_results.append({"task": task_item, **res})
+                            vfs_results.append({"task": "<combined>", **res})
                             ai_calls_count += 1
-                            if res.get("status") == "error":
-                                agent_logger.warning(
-                                    f"VFS diff batch error on task '{task_item}': {res.get('reason')}"
-                                )
+                            combined_ok = res.get("status") in ("applied", "no_changes")
                         except Exception as exc:
-                            agent_logger.warning(f"VFS diff batch skipped '{task_item}': {exc}")
-                            vfs_results.append({"task": task_item, "status": "error", "reason": str(exc)})
+                            agent_logger.warning(f"VFS combined batch skipped: {exc}")
+                            vfs_results.append({"task": "<combined>", "status": "error", "reason": str(exc)})
+                    # Only run each task individually if the combined pass was
+                    # skipped or failed (never double-apply on success).
+                    if not combined_ok:
+                        for task_item in tasks:
+                            try:
+                                res = self.code_modifier.apply_ai_diff_batch(
+                                    project_dir, task_item,
+                                    max_context_files=AI_MAX_CONTEXT_FILES,
+                                )
+                                vfs_results.append({"task": task_item, **res})
+                                ai_calls_count += 1
+                                if res.get("status") == "error":
+                                    agent_logger.warning(
+                                        f"VFS diff batch error on task '{task_item}': {res.get('reason')}"
+                                    )
+                            except Exception as exc:
+                                agent_logger.warning(f"VFS diff batch skipped '{task_item}': {exc}")
+                                vfs_results.append({"task": task_item, "status": "error", "reason": str(exc)})
                     phase_log["phase_6_vfs_diff_mode"] = {
                         "enabled": True,
                         "calls": ai_calls_count,
                         "batches": vfs_results,
                     }
+                    # Provenance: code_modifier reports `applied`/`no_changes` only
+                    # after a real model reply, `skipped:no_ai_provider` when there
+                    # was nothing to call, and `error` when the call failed.
+                    for batch in vfs_results:
+                        status = batch.get("status")
+                        if status in ("applied", "no_changes"):
+                            self._record_model_evidence("phase_6_code_generation")
+                        elif status == "error":
+                            self._record_model_failure("phase_6_code_generation")
                 else:
                     for task_item in tasks:
                         agent_logger.info(f"Executing AI customization: {task_item}")
@@ -1295,22 +2088,225 @@ class AgentOrchestrator:
                 except Exception as bd_exc:
                     agent_logger.warning(f"Phase 5.5 bespoke design skipped: {bd_exc}")
                     bespoke_report = {"active": False, "reason": str(bd_exc)}
+            if bespoke_report.get("active"):
+                self._record_model_evidence("phase_5_5_bespoke_design")
+            else:
+                self._mark_skipped(
+                    "bespoke_design",
+                    f"bespoke_design_{bespoke_report.get('reason') or 'inactive'}",
+                )
             phase_log["phase_5_5_bespoke_design"] = bespoke_report
+
+            # ── Phase 6b: Design Memory (manifest + .artifacts chain) ────────
+            # Every decision is traceable for later iteration ("change the hero").
+            design_memory: Dict[str, Any] = {}
+            try:
+                from agent.intelligence.design_manifest import (
+                    DesignManifestWriter,
+                    _ARTIFACT_CHAIN,
+                )
+                writer = DesignManifestWriter(project_dir)
+                manifest_decision = (
+                    design_decision.get("design_manifest") or design_decision or {})
+                manifest_path = writer.write_manifest(manifest_decision)
+                stage_payloads = {
+                    "01-business": {
+                        "industry": manifest_decision.get("industry", spec.get("industry")),
+                        "website_type": spec.get("website_type"),
+                        "project_name": plan.get("project_name"),
+                    },
+                    "02-audience": {
+                        "target_audience": spec.get("target_audience"),
+                        "personas": [],
+                    },
+                    "03-brand": {
+                        "archetype": manifest_decision.get("brand", {}).get("archetype") if isinstance(manifest_decision.get("brand"), dict) else manifest_decision.get("brand"),
+                    },
+                    "04-reference": {
+                        "references": manifest_decision.get("reference_sources", []),
+                        "hints": design_decision.get("reference_hints", []),
+                    },
+                    "05-playbook": design_decision.get("playbooks", {}),
+                    "06-ux": {
+                        "pages": manifest_decision.get("pages", []),
+                        "conversion": manifest_decision.get("conversion", {}),
+                        "avoid": design_decision.get("avoid", []),
+                    },
+                    "07-design": {
+                        "visual": manifest_decision.get("visual", {}),
+                        "typography": manifest_decision.get("typography", {}),
+                    },
+                }
+                for name, payload in stage_payloads.items():
+                    writer.write_artifact(name, payload or {})
+                design_memory["manifest"] = str(manifest_path)
+                design_memory["chain"] = list(_ARTIFACT_CHAIN)
+            except Exception as dm_exc:
+                agent_logger.warning(f"Design Memory write skipped: {dm_exc}")
+                self._mark_skipped("design_memory", f"write_failed:{str(dm_exc)[:80]}")
+            phase_log["phase_6_design_memory"] = design_memory
         except PipelineCancelled:
             raise
         except Exception:
             phase_failures.append("phase_6_code_generation")
 
-        # ── Phase 7: Quality Verification ────────────────────────────────────
+# ── Phase 7: Quality Verification ────────────────────────────────────
         try:
             if project_dir:
                 validation_report = self.validator.validate_project(project_dir)
                 quality_report = self.quality_gates.evaluate(project_dir, spec, validation_report)
             phase_log["phase_7_quality_verification"] = quality_report
+            if not quality_report.get("overall_score", 0) >= 80:
+                phase_failures.append("phase_7_quality_verification")
+
+            # ── Phase 7.1: DesignLint + Automated Design Score + Design Gate ──
+            # Observed once per build (read + score + report, never blocks).
+            if project_dir:
+                design_scan: Dict[str, Any] = {}
+                try:
+                    from agent.intelligence.design_lint import run_designlint
+                    from agent.intelligence.automated_design_score import score_design
+                    from agent.intelligence.design_gate import evaluate_design_gate
+                    lint_result = run_designlint(project_dir)
+                    score_result = score_design(project_dir, lint_result=lint_result)
+                    gate_result = evaluate_design_gate(score_result, design_decision)
+                    design_scan = {
+                        "lint": lint_result.get("summary", {}),
+                        "score": {
+                            "visual_quality_score": score_result.get("visual_quality_score"),
+                            "benchmark_passed": score_result.get("benchmark_passed"),
+                            "metrics": score_result.get("metrics"),
+                        },
+                        "gate": {
+                            "passed": gate_result.get("passed"),
+                            "decision": gate_result.get("decision"),
+                            "failing": gate_result.get("failing"),
+                            "metrics": gate_result.get("metrics"),
+                            "recommendations": gate_result.get("recommendations"),
+                        },
+                    }
+                    agent_logger.info(
+                        f"Phase 7.1 design gate: passed={gate_result.get('passed')} "
+                        f"score={score_result.get('visual_quality_score')} "
+                        f"decision={gate_result.get('decision')}"
+                    )
+                    # Cross-project self-learning: remember this build's weak
+                    # metrics so future automotive/saas/ecommerce builds bias
+                    # their design decisions toward the benchmark gaps.
+                    try:
+                        from agent.intelligence.lessons_store import LessonsStore
+                        LessonsStore().record_lesson(
+                            (design_decision or {}).get("industry") or "general",
+                            (design_decision or {}).get("brand") or "general",
+                            score_result.get("visual_quality_score"),
+                            gate_result,
+                            design_decision,
+                            score_result.get("metrics"),
+                        )
+                    except Exception as l_exc:
+                        agent_logger.warning(f"Lessons record skipped: {l_exc}")
+                    # Visual Critic: judge the built site itself (rendered
+                    # html + sources), grounded in artifact statements.
+                    try:
+                        from agent.intelligence.visual_critic import run_visual_critic
+                        design_scan["visual_critic"] = run_visual_critic(
+                            project_dir, design_decision, self.ai_provider)
+                    except Exception as vc_exc:
+                        design_scan["visual_critic"] = {"verdict": "SKIPPED",
+                                                        "notes": [str(vc_exc)[:200]]}
+                except Exception as ds_exc:
+                    design_scan["error"] = str(ds_exc)
+                    agent_logger.warning(f"Design Scan skipped: {ds_exc}")
+                phase_log["phase_7_1_design_scan"] = design_scan
+
+            # ---- Phase 7.2: Premium Motion (lumi-motion layer) ----
+            # Append-only CSS + IntersectionObserver runtime so every
+            # generated site animates on scroll. Never blocks the build.
+            try:
+                from agent.extensions.animation_injector import inject_motion_layer
+                anim_intensity = spec.get("animation_intensity", "high")
+                if anim_intensity not in ("none", "low", "off", ""):
+                    phase_log["phase_7_2_animation"] = inject_motion_layer(
+                        project_dir, intensity=anim_intensity)
+                else:
+                    phase_log["phase_7_2_animation"] = {
+                        "status": "skipped",
+                        "reason": f"animation_intensity={anim_intensity}",
+                    }
+                    self._mark_skipped(
+                        "premium_motion", f"animation_intensity={anim_intensity}"
+                    )
+            except Exception as anim_exc:  # noqa: BLE001
+                phase_log["phase_7_2_animation"] = {
+                    "status": "skipped",
+                    "error": str(anim_exc)[:200],
+                }
+                self._mark_skipped("premium_motion", f"error:{str(anim_exc)[:80]}")
         except PipelineCancelled:
             raise
         except Exception:
             phase_failures.append("phase_7_quality_verification")
+
+        # ── Phase 7.5: Real Browser QA ─────────────────────────────────────
+        # Playwright is the evidence source (screenshots, console/page errors,
+        # horizontal-collapse at 4 breakpoints, LCP). The agent-browser deep
+        # audit (axe-core a11y + Core Web Vitals) is opt-in via
+        # LUMI_BROWSER_DEEP_AUDIT=1 because its daemon can stall on locked-down
+        # hosts. Never blocking: an unavailable runtime reports `not_measured`.
+        try:
+            if project_dir:
+                try:
+                    from agent.extensions.browser_qa import run_browser_qa
+                    browser_qa_report = self._run_phase_safe(
+                        "Phase 7.5 - Browser QA",
+                        run_browser_qa,
+                        func_args=[project_dir],
+                        fallback={
+                            "status": "not_measured",
+                            "message": "Browser QA unavailable in this environment.",
+                            "evidence": {},
+                        },
+                    )
+                except Exception as bq_exc:
+                    browser_qa_report = {
+                        "status": "not_measured",
+                        "message": f"Browser QA unavailable: {bq_exc}"[:200],
+                        "evidence": {},
+                    }
+
+                deep_audit_requested = os.getenv(
+                    "LUMI_BROWSER_DEEP_AUDIT", ""
+                ).strip().lower() in ("1", "true", "yes", "on")
+                if deep_audit_requested:
+                    browser_qa_report["deep_audit"] = {
+                        "status": "deferred",
+                        "reason": "runs after live deployment when a live URL exists",
+                    }
+                else:
+                    browser_qa_report["deep_audit"] = {
+                        "status": "not_measured",
+                        "reason": "disabled (set LUMI_BROWSER_DEEP_AUDIT=1 to enable)",
+                    }
+
+                agent_logger.info(
+                    f"Phase 7.5 browser QA: status={browser_qa_report.get('status')} "
+                    f"evidence={browser_qa_report.get('evidence')}"
+                )
+                if browser_qa_report.get("status") == "not_measured":
+                    self._mark_skipped(
+                        "browser_qa", f"not_measured:{browser_qa_report.get('message', '')}"[:120]
+                    )
+        except PipelineCancelled:
+            raise
+        except Exception as bqa_exc:
+            agent_logger.warning(f"Browser QA phase degraded: {bqa_exc}")
+            browser_qa_report = {
+                "status": "not_measured",
+                "message": str(bqa_exc)[:200],
+                "evidence": {},
+            }
+
+        phase_log["browser_qa"] = browser_qa_report
 
         # ── Phase 8: Improvement Recommendations ─────────────────────────────
         try:
@@ -1376,6 +2372,8 @@ class AgentOrchestrator:
                     func_args=[spec, project_dir],
                     fallback={"languages_generated": ["en"], "total_languages": 1}
                 )
+                if not localization_result:
+                    self._mark_skipped("localization_and_i18n", "no_localization_output")
 
             phase_log["phase_11_localization"] = {
                 "region": currency_result.get("region", "NA"),
@@ -1645,13 +2643,91 @@ class AgentOrchestrator:
                         "self-healing, but continuing to ZIP + auto-deploy the project."
                     )
                     phase_failures.append("quality_gate_devops")
-                # Auto-deploy FIRST so the LIVE_PREVIEW_URL.txt lands in the ZIP.
-                live_url = self._auto_deploy_project(project_dir, spec)
-                if live_url:
-                    phase_log["live_deployment"] = {"url": live_url, "status": "deployed"}
-                    agent_logger.info(f"🚀 Live preview: {live_url}")
+                qa_release_gate = self._deployment_release_gate(
+                    validation_report,
+                    quality_report,
+                    quality_gate_devops,
+                    architect_gate,
+                )
+                phase_log["qa_release_gate"] = qa_release_gate
+                if qa_release_gate["passed"]:
+                    live_url = self._auto_deploy_project(project_dir, spec)
+                    if live_url:
+                        phase_log["live_deployment"] = {"url": live_url, "status": "deployed"}
+                        agent_logger.info(f"🚀 Live preview: {live_url}")
+                    else:
+                        phase_log["live_deployment"] = {
+                            "status": "skipped",
+                            "reason": "auto-deploy returned no URL",
+                        }
                 else:
-                    phase_log["live_deployment"] = {"status": "skipped", "reason": "auto-deploy returned no URL"}
+                    phase_log["live_deployment"] = {
+                        "status": "blocked",
+                        "reason": "QA release gate failed",
+                        "blockers": qa_release_gate["blockers"],
+                    }
+                    agent_logger.warning(
+                        "Auto-deployment blocked by QA release gate: "
+                        + ", ".join(qa_release_gate["blockers"])
+                    )
+                browser_qa = phase_log.get("browser_qa")
+                if isinstance(browser_qa, dict) and browser_qa.get("deep_audit", {}).get("status") == "deferred":
+                    live_target = phase_log.get("live_deployment", {}).get("url", "")
+                    if live_target and os.getenv("LUMI_BROWSER_DEEP_AUDIT", "").strip().lower() in (
+                        "1", "true", "yes", "on",
+                    ):
+                        # Stable digest, not hash(): the session name ends up in
+                        # filenames, so it must not change per process.
+                        _audit_session = "lumi-qa-" + hashlib.sha256(
+                            str(live_target).encode("utf-8", "replace")
+                        ).hexdigest()[:10]
+                        try:
+                            browser_qa["deep_audit"] = self._run_with_hard_timeout(
+                                "Phase 7.5 - Browser QA deep audit",
+                                deep_browser_audit,
+                                [live_target],
+                                {"session": _audit_session},
+                            )
+                        except PipelineCancelled:
+                            raise
+                        except Exception as deferred_exc:
+                            browser_qa["deep_audit"] = {
+                                "status": "not_measured",
+                                "reason": str(deferred_exc)[:200],
+                            }
+                        # Supplementary measured audits. Each is independent and
+                        # observational: a failure in one never suppresses the others.
+                        for _audit_name, _audit_fn, _audit_args in (
+                            ("responsive", responsive_check, [live_target]),
+                            ("network", network_audit, [live_target]),
+                            ("performance", performance_audit, [live_target]),
+                        ):
+                            try:
+                                browser_qa[_audit_name] = self._run_with_hard_timeout(
+                                    f"Phase 7.5 - {_audit_name} audit",
+                                    _audit_fn,
+                                    _audit_args,
+                                    {"session": _audit_session},
+                                )
+                            except Exception as audit_exc:
+                                browser_qa[_audit_name] = {
+                                    "status": "not_measured",
+                                    "reason": str(audit_exc)[:200],
+                                }
+                        try:
+                            browser_qa["remediation"] = remediate_findings(
+                                browser_qa.get("deep_audit") or {}
+                            )
+                        except Exception as rem_exc:
+                            browser_qa["remediation"] = {
+                                "status": "not_measured",
+                                "reason": str(rem_exc)[:200],
+                            }
+                    else:
+                        browser_qa["deep_audit"] = {
+                            "status": "not_measured",
+                            "reason": "no live URL available for deep audit",
+                        }
                 zip_archive_path = self._safe_zip(project_dir, spec)
             except PipelineCancelled:
                 raise
@@ -1663,11 +2739,31 @@ class AgentOrchestrator:
                     zip_archive_path = self._safe_zip(project_dir, spec)
                 except Exception:  # noqa: BLE001
                     agent_logger.error("ZIP creation failed after gate error.")
-                try:
-                    live_url = self._auto_deploy_project(project_dir, spec)
-                    phase_log["live_deployment"] = {"url": live_url, "status": "deployed" if live_url else "skipped"}
-                except Exception:  # noqa: BLE001
-                    phase_log["live_deployment"] = {"status": "skipped"}
+                phase_log["qa_release_gate"] = {
+                    "passed": False,
+                    "blockers": ["quality_gate_error"],
+                }
+                phase_log["live_deployment"] = {
+                    "status": "blocked",
+                    "reason": "QA gate errored; deployment was not attempted",
+                    "blockers": ["quality_gate_error"],
+                }
+
+        # Every project-dependent phase below was skipped as a group when the
+        # build never produced a project directory — say so instead of leaving it
+        # implicit in an empty phase log.
+        if not project_dir:
+            for _skipped_phase in (
+                "quality_verification",
+                "browser_qa",
+                "international_delivery",
+                "localization_and_i18n",
+                "compliance_and_accessibility",
+                "seo_and_cdn_optimization",
+                "performance_growth_and_webhooks",
+                "multi_cloud_global_deployment",
+            ):
+                self._mark_skipped(_skipped_phase, "no_project_directory")
 
         report = self._build_report(
             start_time=start_time,
@@ -1693,21 +2789,60 @@ class AgentOrchestrator:
             architect_gate=architect_gate,
             live_url=phase_log.get("live_deployment", {}).get("url", ""),
         )
+        report["workflow_agents"] = self._build_workflow_agents_report(
+            phase_log, spec, project_dir
+        )
 
         execution_time = round(time.time() - start_time, 2)
         health = self._calculate_health(phase_failures)
         timings_summary = ", ".join(f"{k}: {v}s" for k, v in self.phase_timings.items())
 
         agent_logger.info("==================================================")
-        agent_logger.info(f"  15-PHASE ENTERPRISE GENERATION COMPLETE IN {execution_time}s")
+        agent_logger.info(f"  18-PHASE ENTERPRISE GENERATION COMPLETE IN {execution_time}s")
         agent_logger.info(
-            f"  Quality Score: {quality_report.get('overall_score', 'N/A')}% | "
+            f"  Status: {report.get('status')} | Quality Score: "
+            f"{quality_report.get('overall_score', 'N/A')}% | "
             f"Launch Ready: {benchmark.get('launch_ready', 'N/A')}"
         )
+        agent_logger.info(
+            f"  Providers used: {', '.join(report.get('providers_used') or []) or 'none'} | "
+            f"fallback_used={report.get('fallback_used')} reason={report.get('reason')}"
+        )
+        if report.get("skipped_phases"):
+            agent_logger.warning(
+                "  Skipped phases: "
+                + ", ".join(f"{e['phase']}({e['reason']})" for e in report["skipped_phases"])
+            )
         agent_logger.info(f"  Pipeline Health: {health['score']}/100 ({health['status']})")
         if phase_failures:
             agent_logger.warning(f"  Phases with failures: {', '.join(phase_failures)}")
         agent_logger.info(f"  Phase Timings: [{timings_summary}]")
         agent_logger.info(f"  ZIP: {zip_archive_path}")
         agent_logger.info("==================================================")
+
+        # Observational V6.5 delivery hooks — never block, never raise.
+        try:
+            from agent.extensions.delivery_report import write_delivery_reports
+            write_delivery_reports(project_dir, report)
+        except Exception as delivery_err:  # noqa: BLE001
+            agent_logger.warning(f"Delivery reports hook skipped: {delivery_err}")
+        try:
+            from agent.extensions.notify import notify
+            # `fallback_used`/`reason` ride along so monitoring can alert on a run
+            # that only produced deterministic local output.
+            notify("run.completed", {
+                "run_id": getattr(self, "run_id", "") or report.get("run_id", ""),
+                "project_dir": project_dir,
+                "status": report.get("status", ""),
+                "providers_used": report.get("providers_used", []),
+                "fallback_used": report.get("fallback_used", False),
+                "reason": report.get("reason"),
+                "skipped_phases": report.get("skipped_phases", []),
+                "quality_score": (report.get("quality_gates", {}) or {}).get("overall_score"),
+                "live_preview_url": report.get("live_preview_url", ""),
+                "zip_archive_path": zip_archive_path,
+            })
+        except Exception as notify_err:  # noqa: BLE001
+            agent_logger.warning(f"Webhook notify hook skipped: {notify_err}")
+
         return report

@@ -61,6 +61,8 @@ export default function InstructorDirectory() {
                     src={img.education.student}
                     alt={t.name}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div

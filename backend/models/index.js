@@ -84,6 +84,8 @@ AnalyticsEvent.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 Address.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 /* ── Booking / Doctor / Service relationships ── */
+Doctor.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
+Organization.hasMany(Doctor, { foreignKey: 'org_id', as: 'doctors' });
 Booking.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 Booking.belongsTo(Doctor, { foreignKey: 'doctor_id', as: 'doctor' });
 Booking.belongsTo(Service, { foreignKey: 'service_id', as: 'service' });
@@ -111,8 +113,14 @@ Membership.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 /* ── Tenant-scoped resources (nullable org_id = legacy single-tenant) ── */
 Product.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
 Order.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
+Review.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
+Cart.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
+Payment.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
 Organization.hasMany(Product, { foreignKey: 'org_id', as: 'products' });
 Organization.hasMany(Order, { foreignKey: 'org_id', as: 'orders' });
+Organization.hasMany(Review, { foreignKey: 'org_id', as: 'reviews' });
+Organization.hasMany(Cart, { foreignKey: 'org_id', as: 'carts' });
+Organization.hasMany(Payment, { foreignKey: 'org_id', as: 'payments' });
 
 /* ── Sync ── */
 export async function syncModels() {

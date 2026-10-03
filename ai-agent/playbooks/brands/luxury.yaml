@@ -1,0 +1,50 @@
+# Luxury brand playbook — LumicorePro Core
+brand: luxury
+personality: [exclusive, confident, cinematic, refined, serene]
+
+typography:
+  display: high_contrast_serif
+  body: refined_sans
+  weight: light_to_regular
+  size: generous
+  spacing: wide_letterspacing_for_hdrs
+
+color:
+  base: neutral_temperate
+  accent: muted_metallic
+  gradients: subtle_tonal
+  saturation: low
+
+spacing:
+  density: low
+  whitespace: abundant
+  rhythm: unhurried
+
+motion:
+  character: slow_graceful
+  durations: long
+  easing: luxe_cubic
+  hero: cinematic_reveal
+
+imagery:
+  style: editorial_photography
+  lighting: directional_dramatic
+  subjects: people_craft_objects
+  ratio: wide_landscape
+
+interaction:
+  hover: gentle_scale
+  cursors: refined
+  cta: understated_but_present
+
+surface:
+  depth: flat_premium
+  borders: hairline
+  radius: minimal
+
+avoid:
+  - loud_gradients
+  - floating_cards
+  - glow_effects
+  - multiple_saturated_contrast
+  - busy_patterns

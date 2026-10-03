@@ -13,7 +13,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
       { text: 'API Reference', link: '/api-reference' },
-      { text: 'Deployment', link: '/deployment' },
+      { text: 'Deployment', link: '/DEPLOYMENT' },
       { text: 'GitHub', link: 'https://github.com/', target: '_self' }
     ],
     sidebar: [
@@ -33,7 +33,7 @@ export default defineConfig({
       {
         text: 'Deployment Guide',
         items: [
-          { text: 'Deployment Options', link: '/deployment' }
+          { text: 'Deployment Options', link: '/DEPLOYMENT' }
         ]
       }
     ],

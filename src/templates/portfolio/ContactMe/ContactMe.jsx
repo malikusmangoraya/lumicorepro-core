@@ -190,6 +190,8 @@ export default function ContactMe() {
                 src={img.portfolio.workspace}
                 alt="Workspace"
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="space-y-3">

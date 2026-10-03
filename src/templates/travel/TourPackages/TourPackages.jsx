@@ -62,6 +62,8 @@ export default function TourPackages() {
                 src={PKG_IMGS[i % PKG_IMGS.length]}
                 alt={p.name}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <Badge className="absolute top-3 left-3 bg-primary/90 text-[10px]">{p.type}</Badge>

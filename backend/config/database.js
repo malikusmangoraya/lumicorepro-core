@@ -1,9 +1,22 @@
 import { Sequelize } from 'sequelize';
 import logger from '../utils/logger.js';
 
-const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/lumicorepro';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// SECURITY: a hardcoded connection string with a default password is a real
+// credential leak. Outside production we keep a localhost dev default for DX;
+// in production DATABASE_URL must be provided explicitly.
+const databaseUrl = process.env.DATABASE_URL || (IS_PRODUCTION ? '' : 'postgres://postgres:postgres@localhost:5432/lumicorepro');
+
+if (IS_PRODUCTION && !databaseUrl) {
+  throw new Error('DATABASE_URL is required in production (refusing to fall back to a hardcoded dev connection string)');
+}
 
 const SLOW_QUERY_THRESHOLD_MS = Number(process.env.SLOW_QUERY_THRESHOLD_MS) || 200;
+
+// TLS: production must verify the server certificate. Set DB_SSL_REJECT_UNAUTHORIZED=false
+// only for managed providers that present a CA the app cannot chain to.
+const DB_SSL_REJECT_UNAUTHORIZED = (process.env.DB_SSL_REJECT_UNAUTHORIZED || 'true').toLowerCase() === 'true';
 
 // Slow-query flag: log any statement running longer than the threshold
 const queryLogger = (sql, timing) => {
@@ -31,7 +44,9 @@ const sequelize = new Sequelize(databaseUrl, {
     idle: 10000,
   },
   dialectOptions: {
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    // Never disable certificate verification by default — that allows MITM on
+    // the production database connection.
+    ssl: IS_PRODUCTION ? { rejectUnauthorized: DB_SSL_REJECT_UNAUTHORIZED } : false,
   },
 });
 

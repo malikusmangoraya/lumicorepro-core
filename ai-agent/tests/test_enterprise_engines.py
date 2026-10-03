@@ -123,15 +123,60 @@ class TestEnterpriseEngines(unittest.TestCase):
         def callback(phase, event_type, data):
             events_captured.append((phase, event_type))
 
+        # Offline fast execution: every AI call (orchestrator + self-heal
+        # reasoning) resolves to a deterministic fake provider in-process, so
+        # the full pipeline completes without network or dead-gateway retries.
+        from providers.base_provider import BaseAIProvider
+        from utils.helpers import safe_json_parse
+
+        class FakeOfflineProvider(BaseAIProvider):
+            def __init__(self):
+                super().__init__("", "fake-offline", timeout=5)
+
+            def analyze_requirement(self, prompt):
+                return safe_json_parse(
+                    '{"website_type": "ecommerce", "industry": "electronics", '
+                    '"frontend": "react", "backend": "express", "database": "mysql", '
+                    '"features": ["cart", "auth"], "style": ["modern"]}'
+                )
+
+            def generate_code(self, prompt, context_files=None):
+                return "diff --git a/f b/f\n--- a/f\n+++ b/f\n@@ -0,0 +1 @@\n+"
+
+            def modify_code(self, file_content, instruction):
+                return file_content
+
+            def fix_error(self, error_log, file_content):
+                return file_content
+
+            def validate_project(self, project_summary):
+                return {"valid": True, "suggestions": []}
+
+        fake = FakeOfflineProvider()
+
         orch = AgentOrchestrator()
-        orch.ai_provider = None  # offline fast execution
-        res = orch.run(
-            "Build an online electronics store with shopping cart and stripe payment",
-            interactive=False,
-            progress_callback=callback,
-        )
+        orch.ai_provider = fake
+
+        import unittest.mock as mock
+        from agent.quality_gate import DevOpsQualityGate, CommandResult
+
+        async def _stub_run_command(command, cwd=None, **kwargs):
+            return CommandResult(command=command[0] if command else "", returncode=0,
+                                 stdout="stub ok", stderr="")
+
+        with mock.patch.object(DevOpsQualityGate, "run_command", new=_stub_run_command), \
+             mock.patch.object(DevOpsQualityGate, "_github_recovery_for",
+                               new=mock.AsyncMock(return_value={})), \
+             mock.patch("config.providers.get_reasoning_provider", return_value=fake):
+            res = orch.run(
+                "Build an online electronics store with shopping cart and stripe payment",
+                interactive=False,
+                progress_callback=callback,
+            )
         self.assertIn("project_name", res)
-        self.assertEqual(len(orch.PHASES), 15)
+        self.assertEqual(len(orch.PHASES), 18)
+        self.assertIn("design_planner", orch.PHASES)
+        self.assertIn("browser_qa", orch.PHASES)
         self.assertGreater(len(events_captured), 5)
 
 

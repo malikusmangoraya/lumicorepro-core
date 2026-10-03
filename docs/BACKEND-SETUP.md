@@ -92,8 +92,8 @@ Server will start on `http://localhost:5000`
 ## API Documentation
 
 Once the server is running, visit:
-- **Swagger UI**: http://localhost:5000/api-docs
-- **Health Check**: http://localhost:5000/api/health
+- **Swagger UI**: `http://localhost:5000/api-docs`
+- **Health Check**: `http://localhost:5000/api/health`
 
 ## Project Structure
 

@@ -108,7 +108,7 @@ User.init(
       allowNull: true,
     },
     current_org_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: 'Active organization for the session (multi-tenant)',
     },

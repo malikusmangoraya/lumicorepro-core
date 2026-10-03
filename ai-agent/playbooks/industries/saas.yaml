@@ -1,0 +1,71 @@
+# SaaS playbook — LumicorePro Core
+industry: saas
+primary_goal: signup
+secondary_goals: [trial_conversion, activation, retention]
+business_model: subscription
+
+pages:
+  - home
+  - features
+  - pricing
+  - signup
+  - login
+  - dashboard
+  - onboarding
+  - account
+  - billing
+  - docs
+
+critical_components:
+  - pricing_table
+  - feature_comparison
+  - onboarding_stepper
+  - dashboard_charts
+  - usage_meter
+  - integrations
+  - changelog
+  - security_badge
+
+conversion:
+  primary_cta: start_free_trial
+  secondary_cta: book_demo
+  trust:
+    - security_compliance
+    - customer_logos
+    - case_studies
+    - uptime
+    - data_privacy
+  pricing_anchor: visible_three_tiers
+
+mobile_priority:
+  dashboard_readonly: high
+  billing_access: high
+  onboarding: high
+
+visual:
+  density: medium
+  product_ui: dominant
+  typography: clean_technical
+  motion: subtle
+  3d: rare
+  cta_style: clear_primary
+
+ux_patterns:
+  - onboarding_wizard
+  - empty_state_guidance
+  - inline_trial_conversion
+  - progress_save
+
+avoid:
+  - hidden_pricing
+  - vague_cta
+  - excessive_modal_usage
+  - fake_metrics
+  - dark_pattern_trial
+
+qa:
+  - pricing_tier_clarity
+  - signup_flow_complete
+  - onboarding_step_validation
+  - dashboard_loading_states
+  - billing_error_paths

@@ -85,12 +85,17 @@ const Doctor = sequelize.define('Doctor', {
     defaultValue: true,
   },
   org_id: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.INTEGER,
     allowNull: true,
+    comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+    references: { model: 'organizations', key: 'id' },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
   },
 }, {
   tableName: 'doctors',
   timestamps: true,
+  indexes: [{ fields: ['org_id'] }],
   hooks: {
     beforeSave: (doctor) => {
       if (doctor.changed('name') && !doctor.slug) {

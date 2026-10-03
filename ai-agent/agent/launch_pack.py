@@ -135,7 +135,9 @@ any SaaS network, no code editing required.
 
    ```env
    DATABASE_URL=postgres://USER:PASS@localhost:5432/YOURDB
-   JWT_SECRET=CHANGE_ME           # set a long random string
+   # Generate: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+   # Minimum 32 chars. The backend refuses to start if missing, short, or a placeholder.
+   JWT_SECRET=
    ```
 
 3. Install and start:

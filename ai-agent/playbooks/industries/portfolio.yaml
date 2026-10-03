@@ -1,0 +1,63 @@
+# Portfolio / personal brand playbook — LumicorePro Core
+industry: portfolio
+primary_goal: engagement
+secondary_goals: [hire_me, collaborate, showcase_work]
+business_model: personal brand / creative / professional
+
+pages:
+  - home
+  - work
+  - project_detail
+  - about
+  - services
+  - contact
+
+critical_components:
+  - hero
+  - work_grid
+  - project_card
+  - case_study
+  - skills
+  - testimonials
+  - timeline
+  - contact_form
+
+conversion:
+  primary_cta: work_with_me
+  secondary_cta: view_work
+  trust:
+    - client_logos
+    - awards
+    - case_results
+    - testimonials
+
+mobile_priority:
+  hero: high
+  work_grid: high
+  contact: high
+
+visual:
+  density: medium_low
+  imagery: editorial
+  typography: expressive
+  motion: deliberate
+  3d: optional_hero
+  cta_style: underline_exploratory
+
+ux_patterns:
+  - scroll_storytelling
+  - project_filters
+  - cursor_follow
+  - magnetic_cta
+
+avoid:
+  - template_like_hero
+  - weak_brand_identity
+  - generic_copy
+  - excessive_glow
+
+qa:
+  - work_filter
+  - case_study_navigation
+  - contact_submission
+  - mobile_hero_scaling

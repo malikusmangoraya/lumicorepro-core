@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -19,8 +19,18 @@ import {
   Filter,
 } from 'lucide-react';
 import { TEMPLATE_CATALOG } from '@/templates/catalog';
-import { Card, Badge, Button, Input, IconButton } from '@/components/ui';
+import Card from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
+import Input from '@/components/forms/Input';
 import PageSEO from '@/components/common/PageSEO';
+import {
+  useFilterStore,
+  selectFilterSlice,
+  applyFilters,
+  FILTER_SCOPES,
+} from '@/store/filterStore';
 import { cn } from '@/utils';
 
 /* ── category meta ──────────────────────────────────────────────── */
@@ -59,21 +69,26 @@ const CAT_GRADIENT = {
 };
 
 export default function TemplatesHub() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [search, setSearch] = useState('');
+  // Filters live in the Zustand filter store (AGENTS.md §8) so they survive
+  // navigation between the hub and the shop without prop drilling.
+  const filters = useFilterStore(selectFilterSlice(FILTER_SCOPES.TEMPLATES));
+  const setFilter = useFilterStore((state) => state.setFilter);
+  const resetFilters = useFilterStore((state) => state.resetFilters);
+  const { search, category: activeCategory } = filters;
 
-  const filtered = useMemo(() => {
-    return TEMPLATE_CATALOG.filter((t) => {
-      const matchCat = activeCategory === 'All' || t.category === activeCategory;
-      const q = search.toLowerCase();
-      const matchSearch =
-        !q ||
-        t.title.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q) ||
-        (t.tags || []).some((tag) => tag.includes(q));
-      return matchCat && matchSearch;
-    });
-  }, [activeCategory, search]);
+  const setSearch = (value) => setFilter(FILTER_SCOPES.TEMPLATES, 'search', value);
+  const setActiveCategory = (value) => setFilter(FILTER_SCOPES.TEMPLATES, 'category', value);
+
+  const filtered = useMemo(
+    () =>
+      applyFilters(TEMPLATE_CATALOG, filters, {
+        title: 'title',
+        category: 'category',
+        tags: 'tags',
+        searchText: 'description',
+      }),
+    [filters]
+  );
 
   /* grouped for the "All" view */
   const groups = useMemo(() => {
@@ -259,10 +274,7 @@ export default function TemplatesHub() {
             Try a different search term or category.
           </p>
           <Button
-            onClick={() => {
-              setSearch('');
-              setActiveCategory('All');
-            }}
+            onClick={() => resetFilters(FILTER_SCOPES.TEMPLATES)}
             variant="primary"
             leftIcon={X}
           >

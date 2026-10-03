@@ -1,0 +1,1 @@
+{"industry": "automotive", "brand": "luxury", "score": 93.4, "passed": false, "failing": ["originality"], "attention": {"originality": 45.0, "brand_fit": 75.0}, "weakest": "originality", "reference_hints": 0, "ts": "{}"}

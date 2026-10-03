@@ -45,7 +45,7 @@ export default function HotelBooking() {
       {/* Search hero */}
       <Card animate="fade-up" className="relative overflow-hidden mb-8">
         <div className="absolute inset-0">
-          <img src={img.travel.hero} alt="Travel" className="h-full w-full object-cover" />
+          <img src={img.travel.hero} alt="Travel" className="h-full w-full object-cover" loading="eager" decoding="async" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
         </div>
         <div className="relative p-6 sm:p-8">
@@ -126,6 +126,8 @@ export default function HotelBooking() {
                 src={HOTEL_IMGS[i % HOTEL_IMGS.length]}
                 alt={h.name}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <span className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur px-2 py-0.5 rounded-full text-xs font-bold text-amber-300">

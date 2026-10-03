@@ -1,0 +1,72 @@
+# =============================================================================
+# CI/CD Pipeline — REPURPOSED. This file no longer gates anything.
+# =============================================================================
+# It previously duplicated .github/workflows/ci.yml on the same branches, so a
+# single push ran two overlapping pipelines with different job graphs and the same
+# checks twice. Two gates that can disagree are worse than one: the branch
+# protection rule could be satisfied by whichever finished green.
+#
+# There is now exactly ONE merge gate: .github/workflows/ci.yml
+# (frontend lint -> unit tests -> build + bundle budget -> backend syntax ->
+# backend jest -> migration check -> ai-agent pytest -> Playwright e2e ->
+# secret scan + dependency audit). Add new checks THERE, not here.
+#
+# This file is kept, manual-only, as a local-equivalent runner: the same commands
+# the gate runs, useful when you want to reproduce CI on a runner without opening
+# a PR (for example to validate a Docker or Node upgrade). It does NOT run on push
+# or pull_request, so it cannot affect branch protection.
+# =============================================================================
+
+name: CI (manual reproduction — superseded by ci.yml)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-manual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-gate-locally:
+    name: Reproduce the ci.yml gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm run test
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+      - name: Bundle budget
+        run: npm run size
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Backend dependencies and tests
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:ci
+
+      - name: AI agent tests
+        working-directory: ai-agent
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest tests -q

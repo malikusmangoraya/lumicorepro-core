@@ -54,7 +54,7 @@ export default function ClassSchedule() {
               className="overflow-hidden flex flex-col"
             >
               <div className="relative h-36">
-                <img src={CLASS_IMGS[c.img]} alt={c.name} className="h-full w-full object-cover" />
+                <img src={CLASS_IMGS[c.img]} alt={c.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <span className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur px-2 py-0.5 rounded-full text-xs font-bold text-white">
                   <Clock className="h-3 w-3" />

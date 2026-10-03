@@ -123,6 +123,14 @@ router.post('/multiple', protect, uploadLimiter, upload.array('files', 10), (req
  *       - bearerAuth: []
  */
 router.delete('/:filename', protect, (req, res) => {
+  // Uploads are not tracked with an owner in the DB, so ownership cannot be
+  // proven here. Restrict deletion to admins rather than letting any
+  // authenticated user remove arbitrary files from the public uploads dir.
+  if (req.user?.role !== 'admin') {
+    logger.warn(`Blocked non-admin upload delete attempt: ${req.params.filename} by ${req.user?.email}`);
+    return res.status(403).json({ success: false, error: 'Not authorized to delete this file' });
+  }
+
   const filePath = path.join(uploadDir, path.basename(req.params.filename));
 
   if (!fs.existsSync(filePath)) {

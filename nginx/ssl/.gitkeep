@@ -1,0 +1,11 @@
+# Placeholder so this directory exists in a fresh clone.
+#
+# nginx/nginx.conf (the local stack) loads:
+#   /etc/nginx/ssl/fullchain.pem
+#   /etc/nginx/ssl/privkey.pem
+# which docker-compose.yml bind-mounts from this directory. Generate them with:
+#
+#   bash scripts/dev-certs.sh
+#
+# The files themselves are gitignored — never commit a private key.
+# Production certificates live in ./ssl/certs instead; see README.md.

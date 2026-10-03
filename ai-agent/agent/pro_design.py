@@ -517,17 +517,31 @@ ICONS: Dict[str, Dict[str, Any]] = {
 FALLBACK_ICONS = {'features': ['layout-dashboard', 'shield-check', 'zap', 'trending-up'], 'showcase': ['layout-dashboard', 'zap', 'trending-up']}
 
 # ── LumicorePro universal brand logo (transparent background) ────────────────
-LUMICORE_MARK = '''<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LumicorePro">
+LUMICORE_MARK = '''<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LumicorePro" fill="none">
   <defs>
     <linearGradient id="lc-g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#22d3ee"/>
+      <stop offset="0%" stop-color="#ffd9a0"/>
+      <stop offset="42%" stop-color="#e2b26b"/>
+      <stop offset="100%" stop-color="#7a4fd0"/>
     </linearGradient>
+    <radialGradient id="lc-r" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#fff8ec"/>
+      <stop offset="55%" stop-color="#ffd9a0"/>
+      <stop offset="100%" stop-color="#7a4fd0"/>
+    </radialGradient>
   </defs>
-  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#lc-g)"/>
-  <path d="M32 14 L44 22 V38 L32 46 L20 38 V22 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M32 21 L38 25.5 V32 L32 36.5 L26 32 V25.5 Z" fill="#ffffff" opacity="0.92"/>
-  <circle cx="32" cy="27.5" r="2.4" fill="#6366f1"/>
+  <g stroke="url(#lc-r)" stroke-width="1.6" stroke-linecap="round" opacity="0.9">
+    <line x1="32" y1="6" x2="32" y2="16"/>
+    <line x1="32" y1="58" x2="32" y2="48"/>
+    <line x1="6" y1="32" x2="16" y2="32"/>
+    <line x1="58" y1="32" x2="48" y2="32"/>
+  </g>
+  <path d="M32 5 L54 18 V46 L32 59 L10 46 V18 Z" stroke="url(#lc-r)" stroke-width="2"/>
+  <path d="M32 8 L50 19 L50 45 L32 56 L14 45 L14 19 Z" fill="url(#lc-g)" opacity="0.22"/>
+  <path d="M32 8 L50 19 L50 45 L32 56 L14 45 L14 19 Z" stroke="#ffd9a0" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M32 17 L44 24.5 V39.5 L32 47 L20 39.5 V24.5 Z" stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.4" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="8" fill="url(#lc-r)"/>
+  <path d="M28 32 h8 M32 28 v8" stroke="#241a3d" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/>
 </svg>'''
 
 

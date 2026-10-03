@@ -1,8 +1,8 @@
 """Production DevOps & Code Quality Gatekeeper.
 
 Intercepts generated projects (`generated-projects/{project_id}`) after the
-ProjectBuilder export step and enforces an automated code format pass before the
-ZIP compilation phase:
+ProjectBuilder export step and runs format, lint, declared test scripts, and
+optional build verification before release:
 
     1. Subprocess layer  -> spawns a Node.js background process (npm/npx) via
                            this Python shell/subprocess execution handler.
@@ -14,9 +14,10 @@ ZIP compilation phase:
     3. ESLint rule       -> dedicated flat config, `--config scripts/eslint.generated.config.js`
                            (the repo root config globalIgnores `generated-projects`,
                            so a naive `npm run lint -- <path>` would silently skip files).
-    4. ZIP serializer    -> archive is only compiled when BOTH format and lint exit
-                           codes are 0; otherwise the project is routed back to the
-                           code_modifier agent for a bounded self-healing pass.
+    4. Test runner       -> each declared npm test script runs with CI=1; missing or
+                           failing test suites block deployment.
+    5. Release checks    -> failed format, lint, tests, or enabled build verification
+                           block deployment; diagnostic ZIP creation remains separate.
 """
 import os
 import re
@@ -79,7 +80,7 @@ def _posix(path: str) -> str:
 
 
 class DevOpsQualityGate:
-    """Enforces Prettier + ESLint before ZIP compilation for generated projects."""
+    """Enforces formatting, lint, tests, and optional build checks for generated projects."""
 
     def __init__(
         self,
@@ -117,15 +118,24 @@ class DevOpsQualityGate:
             )
 
     # ── Async Subprocess layer ────────────────────────────────────────────────
-    async def run_command(self, args: List[str], cwd: Optional[str] = None) -> CommandResult:
+    async def run_command(
+        self,
+        args: List[str],
+        cwd: Optional[str] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> CommandResult:
         """Execute a Node.js/npm background process asynchronously and capture its exit code."""
         cwd = cwd or self.repo_root
         command_line = " ".join(args)
+        process_env = os.environ.copy()
+        if env:
+            process_env.update(env)
         start = time.time()
         try:
             process = await asyncio.create_subprocess_exec(
                 *args,
                 cwd=cwd,
+                env=process_env,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -182,7 +192,7 @@ class DevOpsQualityGate:
         return self._source_files(project_dir, LINT_EXTENSIONS)
 
     # ── Steps ────────────────────────────────────────────────────────────────
-    async def format_project(self, project_dir: str) -> CommandResult:
+    async def format_project(self, project_dir: str, targets: Optional[List[str]] = None) -> CommandResult:
         """Prettier pass over the generated project.
 
         NOTE: `npm run format -- ./generated-projects/{id}` is a silent no-op
@@ -191,16 +201,38 @@ class DevOpsQualityGate:
         enforce the format rule the gate invokes Prettier with an explicit
         `--ignore-path` (which replaces the gitignore fallback), so the generated
         source is reformatted before the ZIP serializer gate.
+
+        When `targets` is given (only files touched by self-healing), Prettier
+        rewrites exactly those files instead of the whole tree — the fast lane.
         """
         ignore_path = _posix(os.path.relpath(os.path.join(self.repo_root, ".prettierignore"), self.repo_root))
-        rel = _posix(os.path.relpath(project_dir, self.repo_root))
         npx_bin = self.npx or "npx"
+        if targets:
+            relative_targets = []
+            for t in targets:
+                absp = os.path.abspath(t)
+                if absp.startswith(os.path.abspath(project_dir)):
+                    rel = _posix(os.path.relpath(absp, self.repo_root))
+                    if rel not in relative_targets:
+                        relative_targets.append(rel)
+            if not relative_targets:
+                return CommandResult(
+                    command="prettier (empty targets)",
+                    returncode=0,
+                    stdout="No files to format.",
+                    stderr="",
+                )
+            return await self.run_command(
+                [npx_bin, "prettier", "--write", "--ignore-path", ignore_path, *relative_targets],
+                cwd=self.repo_root,
+            )
+        rel = _posix(os.path.relpath(project_dir, self.repo_root))
         return await self.run_command(
             [npx_bin, "prettier", "--write", "--ignore-path", ignore_path, "--", rel],
             cwd=self.repo_root,
         )
 
-    async def lint_project(self, project_dir: str) -> CommandResult:
+    async def lint_project(self, project_dir: str, targets: Optional[List[str]] = None) -> CommandResult:
         """ESLint pass with a dedicated config so generated files are truly checked.
 
         On Windows, expanding every file to its own argv entry blows past the
@@ -208,7 +240,35 @@ class DevOpsQualityGate:
         is too long.'). Passing the project directory as a single target lets
         ESLint resolve/expand the file set internally while the shared flat
         config still applies its `files`/`ignores` globs.
+
+        When `targets` is given (only files touched by self-correction), lint
+        exactly those files fast instead of re-scanning the whole tree.
         """
+        if targets:
+            relative_targets = []
+            for t in targets:
+                absp = os.path.abspath(t)
+                if absp.startswith(os.path.abspath(project_dir)):
+                    rel = _posix(os.path.relpath(absp, self.repo_root))
+                    if rel not in relative_targets:
+                        relative_targets.append(rel)
+            if not relative_targets:
+                return CommandResult(
+                    command="eslint (empty targets)",
+                    returncode=0,
+                    stdout="No lintable files found.",
+                    stderr="",
+                )
+            npx_bin = self.npx or "npx"
+            return await self.run_command(
+                [
+                    npx_bin, "eslint",
+                    "--no-config-lookup",
+                    "--config", _posix(os.path.relpath(self.eslint_config, self.repo_root)),
+                    *relative_targets,
+                ],
+                cwd=self.repo_root,
+            )
         relative_dirs: List[str] = []
         for cand in (project_dir, os.path.join(project_dir, "frontend")):
             if os.path.isdir(cand):
@@ -272,6 +332,47 @@ class DevOpsQualityGate:
             return bool(scripts.get("build"))
         except (OSError, ValueError):
             return False
+
+    @staticmethod
+    def _has_test_script(root: str) -> bool:
+        try:
+            with open(os.path.join(root, "package.json"), encoding="utf-8") as fh:
+                pkg = json.load(fh)
+            scripts = pkg.get("scripts") or {}
+            return bool(scripts.get("test"))
+        except (OSError, ValueError):
+            return False
+
+    async def run_tests(self, project_dir: str) -> Dict[str, Any]:
+        """Run each declared package test script non-interactively in CI mode."""
+        npm_bin = self.npm or "npm"
+        suites: List[Dict[str, Any]] = []
+        for root in self._package_roots(project_dir):
+            if not self._has_test_script(root):
+                continue
+            rel = _posix(os.path.relpath(root, project_dir))
+            result = await self.run_command(
+                [npm_bin, "test"],
+                cwd=root,
+                env={"CI": "1", "FORCE_COLOR": "0"},
+            )
+            suites.append({
+                "stack": rel,
+                "command": result.command,
+                "exit_code": result.returncode,
+                "timed_out": result.timed_out,
+                "duration_secs": result.duration_secs,
+                "passed": result.ok,
+                "output": self._tail(result),
+            })
+        configured = bool(suites)
+        passed = configured and all(suite["passed"] for suite in suites)
+        return {
+            "configured": configured,
+            "passed": passed,
+            "status": "passed" if passed else "failed" if configured else "not_configured",
+            "suites": suites,
+        }
 
     async def verify_build(self, project_dir: str) -> Dict[str, Any]:
         """Install deps + run `npm run build` per package root (npm, not npx)."""
@@ -343,10 +444,14 @@ class DevOpsQualityGate:
         fmt_result: Optional[CommandResult] = None
         lint_result: Optional[CommandResult] = None
         build_result: Optional[Dict[str, Any]] = None
+        test_result: Optional[Dict[str, Any]] = None
         heal_rounds: List[Dict[str, Any]] = []
         self_correction: List[Dict[str, Any]] = []
         last_recovery: Dict[str, Any] = {}
         attempt = 0
+        # Retry fast-lane keeps the offender set from the previous round so the
+        # next lint/format pass scans ONLY the touched files (95s -> seconds).
+        active_targets: Optional[List[str]] = None
         # AI self-correction gets its own budget; the offline self-heal loop keeps
         # the legacy bound so existing deployments behave unchanged.
         max_attempts = (
@@ -358,9 +463,15 @@ class DevOpsQualityGate:
             if checkpoint is not None:
                 checkpoint()
             agent_logger.info(f"[QUALITY GATE] format+lint attempt {attempt + 1} for {_posix(project_dir)}")
-            fmt_result = await self.format_project(project_dir)
-            lint_result = await self.lint_project(project_dir)
+            fmt_result = await self.format_project(project_dir, targets=active_targets)
+            lint_result = await self.lint_project(project_dir, targets=active_targets)
             passed = fmt_result.ok and lint_result.ok
+            test_result = None
+            if passed:
+                test_result = await self.run_tests(project_dir)
+                passed = bool(test_result.get("passed"))
+                if not test_result.get("configured"):
+                    break
             if passed and self.verify_build_enabled:
                 build_result = await self.verify_build(project_dir)
                 passed = build_result.get("ok", False)
@@ -369,7 +480,9 @@ class DevOpsQualityGate:
                 break
 
             offenders = self.lint_offenders(lint_result, project_dir)
-            error_blob = self._failure_blob(fmt_result, lint_result, build_result)
+            error_blob = self._failure_blob(
+                fmt_result, lint_result, build_result, test_result
+            )
             agent_logger.warning(
                 f"[QUALITY GATE] attempt {attempt + 1} failed "
                 f"(format={fmt_result.returncode}, lint={lint_result.returncode}, "
@@ -392,8 +505,23 @@ class DevOpsQualityGate:
             if recovery:
                 last_recovery = recovery
                 heal_rounds[-1]["github_recovery"] = recovery
+            # Fast lane — prettier is deterministic (`--write` already ran):
+            # a pure formatting failure is repaired locally, and semantic
+            # (lint/build) errors alone consume the expensive AI self-correction
+            # round. This avoids an LLM round-trip for auto-fixable formatting.
+            semantic_failure = (
+                not lint_result.ok
+                or not (build_result or {}).get("ok", True)
+                or bool(test_result and not test_result.get("passed"))
+            )
+            if not fmt_result.ok:
+                try:
+                    fmt_retry = await self.format_project(
+                        project_dir, targets=[os.path.abspath(f) for f in offenders] or None)
+                except Exception as exc:
+                    agent_logger.warning(f"[QUALITY GATE] targeted prettier replay failed: {exc}")
             # Preferred path: AI feedback loop (compiler output → diff fix).
-            if error_fixer is not None:
+            if error_fixer is not None and semantic_failure:
                 try:
                     fix = error_fixer(project_dir, error_blob, attempt)
                     self_correction.append(
@@ -414,6 +542,9 @@ class DevOpsQualityGate:
                         self_heal(project_dir, offenders)
                 except Exception as exc:  # never let healing break the loop
                     agent_logger.error(f"[QUALITY GATE] self-healing step raised: {exc}")
+            # Next round touches ONLY the offenders fixed this round.
+            if offenders:
+                active_targets = [os.path.abspath(f) for f in offenders]
             attempt += 1
 
         status = "passed" if passed else "blocked"
@@ -440,6 +571,12 @@ class DevOpsQualityGate:
                 "files_checked": len(self._lint_targets(project_dir)),
                 "output": self._tail(lint_result),
             },
+            "tests": test_result or {
+                "configured": False,
+                "passed": False,
+                "status": "not_run",
+                "suites": [],
+            },
             "build_verify": {
                 "enabled": self.verify_build_enabled,
                 "verified": bool(build_result and build_result.get("verified")),
@@ -451,9 +588,9 @@ class DevOpsQualityGate:
             "lint_files": self.lint_offenders(lint_result, project_dir),
             "github_recovery": last_recovery,
             "note": (
-                "ZIP compilation allowed (format + lint + build exit 0)."
+                "Release checks passed (format + lint + tests + enabled build verification)."
                 if passed
-                else "Quality gate FAILED — ZIP compilation blocked; project returned for self-correction."
+                else "Quality gate FAILED — release deployment blocked; diagnostic ZIP may still be created."
             ),
         }
 
@@ -462,6 +599,7 @@ class DevOpsQualityGate:
         fmt_result: Optional[CommandResult],
         lint_result: Optional[CommandResult],
         build_result: Optional[Dict[str, Any]],
+        test_result: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Assemble the REAL terminal output the AI fixer needs to see."""
         parts = []
@@ -470,6 +608,13 @@ class DevOpsQualityGate:
                 _out = b.get("output") or ""
                 if _out:
                     parts.append(f"[build:{b.get('stack')} exit={b.get('build_exit')}]\n{_out[:3000]}")
+        if test_result:
+            for suite in test_result.get("suites") or []:
+                _out = suite.get("output") or ""
+                if _out:
+                    parts.append(
+                        f"[test:{suite.get('stack')} exit={suite.get('exit_code')}]\n{_out[:3000]}"
+                    )
         if lint_result and (lint_result.stdout or lint_result.stderr):
             parts.append(f"[eslint exit={lint_result.returncode}]\n{DevOpsQualityGate._tail(lint_result, max_chars=3000)}")
         if fmt_result and (fmt_result.stdout or fmt_result.stderr):

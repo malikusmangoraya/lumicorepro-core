@@ -73,7 +73,7 @@ router.post(
 );
 
 /* ══════════════════════════════════════════════════════════════════
- * PATCH /api/subscriptions/:id/cancel — cancel at Stripe
+ * PATCH /api/subscriptions/:id/cancel — cancel at Stripe, then locally
  * ══════════════════════════════════════════════════════════════════ */
 router.patch('/:id/cancel', protect, async (req, res, next) => {
   try {
@@ -86,11 +86,17 @@ router.patch('/:id/cancel', protect, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Subscription is already cancelled' });
     }
 
+    // Provider first: if Stripe fails we leave the local row untouched so the
+    // user can retry instead of believing the subscription is gone.
     if (sub.stripeSubscriptionId) {
       try {
         await stripeService.cancelSubscription(sub.stripeSubscriptionId);
       } catch (stripeErr) {
-        logger.warn(`Stripe cancel failed for ${sub.stripeSubscriptionId}: ${stripeErr.message}`);
+        logger.error(`Stripe cancel failed for ${sub.stripeSubscriptionId}: ${stripeErr.message}`);
+        return res.status(502).json({
+          success: false,
+          error: 'Payment provider could not cancel the subscription. Nothing was changed — please retry.',
+        });
       }
     }
 
@@ -103,7 +109,7 @@ router.patch('/:id/cancel', protect, async (req, res, next) => {
 });
 
 /* ══════════════════════════════════════════════════════════════════
- * DELETE /api/subscriptions/:id — remove local record only
+ * DELETE /api/subscriptions/:id — cancel at Stripe, then remove the local record
  * ══════════════════════════════════════════════════════════════════ */
 router.delete('/:id', protect, async (req, res, next) => {
   try {
@@ -113,8 +119,23 @@ router.delete('/:id', protect, async (req, res, next) => {
 
     if (!sub) return res.status(404).json({ success: false, error: 'Subscription not found' });
 
+    // Cancel at the provider BEFORE dropping the local row: a failed provider
+    // call must not leave a still-billing subscription with no local record.
+    const alreadyCancelled = sub.status === 'canceled' || sub.status === 'cancelled';
+    if (sub.stripeSubscriptionId && !alreadyCancelled) {
+      try {
+        await stripeService.cancelSubscription(sub.stripeSubscriptionId);
+      } catch (stripeErr) {
+        logger.error(`Stripe cancel failed for ${sub.stripeSubscriptionId}: ${stripeErr.message}`);
+        return res.status(502).json({
+          success: false,
+          error: 'Payment provider could not cancel the subscription. Record kept — please retry.',
+        });
+      }
+    }
+
     await sub.destroy();
-    res.json({ success: true, message: 'Subscription removed' });
+    res.json({ success: true, message: 'Subscription cancelled and removed' });
   } catch (error) {
     next(error);
   }

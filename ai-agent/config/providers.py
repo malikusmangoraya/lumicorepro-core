@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Any, List
+from typing import Any, Callable, Dict, List
+from utils.logger import agent_logger
 from .settings import (
     AI_PROVIDER,
     GEMINI_API_KEY,
@@ -11,14 +12,57 @@ from .settings import (
     OPENAI_MODEL,
     GROK_API_KEY,
     GROK_MODEL,
+    OMNIROUTE_API_KEY,
+    OMNIROUTE_MODEL,
+    NINEROUTER_API_KEY,
+    NINEROUTER_MODEL,
 )
 
 # ── New provider keys (read from env at import time) ──────────────────────
 MISTRAL_API_KEY    = os.getenv("MISTRAL_API_KEY", "")
 MISTRAL_MODEL      = os.getenv("MISTRAL_MODEL",     "mistral-large-latest")
 
+# Anthropic Claude — Messages API (ANTHROPIC_API_KEY, CLAUDE_API_KEY accepted as alias)
+ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY", "") or os.getenv("CLAUDE_API_KEY", "")
+ANTHROPIC_MODEL    = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022")
+
+# DeepSeek — OpenAI-compatible REST
+DEEPSEEK_API_KEY   = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_MODEL     = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+
+# NVIDIA NIM Free Tier — free cloud API, no credit card required
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
+NVIDIA_MODEL   = os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4.1-flash")
+
+# Moonshot AI (Kimi) — OpenAI-compatible. KIMI_API_KEY, or MOONSHOT_API_KEY.
+KIMI_API_KEY  = os.getenv("KIMI_API_KEY", "") or os.getenv("MOONSHOT_API_KEY", "")
+KIMI_MODEL    = os.getenv("KIMI_MODEL",   "kimi-k2.7-code")
+KIMI_BASE_URL = os.getenv("KIMI_BASE_URL", "")
+
+# OpenMuse (MIT open-source Meta-Muse-style agent) / any local OpenAI-compatible
+# open-weight runtime: Ollama, vLLM/SGLang, llama.cpp, LM Studio. Keyless.
+OPENMUSE_API_KEY  = os.getenv("OPENMUSE_API_KEY", "")
+OPENMUSE_MODEL    = os.getenv("OPENMUSE_MODEL",   "qwen3-coder")
+OPENMUSE_BASE_URL = os.getenv("OPENMUSE_BASE_URL", "")
+
 PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
     # ── Active providers ──────────────────────────────────────────────
+    "omniroute": {
+        "provider_name": "omniroute",
+        "api_key": OMNIROUTE_API_KEY,
+        "model": OMNIROUTE_MODEL,
+        "env_var_name": "OMNIROUTE_API_KEY",
+        "class_path": "providers.omniroute_provider.OmnirouteProvider",
+        "keyless": True,  # local gateway works without any API key; key optional
+    },
+    "ninerouter": {
+        "provider_name": "ninerouter",
+        "api_key": NINEROUTER_API_KEY,
+        "model": NINEROUTER_MODEL,
+        "env_var_name": "NINEROUTER_API_KEY",
+        "class_path": "providers.ninerouter_provider.NinerouterProvider",
+        "keyless": True,  # local gateway; requires connected provider + DSL key to reply
+    },
     "gemini": {
         "provider_name": "gemini",
         "api_key": GEMINI_API_KEY,
@@ -62,17 +106,119 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "env_var_name": "MISTRAL_API_KEY",
         "class_path": "providers.mistral_provider.MistralProvider",
     },
+    "deepseek": {
+        "provider_name": "deepseek",
+        "api_key": DEEPSEEK_API_KEY,
+        "model": DEEPSEEK_MODEL,
+        "env_var_name": "DEEPSEEK_API_KEY",
+        "class_path": "providers.deepseek_provider.DeepSeekProvider",
+    },
+    "claude": {
+        "provider_name": "claude",
+        "api_key": ANTHROPIC_API_KEY,
+        "model": ANTHROPIC_MODEL,
+        "env_var_name": "ANTHROPIC_API_KEY",
+        "class_path": "providers.claude_provider.ClaudeProvider",
+    },
+    "anthropic": {
+        "provider_name": "claude",  # alias of `claude`
+        "api_key": ANTHROPIC_API_KEY,
+        "model": ANTHROPIC_MODEL,
+        "env_var_name": "ANTHROPIC_API_KEY",
+        "class_path": "providers.claude_provider.ClaudeProvider",
+    },
+    "kimi": {
+        "provider_name": "kimi",
+        "api_key": KIMI_API_KEY,
+        "model": KIMI_MODEL,
+        "base_url": KIMI_BASE_URL,
+        "env_var_name": "KIMI_API_KEY",
+        "class_path": "providers.kimi_provider.KimiProvider",
+        "open_source": True,  # K2 family weights are published; KIMI_BASE_URL may self-host
+    },
+    "moonshot": {
+        "provider_name": "kimi",
+        "api_key": KIMI_API_KEY,
+        "model": KIMI_MODEL,
+        "base_url": KIMI_BASE_URL,
+        "env_var_name": "KIMI_API_KEY",
+        "class_path": "providers.kimi_provider.KimiProvider",
+        "open_source": True,
+    },
+    "openmuse": {
+        "provider_name": "openmuse",
+        "api_key": OPENMUSE_API_KEY,
+        "model": OPENMUSE_MODEL,
+        "base_url": OPENMUSE_BASE_URL,
+        "env_var_name": "OPENMUSE_API_KEY",
+        "class_path": "providers.openmuse_provider.OpenMuseProvider",
+        "keyless": True,  # local Ollama/vLLM/llama.cpp/LM Studio need no key
+        "open_source": True,
+    },
+    "nvidia": {
+        "provider_name": "nvidia",
+        "api_key": NVIDIA_API_KEY,
+        "model": NVIDIA_MODEL,
+        "env_var_name": "NVIDIA_API_KEY",
+        "class_path": "providers.nvidia_provider.NvidiaProvider",
+    },
 }
 
-# Priority order: reasoning-tier first when a capable key exists, fast/cheap
-# fallback otherwise.
+# Priority order: OmniRoute gateway first — its 'auto' model internally routes
+# to the FASTEST available model, compresses tokens, and auto-fallbacks across
+# 350+ providers (150+ free tiers) inside ONE call chain. Native providers
+# below stay as offline fallbacks if the gateway is unreachable.
+#
+# INVARIANT: every name listed here must have a builder in `_PROVIDER_BUILDERS`
+# (see `instantiate_provider`). A name without a constructor silently loses its
+# hop while `/api/providers` still advertises it — `test_provider_wiring.py`
+# is the regression guard for exactly that bug (nvidia was listed first and
+# returned None).
 FALLBACK_ORDER: List[str] = [
-    "gemini",       # Google — fast, free tier (primary)
+    "nvidia",       # NVIDIA NIM free tier — DeepSeek V4.1 Flash, GLM 5.3, Kimi K3 (free, no credit card)
+    "ninerouter",   # 9Router local gateway — free-tier routing + RTK token saver (default, boots :20128)
+    "omniroute",    # OmniRoute gateway — fast-first 'auto' + 150+ free fallbacks (alt, same port)
+    "gemini",       # Google — fast, free tier (primary native)
+    "deepseek",     # DeepSeek — cheap reasoning/code tier
+    "claude",       # Anthropic — strongest reasoning tier when a key is present
     "openai",       # GPT-4/4o — standard
     "openrouter",   # aggregator — fallback
     "grok",         # Groq Cloud — fast but rate limited
     "mistral",      # cheap, multilingual
+    "kimi",         # Moonshot AI — open-weight K2, strong coder (last hosted hop)
+    "openmuse",     # local open-weight server (Ollama/vLLM/llama.cpp) — offline/air-gapped last hop
 ]
+
+def active_provider_name(env: Any = os.environ, default: str = "grok") -> str:
+    """Resolve the configured active provider from `ACTIVE_AI_PROVIDER`/`AI_PROVIDER`."""
+    raw = env.get("ACTIVE_AI_PROVIDER", env.get("AI_PROVIDER", default))
+    return str(raw or default).strip().lower() or default
+
+
+def validate_active_provider(
+    env: Any = os.environ,
+    supported: Any = None,
+    default: str = "grok",
+) -> Dict[str, Any]:
+    """Fail-fast validation for the configured active provider.
+
+    An unsupported provider name used to surface deep inside generation as a
+    `ValueError`. Callers should validate at startup/CLI entry instead.
+    """
+    names = tuple(supported) if supported is not None else tuple(PROVIDER_CONFIGS)
+    active = active_provider_name(env, default)
+    if active not in names:
+        return {
+            "ok": False,
+            "active": active,
+            "supported": sorted(names),
+            "error": (
+                f"Unsupported ACTIVE_AI_PROVIDER '{active}'. "
+                f"Supported: {', '.join(sorted(names))}"
+            ),
+        }
+    return {"ok": True, "active": active, "supported": sorted(names), "error": None}
+
 
 def get_reasoning_provider() -> Any:
     """Instantiate the reasoning-tier provider for bespoke AI design (Phase 5.5)."""
@@ -102,48 +248,195 @@ def get_active_provider_config(provider_name: str = None) -> Dict[str, Any]:
 
 
 def instantiate_provider(provider_name: str):
-    """Dynamically instantiate a provider by name. Returns provider instance or None."""
+    """Dynamically instantiate a provider by name. Returns provider instance or None.
+
+    Every provider that can appear in `FALLBACK_ORDER` must have an entry in
+    `_PROVIDER_BUILDERS`; a missing entry is logged as an error and returns
+    `None` (never a silent `None` from a swallowed import error only).
+    """
     try:
         cfg = get_active_provider_config(provider_name)
-        p_name = cfg["provider_name"]
-        api_key = cfg["api_key"]
-        model = cfg["model"]
-
-        if p_name in ("gemini",):
-            from providers.gemini_provider import GeminiProvider
-            return GeminiProvider(api_key, model)
-        elif p_name in ("openai",):
-            from providers.openai_provider import OpenAIProvider
-            return OpenAIProvider(api_key, model)
-        elif p_name in ("openrouter",):
-            from providers.openrouter_provider import OpenRouterProvider
-            return OpenRouterProvider(api_key, model, model_names=cfg.get("models"))
-        elif p_name in ("grok",):
-            from providers.grok_provider import GrokProvider
-            return GrokProvider(api_key, model)
-        elif p_name in ("mistral",):
-            from providers.mistral_provider import MistralProvider
-            return MistralProvider(api_key, model)
-    except Exception:
+    except ValueError:
+        agent_logger.warning("instantiate_provider: unknown provider '%s'", provider_name)
         return None
+
+    canonical = cfg["provider_name"]
+    builder = _PROVIDER_BUILDERS.get(canonical)
+    if builder is None:
+        agent_logger.error(
+            "instantiate_provider: no constructor registered for '%s' (class_path=%s) — "
+            "this hop cannot serve calls",
+            canonical,
+            cfg.get("class_path"),
+        )
+        return None
+
+    try:
+        return builder(cfg)
+    except Exception as exc:  # import error / constructor signature drift
+        agent_logger.warning("instantiate_provider('%s') failed: %s", canonical, exc)
+        return None
+
+
+def _build_gemini(cfg: Dict[str, Any]):
+    from providers.gemini_provider import GeminiProvider
+    return GeminiProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_openai(cfg: Dict[str, Any]):
+    from providers.openai_provider import OpenAIProvider
+    return OpenAIProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_openrouter(cfg: Dict[str, Any]):
+    from providers.openrouter_provider import OpenRouterProvider
+    return OpenRouterProvider(cfg["api_key"], cfg["model"], model_names=cfg.get("models"))
+
+
+def _build_grok(cfg: Dict[str, Any]):
+    from providers.grok_provider import GrokProvider
+    return GrokProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_mistral(cfg: Dict[str, Any]):
+    from providers.mistral_provider import MistralProvider
+    return MistralProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_omniroute(cfg: Dict[str, Any]):
+    from providers.omniroute_provider import OmnirouteProvider
+    return OmnirouteProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_ninerouter(cfg: Dict[str, Any]):
+    from providers.ninerouter_provider import NinerouterProvider
+    return NinerouterProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_kimi(cfg: Dict[str, Any]):
+    from providers.kimi_provider import KimiProvider
+    return KimiProvider(cfg["api_key"], cfg["model"], base_url=cfg.get("base_url") or None)
+
+
+def _build_openmuse(cfg: Dict[str, Any]):
+    from providers.openmuse_provider import OpenMuseProvider
+    return OpenMuseProvider(cfg["api_key"], cfg["model"], base_url=cfg.get("base_url") or None)
+
+
+def _build_nvidia(cfg: Dict[str, Any]):
+    from providers.nvidia_provider import NvidiaProvider
+    return NvidiaProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_claude(cfg: Dict[str, Any]):
+    from providers.claude_provider import ClaudeProvider
+    return ClaudeProvider(cfg["api_key"], cfg["model"])
+
+
+def _build_deepseek(cfg: Dict[str, Any]):
+    from providers.deepseek_provider import DeepSeekProvider
+    return DeepSeekProvider(cfg["api_key"], cfg["model"])
+
+
+# Canonical provider name (PROVIDER_CONFIGS[…]["provider_name"]) -> constructor.
+# Aliases such as "moonshot" (kimi) and "anthropic" (claude) resolve through the
+# canonical name, so one entry fixes every alias at once.
+_PROVIDER_BUILDERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
+    "gemini": _build_gemini,
+    "openai": _build_openai,
+    "openrouter": _build_openrouter,
+    "grok": _build_grok,
+    "mistral": _build_mistral,
+    "omniroute": _build_omniroute,
+    "ninerouter": _build_ninerouter,
+    "kimi": _build_kimi,
+    "openmuse": _build_openmuse,
+    "nvidia": _build_nvidia,
+    "claude": _build_claude,
+    "deepseek": _build_deepseek,
+}
+
+
+#: API-key placeholders shipped in `.env.example` — never a configured key.
+_PLACEHOLDER_KEYS = {
+    "your_gemini_api_key_here",
+    "your_openai_api_key_here",
+    "your_openrouter_api_key_here",
+    "your_mistral_api_key_here",
+    "your_grok_api_key_here",
+    "your_kimi_api_key_here",
+    "your_openmuse_api_key_here",
+    "your_anthropic_api_key_here",
+    "your_claude_api_key_here",
+    "your_deepseek_api_key_here",
+    "your_nvidia_api_key_here",
+    "aq.",
+    "",
+}
+
+#: Short example-key prefixes that may appear in copied `.env` files. A real
+#: provider key never starts with one of these markers.
+_PLACEHOLDER_PREFIXES = ("your_", "test_", "test-", "example", "placeholder", "changeme", "change-this")
+
+
+def is_placeholder_key(key: str) -> bool:
+    """Detect example keys without depending on an exhaustive literal list."""
+    normalized = str(key or "").strip().lower()
+    if not normalized:
+        return True
+    if normalized in _PLACEHOLDER_KEYS:
+        return True
+    return normalized.startswith(_PLACEHOLDER_PREFIXES)
+
+
+def key_present(provider_name: str) -> bool:
+    """True when the provider has a real (non-placeholder) API key configured."""
+    cfg = get_active_provider_config(provider_name)
+    key = str(cfg.get("api_key", "") or "").strip()
+    # Accept both old (AIza...) and new (AQ.Ab8...) Gemini key formats
+    if key.startswith("AQ.") and len(key) >= 10:
+        return True
+    return not is_placeholder_key(key)
+
+
+def provider_status(provider_name: str) -> Dict[str, Any]:
+    """Honest per-provider wiring report: configured / key_present / constructor_ok.
+
+    `/api/providers` used to advertise a provider as available purely because a
+    key existed, even when `instantiate_provider` had no branch for it (nvidia
+    was the live example). All three facts are reported separately now, and
+    `configured` requires the constructor to work.
+    """
+    cfg = get_active_provider_config(provider_name)
+    keyless = bool(cfg.get("keyless"))
+    try:
+        key_ok = key_present(provider_name)
+    except ValueError:
+        key_ok = False
+    try:
+        constructor_ok = instantiate_provider(provider_name) is not None
+    except Exception:
+        constructor_ok = False
+    return {
+        "name": cfg.get("provider_name", provider_name),
+        "model": cfg.get("model", ""),
+        "env_var": cfg.get("env_var_name", ""),
+        "keyless": keyless,
+        "key_present": key_ok,
+        "constructor_ok": constructor_ok,
+        "configured": constructor_ok and (keyless or key_ok),
+    }
 
 
 def validate_provider_key(provider_name: str = None, require_key: bool = True) -> bool:
     """Validate that required API key is configured for the selected provider."""
     cfg = get_active_provider_config(provider_name)
-    key = cfg.get("api_key", "").strip()
 
-    placeholder_keys = {
-        "your_gemini_api_key_here",
-        "your_openai_api_key_here",
-        "your_openrouter_api_key_here",
-        "your_mistral_api_key_here",
-        "your_grok_api_key_here",
-        "",
-    }
+    # Keyless providers (e.g. local OmniRoute gateway) are always valid.
+    if cfg.get("keyless"):
+        return True
 
-    # Accept both old (AIza...) and new (AQ.Ab8...) Gemini key formats
-    key_valid = key not in placeholder_keys or key.startswith("AQ.")
+    key_valid = key_present(provider_name)
 
     if not key_valid:
         if require_key:
@@ -157,12 +450,38 @@ def validate_provider_key(provider_name: str = None, require_key: bool = True) -
 
 
 def get_available_providers() -> List[str]:
-    """Return list of providers that have a configured (non-placeholder) API key."""
+    """Providers that are genuinely usable: key present (or keyless) AND constructible.
+
+    Key presence alone is not availability — a provider with no working
+    constructor cannot serve a call, so it must not be advertised.
+    """
     available = []
     for name in FALLBACK_ORDER:
         try:
-            if validate_provider_key(name, require_key=False):
+            if provider_status(name)["configured"]:
                 available.append(name)
         except Exception:
-            pass
+            continue
     return available
+
+
+def describe_providers() -> List[Dict[str, Any]]:
+    """Per-provider wiring report for `GET /api/providers` (FALLBACK_ORDER order)."""
+    described: List[Dict[str, Any]] = []
+    for name in FALLBACK_ORDER:
+        try:
+            status = provider_status(name)
+        except Exception as exc:  # pragma: no cover - defensive
+            status = {
+                "name": name,
+                "model": "",
+                "env_var": "",
+                "keyless": False,
+                "key_present": False,
+                "constructor_ok": False,
+                "configured": False,
+                "error": str(exc)[:200],
+            }
+        status["available"] = bool(status.get("configured"))
+        described.append(status)
+    return described

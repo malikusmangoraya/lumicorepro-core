@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, Sparkles, Search } from 'lucide-react';
-import { Button, Card } from '@/components/ui';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import PageSEO from '@/components/common/PageSEO';
 
 const QUICK_LINKS = [

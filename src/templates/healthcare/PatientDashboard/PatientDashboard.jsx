@@ -42,6 +42,8 @@ export default function PatientDashboard() {
               src={img.healthcare.doctor5}
               alt={patient.name}
               className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </Avatar>
           <div className="flex-1 min-w-[180px]">

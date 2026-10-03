@@ -125,4 +125,10 @@ export const withRequestId = (rid) => ({
   debug: (msg, meta) => logger.debug(msg, { ...meta, requestId: rid }),
 });
 
+// The named export must stay in sync with the default export. Several modules
+// load the logger as `const { logger } = await import('../utils/logger.js')`;
+// while only a default export existed that destructure silently produced
+// `undefined`, so every failure branch that tried to log threw a TypeError
+// instead (see backend/services/email.service.js). Both forms are supported.
+export { logger };
 export default logger;

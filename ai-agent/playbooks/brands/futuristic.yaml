@@ -1,0 +1,49 @@
+# Futuristic brand playbook — LumicorePro Core
+brand: futuristic
+personality: [innovative, forward, technical, precise, bold]
+
+typography:
+  display: mono_tech
+  body: technical_sans
+  weight: medium_semibold
+  size: medium
+  spacing: tight
+
+color:
+  base: dark_canvas
+  accent: neon_single
+  gradients: selective_accent
+  saturation: high_accent
+
+spacing:
+  density: medium
+  whitespace: structured
+  rhythm: grid_precise
+
+motion:
+  character: precision
+  durations: fast_to_medium
+  easing: technical_cubic
+  hero: engineered_reveal
+
+imagery:
+  style: futuristic_product
+  lighting: LED_edge
+  subjects: tech_device_abstract
+  ratio: wide
+
+interaction:
+  hover: border_glow
+  cursors: crosshair_pointer
+  cta: neon_outline
+
+surface:
+  depth: layered
+  borders: tech_grid
+  radius: minimal
+
+avoid:
+  - organic_shapes
+  - soft_pastels
+  - playful_rounded_ui
+  - noisy_patterns

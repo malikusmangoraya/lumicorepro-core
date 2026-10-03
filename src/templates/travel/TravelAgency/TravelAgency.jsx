@@ -46,6 +46,9 @@ export default function TravelAgency() {
           src={img.travel.hero}
           alt="Travel"
           className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-8 text-center">
@@ -117,6 +120,8 @@ export default function TravelAgency() {
                 src={DEST_IMGS[i % DEST_IMGS.length]}
                 alt={dest.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute top-3 left-3">

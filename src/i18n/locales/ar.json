@@ -98,7 +98,8 @@
     "ai": "الذكاء الاصطناعي",
     "business": "الأعمال",
     "logout": "تسجيل الخروج",
-    "pricing": "الأسعار"
+    "pricing": "الأسعار",
+    "workspace": "مساحة العمل"
   },
   "apiSettings": {
     "title": "إعدادات API",

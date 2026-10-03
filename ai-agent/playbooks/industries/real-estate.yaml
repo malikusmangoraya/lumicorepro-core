@@ -1,0 +1,67 @@
+# Real-estate playbook — LumicorePro Core
+industry: real-estate
+primary_goal: inquiry
+secondary_goals: [site_visit, download_brochure, valuation_request]
+business_model: agency / developer / property portal
+
+pages:
+  - home
+  - listings
+  - property_detail
+  - projects
+  - about
+  - contact
+  - valuation
+
+critical_components:
+  - property_card
+  - gallery
+  - floor_plan
+  - mortgage_calculator
+  - virtual_tour
+  - map
+  - request_form
+  - amenities
+
+conversion:
+  primary_cta: request_visit
+  secondary_cta: download_brochure
+  trust:
+    - developer_rating
+    - legal_clearance
+    - delivery_track_record
+    - location_value
+  urgency: [limited_units, early_bird, launch_offer]
+
+mobile_priority:
+  gallery: high
+  map: high
+  schedule_visit: high
+  price_filter: high
+
+visual:
+  density: low
+  imagery: large_editorial
+  typography: refined
+  motion: slow
+  3d: yes_virtual_tour
+  cta_style: concierge
+
+ux_patterns:
+  - mortgage_calculator
+  - saved_properties
+  - compare_properties
+  - agent_chat
+
+avoid:
+  - hidden_pricing
+  - fake_amenities
+  - excessive_modal_usage
+  - unclear_mortgage_terms
+
+qa:
+  - listing_filter_preserved
+  - virtual_tour_load
+  - mortgage_math
+  - schedule_visit_flow
+  - property_detail_complete

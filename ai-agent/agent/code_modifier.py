@@ -47,18 +47,51 @@ def build_diff_prompt(task: str, vfs_context: str) -> str:
     return DIFF_PROMPT.format(task=task, context=vfs_context[:15000])
 
 
+_FENCE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_+-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
+
+
 def strip_diff_fence(raw: str) -> str:
-    """Remove markdown code fences and leading noise from a model diff reply."""
+    """Remove markdown code fences and surrounding prose from a model reply.
+
+    Models wrap replies in a fence *and* like to prefix a sentence ("Here is the
+    updated file:"), so a naive ``startswith("```")`` check leaves the fence and
+    the prose in the payload. When that payload is written straight to a source
+    file it produces a file that cannot compile. Extract the fenced block from
+    anywhere in the reply, preferring one that actually looks like a diff.
+    """
     raw = raw.strip()
-    if raw.startswith("```"):
-        raw = re.sub(r"^```[a-zA-Z]*\s*", "", raw, flags=re.MULTILINE)
-        raw = re.sub(r"\s*```$", "", raw, flags=re.MULTILINE)
+    if not raw:
+        return raw
+
+    blocks = [b.strip() for b in _FENCE_BLOCK_RE.findall(raw)]
+    if blocks:
+        diffish = [
+            b
+            for b in blocks
+            if b.startswith("diff --git") or b.startswith("---") or "diff --git" in b
+        ]
+        raw = (diffish or blocks)[0]
+    else:
+        raw = re.sub(r"^\s*```[a-zA-Z0-9_+-]*[ \t]*\r?\n?", "", raw)
+        raw = re.sub(r"\r?\n?\s*```\s*$", "", raw)
+
     raw = raw.strip()
     if not raw.startswith("diff --git") and not raw.startswith("---"):
         first = raw.find("diff --git")
         if first >= 0:
             raw = raw[first:]
+    raw = raw.strip()
+    # A unified diff is only valid when its last line is newline-terminated;
+    # `git apply` rejects the whole patch with "corrupt patch at <stdin>:N"
+    # otherwise. Same reasoning for a full source file written back out.
+    if raw and not raw.endswith("\n"):
+        raw += "\n"
     return raw
+
+
+def has_code_fence(text: str) -> bool:
+    """True when `text` still carries markdown fence markers (i.e. stripping failed)."""
+    return "```" in (text or "")
 
 
 class CodeModifier:
@@ -240,7 +273,22 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
 
         if self.ai_provider:
             try:
-                new_content = self.ai_provider.modify_code(content, instruction)
+                # A patch/repair is the one call where a wrong answer costs a
+                # whole build loop, so route it to a reasoning-tier model
+                # instead of whatever the pool happens to be pointing at.
+                # An explicit AI_PROVIDER/REASONING_PROVIDER still wins.
+                from agent.ai_routing import offline, prefer
+
+                if offline():
+                    # AI_OFFLINE: fall through to the deterministic safe patch.
+                    raise RuntimeError("AI_OFFLINE=1: provider calls disabled")
+                provider, provider_name, tier = prefer(
+                    "repair", f"{content}\n{instruction}", is_repair=True, explicit=self.ai_provider
+                ) or (self.ai_provider, "explicit", "pinned")
+                agent_logger.info(f"[ROUTER] patch_file -> tier={tier} provider={provider_name}")
+                new_content, call_err = self._call_with_rotation(provider, "modify_code", content, instruction)
+                if call_err is not None:
+                    raise call_err
                 if new_content and len(new_content.strip()) > 10:
                     # Security Audit & Syntax Sanity Validation
                     violations = self.validate_code_security(new_content)
@@ -257,30 +305,51 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
                 agent_logger.warning(f"AI code modification failed or rejected: {e}. Applying safe patch.")
                 self._fire_github_recovery(str(e))
 
-        # Safe fallback patch — apply and comment in human code-review style,
-        # with no generation-branding visible in the delivered source.
-        # Strip contract snippet from instruction to avoid raw text in source files
-        safe_instruction = instruction
-        try:
-            from agent.component_registry import component_contract_snippet
-            snippet = component_contract_snippet()
-            if snippet:
-                safe_instruction = instruction.replace(snippet, "").strip()
-        except Exception:
-            pass
-        if not safe_instruction:
-            safe_instruction = "code review update"
-        # JSON must stay valid JSON — never append JS-style comments to it.
+        # Safe fallback patch — never inject AI instruction text or review
+        # comments into delivered source. Normalize the file and move on so the
+        # gate can re-validate with truly clean code.
         if file_path.lower().endswith(".json"):
-            if not content.strip():
-                patched_content = "{}\n"
-            else:
-                patched_content = content
-            if not patched_content.rstrip().endswith("}"):
-                patched_content = patched_content.rstrip() + "\n"
-            return FileManager.write_file(file_path, patched_content)
-        patched_content = content + f"\n\n// Updated per review: {safe_instruction}\n"
-        return FileManager.write_file(file_path, patched_content)
+            body = content.strip() or "{}"
+            try:
+                import json as _json
+                _json.loads(body)
+                normalized = body + "\n"
+            except Exception:
+                normalized = "{}"
+            return FileManager.write_file(file_path, normalized)
+        normalized = "\n".join(line.rstrip() for line in content.split("\n")).rstrip() + "\n"
+        return FileManager.write_file(file_path, normalized)
+
+    def _call_with_rotation(self, provider, method_name, *args):
+        """Call a provider method; on connectivity failure or an empty/short
+        reply, rotate to the next live provider once and retry.
+
+        Returns (result, None) on success or (None, exception) once retried.
+        """
+        from providers.base_provider import BaseAIProvider
+
+        def _attempt(p):
+            result = getattr(p, method_name)(*args)
+            if isinstance(result, str) and len(result.strip()) <= 10:
+                if result.strip():
+                    raise ConnectionError("empty provider reply")
+                return "", ConnectionError("empty provider reply")
+            return result, None
+
+        try:
+            result, _err = _attempt(provider)
+            return result, None
+        except Exception as exc:
+            if BaseAIProvider.is_connectivity_error(exc):
+                try:
+                    from config.providers import get_reasoning_provider
+                    fresh = get_reasoning_provider()
+                    if fresh is not None and fresh is not provider:
+                        agent_logger.info(f"Provider rotation in code-modifier: {provider.__class__.__name__} -> {fresh.__class__.__name__}")
+                        return _attempt(fresh)
+                except Exception as rotate_err:
+                    agent_logger.warning(f"Provider rotation failed: {rotate_err}")
+            return None, exc
 
     # ── Revision apply: multi-change batch patch ──────────────────────────────
     def apply_revision(self, project_dir: str, changes: List[str], provider=None) -> Dict[str, Any]:
@@ -340,7 +409,9 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
             return {"status": "error", "reason": "no_files_in_project"}
 
         prompt = build_diff_prompt(task, vfs.to_prompt_context(max_files=max_context_files))
-        raw_diff = provider.generate_code(prompt)
+        raw_diff, call_err = self._call_with_rotation(provider, "generate_code", prompt)
+        if call_err is not None:
+            raise call_err
         if not raw_diff or len(raw_diff.strip()) < 40:
             return {"status": "error", "reason": "empty_model_reply"}
 
@@ -396,15 +467,17 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
         )
 
     def self_heal_project(self, project_dir: str, offending_files: List[str]) -> int:
-        """Best-effort self-healing pass on files flagged by the DevOps quality gate.
+        """Best-effort self-healing pass on files flagged by the quality gate.
 
-        Routes each offending file back through the AI-driven `patch_file` when a
-        provider is configured; otherwise applies a safe offline repair. The
-        quality gate re-runs format + lint after this pass to confirm recovery.
-        Returns the number of files healed.
+        Prefers the VFS batch-diff path (ONE AI call for ALL offending files)
+        when an AI provider is available — this eliminates the old serial
+        per-file AI round trip. Falls back to per-file `patch_file`, then to the
+        offline deterministic repair. The quality gate re-runs format + lint
+        after this pass to confirm recovery. Returns the number of files healed.
         """
         healed = 0
         seen: set = set()
+        resolved: List[str] = []
         for rel_path in offending_files or []:
             candidate = rel_path if os.path.isabs(rel_path) else os.path.join(project_dir, rel_path)
             candidate = os.path.abspath(candidate)
@@ -417,9 +490,50 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
             except Exception as exc:
                 agent_logger.warning(f"Self-heal skipped (unsafe path) {candidate}: {exc}")
                 continue
-            if not os.path.exists(candidate):
-                continue
+            candidate = str(candidate)
+            if os.path.exists(candidate):
+                resolved.append(candidate)
 
+        if not resolved:
+            return 0
+
+        # Preferred: one batched AI diff across all offending files.
+        batch: Dict[str, Any] = {}
+        if self.ai_provider:
+            try:
+                task = (
+                    "Fix syntax, ESLint and formatting issues in the flagged "
+                    "files below so they parse and lint cleanly. Fix the "
+                    "specific problems only — do NOT restructure working code "
+                    "or rewrite files wholesale.\n\n"
+                    "FLAGGED FILES:\n"
+                    + "\n".join(
+                        os.path.relpath(f, project_dir).replace("\\", "/")
+                        for f in resolved
+                    )
+                )
+                result = self.apply_ai_diff_batch(project_dir, task)
+                if result and isinstance(result, dict):
+                    batch = result
+                if batch.get("status") in ("applied", "no_changes"):
+                    count = len(batch.get("files_changed") or [])
+                    healed += count
+                    agent_logger.info(
+                        f"Self-heal batched AI diff: {count} file(s) changed "
+                        f"({len(resolved)} flagged)"
+                    )
+            except Exception as exc:
+                agent_logger.warning(f"Self-heal batched AI diff failed: {exc}. Falling back to per-file patch.")
+
+            # Only per-file patch the files the batch diff did NOT touch.
+            patched = set(batch.get("files_changed") or [])
+        else:
+            patched = set()
+
+        for candidate in resolved:
+            rel_key = os.path.relpath(candidate, project_dir).replace("\\", "/")
+            if rel_key in patched or candidate.replace(os.sep, "/") in patched:
+                continue
             if self.ai_provider:
                 try:
                     ok = self.patch_file(

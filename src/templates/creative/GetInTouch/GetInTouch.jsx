@@ -117,7 +117,7 @@ export default function GetInTouch() {
         <div className="lg:col-span-2 space-y-6">
           <Card animate="fade-up" animationDelay={80}>
             <div className="relative h-36 overflow-hidden rounded-xl mb-4">
-              <img src={img.creative.hero} alt="Studio" className="h-full w-full object-cover" />
+              <img src={img.creative.hero} alt="Studio" className="h-full w-full object-cover" loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-black/30" />
               <h4 className="absolute bottom-3 left-3 font-display text-lg font-bold text-white">
                 MuddyStudio
@@ -151,6 +151,8 @@ export default function GetInTouch() {
               src={img.creative.team1}
               alt="Team"
               className="h-12 w-12 rounded-xl object-cover shrink-0"
+              loading="lazy"
+              decoding="async"
             />
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="font-semibold text-foreground">Prefer a quick call?</span> Mondays

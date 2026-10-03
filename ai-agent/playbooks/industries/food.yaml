@@ -1,0 +1,73 @@
+# Food / restaurant playbook — LumicorePro Core
+industry: food
+primary_goal: order
+secondary_goals: [table_reservation, delivery_order, catering_request]
+business_model: restaurant / cafe / delivery
+
+pages:
+  - home
+  - menu
+  - category
+  - item_detail
+  - cart
+  - checkout
+  - reservation
+  - catering
+  - about
+  - contact
+
+critical_components:
+  - menu_item_card
+  - category_nav
+  - diet_badges
+  - dietary_filters
+  - customization
+  - cart_drawer
+  - delivery_address
+  - order_status
+  - reservation_form
+
+conversion:
+  primary_cta: order_now
+  secondary_cta: reserve_table
+  trust:
+    - rating
+    - hygiene_certification
+    - ingredient_sourcing
+    - chef_credential
+  urgency: [happy_hours, delivery_deals, today_special]
+
+mobile_priority:
+  menu_browsing: high
+  one_tap_order: high
+  reorder: high
+  delivery_tracking: high
+
+visual:
+  density: medium
+  imagery: high_appetite
+  typography: warm_friendly
+  motion: energetic
+  3d: optional_dish_reveal
+  cta_style: order_primary
+
+ux_patterns:
+  - quick_add
+  - customizations_stepper
+  - reorder_last
+  - favorite_dishes
+  - dietary_preferences
+
+avoid:
+  - hidden_charges
+  - unclear_delivery_fees
+  - excessive_modal_usage
+  - weak_search
+  - fake_reviews
+
+qa:
+  - order_flow_complete
+  - customization_save
+  - delivery_fee_transparent
+  - dietary_filters_accurate
+  - reservation_flow

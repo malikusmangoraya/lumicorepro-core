@@ -1,0 +1,49 @@
+# Minimal brand playbook — LumicorePro Core
+brand: minimal
+personality: [clean, precise, calm, considered, honest]
+
+typography:
+  display: geometric_sans
+  body: clean_sans
+  weight: regular_medium
+  size: medium
+  spacing: tight_generous
+
+color:
+  base: neutral_light
+  accent: single_hue
+  gradients: none
+  saturation: low
+
+spacing:
+  density: low
+  whitespace: high
+  rhythm: consistent_grid
+
+motion:
+  character: subtle
+  durations: short
+  easing: standard
+  hero: single_fade
+
+imagery:
+  style: minimal_product
+  lighting: soft_even
+  subjects: product_abstraction
+  ratio: square_standard
+
+interaction:
+  hover: simple_underline
+  cursors: default
+  cta: one_primary
+
+surface:
+  depth: flat
+  borders: thin
+  radius: small_medium
+
+avoid:
+  - gradients
+  - decorative_effects
+  - exaggerated_animation
+  - overcrowded_sections
