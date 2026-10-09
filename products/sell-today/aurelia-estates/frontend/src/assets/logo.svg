@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#be2c2c"/><stop offset="100%" stop-color="#821616"/></linearGradient></defs>
+  <rect x="16" y="16" width="68" height="68" rx="15" fill="url(#t)"/>
+  <g transform="translate(30 30) scale(0.596)"><polygon points="8,30 32,8 56,30" fill="#ffffff"/><rect x="16" y="30" width="32" height="24" fill="#ffffff"/><path d="M28 54 V44 C28 38 36 38 36 44 V54 Z" fill="#821616"/><circle cx="45" cy="22" r="4" fill="#821616"/></g>
+  <text x="104" y="62" font-family="Inter, Inter, system-ui, sans-serif" font-size="40" font-weight="800" letter-spacing="0.5" fill="#0f172a">Aurelia Estates</text>
+</svg>

@@ -12,6 +12,7 @@ from agent.pro_design import (
     DIR_TO_REPO,
     UI_STYLE_DEFAULT,
 )
+from agent.gh_token import load_token as _load_gh_token
 
 # Deterministic per-project style so the batch sweep shows off the whole wheel.
 STYLE_ROTATION = [
@@ -24,13 +25,7 @@ GENERATED = ROOT / 'generated-projects'
 
 
 def load_token() -> str:
-    env_file = ROOT / '.env'
-    if env_file.exists():
-        for line in env_file.read_text(encoding='utf-8').splitlines():
-            line = line.strip()
-            if line.startswith('GITHUB_TOKEN='):
-                return line.split('=', 1)[1].strip()
-    return ''
+    return _load_gh_token(env_files=[ROOT / '.env'])
 
 
 def has_vite_frontend(project_dir: Path) -> bool:

@@ -1,0 +1,4540 @@
+{
+  "user_prompt": "Build a luxury travel concierge platform 'Saffron Voyage' for private island villas, chartered yachts and bespoke itineraries. Audience: high-net-worth travelers. Features: auth (JWT), Stripe checkout for trip deposits and full bookings, immersive hero with video-like reveal, trip builder with dates and guests, destination cards, itinerary builder, i18n (English, Arabic, French) RTL, multi-currency (USD, EUR, AED), compliance pages, SEO + OG + JSON-LD, WhatsApp float, dark luxury theme. React 19 + Vite + Tailwind, Express + MySQL. Real and production-ready.",
+  "project_name": "saffron-voyage",
+  "generated_project_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage",
+  "zip_archive_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage.zip",
+  "quality_gate_devops": {
+    "available": true,
+    "passed": true,
+    "status": "passed",
+    "attempts": 1,
+    "maximum_attempts": 4,
+    "format": {
+      "command": "C:\\Program Files\\nodejs\\npx.CMD prettier --write --ignore-path .prettierignore -- generated-projects/saffron-voyage",
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_secs": 7.772,
+      "output": "cts/saffron-voyage/frontend/src/pages/Services.jsx 20ms\ngenerated-projects/saffron-voyage/frontend/src/seo-config.json 4ms\ngenerated-projects/saffron-voyage/frontend/src/services/analyticsBus.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/services/api.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/services/apiConfig.js 3ms\ngenerated-projects/saffron-voyage/frontend/src/services/lemonSqueezy.js 10ms\ngenerated-projects/saffron-voyage/frontend/src/store/useAppStore.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/styles/design-tokens.json 3ms\ngenerated-projects/saffron-voyage/frontend/src/sw-cache-strategy.js 7ms\ngenerated-projects/saffron-voyage/frontend/src/utils.js 6ms\ngenerated-projects/saffron-voyage/frontend/tailwind.config.js 5ms\ngenerated-projects/saffron-voyage/frontend/vite.config.js 3ms\ngenerated-projects/saffron-voyage/frontend/vite.config.performance.js 9ms\ngenerated-projects/saffron-voyage/GENERATION-MATRIX.md 18ms\ngenerated-projects/saffron-voyage/INSTRUCTIONS.md 65ms\ngenerated-projects/saffron-voyage/LEMON_SQUEEZY_SELLER_KIT.md 26ms\ngenerated-projects/saffron-voyage/LICENSE-SEAL.md 4ms\ngenerated-projects/saffron-voyage/LICENSE.md 5ms\ngenerated-projects/saffron-voyage/nginx/ssl/README.md 6ms\ngenerated-projects/saffron-voyage/PERFORMANCE.md 21ms\ngenerated-projects/saffron-voyage/PLATFORM-INJECTION.md 16ms\ngenerated-projects/saffron-voyage/QUALITY-GATES.md 8ms\ngenerated-projects/saffron-voyage/railway.json 2ms\ngenerated-projects/saffron-voyage/README.md 57ms\ngenerated-projects/saffron-voyage/render.yaml 4ms\ngenerated-projects/saffron-voyage/SCHEMA-CONTRACT.md 19ms\ngenerated-projects/saffron-voyage/SECURITY-CHECKLIST.md 8ms\ngenerated-projects/saffron-voyage/SEO_AUDIT.md 9ms\ngenerated-projects/saffron-voyage/SEO_META_TAGS.md 21ms\ngenerated-projects/saffron-voyage/SETUP_GUIDE.md 13ms\ngenerated-projects/saffron-voyage/structured-data.json 1ms\ngenerated-projects/saffron-voyage/vercel.json 4ms\ngenerated-projects/saffron-voyage/WEBHOOKS.md 15ms"
+    },
+    "lint": {
+      "command": "C:\\Program Files\\nodejs\\npx.CMD eslint --no-config-lookup --config scripts/eslint.generated.config.js generated-projects/saffron-voyage generated-projects/saffron-voyage/frontend",
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_secs": 10.429,
+      "files_checked": 269,
+      "output": ""
+    },
+    "build_verify": {
+      "enabled": true,
+      "verified": true,
+      "ok": true,
+      "builds": [
+        {
+          "stack": "generated-projects/saffron-voyage/frontend",
+          "install_exit": 0,
+          "build_exit": 0,
+          "build_command": "C:\\Program Files\\nodejs\\npm.CMD run build",
+          "output": "> saffron-voyage@1.0.0 build\n> vite build\n\n\u001b[36mvite v8.3.0 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n✓ 1925 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   1.48 kB │ gzip:  0.62 kB\ndist/assets/index-2Sb9M-vz.css   54.72 kB │ gzip:  9.80 kB\ndist/assets/Home-Bo92UdH0.js     22.58 kB │ gzip:  6.03 kB\ndist/assets/index-99MKLOCY.js   269.69 kB │ gzip: 84.63 kB\n\n\u001b[32m✓ built in 8.03s\u001b[39m\n\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mPlugin hooks ran for 7.9s of this 8.0s build (98%).\nThe slowest hooks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):\n  - vite:build-html transform (85%, 6.8s, 1 call)\nAdditional hook time came from hooks under 1s.\nSee https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.\n\u001b[39m",
+          "ok": true
+        },
+        {
+          "stack": "generated-projects/saffron-voyage/backend",
+          "install_exit": 0,
+          "build_exit": null,
+          "output": "rsions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me\nnpm warn deprecated supertest@6.3.4: Please upgrade to supertest v7.1.3+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.3 - maintenance is supported by Forward Email @ https://forwardemail.net\nnpm warn deprecated circular-json@0.1.6: CircularJSON is in maintenance only, flatted is its successor.\nnpm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()\nnpm warn deprecated sliced@0.0.5: Unsupported\nnpm warn deprecated dottie@0.1.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.\nnpm warn deprecated wru@0.3.0: Sorry folks, no time to maintain this good old friend\nnpm warn deprecated node-uuid@1.4.8: Use uuid module instead\nnpm warn deprecated lingo@0.0.5: This project is abandoned\nnpm warn deprecated superagent@8.1.2: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net\nnpm warn deprecated sequelize@1.7.11: Please update to v6 or higher! A migration guide can be found here: https://sequelize.org/v6/manual/upgrade-to-v6.html\nnpm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   @scarf/scarf@1.4.0 (postinstall: node ./report.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.",
+          "ok": true
+        }
+      ]
+    },
+    "self_heal_rounds": [],
+    "self_correction": [],
+    "lint_files": [],
+    "github_recovery": {},
+    "note": "ZIP compilation allowed (format + lint + build exit 0)."
+  },
+  "architect_enterprise_gate": {
+    "passed": false,
+    "blocked_zip": true,
+    "docs": {
+      "rules_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\project-rules",
+      "loaded": 5,
+      "required": 5,
+      "all_present": true,
+      "files": {
+        "PRD_MASTER_TEMPLATE.md": {
+          "loaded": true,
+          "anchors": {
+            "## Feature Scope": true,
+            "## Acceptance Criteria": true
+          }
+        },
+        "TRD_ENGINEERING_STANDARDS.md": {
+          "loaded": true,
+          "anchors": {
+            "## Dependency Pins": true,
+            "## React 19 Rules": true,
+            "## Backend Patterns": true
+          }
+        },
+        "UI_UX_DESIGN_TOKENS.md": {
+          "loaded": true,
+          "anchors": {
+            "## Color Tokens": true,
+            "## Glassmorphism": true,
+            "## Motion Profiles": true,
+            "## Conformance": true
+          }
+        },
+        "BACKEND_SCHEMA_SPEC.md": {
+          "loaded": true,
+          "anchors": {
+            "## Model Baseline": true,
+            "## Foreign Key Contract": true,
+            "## Concurrency Mandate": true,
+            "## Multi-Tenancy (Organizations + RBAC)": true
+          }
+        },
+        "SRS_SYSTEM_SPECIFICATIONS.md": {
+          "loaded": true,
+          "anchors": {
+            "## SEO Architecture": true,
+            "## Internationalization": true,
+            "## Code Quality Assurance": true
+          }
+        }
+      }
+    },
+    "verification": {
+      "prd": {
+        "name": "prd",
+        "doc": "PRD_MASTER_TEMPLATE.md",
+        "pass": true,
+        "checks": {
+          "fluid_ui": {
+            "pass": true,
+            "detail": "fluid tokens + fluid utilities",
+            "files": [],
+            "applies": true
+          },
+          "micro_interactions": {
+            "pass": true,
+            "detail": "artifacts present",
+            "files": [],
+            "applies": true
+          },
+          "lead_capture": {
+            "pass": true,
+            "detail": "artifacts present",
+            "files": [],
+            "applies": true
+          },
+          "mounted_motion_canvas": {
+            "pass": true,
+            "detail": "MotionCanvas mounted in App.jsx",
+            "files": [],
+            "applies": true
+          },
+          "runtime_mode": {
+            "pass": true,
+            "detail": "runtime_mode=transactional matches layout_mode=enterprise",
+            "files": [],
+            "applies": true
+          }
+        },
+        "note": ""
+      },
+      "engineering": {
+        "name": "engineering",
+        "doc": "TRD_ENGINEERING_STANDARDS.md",
+        "pass": false,
+        "checks": {
+          "stack_pins": {
+            "pass": true,
+            "detail": "pins conformant",
+            "files": [],
+            "applies": true
+          },
+          "state_topology": {
+            "pass": true,
+            "detail": "provider-wrapped app root",
+            "files": [],
+            "applies": true
+          },
+          "optimization": {
+            "pass": true,
+            "detail": "lazy layouts + CLS guard",
+            "files": [],
+            "applies": true
+          },
+          "backend_blueprint": {
+            "pass": true,
+            "detail": "backend blueprint conformant",
+            "files": [],
+            "applies": true
+          },
+          "component_injection": {
+            "pass": false,
+            "detail": "raw <button> markup: frontend/src/components/auth/LoginForm.jsx, frontend/src/components/auth/RegisterForm.jsx, frontend/src/components/auth/SocialLogin.jsx, frontend/src/components/ecommerce/BuyTemplateBanner.jsx, frontend/src/components/ecommerce/PricingTable.jsx, frontend/src/components/ecommerce/ProductCard.jsx, frontend/src/components/ecommerce/QuantitySelector.jsx",
+            "files": [
+              "frontend/src/components/auth/LoginForm.jsx",
+              "frontend/src/components/auth/RegisterForm.jsx",
+              "frontend/src/components/auth/SocialLogin.jsx",
+              "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+              "frontend/src/components/ecommerce/PricingTable.jsx",
+              "frontend/src/components/ecommerce/ProductCard.jsx",
+              "frontend/src/components/ecommerce/QuantitySelector.jsx"
+            ],
+            "applies": true
+          }
+        },
+        "note": ""
+      },
+      "design": {
+        "name": "design",
+        "doc": "UI_UX_DESIGN_TOKENS.md",
+        "pass": false,
+        "checks": {
+          "tokens": {
+            "pass": true,
+            "detail": "semantic token mapping present",
+            "files": [],
+            "applies": true
+          },
+          "glass": {
+            "pass": true,
+            "detail": "glassmorphism spec present",
+            "files": [],
+            "applies": true
+          },
+          "motion": {
+            "pass": true,
+            "detail": "motion profiles present",
+            "files": [],
+            "applies": true
+          },
+          "theme": {
+            "pass": true,
+            "detail": "dark-default theme wired",
+            "files": [],
+            "applies": true
+          },
+          "raw_hex": {
+            "pass": false,
+            "detail": "raw hex literals: 1",
+            "files": [
+              "frontend/src/components/Footer.jsx:51"
+            ],
+            "applies": true
+          }
+        },
+        "note": ""
+      },
+      "schema_srs": {
+        "name": "BACKEND_SCHEMA_SPEC.md",
+        "doc": "BACKEND_SCHEMA_SPEC.md + SRS_SYSTEM_SPECIFICATIONS.md",
+        "pass": false,
+        "checks": {
+          "baseline": {
+            "pass": true,
+            "detail": "14/14 models present",
+            "files": [],
+            "applies": true
+          },
+          "fk_contract": {
+            "pass": true,
+            "detail": "FK contract honored",
+            "files": [
+              "backend\\models\\index.js"
+            ],
+            "applies": true
+          },
+          "concurrency": {
+            "pass": true,
+            "detail": "row-lock checkout flow present (transaction:services\\orderService.js, row lock:services\\orderService.js, stock guard:services\\orderService.js, atomic decrement:services\\couponService.js)",
+            "files": [],
+            "applies": true
+          },
+          "rule_lockfile": {
+            "pass": true,
+            "detail": "docs rule lockfile honored (2 applicable rules)",
+            "files": [
+              "backend\\models\\Role.js",
+              "backend\\models\\index.js"
+            ],
+            "applies": true
+          },
+          "jsonld": {
+            "pass": true,
+            "detail": "18/14 JSON-LD types",
+            "files": [],
+            "applies": true
+          },
+          "open_graph": {
+            "pass": true,
+            "detail": "OG + twitter meta present",
+            "files": [],
+            "applies": true
+          },
+          "headings": {
+            "pass": false,
+            "detail": "heading violations: src/pages/Contact.jsx:h3 jumps after h1; src/pages/Services.jsx:h3 jumps after h1",
+            "files": [
+              "src/pages/Contact.jsx:h3 jumps after h1",
+              "src/pages/Services.jsx:h3 jumps after h1"
+            ],
+            "applies": true
+          },
+          "i18n_rtl": {
+            "pass": true,
+            "detail": "i18n bootstrap + RTL + hook present",
+            "files": [],
+            "applies": true
+          },
+          "devops": {
+            "pass": true,
+            "detail": "ESLint config + .prettierignore + quality_gate wired",
+            "files": [],
+            "applies": true
+          }
+        },
+        "note": "SRS_SYSTEM_SPECIFICATIONS.md"
+      }
+    },
+    "violating_files": [
+      "frontend/src/components/auth/LoginForm.jsx",
+      "frontend/src/components/auth/RegisterForm.jsx",
+      "frontend/src/components/auth/SocialLogin.jsx",
+      "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+      "frontend/src/components/ecommerce/PricingTable.jsx",
+      "frontend/src/components/ecommerce/ProductCard.jsx",
+      "frontend/src/components/ecommerce/QuantitySelector.jsx",
+      "frontend/src/components/Footer.jsx",
+      "src/pages/Contact.jsx:h3 jumps after h1",
+      "src/pages/Services.jsx:h3 jumps after h1"
+    ],
+    "self_heal_rounds": [
+      {
+        "round": 1,
+        "healed": 8,
+        "files": [
+          "frontend/src/components/auth/LoginForm.jsx",
+          "frontend/src/components/auth/RegisterForm.jsx",
+          "frontend/src/components/auth/SocialLogin.jsx",
+          "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+          "frontend/src/components/ecommerce/PricingTable.jsx",
+          "frontend/src/components/ecommerce/ProductCard.jsx",
+          "frontend/src/components/ecommerce/QuantitySelector.jsx",
+          "frontend/src/components/Footer.jsx",
+          "src/pages/Contact.jsx:h3 jumps after h1",
+          "src/pages/Services.jsx:h3 jumps after h1"
+        ]
+      },
+      {
+        "round": 2,
+        "healed": 8,
+        "files": [
+          "frontend/src/components/auth/LoginForm.jsx",
+          "frontend/src/components/auth/RegisterForm.jsx",
+          "frontend/src/components/auth/SocialLogin.jsx",
+          "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+          "frontend/src/components/ecommerce/PricingTable.jsx",
+          "frontend/src/components/ecommerce/ProductCard.jsx",
+          "frontend/src/components/ecommerce/QuantitySelector.jsx",
+          "frontend/src/components/Footer.jsx",
+          "src/pages/Contact.jsx:h3 jumps after h1",
+          "src/pages/Services.jsx:h3 jumps after h1"
+        ]
+      },
+      {
+        "round": 3,
+        "healed": 8,
+        "files": [
+          "frontend/src/components/auth/LoginForm.jsx",
+          "frontend/src/components/auth/RegisterForm.jsx",
+          "frontend/src/components/auth/SocialLogin.jsx",
+          "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+          "frontend/src/components/ecommerce/PricingTable.jsx",
+          "frontend/src/components/ecommerce/ProductCard.jsx",
+          "frontend/src/components/ecommerce/QuantitySelector.jsx",
+          "frontend/src/components/Footer.jsx",
+          "src/pages/Contact.jsx:h3 jumps after h1",
+          "src/pages/Services.jsx:h3 jumps after h1"
+        ]
+      }
+    ],
+    "project_name": "saffron-voyage",
+    "reason": "engineering: 1 check(s) red; design: 1 check(s) red; schema_srs: 1 check(s) red"
+  },
+  "instructions_file_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\INSTRUCTIONS.md",
+  "execution_time_seconds": 113.56,
+  "pipeline_version": "15-phase-enterprise-v3.5",
+  "status": "partial",
+  "pipeline_health": {
+    "score": 92,
+    "critical_failures": [],
+    "non_critical_failures": [
+      "architect_enterprise_verification",
+      "quality_gate_devops"
+    ],
+    "status": "healthy"
+  },
+  "phase_statistics": {
+    "total_phases": 16,
+    "phases_failed": 2,
+    "phase_timings": {
+      "Phase 1 - Market Analysis": 0.001,
+      "Phase 2 - Requirement Analysis": 1.017,
+      "Phase 2b - Design & Brand Planning": 0.004,
+      "Phase 3 - Backend Selection": 0.01,
+      "Phase 3 - Schema Selection": 0.017,
+      "Phase 3 - Tech Stack Selection": 0.002,
+      "Phase 4 - Trending Features": 0.002,
+      "Phase 5 - Component Selection": 0.302,
+      "Phase 5 - Template Selection": 0.363,
+      "Phase 5 - Asset Selection": 0.588,
+      "phase_11_currency_localization": 0.001,
+      "phase_11_i18n_generation": 0.018,
+      "phase_12_cost_model": 0.0,
+      "phase_12_security_posture": 0.002,
+      "phase_12_license_stamp": 0.005,
+      "phase_12_compliance": 0.012,
+      "phase_12_accessibility": 0.269,
+      "phase_13_seo_automation": 0.008,
+      "phase_13_cdn_optimization": 0.009,
+      "phase_14_performance_budget": 0.009,
+      "phase_14_webhook_manager": 0.012,
+      "phase_14_analytics_pipeline": 0.015,
+      "phase_14_ab_testing": 0.019,
+      "phase_15_global_deployment": 0.012
+    },
+    "retries_per_phase": {
+      "Phase 1 - Market Analysis": 0,
+      "Phase 2 - Requirement Analysis": 0,
+      "Phase 2b - Design & Brand Planning": 0,
+      "Phase 3 - Backend Selection": 0,
+      "Phase 3 - Schema Selection": 0,
+      "Phase 3 - Tech Stack Selection": 0,
+      "Phase 4 - Trending Features": 2,
+      "Phase 5 - Template Selection": 0,
+      "Phase 5 - Component Selection": 0,
+      "Phase 5 - Asset Selection": 0,
+      "phase_11_currency_localization": 0,
+      "phase_11_i18n_generation": 0,
+      "phase_12_compliance": 0,
+      "phase_12_accessibility": 0,
+      "phase_12_security_posture": 0,
+      "phase_12_license_stamp": 0,
+      "phase_12_cost_model": 0,
+      "phase_13_seo_automation": 0,
+      "phase_13_cdn_optimization": 0,
+      "phase_14_performance_budget": 0,
+      "phase_14_analytics_pipeline": 0,
+      "phase_14_ab_testing": 0,
+      "phase_14_webhook_manager": 0,
+      "phase_15_global_deployment": 0
+    }
+  },
+  "phases_completed": [
+    "market_analysis",
+    "requirement_analysis",
+    "design_brand_planning",
+    "tech_stack_selection",
+    "trending_features_injection",
+    "resource_assembly_planning",
+    "code_generation",
+    "quality_verification",
+    "improvement_recommendations",
+    "competitive_benchmark_delivery",
+    "international_delivery",
+    "localization_and_i18n",
+    "compliance_and_accessibility",
+    "seo_and_cdn_optimization",
+    "performance_growth_and_webhooks",
+    "multi_cloud_global_deployment"
+  ],
+  "phase_failures": [
+    "architect_enterprise_verification",
+    "quality_gate_devops"
+  ],
+  "phase_results": {
+    "phase_1_social_signals": {
+      "website_type": "saas",
+      "industry": "tourism",
+      "ok": false,
+      "reason": "reddit: reddit channel requires login-backed tooling (opencli/twitter-cli) not found; agent-reach reports active_backend=null; reddit: reddit channel requires login-backed tooling (opencli/twitter-cli) not found; agent-reach reports active_backend=null",
+      "generated_at": "2026-09-14T23:42:43+00:00",
+      "channels_available": {
+        "reddit": false,
+        "twitter": false
+      },
+      "fragments": [],
+      "complaints": [],
+      "preferred_features": [],
+      "design_topics": [],
+      "risk_flags": []
+    },
+    "phase_1_market_analysis": {
+      "industry": "tourism",
+      "website_type": "saas",
+      "competitors": [
+        "TravelPak.com",
+        "Bookme.pk",
+        "GoTrip.pk",
+        "Airbnb",
+        "Booking.com"
+      ],
+      "market_trends": [
+        "AI itinerary builder",
+        "Domestic tourism",
+        "Immersive content",
+        "Group tours"
+      ],
+      "conversion_drivers": [
+        "early_bird_discount",
+        "flexible_booking",
+        "verified_guides",
+        "photo_gallery"
+      ],
+      "target_lighthouse_score": 92,
+      "market_profile": {
+        "market_size": "growing",
+        "avg_conversion": "3-7%",
+        "mobile_share": "40%",
+        "pk_growth": "+55% YoY"
+      },
+      "pk_market_growth": "+18% YoY",
+      "global_market_size": "$9.5T",
+      "roi_opportunities": [
+        "video_hero",
+        "newsletter_signup",
+        "whatsapp_float"
+      ],
+      "differentiation_opportunities": [
+        "Missing high-ROI driver: early_bird_discount",
+        "Missing high-ROI driver: flexible_booking",
+        "Missing high-ROI driver: verified_guides",
+        "Missing high-ROI driver: photo_gallery",
+        "Growth opportunity: video_hero",
+        "Growth opportunity: newsletter_signup",
+        "Growth opportunity: whatsapp_float"
+      ],
+      "recommended_positioning": "Premium tourism saas platform with positioned for +18% YoY market growth.",
+      "mobile_priority": true,
+      "whatsapp_market": true
+    },
+    "phase_2_requirement_analysis": {
+      "project_name": "saffron-voyage",
+      "website_type": "saas",
+      "industry": "tourism",
+      "frontend": "react",
+      "backend": "node-express",
+      "database": "postgresql",
+      "features": [
+        "social_share",
+        "pricing_table",
+        "whatsapp",
+        "ratings",
+        "responsive_design",
+        "destination_gallery",
+        "cookie_consent",
+        "feature_grid",
+        "seo_meta_tags",
+        "security_hardening",
+        "checkout",
+        "seo",
+        "ai_chat",
+        "personalization",
+        "auth_flow",
+        "dashboard",
+        "package_search",
+        "testimonial_slider",
+        "whatsapp_float",
+        "accessibility_wcag",
+        "booking",
+        "animation_system",
+        "stripe",
+        "i18n_multilingual",
+        "analytics_dashboard",
+        "metrics",
+        "countdown_timer",
+        "exit_intent_popup",
+        "pwa_support",
+        "currency_converter",
+        "live_chat",
+        "social_proof",
+        "itinerary"
+      ],
+      "style": [
+        "modern",
+        "responsive",
+        "dark_mode",
+        "premium"
+      ],
+      "product_categories_count": 10,
+      "original_prompt": "Build a luxury travel concierge platform 'Saffron Voyage' for private island villas, chartered yachts and bespoke itineraries. Audience: high-net-worth travelers. Features: auth (JWT), Stripe checkout for trip deposits and full bookings, immersive hero with video-like reveal, trip builder with dates and guests, destination cards, itinerary builder, i18n (English, Arabic, French) RTL, multi-currency (USD, EUR, AED), compliance pages, SEO + OG + JSON-LD, WhatsApp float, dark luxury theme. React 19 + Vite + Tailwind, Express + MySQL. Real and production-ready.",
+      "language_detected": "urdu_bilingual",
+      "rtl_support": true,
+      "preferred_theme": "dark",
+      "ui_style": "glassmorphism",
+      "primary_color_hint": "#ef4444",
+      "color_palette_hints": [
+        "#ef4444"
+      ],
+      "target_region": "default",
+      "language_direction": "rtl",
+      "is_ambiguous": false,
+      "ambiguity_reason": "",
+      "clarifying_options": [],
+      "design_style": "minimalism",
+      "project_name_human": "Saffron Voyage",
+      "brand_name": "Saffron Voyage",
+      "company_name": "Saffron Voyage",
+      "animation_style": "modern",
+      "color_scheme": "cyan",
+      "layout_style": "multi_page",
+      "font_style": "sans_serif",
+      "pages": [
+        "Home",
+        "About",
+        "Services",
+        "Contact"
+      ],
+      "extra_features": [
+        "cookie_consent",
+        "responsive_navbar",
+        "dark_mode_toggle"
+      ],
+      "design_blueprint": {
+        "project_name": "saffron-voyage",
+        "ui_style": "glassmorphism",
+        "target_region": "default",
+        "region_rationale": "Global neutral (region-agnostic)",
+        "palette": {
+          "primary": "#6366f1",
+          "accent": "#f59e0b",
+          "heading": "#1e1b4b",
+          "navBg": "#f8fafc",
+          "footerBg": "#0f172a"
+        },
+        "fonts": {
+          "display": "Poppins",
+          "sans": "Roboto"
+        },
+        "css_primitives": "",
+        "vault_source": "",
+        "brand_title": "saffron-voyage"
+      },
+      "trending_features": [
+        "social_proof",
+        "ai_chat",
+        "personalization",
+        "exit_intent_popup",
+        "analytics_dashboard",
+        "live_chat",
+        "countdown_timer"
+      ],
+      "component_contract": "COMPONENT CONTRACT (absolute alias paths; use local components, NEVER generic markup when one exists):\n- @/components/ui/Accordion.jsx # props: items, allowMultiple, defaultOpen, openItems, onChange, onToggle, animate, className, itemClassName\n- @/components/ui/Alert.jsx # props: children, variant, title, dismissible, onDismiss, onClose, icon, animate, animationDelay, className | variant=info|container|icon|Icon\n- @/components/common/Analytics.jsx # props: (n/a)\n- @/components/ui/AnimatedNumber.jsx # props: value, decimals, separator, prefix, suffix, duration, className, as\n- @/components/ui/Avatar.jsx # props: src, alt, name, size, status, animate, animationDelay, className, onClick, onError | size=xs|sm|md|lg|xl\n- @/components/ui/Badge.jsx # props: children, variant, size, dot, removable, onRemove, onClick, animate, animationDelay, className | variant=default|secondary|success|warning|danger|info|outline | size=sm|md|lg\n- @/components/motion/BentoGrid.jsx # props: children, className, columns, md, lg, gap\n- @/components/ui/BlockBar.jsx # props: value, max, segments, tone, label, showValue, className, inverted\n- @/components/common/BlogGrid.jsx # props: posts, title, subtitle, onPostClick, className\n- @/components/motion/BorderBeam.jsx # props: children, className, color, speed\n- @/components/common/BrandLogo.jsx # props: size, className | size=xs|sm|md|lg|xl\n- @/components/ui/Breadcrumb.jsx # props: items, separator, showHome, homeLabel, homeHref, onItemClick, onHomeClick, animate, className, itemClassName\n- @/components/ui/Button.jsx # props: children, variant, size, loading, disabled, fullWidth, leftIcon, rightIcon, animate, animationDelay, className, type, onClick, onMouseEnter, onMouseLeave, onFocus, onBlur | variant=primary|secondary|danger|success|warning|info|outline|ghost|link | size=xs|sm|md|lg|xl\n- @/components/ui/ButtonMotion.jsx # props: children, className, hoverScale, tapScale, hoverY\n- @/components/ecommerce/BuyTemplateBanner.jsx # props: templateName, price, checkoutUrl\n- @/components/ui/Card.jsx # props: children, className, hoverable, padding, bordered, shadow, animate, animationDelay, as, reveal, onClick, onMouseEnter, onMouseLeave\n- @/components/ecommerce/CartEmpty.jsx # props: title, subtitle, onBrowse, browseLabel, className\n- @/components/ui/CommandPalette.jsx # props: isOpen, onClose, items\n- @/components/common/ContactForm.jsx # props: onSuccess, onError, submitLabel, className\n- @/components/common/CookieConsent.jsx # props: (n/a)\n- @/components/common/CountdownTimer.jsx # props: target, title, onComplete, labels, hours, minutes, seconds, variant, className | variant=primary|secondary|outline|ghost\n- @/components/CurrencySelector.jsx # props: (n/a)\n- @/components/motion/CyberGridCanvas.jsx # props: className, nodeColor, density\n- @/components/ecommerce/DiscountBadge.jsx # props: discountPercent, compareAtPrice, price, label, size, className | size=sm|md|lg\n- @/components/ui/Divider.jsx # props: orientation, variant, label, className | variant=solid|dashed|dotted\n- @/components/ui/Dock.jsx # props: items, magnification, distance, className, panelClassName\n- @/components/ui/Dropdown.jsx # props: trigger, children, label, align, open, defaultOpen, onOpenChange, onClose, className, menuClassName, closeOnSelect, animate\n- @/components/ui/Empty.jsx # props: title, description, icon, action, onAction, animate, className\n- @/components/common/ErrorBoundary.jsx # props: (n/a)\n- @/components/common/FAQAccordion.jsx # props: items, a, Vite, Netlify, title, subtitle, licensing\n- @/components/business/FAQItem.jsx # props: question, answer, open, defaultOpen, onToggle, onChange, animate, animationDelay, className\n- @/components/business/FeatureGrid.jsx # props: features, title, subtitle, columns, className\n- @/components/navigation/GlassNavbar.jsx # props: projectName\n- @/components/ui/GradientButton.jsx # props: children, className, from, via, to, animate, disabled\n- @/components/common/Grid.jsx # props: children, cols, gap, as, animate, animationDelay, className\n- @/components/business/Hero.jsx # props: badge, title, highlight, subtitle, beautifully, primaryLabel, secondaryLabel, onPrimary, onSecondary, image, imageAlt, align, className\n- @/components/motion/HeroCanvas.jsx # props: (n/a)\n- @/components/motion/HeroSection.jsx # props: children, className\n- @/components/ui/HolographicCard.jsx # props: children, className, borderWidth\n- @/components/ui/IconButton.jsx # props: icon, label, variant, size, disabled, loading, tooltip, animate, animationDelay, className, onClick, onMouseEnter, onMouseLeave | variant=primary|secondary|ghost|outline|danger | size=sm|md|lg\n- @/components/common/IconWrapper.jsx # props: icon, size, variant, className | variant=primary|secondary|outline|ghost | size=xs|sm|md|lg|xl\n- @/components/forms/Input.jsx # props: label, type, error, helperText, required, disabled, leftIcon, rightIcon, animate, animationDelay, className, inputClassName, id, onChange, onFocus, onBlur, onKeyDown\n- @/components/common/Language.jsx # props: currentLang, onLanguageChange, className\n- @/components/common/LazyImage.jsx # props: src, alt, className, placeholder, fallback, width, height\n- @/components/common/LegalDisclaimer.jsx # props: title, body, showIcon, className\n- @/components/common/LicenseWatermark.jsx # props: product, onActivate\n- @/components/ui/Loading.jsx # props: text, fullScreen, size, animate, className | size=xs|sm|md|lg|xl\n- @/components/auth/LoginForm.jsx # props: onSubmit, onForgotPassword, title, subtitle, submitLabel, className, error\n- @/components/motion/MagneticButton.jsx # props: children, className, strength, variant, rightIcon | variant=primary|secondary|outline|ghost\n- @/components/common/MapEmbed.jsx # props: query, title, height, zoom, className\n- @/components/ui/Marquee.jsx # props: items, speed, reverse, pauseOnHover, className, renderItem\n- @/components/ui/Modal.jsx # props: open, onClose, onOpenChange, title, description, children, footer, size, closeOnOverlayClick, closeOnEscape, showCloseButton, className, overlayClassName | size=sm|md|lg|xl|full\n- @/components/ui/ModernFooter.jsx # props: projectName\n- @/components/ui/NeumorphButton.jsx # props: children, size, pressed, accent, disabled, className, type | size=sm|md|lg\n- @/components/common/NewsletterSignup.jsx # props: title, subtitle, buttonLabel, placeholder, onSubscribe, className\n- @/components/auth/OTPInput.jsx # props: onSubmit, onResend, title, subtitle, className, error, loading\n- @/components/common/PWAInstallBanner.jsx # props: appName, description, position, storageKey, className\n- @/components/common/PageSEO.jsx # props: title, description, keywords, canonicalUrl, schema, noIndex\n- @/components/ui/Pagination.jsx # props: currentPage, totalPages, totalItems, pageSize, onPageChange, onChange, siblingCount, showPageNumbers, showFirstLast, animate, className\n- @/components/motion/ParticleField3D.jsx # props: count, spread, speed, color, size, opacity | size=xs|sm|md|lg|xl\n- @/components/ui/PixelButton.jsx # props: children, size, variant, disabled, className, type | variant=primary|secondary|ghost | size=sm|md|lg\n- @/components/ui/PixelCard.jsx # props: children, className, title, icon, corners\n- @/components/business/PricingCard.jsx # props: name, price, period, description, features, highlighted, animationDelay, onSelect, className\n- @/components/business/PricingGrid.jsx # props: plans, columns, onPlanSelect, className\n- @/components/ecommerce/PricingTable.jsx # props: title, subtitle, downgrade\n- @/components/ecommerce/ProductCard.jsx # props: product, onAddToCart, onToggleWishlist, onView, currency, variant, className | variant=primary|secondary|outline|ghost\n- @/components/ecommerce/ProductGrid.jsx # props: products, columns, onAddToCart, onToggleWishlist, onView, currency, title, subtitle, className\n- @/components/ui/Progress.jsx # props: value, max, variant, size, showLabel, label, indeterminate, animate, onComplete, className | variant=primary|success|warning|danger|info | size=xs|sm|md|lg|xl\n- @/components/ecommerce/QuantitySelector.jsx # props: value, onChange, min, max, size, className, label | size=sm\n- @/components/ecommerce/RatingStars.jsx # props: rating, max, showValue, reviewCount, size, className | size=sm|md|lg\n- @/components/auth/RegisterForm.jsx # props: onSubmit, onLogin, title, subtitle, submitLabel, className, error\n- @/components/motion/Reveal.jsx # props: children, delay, direction, className, as\n- @/components/dashboard/RevenueCard.jsx # props: label, value, change, currency, icon, mode, className\n- @/components/common/SEO.jsx # props: title, description, launch, keywords, fullstack, ecommerce, dashboard, tailwindcss, nodejs, express, ogImage, ogType, canonicalUrl, locale, twitterSite, noIndex, schema, hreflang, defaultLanguage\n- @/components/common/SEOMetaTags.jsx # props: title, description, canonical, ogImage, ogType, schema\n- @/components/SandboxPreview.jsx # props: runId, onClose\n- @/components/motion/Scene3D.jsx # props: children, className, camera, fov, dpr, gl, alpha, style\n- @/components/forms/Select.jsx # props: label, error, required, className, children\n- @/components/gates/SetupGate.jsx # props: children\n- @/components/ui/Skeleton.jsx # props: className, variant, shimmer | variant=text|circle|rect|card|button|avatar|image\n- @/components/common/SkipToContent.jsx # props: className\n- @/components/auth/SocialLogin.jsx # props: onProviderClick, title, className, loadingProvider\n- @/components/common/SocialShare.jsx # props: url, title, networks, variant, className, onShared | variant=primary|secondary|outline|ghost\n- @/components/ui/Spinner.jsx # props: size, color, label, className | size=xs|sm|md|lg|xl\n- @/components/ui/SpotlightCard.jsx # props: children, className, interactive, spotlight, radius, onMouseMove, onMouseLeave\n- @/components/motion/SpotlightGrid.jsx # props: children, className, intensity, radius\n- @/components/motion/StaggerGroup.jsx # props: children, className\n- @/components/forms/Switch.jsx # props: label, checked, onChange, error, helperText, disabled, size, className, id | size=sm\n- @/components/ui/Table.jsx # props: head, rows, className, caption\n- @/components/ui/Tabs.jsx # props: tabs, activeTab, defaultTab, onChange, onTabChange, variant, animate, className, tabClassName, contentClassName | variant=primary|secondary|outline|ghost\n- @/components/common/TestimonialGrid.jsx # props: title, subtitle, creators, testimonials, role, avatar, rating, content\n- @/components/ui/TextAnimate.jsx # props: text, as, delay, interval, variant, className | variant=primary|secondary|outline|ghost\n- @/components/motion/TextMorph.jsx # props: phrases, className, interval, typeSpeed, deleteSpeed, pauseTime\n- @/components/forms/Textarea.jsx # props: label, error, helperText, required, disabled, rows, maxLength, showCount, className, id, value\n- @/components/common/ThemeCustomizer.jsx # props: (n/a)\n- @/components/common/ThemeProvider.jsx # props: children\n- @/components/common/ThemeSwitcher.jsx # props: defaultTheme, storageKey, options, className\n- @/components/ui/TiltCard.jsx # props: children, className, tilt, shadow, scale\n- @/components/ui/Tooltip.jsx # props: children, content, position, delay, open, onOpenChange, className\n- @/components/common/CaptchaTurnstile.jsx # props: siteKey, onVerify, theme, size | size=xs|sm|md|lg|xl\n- @/components/ui/Typewriter.jsx # props: words, typingSpeed, deletingSpeed, pauseMs, loop, cursor, className\n- @/components/common/UniqueLogo.jsx # props: name, size | size=xs|sm|md|lg|xl\n- @/components/VisualCanvas.jsx # props: previewUrl, onPromptSubmit, className\n- @/components/common/WhatsAppFloat.jsx # props: phoneNumber, message, label, position, className\n- @/components/common/WorldClock.jsx # props: zones, title, className",
+      "engineering_matrix": {
+        "loaded": true,
+        "all_present": true,
+        "docs": {
+          "PRD_MASTER_TEMPLATE.md": {
+            "loaded": true,
+            "anchors_ok": true
+          },
+          "TRD_ENGINEERING_STANDARDS.md": {
+            "loaded": true,
+            "anchors_ok": true
+          },
+          "UI_UX_DESIGN_TOKENS.md": {
+            "loaded": true,
+            "anchors_ok": true
+          },
+          "BACKEND_SCHEMA_SPEC.md": {
+            "loaded": true,
+            "anchors_ok": true
+          },
+          "SRS_SYSTEM_SPECIFICATIONS.md": {
+            "loaded": true,
+            "anchors_ok": true
+          }
+        },
+        "component_registry_count": 105
+      },
+      "design_decision": {
+        "industry": "hospitality",
+        "brand": "minimal",
+        "hero": "minimal_composition",
+        "navigation": "minimal_sticky",
+        "grid": "balanced",
+        "typography": "clean_sans",
+        "motion": "balanced",
+        "3d": false,
+        "image_ratio": "4:3",
+        "cta_style": "booking_primary",
+        "surface_style": "flat",
+        "card_usage": "moderate",
+        "playbooks": {
+          "industry": "hospitality",
+          "brand": "minimal",
+          "industry_loaded": true,
+          "brand_loaded": true,
+          "_stage": "05-playbook",
+          "_written_at": "2026-09-14T23:42:53.416010+00:00"
+        },
+        "constraints_resolved": {
+          "detected": [],
+          "rules": {
+            "desktop": {
+              "motion": "default",
+              "effects": "default"
+            },
+            "mobile": {
+              "motion": "default",
+              "effects": "default"
+            },
+            "reduced_motion": {
+              "motion": "minimal",
+              "effects": "none"
+            }
+          }
+        },
+        "reference": "minimalism",
+        "reference_hints": [
+          "minimal"
+        ],
+        "pages": [
+          "home",
+          "rooms",
+          "room_detail",
+          "amenities",
+          "dining",
+          "packages",
+          "booking",
+          "events",
+          "gallery",
+          "contact"
+        ],
+        "conversion": {
+          "primary_cta": "book_now",
+          "secondary_cta": "check_availability"
+        },
+        "avoid": [
+          "hidden_fees",
+          "fake_photos",
+          "unclear_cancellation",
+          "excessive_modal_usage"
+        ],
+        "qa": [
+          "booking_engine_flow",
+          "availability_search",
+          "package_selection",
+          "room_detail_complete",
+          "cancellation_clarity"
+        ],
+        "design_manifest": {
+          "brand": {
+            "archetype": "minimal",
+            "personality": []
+          },
+          "visual": {
+            "density": 0.45,
+            "motion": 0.45,
+            "3d": false
+          },
+          "typography": {
+            "heading_style": "clean_sans",
+            "body_style": "modern_sans"
+          },
+          "colors": {
+            "tokens": {},
+            "source": "design_tokens.json"
+          },
+          "spacing": {
+            "scale": "token_based"
+          },
+          "components": {
+            "critical": {
+              "primary_cta": "book_now",
+              "secondary_cta": "check_availability"
+            }
+          },
+          "industry": "hospitality",
+          "reference_sources": [
+            "minimal"
+          ]
+        }
+      },
+      "layout_mode": "enterprise",
+      "deployment_mode": "enterprise",
+      "has_api": true,
+      "runtime_mode": "transactional",
+      "region": "MENA"
+    },
+    "phase_2b_design_plan": {
+      "project_name": "saffron-voyage",
+      "ui_style": "glassmorphism",
+      "target_region": "default",
+      "region_rationale": "Global neutral (region-agnostic)",
+      "palette": {
+        "primary": "#6366f1",
+        "accent": "#f59e0b",
+        "heading": "#1e1b4b",
+        "navBg": "#f8fafc",
+        "footerBg": "#0f172a"
+      },
+      "fonts": {
+        "display": "Poppins",
+        "sans": "Roboto"
+      },
+      "css_primitives": "",
+      "vault_source": "",
+      "brand_title": "saffron-voyage"
+    },
+    "phase_3_tech_stack": {
+      "frontend": {
+        "framework": "react",
+        "bundler": "vite",
+        "styling": "tailwindcss",
+        "charts": "recharts"
+      },
+      "backend": {
+        "runtime": "node",
+        "framework": "express",
+        "auth": "jwt+bcrypt",
+        "selected_module": "SaaS Enterprise Express API Base",
+        "module_path": "backend-library/saas-backend"
+      },
+      "database": {
+        "engine": "postgresql",
+        "orm": "raw-sql",
+        "cache": "redis-recommended",
+        "schemas": [
+          "E-Commerce Master Schema",
+          "Users & Auth Schema"
+        ],
+        "schema_count": 2
+      },
+      "payments": "stripe-subscriptions",
+      "deployment_targets": [
+        "vercel",
+        "aws",
+        "gcp"
+      ],
+      "scale_considerations": [
+        "payment_processing",
+        "enterprise"
+      ],
+      "rationale": "React + Vite chosen for saas due to component reuse from the shared UI library, fast HMR, and postgresql compatibility for structured data."
+    },
+    "phase_4_trending_features": {
+      "injected_count": 7,
+      "features": [
+        {
+          "id": "social_proof",
+          "name": "Social Proof System",
+          "category": "conversion",
+          "tags": [
+            "ecommerce",
+            "saas",
+            "business",
+            "general"
+          ],
+          "description": "Live purchase notifications, review highlights, and trust badges.",
+          "components": [
+            "TestimonialSlider",
+            "Testimonial"
+          ],
+          "roi_score": 95,
+          "priority": "critical"
+        },
+        {
+          "id": "ai_chat",
+          "name": "AI Shopping Assistant",
+          "category": "support",
+          "tags": [
+            "ecommerce",
+            "saas",
+            "healthcare",
+            "general"
+          ],
+          "description": "Context-aware AI chat for product discovery and customer support.",
+          "components": [
+            "ChatBox",
+            "ChatInput",
+            "MessageList"
+          ],
+          "roi_score": 92,
+          "priority": "critical"
+        },
+        {
+          "id": "personalization",
+          "name": "Personalized Recommendations",
+          "category": "conversion",
+          "tags": [
+            "ecommerce",
+            "electronics",
+            "saas",
+            "education"
+          ],
+          "description": "Trending, recently viewed, and category-based product suggestions.",
+          "components": [
+            "ProductGrid",
+            "ProductCard"
+          ],
+          "roi_score": 90,
+          "priority": "high"
+        },
+        {
+          "id": "exit_intent_popup",
+          "name": "Exit-Intent Popup",
+          "category": "conversion",
+          "tags": [
+            "ecommerce",
+            "saas",
+            "business",
+            "blog"
+          ],
+          "description": "Smart popup triggered on exit intent. Capture email, offer discount, or show lead magnet. Recovers 10-15% abandoning visitors.",
+          "components": [
+            "Modal",
+            "NewsletterSignup"
+          ],
+          "roi_score": 88,
+          "priority": "high"
+        },
+        {
+          "id": "analytics_dashboard",
+          "name": "Analytics Dashboard",
+          "category": "saas",
+          "tags": [
+            "saas",
+            "dashboard",
+            "ecommerce",
+            "business"
+          ],
+          "description": "Revenue, orders, and performance metrics with charts.",
+          "components": [
+            "StatCard",
+            "RevenueCard",
+            "AreaChart",
+            "DataTable"
+          ],
+          "roi_score": 87,
+          "priority": "high"
+        },
+        {
+          "id": "live_chat",
+          "name": "Live Chat Support (Tawk.to / Crisp)",
+          "category": "support",
+          "tags": [
+            "general",
+            "ecommerce",
+            "saas",
+            "healthcare",
+            "realestate"
+          ],
+          "description": "Real-time live chat widget with agent routing, offline messages, and chat history. 48% higher conversion for leads.",
+          "components": [
+            "ChatBox"
+          ],
+          "roi_score": 87,
+          "priority": "high"
+        },
+        {
+          "id": "countdown_timer",
+          "name": "Countdown Timer & Urgency",
+          "category": "conversion",
+          "tags": [
+            "ecommerce",
+            "event",
+            "saas",
+            "restaurant",
+            "fitness"
+          ],
+          "description": "Flash sale countdown, event launch timer, limited offer expiry. Creates FOMO and lifts conversion by 9%.",
+          "components": [
+            "CountdownTimer"
+          ],
+          "roi_score": 86,
+          "priority": "high"
+        }
+      ],
+      "feature_ids": [
+        "social_proof",
+        "ai_chat",
+        "personalization",
+        "exit_intent_popup",
+        "analytics_dashboard",
+        "live_chat",
+        "countdown_timer"
+      ],
+      "required_components": [
+        "Testimonial",
+        "MessageList",
+        "ProductGrid",
+        "NewsletterSignup",
+        "ProductCard",
+        "ChatBox",
+        "StatCard",
+        "TestimonialSlider",
+        "AreaChart",
+        "RevenueCard",
+        "DataTable",
+        "CountdownTimer",
+        "Modal",
+        "ChatInput"
+      ],
+      "market_alignment": [
+        "AI itinerary builder",
+        "Domestic tourism",
+        "Immersive content"
+      ]
+    },
+    "phase_5_assembly_plan": {
+      "project_name": "saffron-voyage",
+      "steps": 10,
+      "ai_tasks": 33
+    },
+    "engineering_matrix": {
+      "loaded": true,
+      "all_present": true,
+      "docs": {
+        "PRD_MASTER_TEMPLATE.md": {
+          "loaded": true,
+          "anchors_ok": true
+        },
+        "TRD_ENGINEERING_STANDARDS.md": {
+          "loaded": true,
+          "anchors_ok": true
+        },
+        "UI_UX_DESIGN_TOKENS.md": {
+          "loaded": true,
+          "anchors_ok": true
+        },
+        "BACKEND_SCHEMA_SPEC.md": {
+          "loaded": true,
+          "anchors_ok": true
+        },
+        "SRS_SYSTEM_SPECIFICATIONS.md": {
+          "loaded": true,
+          "anchors_ok": true
+        }
+      },
+      "component_registry_count": 105
+    },
+    "phase_2_design_decision": {
+      "industry": "hospitality",
+      "brand": "minimal",
+      "hero": "minimal_composition",
+      "motion": "balanced",
+      "3d": false,
+      "cta_style": "booking_primary",
+      "conversion_primary_cta": "book_now",
+      "references": [
+        "minimal"
+      ]
+    },
+    "phase_6_layout_mode": {
+      "mode": "enterprise",
+      "runtime_mode": "transactional",
+      "scaffold": "master-express-backend hydrated from backend-library",
+      "models_mounted": 25,
+      "models": [
+        "Address",
+        "AnalyticsEvent",
+        "AuditLog",
+        "Booking",
+        "Cart",
+        "CartItem",
+        "Category",
+        "Coupon",
+        "Doctor",
+        "Membership",
+        "Notification",
+        "Order",
+        "Organization",
+        "Payment",
+        "Permission",
+        "Plan",
+        "Product",
+        "Review",
+        "Role",
+        "Service",
+        "Subscription",
+        "SystemConfig",
+        "User",
+        "WebhookEvent",
+        "Wishlist"
+      ],
+      "route_groups_mapped": 24,
+      "routes": [
+        "address",
+        "ai",
+        "analytics",
+        "auth",
+        "booking",
+        "business",
+        "cart",
+        "coupon",
+        "dashboard",
+        "health",
+        "license",
+        "notification",
+        "order",
+        "org",
+        "payment",
+        "plan",
+        "playbook",
+        "product",
+        "search",
+        "settings",
+        "subscription",
+        "upload",
+        "user",
+        "wishlist"
+      ],
+      "queue": "Redis + BullMQ (backend/services/queue, backend/workers/worker.js)",
+      "axios_interceptor": "frontend/src/services/api.js -> /api/* via nginx gateway",
+      "database": "Sequelize — PostgreSQL/MySQL ready (DATABASE_URL + DB_DIALECT)",
+      "generation_matrix": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useInView.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionCanvas.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionSystems.jsx",
+          "framer-motion:already-present",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/services/analyticsBus.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LeadForm.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/checkout/CheckoutFlow.jsx",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\GENERATION-MATRIX.md"
+        ],
+        "fluid_ui": {
+          "applied": true,
+          "file": "index.css"
+        },
+        "micro_interactions": {
+          "components": [
+            "MotionCanvas",
+            "Reveal",
+            "MagneticButton",
+            "TiltCard",
+            "HoverGlow"
+          ],
+          "mounted_in_app": true,
+          "artifacts": [
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useInView.js",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionCanvas.jsx",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionSystems.jsx",
+            "framer-motion:already-present",
+            "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx"
+          ]
+        },
+        "lead_capture": {
+          "lead_form": "frontend/src/components/common/LeadForm.jsx",
+          "checkout": "frontend/src/components/checkout/CheckoutFlow.jsx",
+          "analytics_bus": "frontend/src/services/analyticsBus.js",
+          "artifacts": [
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/services/analyticsBus.js",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LeadForm.jsx",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/checkout/CheckoutFlow.jsx"
+          ]
+        },
+        "matrix_doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\GENERATION-MATRIX.md"
+      },
+      "platform_injection": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "frontend/src/index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/queryClient.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useApiQuery.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/AppProviders.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/store/useAppStore.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/LandingLayout.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/AppLayout.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LayoutSkeleton.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/LazyLayouts.jsx",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\PLATFORM-INJECTION.md"
+        ],
+        "frontend_stack": {
+          "status": "ok",
+          "pins": {},
+          "notes": []
+        },
+        "state_topology": {
+          "status": "ok",
+          "artifacts": {
+            "queryClient": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/queryClient.js",
+            "useApiQuery": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useApiQuery.js",
+            "AppProviders": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/AppProviders.jsx",
+            "zustand_store": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/store/useAppStore.js"
+          },
+          "provider_wrapped": true,
+          "app_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx"
+        },
+        "lazy_layouts": {
+          "status": "ok",
+          "artifacts": {
+            "layout_landing": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/LandingLayout.jsx",
+            "layout_app": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/AppLayout.jsx",
+            "layout_skeleton": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LayoutSkeleton.jsx",
+            "lazy_layout_registry": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/LazyLayouts.jsx"
+          }
+        },
+        "cls_budget": {
+          "status": "ok",
+          "file": "frontend/src/index.css"
+        },
+        "backend_blueprint": {
+          "controllers": {
+            "pass": true,
+            "hint": ""
+          },
+          "response_envelope": {
+            "pass": true,
+            "hint": "status-code helpers present"
+          },
+          "error_handler": {
+            "pass": true,
+            "hint": "status-code helpers present"
+          },
+          "sequelize_models": {
+            "pass": true,
+            "hint": ""
+          },
+          "queue_service": {
+            "pass": true,
+            "hint": "in-memory fallback present"
+          },
+          "redis_protected_fallback": {
+            "pass": true,
+            "hint": "in-memory fallback present"
+          },
+          "conformant": true,
+          "runtime": "transactional",
+          "applies": true
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\PLATFORM-INJECTION.md"
+      },
+      "design_system": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-TOKENS.md",
+          "frontend/src/index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/GlassCard.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/motionPresets.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/motion/MotionWrapper.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/theme.js"
+        ],
+        "tailwind_config": {
+          "status": "skip",
+          "reason": "tailwind.config.js exists"
+        },
+        "tokens_css": {
+          "status": "ok",
+          "file": "frontend/src/index.css"
+        },
+        "glass": {
+          "status": "ok",
+          "component": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/GlassCard.jsx"
+        },
+        "motion": {
+          "status": "ok",
+          "presets": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/motionPresets.js",
+          "wrapper": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/motion/MotionWrapper.jsx"
+        },
+        "theme": {
+          "status": "ok",
+          "theme": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/theme.js",
+          "app_import": true
+        },
+        "conformance": {
+          "status": "pass",
+          "pass": true,
+          "raw_hex_count": 0,
+          "violations": []
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-TOKENS.md"
+      },
+      "schema_contract": {
+        "applies": true,
+        "runtime_mode": "transactional",
+        "models": {
+          "total": 14,
+          "present": 14,
+          "missing": [],
+          "pass": true
+        },
+        "order_coupon_fk": {
+          "patched": [
+            "Order.js:coupon_id",
+            "index.js:Order.belongsTo(Coupon)"
+          ],
+          "status": "ok"
+        },
+        "fk": {
+          "pass": true,
+          "missing": [],
+          "checked": 18
+        },
+        "row_lock": {
+          "pass": true,
+          "checks": {
+            "transaction": {
+              "pass": true,
+              "hint": "checkout wrapped in a single DB transaction"
+            },
+            "row_lock": {
+              "pass": true,
+              "hint": "isolated SELECT ... FOR UPDATE row lock on product"
+            },
+            "stock_guard": {
+              "pass": true,
+              "hint": "stock guard checked while row is locked"
+            },
+            "atomic_decrement": {
+              "pass": true,
+              "hint": "atomic stock decrement inside the same transaction"
+            }
+          },
+          "sources": [
+            "services\\orderService.js",
+            "routes\\order.routes.js",
+            "routes\\orderRoutes.js"
+          ],
+          "passed": [
+            "transaction",
+            "row_lock",
+            "stock_guard",
+            "atomic_decrement"
+          ],
+          "missing": []
+        },
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\SCHEMA-CONTRACT.md",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\database\\schemas\\schema.sql"
+        ]
+      },
+      "functional_compliance": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\QUALITY-GATES.md"
+        ],
+        "seo": {
+          "jsonld": {
+            "required": 14,
+            "types": [
+              "Organization"
+            ],
+            "missing_types": [
+              "WebSite",
+              "WebPage",
+              "Product",
+              "Offer",
+              "AggregateRating",
+              "BreadcrumbList",
+              "FAQPage",
+              "Service",
+              "LocalBusiness",
+              "Person",
+              "Article",
+              "Review",
+              "ImageObject"
+            ],
+            "pass": false,
+            "top_up": {
+              "status": "skip",
+              "reason": "no structured-data.js found"
+            }
+          },
+          "og": {
+            "pass": true,
+            "missing": [],
+            "scanned": [
+              "frontend\\index.html"
+            ]
+          },
+          "headings": {
+            "pass": false,
+            "pages": 4,
+            "violations": [
+              "frontend\\src\\pages\\Contact.jsx: heading level jump h1→h3",
+              "frontend\\src\\pages\\Services.jsx: heading level jump h1→h3"
+            ]
+          }
+        },
+        "i18n": {
+          "bootstrap": {
+            "pass": true,
+            "rtl_support": true,
+            "injected": true
+          },
+          "hook": {
+            "file": "frontend/src/hooks/useAppTranslation.js",
+            "status": "injected"
+          },
+          "coverage": {
+            "components": 85,
+            "hook_using": 1,
+            "percent": 1.2
+          }
+        },
+        "code_quality": {
+          "eslint_pipeline": true,
+          "prettier_pipeline": true,
+          "gate_module": true,
+          "note": "ZIP archiving is blocked unless ESLint + Prettier pass (agent/quality_gate.py DevOps gate); verified wiring, not re-run here."
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\QUALITY-GATES.md"
+      }
+    },
+    "phase_6_vfs_diff_mode": {
+      "enabled": true,
+      "calls": 0,
+      "batches": [
+        {
+          "task": "<combined>",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: social_share",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: pricing_table",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: whatsapp",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: ratings",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: responsive_design",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: destination_gallery",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: cookie_consent",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: feature_grid",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: seo_meta_tags",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: security_hardening",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: checkout",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: seo",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: ai_chat",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: personalization",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: auth_flow",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: dashboard",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: package_search",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: testimonial_slider",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: whatsapp_float",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: accessibility_wcag",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: booking",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: animation_system",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: stripe",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: i18n_multilingual",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: analytics_dashboard",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: metrics",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: countdown_timer",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: exit_intent_popup",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: pwa_support",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: currency_converter",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: live_chat",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: social_proof",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        },
+        {
+          "task": "Synthesize custom logic/component for missing feature: itinerary",
+          "status": "error",
+          "reason": "No module named 'agent.providers'"
+        }
+      ]
+    },
+    "phase_6_code_generation": {
+      "project_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage",
+      "ai_calls": 0
+    },
+    "phase_6_launch_pack": {
+      "niche": "ecommerce",
+      "label": "E-Commerce",
+      "files": [
+        "backend/scripts/production-seed.js",
+        "SETUP_GUIDE.md",
+        "LICENSE_NOTICE.txt"
+      ]
+    },
+    "phase_6_design_style": {
+      "style": "minimalism",
+      "name": "Minimalism",
+      "dna": "White space, simple typography, 1-2 accent colors, content-first.",
+      "accent": "#0284c7",
+      "palette": {
+        "primary": "#111827",
+        "secondary": "#0ea5e9",
+        "accent": "#0284c7",
+        "bg": "#ffffff",
+        "card": "#f8fafc",
+        "surface": "#f1f5f9",
+        "text": "#0f172a",
+        "muted": "#64748b",
+        "border": "#e2e8f0"
+      },
+      "typography": {
+        "display": "Inter",
+        "sans": "Inter",
+        "mono": "JetBrains Mono"
+      },
+      "selected_by": "user",
+      "tokens_json": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\design-tokens.json",
+      "css_file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\index.css",
+      "assets_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\public\\assets\\minimalism",
+      "assets_generated": 27,
+      "manifest_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\public\\assets\\manifest.json",
+      "design_doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-STYLE.md"
+    },
+    "phase_6_theme_matrix": {
+      "variant": {
+        "template_id": "agency/creativeportfolio",
+        "template": "CreativePortfolio",
+        "category": "agency",
+        "style_id": "minimalism",
+        "style_name": "Minimalism",
+        "variant_id": "agency/creativeportfolio::minimalism",
+        "variant_count_total": 5
+      },
+      "variant_count_total": 585,
+      "compatible_styles": [
+        "neo_brutalism",
+        "swiss",
+        "editorial",
+        "cyberpunk",
+        "bento_grid"
+      ],
+      "quality_gate": {
+        "variant_id": "agency/creativeportfolio::minimalism",
+        "style_id": "minimalism",
+        "template_id": "agency/creativeportfolio",
+        "production_ready": true,
+        "checks": {
+          "contrast_text_on_bg": {
+            "pass": true,
+            "ratio": 17.85,
+            "required": 4.5
+          },
+          "contrast_text_on_card": {
+            "pass": true,
+            "ratio": 17.06,
+            "required": 4.5
+          },
+          "responsive_breakpoints": {
+            "pass": true,
+            "covered": [
+              "mobile",
+              "tablet",
+              "laptop",
+              "wide"
+            ],
+            "required": [
+              "mobile",
+              "tablet",
+              "laptop",
+              "wide"
+            ]
+          },
+          "lighthouse_budget": {
+            "pass": null,
+            "need_run": true,
+            "desktop_required": 90,
+            "mobile_required": 80,
+            "note": "Headless-browser pass required (scripts/generate_previews.py provisionally)."
+          }
+        },
+        "budget": {
+          "lighthouse_desktop": 90,
+          "lighthouse_mobile": 80
+        }
+      },
+      "preview_manifest": {
+        "gallery": "Browse before you generate (self-hosted)",
+        "active_variant": {
+          "template_id": "agency/creativeportfolio",
+          "template": "CreativePortfolio",
+          "category": "agency",
+          "style_id": "minimalism",
+          "style_name": "Minimalism",
+          "variant_id": "agency/creativeportfolio::minimalism",
+          "variant_count_total": 5
+        },
+        "captured": 0
+      }
+    },
+    "phase_5_5_bespoke_design": {
+      "active": false,
+      "generated_blocks": [],
+      "target_dir": "frontend/src/components/atoms",
+      "structure_context_chars": 9966
+    },
+    "phase_6_design_memory": {
+      "manifest": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\design-manifest.json",
+      "chain": [
+        "01-business",
+        "02-audience",
+        "03-brand",
+        "04-reference",
+        "05-playbook",
+        "06-ux",
+        "07-design",
+        "08-architecture",
+        "09-build",
+        "10-designlint",
+        "11-visual-score",
+        "12-critic-review",
+        "13-qa",
+        "14-deployment"
+      ]
+    },
+    "phase_7_quality_verification": {
+      "gates": {
+        "performance": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "vite_bundler",
+              "passed": true
+            },
+            {
+              "check": "tailwind_css",
+              "passed": true
+            }
+          ],
+          "target_lighthouse": 95
+        },
+        "security": {
+          "passed": false,
+          "checks": [
+            {
+              "check": "helmet_middleware",
+              "passed": false
+            },
+            {
+              "check": "rate_limiting",
+              "passed": true
+            },
+            {
+              "check": "cors_configured",
+              "passed": false
+            },
+            {
+              "check": "env_secrets_not_committed",
+              "passed": true
+            }
+          ]
+        },
+        "features": {
+          "passed": true,
+          "feature_count": 33,
+          "minimum_required": 5,
+          "trending_count": 7
+        },
+        "assets": {
+          "passed": true,
+          "real_assets": 7,
+          "ai_generated_detected": 0
+        },
+        "code_quality": {
+          "passed": false,
+          "errors": 10,
+          "warnings": 125
+        },
+        "differentiation": {
+          "passed": true,
+          "unique_features": 7,
+          "minimum_required": 3
+        },
+        "international_compliance": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "i18n_support",
+              "passed": true,
+              "weight": 1.0
+            },
+            {
+              "check": "cookie_consent",
+              "passed": true,
+              "weight": 1.5
+            },
+            {
+              "check": "pwa_manifest",
+              "passed": true,
+              "weight": 1.0
+            },
+            {
+              "check": "service_worker",
+              "passed": false,
+              "weight": 1.0
+            },
+            {
+              "check": "robots_txt",
+              "passed": true,
+              "weight": 0.5
+            },
+            {
+              "check": "sitemap_xml",
+              "passed": true,
+              "weight": 0.5
+            },
+            {
+              "check": "rtl_support",
+              "passed": true,
+              "weight": 1.0
+            },
+            {
+              "check": "whatsapp_integration",
+              "passed": true,
+              "weight": 1.0
+            },
+            {
+              "check": "accessibility_aria",
+              "passed": true,
+              "weight": 1.0
+            },
+            {
+              "check": "dark_mode_support",
+              "passed": true,
+              "weight": 0.5
+            },
+            {
+              "check": "mobile_responsive",
+              "passed": true,
+              "weight": 1.0
+            }
+          ],
+          "compliance_score": 90.0,
+          "international_ready": true,
+          "weighted_threshold": 75
+        },
+        "accessibility": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "semantic_landmarks",
+              "passed": true
+            },
+            {
+              "check": "accessible_labels",
+              "passed": true
+            },
+            {
+              "check": "keyboard_focus",
+              "passed": true
+            },
+            {
+              "check": "reduced_motion",
+              "passed": true
+            }
+          ],
+          "score": 100.0
+        },
+        "deployment_readiness": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "frontend\\package.json",
+              "passed": true
+            },
+            {
+              "check": "backend\\package.json",
+              "passed": true
+            },
+            {
+              "check": "backend\\server.js",
+              "passed": true
+            },
+            {
+              "check": "database\\schema.sql",
+              "passed": true
+            },
+            {
+              "check": "docker-compose.yml",
+              "passed": true
+            },
+            {
+              "check": "frontend\\Dockerfile",
+              "passed": true
+            }
+          ],
+          "score": 100.0
+        },
+        "marketplace_docs": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "readme_present",
+              "passed": true
+            },
+            {
+              "check": "readme_sections",
+              "passed": true,
+              "missing": []
+            },
+            {
+              "check": "license",
+              "passed": true
+            },
+            {
+              "check": "env_example",
+              "passed": true
+            }
+          ]
+        },
+        "pro_ui": {
+          "passed": true,
+          "checks": [
+            {
+              "check": "lucide_icons",
+              "passed": true
+            },
+            {
+              "check": "brand_logo",
+              "passed": true
+            },
+            {
+              "check": "dark_mode",
+              "passed": true
+            },
+            {
+              "check": "responsive",
+              "passed": true
+            },
+            {
+              "check": "pro_footer_or_nav",
+              "passed": true
+            }
+          ],
+          "score": 100.0
+        }
+      },
+      "passed_count": 9,
+      "total_gates": 11,
+      "overall_score": 81.8,
+      "marketplace_ready": false,
+      "enterprise_ready": false,
+      "targets": {
+        "lighthouse_performance": 95,
+        "lighthouse_accessibility": 90,
+        "lighthouse_best_practices": 90,
+        "lighthouse_seo": 90,
+        "first_contentful_paint": 1.2,
+        "time_to_interactive": 2.5,
+        "animation_fps": 60
+      },
+      "github_recovery_hint": null
+    },
+    "phase_7_1_design_scan": {
+      "lint": {
+        "total": 24,
+        "by_severity": {
+          "P2": 18,
+          "P1": 6
+        }
+      },
+      "score": {
+        "visual_quality_score": 87.4,
+        "benchmark_passed": false,
+        "metrics": {
+          "typography": 59.0,
+          "composition": 95.0,
+          "spacing": 87.0,
+          "color": 85.0,
+          "imagery": 95.0,
+          "hierarchy": 50.0,
+          "consistency": 95.0,
+          "brand_fit": 87.0,
+          "motion": 95,
+          "originality": 53.0
+        }
+      },
+      "gate": {
+        "passed": false,
+        "decision": "REDESIGN_REQUIRED",
+        "failing": [
+          "visual_hierarchy",
+          "typography",
+          "originality"
+        ],
+        "metrics": {
+          "brand_clarity": 87.0,
+          "visual_hierarchy": 50.0,
+          "typography": 59.0,
+          "spacing": 87.0,
+          "originality": 53.0,
+          "cta_clarity": 85.0,
+          "mobile_design": 95.0,
+          "interaction_quality": 95
+        },
+        "recommendations": [
+          {
+            "metric": "visual_hierarchy",
+            "advice": "Give each section one clear focal point; fix heading scale jumps."
+          },
+          {
+            "metric": "typography",
+            "advice": "Match type sizes to hierarchy; remove font soup; check measure and pairing."
+          },
+          {
+            "metric": "originality",
+            "advice": "Replace generic/lorem copy and repeated component formulas with brand-specific design."
+          }
+        ]
+      },
+      "visual_critic": {
+        "verdict": "FAIL",
+        "checks": [
+          {
+            "code": "hero_heading",
+            "passed": false,
+            "detail": "no h1 or h2 found in generated root html",
+            "concern": "no h1 or h2 found in generated root html"
+          },
+          {
+            "code": "cta_prominence",
+            "passed": true,
+            "detail": "primary CTA present (Start/Book/Buy/Sign/Get Started)",
+            "concern": ""
+          },
+          {
+            "code": "navigation",
+            "passed": false,
+            "detail": "no <nav>/<header> landmark",
+            "concern": "no <nav>/<header> landmark"
+          },
+          {
+            "code": "structure_density",
+            "passed": true,
+            "detail": "0 page sections (within 9-section editorial max)",
+            "concern": ""
+          },
+          {
+            "code": "repeated_cards",
+            "passed": true,
+            "detail": "6 repeated card patterns (acceptable)",
+            "concern": ""
+          },
+          {
+            "code": "no_empty_sections",
+            "passed": true,
+            "detail": "no empty placeholder sections",
+            "concern": ""
+          },
+          {
+            "code": "imagery_alt",
+            "passed": true,
+            "detail": "0/0 images carry alt text",
+            "concern": ""
+          },
+          {
+            "code": "restrained_motion",
+            "passed": true,
+            "detail": "no off-the-shelf motion stack",
+            "concern": ""
+          },
+          {
+            "code": "no_oversized_glass",
+            "passed": false,
+            "detail": "20 glass/backdrop-blur — anti-generic risk",
+            "concern": "20 glass/backdrop-blur — anti-generic risk"
+          }
+        ],
+        "evidence": {
+          "hero_heading_sample": "",
+          "sections": 0,
+          "images": 0,
+          "alts": 0,
+          "repeat_cards": 6,
+          "glass_hits": 20
+        },
+        "notes": [
+          "no h1 or h2 found in generated root html",
+          "no <nav>/<header> landmark",
+          "20 glass/backdrop-blur — anti-generic risk"
+        ],
+        "vision": {
+          "enabled": false,
+          "reason": "no vision output"
+        }
+      }
+    },
+    "phase_8_improvements": {
+      "total_recommendations": 10,
+      "recommendations": [
+        {
+          "id": "conv_whatsapp",
+          "title": "Add WhatsApp floating chat button (3-5x better than contact forms)",
+          "roi": 94,
+          "effort_hours": 1,
+          "category": "conversion",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 94.0
+        },
+        {
+          "id": "seo_sitemap_robots",
+          "title": "Generate sitemap.xml + robots.txt + canonical URLs",
+          "roi": 80,
+          "effort_hours": 1,
+          "category": "seo",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 80.0
+        },
+        {
+          "id": "perf_images_webp",
+          "title": "Optimize images: WebP + lazy loading + AVIF fallback",
+          "roi": 96,
+          "effort_hours": 2,
+          "category": "performance",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 48.0
+        },
+        {
+          "id": "perf_cdn",
+          "title": "Deploy static assets to CDN (Cloudflare / Vercel Edge)",
+          "roi": 90,
+          "effort_hours": 2,
+          "category": "performance",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 45.0
+        },
+        {
+          "id": "sec_rate_limit",
+          "title": "Implement API rate limiting + DDoS protection headers",
+          "roi": 88,
+          "effort_hours": 2,
+          "category": "security",
+          "international_priority": true,
+          "reason": "Security gate needs improvement",
+          "roi_effort_ratio": 44.0
+        },
+        {
+          "id": "legal_gdpr_cookie",
+          "title": "GDPR/CCPA compliant cookie consent banner",
+          "roi": 83,
+          "effort_hours": 2,
+          "category": "legal",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 41.5
+        },
+        {
+          "id": "ops_monitoring",
+          "title": "Set up error monitoring with Sentry + uptime alerts",
+          "roi": 82,
+          "effort_hours": 2,
+          "category": "ops",
+          "international_priority": true,
+          "reason": "Multiple validation warnings detected",
+          "roi_effort_ratio": 41.0
+        },
+        {
+          "id": "seo_hreflang",
+          "title": "Add hreflang tags for multilingual/multi-region support",
+          "roi": 78,
+          "effort_hours": 2,
+          "category": "seo",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 39.0
+        },
+        {
+          "id": "seo_meta_og",
+          "title": "Complete Open Graph + Twitter Card meta tags per page",
+          "roi": 76,
+          "effort_hours": 2,
+          "category": "seo",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 38.0
+        },
+        {
+          "id": "legal_privacy_policy",
+          "title": "Add Privacy Policy + Terms of Service pages",
+          "roi": 75,
+          "effort_hours": 2,
+          "category": "legal",
+          "international_priority": true,
+          "reason": "International market requirement",
+          "roi_effort_ratio": 37.5
+        }
+      ],
+      "estimated_total_hours": 18,
+      "priority_order": [
+        "conv_whatsapp",
+        "seo_sitemap_robots",
+        "perf_images_webp",
+        "perf_cdn",
+        "sec_rate_limit",
+        "legal_gdpr_cookie",
+        "ops_monitoring",
+        "seo_hreflang",
+        "seo_meta_og",
+        "legal_privacy_policy"
+      ],
+      "international_compliance": {
+        "gdpr_ready": true,
+        "pwa_ready": false,
+        "seo_ready": true
+      }
+    },
+    "phase_9_benchmark": {
+      "industry": "tourism",
+      "website_type": "saas",
+      "competitors_global": [
+        "Notion",
+        "Linear",
+        "Stripe",
+        "Vercel"
+      ],
+      "competitors_pk": [
+        "Rozee.pk",
+        "Zameen.com",
+        "Bookme.pk"
+      ],
+      "pk_market_growth": "+55% YoY",
+      "pk_mobile_share": "45%",
+      "our_metrics": {
+        "feature_count": 33,
+        "lighthouse_target": 92,
+        "quality_score": 81.8,
+        "must_have_coverage": 80.0
+      },
+      "industry_averages": {
+        "avg_lighthouse": 78,
+        "avg_features": 10,
+        "avg_load_time_ms": 2800,
+        "must_have": [
+          "pricing",
+          "auth",
+          "dashboard",
+          "analytics",
+          "free_trial"
+        ],
+        "top_competitors_global": [
+          "Notion",
+          "Linear",
+          "Stripe",
+          "Vercel"
+        ],
+        "top_competitors_pk": [
+          "Rozee.pk",
+          "Zameen.com",
+          "Bookme.pk"
+        ],
+        "pk_mobile_share": "45%",
+        "pk_market_growth": "+55% YoY"
+      },
+      "competitive_advantages": [
+        "Lighthouse target 92 vs industry avg 78",
+        "33 features vs industry avg 10",
+        "Component-library reuse — 95% token savings vs generic AI",
+        "RTL language support (Arabic/Urdu) — rare competitive advantage",
+        "PWA-ready: offline mode + install prompt + push notifications",
+        "Multi-language support — reaches 4.5B+ non-English internet users",
+        "WhatsApp CTA — 3-5x better conversion in South Asia & MENA"
+      ],
+      "market_positioning": "Premium tourism saas platform with positioned for +18% YoY market growth.",
+      "launch_ready": false,
+      "vs_generic_ai": {
+        "market_analysis": true,
+        "tech_optimization": true,
+        "trending_features": true,
+        "quality_gates": true,
+        "competitive_benchmark": true,
+        "deploy_ready": true,
+        "multilingual": true,
+        "pwa_ready": true,
+        "whatsapp_cta": true
+      }
+    },
+    "phase_10_international_delivery": {
+      "files_checked": 12,
+      "delivery_status": {
+        "docker-compose.yml": "✅",
+        "README.md": "✅",
+        "LICENSE.md": "✅",
+        "INSTRUCTIONS.md": "✅",
+        "DEPLOYMENT_CHECKLIST.md": "✅",
+        "SEO_META_TAGS.md": "✅",
+        ".github/workflows/deploy.yml": "✅",
+        "frontend/public/robots.txt": "✅",
+        "frontend/public/sitemap.xml": "✅",
+        "frontend/public/manifest.json": "✅",
+        "frontend/Dockerfile": "✅",
+        "backend/Dockerfile": "✅"
+      }
+    },
+    "phase_11_localization": {
+      "region": "MENA",
+      "primary_currency": "AED",
+      "payment_gateways": [
+        "PayTabs",
+        "Telr",
+        "Checkout.com"
+      ],
+      "languages_generated": [
+        "ar",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "hi",
+        "id",
+        "ja",
+        "ko",
+        "pt",
+        "ru",
+        "tr",
+        "ur",
+        "zh"
+      ],
+      "total_languages": 14,
+      "rtl_languages": [
+        "ar",
+        "ur"
+      ]
+    },
+    "phase_12_compliance_accessibility": {
+      "compliance_regs": [
+        "KVKK",
+        "GDPR"
+      ],
+      "compliance_artifacts": 5,
+      "requires_consent_banner": true,
+      "accessibility_score": 57.1,
+      "wcag_aa_compliant": false,
+      "security_controls_verified": 13,
+      "security_checklist": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\SECURITY-CHECKLIST.md",
+      "estimated_monthly_cost": {
+        "vercel": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "cloudflare": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "netlify": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "github": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "railway": {
+          "monthly_usd": "$5",
+          "class": "app-server"
+        },
+        "render": {
+          "monthly_usd": "$0",
+          "class": "app-server"
+        },
+        "digitalocean": {
+          "monthly_usd": "$12",
+          "class": "app-server"
+        },
+        "aws": {
+          "monthly_usd": "$7",
+          "class": "app-server"
+        },
+        "gcp": {
+          "monthly_usd": "$6",
+          "class": "app-server"
+        }
+      }
+    },
+    "phase_13_seo_and_cdn": {
+      "pages_optimized": 7,
+      "sitemap_url": "https://saffron-voyage.com/sitemap.xml",
+      "cdn_platforms": [
+        "vercel",
+        "netlify",
+        "nginx",
+        "cloudflare"
+      ]
+    },
+    "phase_14_performance_growth": {
+      "performance_targets": {
+        "lcp_ms": 2500,
+        "cls": 0.05,
+        "inp_ms": 150,
+        "ttfb_ms": 600,
+        "fcp_ms": 1500,
+        "tbt_ms": 200,
+        "lighthouse": {
+          "performance": 90,
+          "accessibility": 92,
+          "best_practices": 93,
+          "seo": 90
+        },
+        "bundle_kb": {
+          "js": 300,
+          "css": 70,
+          "total": 500
+        },
+        "note": "SaaS: dashboard routes can lazy-load; landing must be fast"
+      },
+      "analytics_events": 12,
+      "ab_experiments": 3,
+      "webhook_events": 10
+    },
+    "phase_15_global_deployment": {
+      "supported_clouds": [
+        "vercel",
+        "railway",
+        "render",
+        "aws",
+        "gcp",
+        "digitalocean"
+      ],
+      "artifacts_count": 9,
+      "recommended_platform": "vercel",
+      "estimated_monthly_cost": {
+        "vercel": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "cloudflare": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "netlify": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "github": {
+          "monthly_usd": "$0",
+          "class": "static-site"
+        },
+        "railway": {
+          "monthly_usd": "$5",
+          "class": "app-server"
+        },
+        "render": {
+          "monthly_usd": "$0",
+          "class": "app-server"
+        },
+        "digitalocean": {
+          "monthly_usd": "$12",
+          "class": "app-server"
+        },
+        "aws": {
+          "monthly_usd": "$7",
+          "class": "app-server"
+        },
+        "gcp": {
+          "monthly_usd": "$6",
+          "class": "app-server"
+        }
+      }
+    },
+    "final_production_validation": {
+      "valid": false,
+      "quality_score": 81.8,
+      "enterprise_ready": false
+    },
+    "pro_design_restyle": true,
+    "pro_design_ui_style": "glassmorphism",
+    "pro_design_region": "default",
+    "design_vault_sources": [
+      "horizonx"
+    ],
+    "component_injection": {
+      "files_upgraded": [
+        "frontend/src/components/auth/OTPInput.jsx",
+        "frontend/src/components/business/Hero.jsx",
+        "frontend/src/components/business/PricingCard.jsx",
+        "frontend/src/components/ecommerce/CartEmpty.jsx",
+        "frontend/src/layouts/AppLayout.jsx",
+        "frontend/src/layouts/LandingLayout.jsx",
+        "frontend/src/pages/Contact.jsx"
+      ],
+      "buttons_swapped": 8,
+      "skipped": 7
+    },
+    "production_readiness_repair": {
+      "project": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage",
+      "lane": "transactional",
+      "commerce": {
+        "status": "error",
+        "error": "unterminated string literal (detected at line 172) (commerce_ready.py, line 172)"
+      },
+      "component_imports": {
+        "status": "ok",
+        "stubs_written": 0
+      },
+      "schema": {
+        "status": "ok",
+        "patched": [
+          "models/index.js",
+          "middleware/org.js",
+          "middleware/permission.js"
+        ],
+        "models": [
+          "Address",
+          "AnalyticsEvent",
+          "AuditLog",
+          "Booking",
+          "Cart",
+          "CartItem",
+          "Category",
+          "Coupon",
+          "Doctor",
+          "Membership",
+          "Notification",
+          "Order",
+          "Organization",
+          "Payment",
+          "Permission",
+          "Plan",
+          "Product",
+          "Review",
+          "Role",
+          "Service",
+          "Subscription",
+          "SystemConfig",
+          "User",
+          "WebhookEvent",
+          "WebhookLog",
+          "Wishlist"
+        ],
+        "fk_columns_satisfied": [
+          "cart_id",
+          "category_id",
+          "coupon_id",
+          "order_id",
+          "product_id",
+          "recipient_id",
+          "user_id",
+          "vendor_id"
+        ],
+        "multitenancy": true,
+        "rbac": true
+      },
+      "enterprise_compliance": {
+        "status": "error",
+        "error": "unterminated string literal (detected at line 172) (commerce_ready.py, line 172)"
+      }
+    },
+    "architect_enterprise_verification": {
+      "passed": false,
+      "blocked_zip": true,
+      "docs": {
+        "rules_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\project-rules",
+        "loaded": 5,
+        "required": 5,
+        "all_present": true,
+        "files": {
+          "PRD_MASTER_TEMPLATE.md": {
+            "loaded": true,
+            "anchors": {
+              "## Feature Scope": true,
+              "## Acceptance Criteria": true
+            }
+          },
+          "TRD_ENGINEERING_STANDARDS.md": {
+            "loaded": true,
+            "anchors": {
+              "## Dependency Pins": true,
+              "## React 19 Rules": true,
+              "## Backend Patterns": true
+            }
+          },
+          "UI_UX_DESIGN_TOKENS.md": {
+            "loaded": true,
+            "anchors": {
+              "## Color Tokens": true,
+              "## Glassmorphism": true,
+              "## Motion Profiles": true,
+              "## Conformance": true
+            }
+          },
+          "BACKEND_SCHEMA_SPEC.md": {
+            "loaded": true,
+            "anchors": {
+              "## Model Baseline": true,
+              "## Foreign Key Contract": true,
+              "## Concurrency Mandate": true,
+              "## Multi-Tenancy (Organizations + RBAC)": true
+            }
+          },
+          "SRS_SYSTEM_SPECIFICATIONS.md": {
+            "loaded": true,
+            "anchors": {
+              "## SEO Architecture": true,
+              "## Internationalization": true,
+              "## Code Quality Assurance": true
+            }
+          }
+        }
+      },
+      "verification": {
+        "prd": {
+          "name": "prd",
+          "doc": "PRD_MASTER_TEMPLATE.md",
+          "pass": true,
+          "checks": {
+            "fluid_ui": {
+              "pass": true,
+              "detail": "fluid tokens + fluid utilities",
+              "files": [],
+              "applies": true
+            },
+            "micro_interactions": {
+              "pass": true,
+              "detail": "artifacts present",
+              "files": [],
+              "applies": true
+            },
+            "lead_capture": {
+              "pass": true,
+              "detail": "artifacts present",
+              "files": [],
+              "applies": true
+            },
+            "mounted_motion_canvas": {
+              "pass": true,
+              "detail": "MotionCanvas mounted in App.jsx",
+              "files": [],
+              "applies": true
+            },
+            "runtime_mode": {
+              "pass": true,
+              "detail": "runtime_mode=transactional matches layout_mode=enterprise",
+              "files": [],
+              "applies": true
+            }
+          },
+          "note": ""
+        },
+        "engineering": {
+          "name": "engineering",
+          "doc": "TRD_ENGINEERING_STANDARDS.md",
+          "pass": false,
+          "checks": {
+            "stack_pins": {
+              "pass": true,
+              "detail": "pins conformant",
+              "files": [],
+              "applies": true
+            },
+            "state_topology": {
+              "pass": true,
+              "detail": "provider-wrapped app root",
+              "files": [],
+              "applies": true
+            },
+            "optimization": {
+              "pass": true,
+              "detail": "lazy layouts + CLS guard",
+              "files": [],
+              "applies": true
+            },
+            "backend_blueprint": {
+              "pass": true,
+              "detail": "backend blueprint conformant",
+              "files": [],
+              "applies": true
+            },
+            "component_injection": {
+              "pass": false,
+              "detail": "raw <button> markup: frontend/src/components/auth/LoginForm.jsx, frontend/src/components/auth/RegisterForm.jsx, frontend/src/components/auth/SocialLogin.jsx, frontend/src/components/ecommerce/BuyTemplateBanner.jsx, frontend/src/components/ecommerce/PricingTable.jsx, frontend/src/components/ecommerce/ProductCard.jsx, frontend/src/components/ecommerce/QuantitySelector.jsx",
+              "files": [
+                "frontend/src/components/auth/LoginForm.jsx",
+                "frontend/src/components/auth/RegisterForm.jsx",
+                "frontend/src/components/auth/SocialLogin.jsx",
+                "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+                "frontend/src/components/ecommerce/PricingTable.jsx",
+                "frontend/src/components/ecommerce/ProductCard.jsx",
+                "frontend/src/components/ecommerce/QuantitySelector.jsx"
+              ],
+              "applies": true
+            }
+          },
+          "note": ""
+        },
+        "design": {
+          "name": "design",
+          "doc": "UI_UX_DESIGN_TOKENS.md",
+          "pass": false,
+          "checks": {
+            "tokens": {
+              "pass": true,
+              "detail": "semantic token mapping present",
+              "files": [],
+              "applies": true
+            },
+            "glass": {
+              "pass": true,
+              "detail": "glassmorphism spec present",
+              "files": [],
+              "applies": true
+            },
+            "motion": {
+              "pass": true,
+              "detail": "motion profiles present",
+              "files": [],
+              "applies": true
+            },
+            "theme": {
+              "pass": true,
+              "detail": "dark-default theme wired",
+              "files": [],
+              "applies": true
+            },
+            "raw_hex": {
+              "pass": false,
+              "detail": "raw hex literals: 1",
+              "files": [
+                "frontend/src/components/Footer.jsx:51"
+              ],
+              "applies": true
+            }
+          },
+          "note": ""
+        },
+        "schema_srs": {
+          "name": "BACKEND_SCHEMA_SPEC.md",
+          "doc": "BACKEND_SCHEMA_SPEC.md + SRS_SYSTEM_SPECIFICATIONS.md",
+          "pass": false,
+          "checks": {
+            "baseline": {
+              "pass": true,
+              "detail": "14/14 models present",
+              "files": [],
+              "applies": true
+            },
+            "fk_contract": {
+              "pass": true,
+              "detail": "FK contract honored",
+              "files": [
+                "backend\\models\\index.js"
+              ],
+              "applies": true
+            },
+            "concurrency": {
+              "pass": true,
+              "detail": "row-lock checkout flow present (transaction:services\\orderService.js, row lock:services\\orderService.js, stock guard:services\\orderService.js, atomic decrement:services\\couponService.js)",
+              "files": [],
+              "applies": true
+            },
+            "rule_lockfile": {
+              "pass": true,
+              "detail": "docs rule lockfile honored (2 applicable rules)",
+              "files": [
+                "backend\\models\\Role.js",
+                "backend\\models\\index.js"
+              ],
+              "applies": true
+            },
+            "jsonld": {
+              "pass": true,
+              "detail": "18/14 JSON-LD types",
+              "files": [],
+              "applies": true
+            },
+            "open_graph": {
+              "pass": true,
+              "detail": "OG + twitter meta present",
+              "files": [],
+              "applies": true
+            },
+            "headings": {
+              "pass": false,
+              "detail": "heading violations: src/pages/Contact.jsx:h3 jumps after h1; src/pages/Services.jsx:h3 jumps after h1",
+              "files": [
+                "src/pages/Contact.jsx:h3 jumps after h1",
+                "src/pages/Services.jsx:h3 jumps after h1"
+              ],
+              "applies": true
+            },
+            "i18n_rtl": {
+              "pass": true,
+              "detail": "i18n bootstrap + RTL + hook present",
+              "files": [],
+              "applies": true
+            },
+            "devops": {
+              "pass": true,
+              "detail": "ESLint config + .prettierignore + quality_gate wired",
+              "files": [],
+              "applies": true
+            }
+          },
+          "note": "SRS_SYSTEM_SPECIFICATIONS.md"
+        }
+      },
+      "violating_files": [
+        "frontend/src/components/auth/LoginForm.jsx",
+        "frontend/src/components/auth/RegisterForm.jsx",
+        "frontend/src/components/auth/SocialLogin.jsx",
+        "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+        "frontend/src/components/ecommerce/PricingTable.jsx",
+        "frontend/src/components/ecommerce/ProductCard.jsx",
+        "frontend/src/components/ecommerce/QuantitySelector.jsx",
+        "frontend/src/components/Footer.jsx",
+        "src/pages/Contact.jsx:h3 jumps after h1",
+        "src/pages/Services.jsx:h3 jumps after h1"
+      ],
+      "self_heal_rounds": [
+        {
+          "round": 1,
+          "healed": 8,
+          "files": [
+            "frontend/src/components/auth/LoginForm.jsx",
+            "frontend/src/components/auth/RegisterForm.jsx",
+            "frontend/src/components/auth/SocialLogin.jsx",
+            "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+            "frontend/src/components/ecommerce/PricingTable.jsx",
+            "frontend/src/components/ecommerce/ProductCard.jsx",
+            "frontend/src/components/ecommerce/QuantitySelector.jsx",
+            "frontend/src/components/Footer.jsx",
+            "src/pages/Contact.jsx:h3 jumps after h1",
+            "src/pages/Services.jsx:h3 jumps after h1"
+          ]
+        },
+        {
+          "round": 2,
+          "healed": 8,
+          "files": [
+            "frontend/src/components/auth/LoginForm.jsx",
+            "frontend/src/components/auth/RegisterForm.jsx",
+            "frontend/src/components/auth/SocialLogin.jsx",
+            "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+            "frontend/src/components/ecommerce/PricingTable.jsx",
+            "frontend/src/components/ecommerce/ProductCard.jsx",
+            "frontend/src/components/ecommerce/QuantitySelector.jsx",
+            "frontend/src/components/Footer.jsx",
+            "src/pages/Contact.jsx:h3 jumps after h1",
+            "src/pages/Services.jsx:h3 jumps after h1"
+          ]
+        },
+        {
+          "round": 3,
+          "healed": 8,
+          "files": [
+            "frontend/src/components/auth/LoginForm.jsx",
+            "frontend/src/components/auth/RegisterForm.jsx",
+            "frontend/src/components/auth/SocialLogin.jsx",
+            "frontend/src/components/ecommerce/BuyTemplateBanner.jsx",
+            "frontend/src/components/ecommerce/PricingTable.jsx",
+            "frontend/src/components/ecommerce/ProductCard.jsx",
+            "frontend/src/components/ecommerce/QuantitySelector.jsx",
+            "frontend/src/components/Footer.jsx",
+            "src/pages/Contact.jsx:h3 jumps after h1",
+            "src/pages/Services.jsx:h3 jumps after h1"
+          ]
+        }
+      ],
+      "project_name": "saffron-voyage",
+      "reason": "engineering: 1 check(s) red; design: 1 check(s) red; schema_srs: 1 check(s) red"
+    },
+    "quality_gate_devops": {
+      "available": true,
+      "passed": true,
+      "status": "passed",
+      "attempts": 1,
+      "maximum_attempts": 4,
+      "format": {
+        "command": "C:\\Program Files\\nodejs\\npx.CMD prettier --write --ignore-path .prettierignore -- generated-projects/saffron-voyage",
+        "exit_code": 0,
+        "timed_out": false,
+        "duration_secs": 7.772,
+        "output": "cts/saffron-voyage/frontend/src/pages/Services.jsx 20ms\ngenerated-projects/saffron-voyage/frontend/src/seo-config.json 4ms\ngenerated-projects/saffron-voyage/frontend/src/services/analyticsBus.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/services/api.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/services/apiConfig.js 3ms\ngenerated-projects/saffron-voyage/frontend/src/services/lemonSqueezy.js 10ms\ngenerated-projects/saffron-voyage/frontend/src/store/useAppStore.js 5ms\ngenerated-projects/saffron-voyage/frontend/src/styles/design-tokens.json 3ms\ngenerated-projects/saffron-voyage/frontend/src/sw-cache-strategy.js 7ms\ngenerated-projects/saffron-voyage/frontend/src/utils.js 6ms\ngenerated-projects/saffron-voyage/frontend/tailwind.config.js 5ms\ngenerated-projects/saffron-voyage/frontend/vite.config.js 3ms\ngenerated-projects/saffron-voyage/frontend/vite.config.performance.js 9ms\ngenerated-projects/saffron-voyage/GENERATION-MATRIX.md 18ms\ngenerated-projects/saffron-voyage/INSTRUCTIONS.md 65ms\ngenerated-projects/saffron-voyage/LEMON_SQUEEZY_SELLER_KIT.md 26ms\ngenerated-projects/saffron-voyage/LICENSE-SEAL.md 4ms\ngenerated-projects/saffron-voyage/LICENSE.md 5ms\ngenerated-projects/saffron-voyage/nginx/ssl/README.md 6ms\ngenerated-projects/saffron-voyage/PERFORMANCE.md 21ms\ngenerated-projects/saffron-voyage/PLATFORM-INJECTION.md 16ms\ngenerated-projects/saffron-voyage/QUALITY-GATES.md 8ms\ngenerated-projects/saffron-voyage/railway.json 2ms\ngenerated-projects/saffron-voyage/README.md 57ms\ngenerated-projects/saffron-voyage/render.yaml 4ms\ngenerated-projects/saffron-voyage/SCHEMA-CONTRACT.md 19ms\ngenerated-projects/saffron-voyage/SECURITY-CHECKLIST.md 8ms\ngenerated-projects/saffron-voyage/SEO_AUDIT.md 9ms\ngenerated-projects/saffron-voyage/SEO_META_TAGS.md 21ms\ngenerated-projects/saffron-voyage/SETUP_GUIDE.md 13ms\ngenerated-projects/saffron-voyage/structured-data.json 1ms\ngenerated-projects/saffron-voyage/vercel.json 4ms\ngenerated-projects/saffron-voyage/WEBHOOKS.md 15ms"
+      },
+      "lint": {
+        "command": "C:\\Program Files\\nodejs\\npx.CMD eslint --no-config-lookup --config scripts/eslint.generated.config.js generated-projects/saffron-voyage generated-projects/saffron-voyage/frontend",
+        "exit_code": 0,
+        "timed_out": false,
+        "duration_secs": 10.429,
+        "files_checked": 269,
+        "output": ""
+      },
+      "build_verify": {
+        "enabled": true,
+        "verified": true,
+        "ok": true,
+        "builds": [
+          {
+            "stack": "generated-projects/saffron-voyage/frontend",
+            "install_exit": 0,
+            "build_exit": 0,
+            "build_command": "C:\\Program Files\\nodejs\\npm.CMD run build",
+            "output": "> saffron-voyage@1.0.0 build\n> vite build\n\n\u001b[36mvite v8.3.0 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n✓ 1925 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   1.48 kB │ gzip:  0.62 kB\ndist/assets/index-2Sb9M-vz.css   54.72 kB │ gzip:  9.80 kB\ndist/assets/Home-Bo92UdH0.js     22.58 kB │ gzip:  6.03 kB\ndist/assets/index-99MKLOCY.js   269.69 kB │ gzip: 84.63 kB\n\n\u001b[32m✓ built in 8.03s\u001b[39m\n\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mPlugin hooks ran for 7.9s of this 8.0s build (98%).\nThe slowest hooks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):\n  - vite:build-html transform (85%, 6.8s, 1 call)\nAdditional hook time came from hooks under 1s.\nSee https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.\n\u001b[39m",
+            "ok": true
+          },
+          {
+            "stack": "generated-projects/saffron-voyage/backend",
+            "install_exit": 0,
+            "build_exit": null,
+            "output": "rsions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me\nnpm warn deprecated supertest@6.3.4: Please upgrade to supertest v7.1.3+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.3 - maintenance is supported by Forward Email @ https://forwardemail.net\nnpm warn deprecated circular-json@0.1.6: CircularJSON is in maintenance only, flatted is its successor.\nnpm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()\nnpm warn deprecated sliced@0.0.5: Unsupported\nnpm warn deprecated dottie@0.1.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.\nnpm warn deprecated wru@0.3.0: Sorry folks, no time to maintain this good old friend\nnpm warn deprecated node-uuid@1.4.8: Use uuid module instead\nnpm warn deprecated lingo@0.0.5: This project is abandoned\nnpm warn deprecated superagent@8.1.2: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net\nnpm warn deprecated sequelize@1.7.11: Please update to v6 or higher! A migration guide can be found here: https://sequelize.org/v6/manual/upgrade-to-v6.html\nnpm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   @scarf/scarf@1.4.0 (postinstall: node ./report.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.",
+            "ok": true
+          }
+        ]
+      },
+      "self_heal_rounds": [],
+      "self_correction": [],
+      "lint_files": [],
+      "github_recovery": {},
+      "note": "ZIP compilation allowed (format + lint + build exit 0)."
+    },
+    "live_deployment": {
+      "url": "https://malikusmangoraya.github.io/saffron-voyage/",
+      "status": "deployed"
+    }
+  },
+  "project_layout": {
+    "mode": "enterprise",
+    "has_api": true,
+    "phase_report": {
+      "mode": "enterprise",
+      "runtime_mode": "transactional",
+      "scaffold": "master-express-backend hydrated from backend-library",
+      "models_mounted": 25,
+      "models": [
+        "Address",
+        "AnalyticsEvent",
+        "AuditLog",
+        "Booking",
+        "Cart",
+        "CartItem",
+        "Category",
+        "Coupon",
+        "Doctor",
+        "Membership",
+        "Notification",
+        "Order",
+        "Organization",
+        "Payment",
+        "Permission",
+        "Plan",
+        "Product",
+        "Review",
+        "Role",
+        "Service",
+        "Subscription",
+        "SystemConfig",
+        "User",
+        "WebhookEvent",
+        "Wishlist"
+      ],
+      "route_groups_mapped": 24,
+      "routes": [
+        "address",
+        "ai",
+        "analytics",
+        "auth",
+        "booking",
+        "business",
+        "cart",
+        "coupon",
+        "dashboard",
+        "health",
+        "license",
+        "notification",
+        "order",
+        "org",
+        "payment",
+        "plan",
+        "playbook",
+        "product",
+        "search",
+        "settings",
+        "subscription",
+        "upload",
+        "user",
+        "wishlist"
+      ],
+      "queue": "Redis + BullMQ (backend/services/queue, backend/workers/worker.js)",
+      "axios_interceptor": "frontend/src/services/api.js -> /api/* via nginx gateway",
+      "database": "Sequelize — PostgreSQL/MySQL ready (DATABASE_URL + DB_DIALECT)",
+      "generation_matrix": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useInView.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionCanvas.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionSystems.jsx",
+          "framer-motion:already-present",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/services/analyticsBus.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LeadForm.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/checkout/CheckoutFlow.jsx",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\GENERATION-MATRIX.md"
+        ],
+        "fluid_ui": {
+          "applied": true,
+          "file": "index.css"
+        },
+        "micro_interactions": {
+          "components": [
+            "MotionCanvas",
+            "Reveal",
+            "MagneticButton",
+            "TiltCard",
+            "HoverGlow"
+          ],
+          "mounted_in_app": true,
+          "artifacts": [
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useInView.js",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionCanvas.jsx",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/MotionSystems.jsx",
+            "framer-motion:already-present",
+            "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx"
+          ]
+        },
+        "lead_capture": {
+          "lead_form": "frontend/src/components/common/LeadForm.jsx",
+          "checkout": "frontend/src/components/checkout/CheckoutFlow.jsx",
+          "analytics_bus": "frontend/src/services/analyticsBus.js",
+          "artifacts": [
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/services/analyticsBus.js",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LeadForm.jsx",
+            "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/checkout/CheckoutFlow.jsx"
+          ]
+        },
+        "matrix_doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\GENERATION-MATRIX.md"
+      },
+      "platform_injection": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "frontend/src/index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/queryClient.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useApiQuery.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/AppProviders.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/store/useAppStore.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/LandingLayout.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/AppLayout.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LayoutSkeleton.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/LazyLayouts.jsx",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\PLATFORM-INJECTION.md"
+        ],
+        "frontend_stack": {
+          "status": "ok",
+          "pins": {},
+          "notes": []
+        },
+        "state_topology": {
+          "status": "ok",
+          "artifacts": {
+            "queryClient": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/queryClient.js",
+            "useApiQuery": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/hooks/useApiQuery.js",
+            "AppProviders": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/AppProviders.jsx",
+            "zustand_store": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/store/useAppStore.js"
+          },
+          "provider_wrapped": true,
+          "app_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\App.jsx"
+        },
+        "lazy_layouts": {
+          "status": "ok",
+          "artifacts": {
+            "layout_landing": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/LandingLayout.jsx",
+            "layout_app": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/layouts/AppLayout.jsx",
+            "layout_skeleton": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/LayoutSkeleton.jsx",
+            "lazy_layout_registry": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/LazyLayouts.jsx"
+          }
+        },
+        "cls_budget": {
+          "status": "ok",
+          "file": "frontend/src/index.css"
+        },
+        "backend_blueprint": {
+          "controllers": {
+            "pass": true,
+            "hint": ""
+          },
+          "response_envelope": {
+            "pass": true,
+            "hint": "status-code helpers present"
+          },
+          "error_handler": {
+            "pass": true,
+            "hint": "status-code helpers present"
+          },
+          "sequelize_models": {
+            "pass": true,
+            "hint": ""
+          },
+          "queue_service": {
+            "pass": true,
+            "hint": "in-memory fallback present"
+          },
+          "redis_protected_fallback": {
+            "pass": true,
+            "hint": "in-memory fallback present"
+          },
+          "conformant": true,
+          "runtime": "transactional",
+          "applies": true
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\PLATFORM-INJECTION.md"
+      },
+      "design_system": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-TOKENS.md",
+          "frontend/src/index.css",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/GlassCard.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/motionPresets.js",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/motion/MotionWrapper.jsx",
+          "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/theme.js"
+        ],
+        "tailwind_config": {
+          "status": "skip",
+          "reason": "tailwind.config.js exists"
+        },
+        "tokens_css": {
+          "status": "ok",
+          "file": "frontend/src/index.css"
+        },
+        "glass": {
+          "status": "ok",
+          "component": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/common/GlassCard.jsx"
+        },
+        "motion": {
+          "status": "ok",
+          "presets": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/motionPresets.js",
+          "wrapper": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/components/motion/MotionWrapper.jsx"
+        },
+        "theme": {
+          "status": "ok",
+          "theme": "C:/Users/AZAM COMPUTERS/OneDrive/Desktop/lumicorepro-core/generated-projects/saffron-voyage/frontend/src/lib/theme.js",
+          "app_import": true
+        },
+        "conformance": {
+          "status": "pass",
+          "pass": true,
+          "raw_hex_count": 0,
+          "violations": []
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-TOKENS.md"
+      },
+      "schema_contract": {
+        "applies": true,
+        "runtime_mode": "transactional",
+        "models": {
+          "total": 14,
+          "present": 14,
+          "missing": [],
+          "pass": true
+        },
+        "order_coupon_fk": {
+          "patched": [
+            "Order.js:coupon_id",
+            "index.js:Order.belongsTo(Coupon)"
+          ],
+          "status": "ok"
+        },
+        "fk": {
+          "pass": true,
+          "missing": [],
+          "checked": 18
+        },
+        "row_lock": {
+          "pass": true,
+          "checks": {
+            "transaction": {
+              "pass": true,
+              "hint": "checkout wrapped in a single DB transaction"
+            },
+            "row_lock": {
+              "pass": true,
+              "hint": "isolated SELECT ... FOR UPDATE row lock on product"
+            },
+            "stock_guard": {
+              "pass": true,
+              "hint": "stock guard checked while row is locked"
+            },
+            "atomic_decrement": {
+              "pass": true,
+              "hint": "atomic stock decrement inside the same transaction"
+            }
+          },
+          "sources": [
+            "services\\orderService.js",
+            "routes\\order.routes.js",
+            "routes\\orderRoutes.js"
+          ],
+          "passed": [
+            "transaction",
+            "row_lock",
+            "stock_guard",
+            "atomic_decrement"
+          ],
+          "missing": []
+        },
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\SCHEMA-CONTRACT.md",
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\database\\schemas\\schema.sql"
+        ]
+      },
+      "functional_compliance": {
+        "runtime_mode": "transactional",
+        "artifacts": [
+          "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\QUALITY-GATES.md"
+        ],
+        "seo": {
+          "jsonld": {
+            "required": 14,
+            "types": [
+              "Organization"
+            ],
+            "missing_types": [
+              "WebSite",
+              "WebPage",
+              "Product",
+              "Offer",
+              "AggregateRating",
+              "BreadcrumbList",
+              "FAQPage",
+              "Service",
+              "LocalBusiness",
+              "Person",
+              "Article",
+              "Review",
+              "ImageObject"
+            ],
+            "pass": false,
+            "top_up": {
+              "status": "skip",
+              "reason": "no structured-data.js found"
+            }
+          },
+          "og": {
+            "pass": true,
+            "missing": [],
+            "scanned": [
+              "frontend\\index.html"
+            ]
+          },
+          "headings": {
+            "pass": false,
+            "pages": 4,
+            "violations": [
+              "frontend\\src\\pages\\Contact.jsx: heading level jump h1→h3",
+              "frontend\\src\\pages\\Services.jsx: heading level jump h1→h3"
+            ]
+          }
+        },
+        "i18n": {
+          "bootstrap": {
+            "pass": true,
+            "rtl_support": true,
+            "injected": true
+          },
+          "hook": {
+            "file": "frontend/src/hooks/useAppTranslation.js",
+            "status": "injected"
+          },
+          "coverage": {
+            "components": 85,
+            "hook_using": 1,
+            "percent": 1.2
+          }
+        },
+        "code_quality": {
+          "eslint_pipeline": true,
+          "prettier_pipeline": true,
+          "gate_module": true,
+          "note": "ZIP archiving is blocked unless ESLint + Prettier pass (agent/quality_gate.py DevOps gate); verified wiring, not re-run here."
+        },
+        "doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\QUALITY-GATES.md"
+      }
+    }
+  },
+  "selected_resources": {
+    "template": "CreativePortfolio",
+    "components_count": 76,
+    "components": [
+      "Checkout",
+      "SEOMetaTags",
+      "ThemeSwitcher",
+      "WhatsAppFloat",
+      "BentoGrid",
+      "SocialShare",
+      "Modal",
+      "PricingToggle",
+      "LumicoreLogo",
+      "UniqueLogo",
+      "Language",
+      "Progress",
+      "BlockBar",
+      "BrandLogo",
+      "HolographicCard",
+      "FeatureGrid",
+      "SocialLogin",
+      "BlogGrid",
+      "LoginForm",
+      "VideoHero",
+      "RevenueCard",
+      "AnimatedNumber",
+      "ModernFooter",
+      "IconWrapper",
+      "ProductGrid",
+      "Accordion",
+      "Alert",
+      "Avatar",
+      "Badge",
+      "Breadcrumb",
+      "Button",
+      "ButtonMotion",
+      "Card",
+      "Divider",
+      "Dropdown",
+      "Empty",
+      "IconButton",
+      "Loading",
+      "Pagination",
+      "Skeleton",
+      "Spinner",
+      "Tabs",
+      "Tooltip",
+      "GradientButton",
+      "NeumorphButton",
+      "PixelButton",
+      "PixelCard",
+      "SpotlightCard",
+      "TiltCard",
+      "LegalDisclaimer",
+      "CookieConsent",
+      "RegisterForm",
+      "Hero",
+      "MapEmbed",
+      "Marquee",
+      "Typewriter",
+      "TextAnimate",
+      "Dock",
+      "TextMorph",
+      "PricingCard",
+      "NewsletterSignup",
+      "CountdownTimer",
+      "ProductCard",
+      "PWAInstallBanner",
+      "TestimonialCarousel",
+      "ProductDetails",
+      "SpotlightGrid",
+      "OTPInput",
+      "GlassNavbar",
+      "RatingStars",
+      "CurrencySelector",
+      "WorldClock",
+      "CartEmpty",
+      "DiscountBadge",
+      "QuantitySelector",
+      "BorderBeam"
+    ],
+    "images_count": 60,
+    "icons_count": 0,
+    "animations_count": 0,
+    "backend": "SaaS Enterprise Express API Base",
+    "database_schemas": [
+      "E-Commerce Master Schema",
+      "Users & Auth Schema"
+    ],
+    "tech_stack": {
+      "frontend": {
+        "framework": "react",
+        "bundler": "vite",
+        "styling": "tailwindcss",
+        "charts": "recharts"
+      },
+      "backend": {
+        "runtime": "node",
+        "framework": "express",
+        "auth": "jwt+bcrypt",
+        "selected_module": "SaaS Enterprise Express API Base",
+        "module_path": "backend-library/saas-backend"
+      },
+      "database": {
+        "engine": "postgresql",
+        "orm": "raw-sql",
+        "cache": "redis-recommended",
+        "schemas": [
+          "E-Commerce Master Schema",
+          "Users & Auth Schema"
+        ],
+        "schema_count": 2
+      },
+      "payments": "stripe-subscriptions",
+      "deployment_targets": [
+        "vercel",
+        "aws",
+        "gcp"
+      ],
+      "scale_considerations": [
+        "payment_processing",
+        "enterprise"
+      ],
+      "rationale": "React + Vite chosen for saas due to component reuse from the shared UI library, fast HMR, and postgresql compatibility for structured data."
+    },
+    "trending_features": [
+      "social_proof",
+      "ai_chat",
+      "personalization",
+      "exit_intent_popup",
+      "analytics_dashboard",
+      "live_chat",
+      "countdown_timer"
+    ]
+  },
+  "ai_api_calls_made": 0,
+  "validation_results": {
+    "valid": false,
+    "errors": [
+      "[contract] Component 'CurrencySelector.jsx' uses prop 'value' undefined in local contract (children, className, key, ref).",
+      "[contract] Component 'CurrencySelector.jsx' uses prop 'onChange' undefined in local contract (children, className, key, ref).",
+      "[contract] Component 'CurrencySelector.jsx' uses prop 'storageKey' undefined in local contract (children, className, key, ref).",
+      "[contract] Component 'CurrencySelector.jsx' uses prop 'compact' undefined in local contract (children, className, key, ref).",
+      "[contract] Component 'BentoGrid.jsx' uses prop 'span' undefined in local contract (children, className, columns, gap, key, lg, md, ref).",
+      "[contract] Component 'BentoGrid.jsx' uses prop 'rowSpan' undefined in local contract (children, className, columns, gap, key, lg, md, ref).",
+      "[contract] Component 'Dropdown.jsx' uses prop 'onClick' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+      "[contract] Component 'Dropdown.jsx' uses prop 'icon' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+      "[contract] Component 'Dropdown.jsx' uses prop 'danger' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+      "[contract] Component 'Dropdown.jsx' uses prop 'disabled' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger)."
+    ],
+    "warnings": [
+      "Frontend code imports '@/components' but it is missing from package.json dependencies.",
+      "Frontend code imports '@/hooks' but it is missing from package.json dependencies.",
+      "Frontend code imports '@/config' but it is missing from package.json dependencies.",
+      "Frontend code imports 'i18next-browser-languagedetector' but it is missing from package.json dependencies.",
+      "Frontend references 'import.meta.env.VITE_API_TIMEOUT' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_FORMSPREE_ID' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_FATHOM_SITE_ID' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_MIXPANEL_TOKEN' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_GA4_ID' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_LEADS_WEBHOOK' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_POSTHOG_HOST' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_PLAUSIBLE_DOMAIN' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_PLAUSIBLE_HOST' which is missing from .env.example.",
+      "Frontend references 'import.meta.env.VITE_POSTHOG_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.APP_DOMAIN' which is missing from .env.example.",
+      "Backend references 'process.env.TURNSTILE_SECRET_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRICE_CREDITS_100' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRICE_PRO' which is missing from .env.example.",
+      "Backend references 'process.env.WAITLIST_AUTO_APPROVE_DAILY' which is missing from .env.example.",
+      "Backend references 'process.env.PADDLE_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRICE_AGENCY' which is missing from .env.example.",
+      "Backend references 'process.env.DB_HOST' which is missing from .env.example.",
+      "Backend references 'process.env.LICENSE_TRIAL_DAYS' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRODUCT_CREDITS_100' which is missing from .env.example.",
+      "Backend references 'process.env.DB_PORT' which is missing from .env.example.",
+      "Backend references 'process.env.SMTP_PASS' which is missing from .env.example.",
+      "Backend references 'process.env.LIQPAY_PUBLIC_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.WEBHOOK_ENDPOINTS' which is missing from .env.example.",
+      "Backend references 'process.env.REDIS_URL' which is missing from .env.example.",
+      "Backend references 'process.env.AI_DAILY_CHAT_LIMIT' which is missing from .env.example.",
+      "Backend references 'process.env.PADDLE_ENV' which is missing from .env.example.",
+      "Backend references 'process.env.FRONTEND_URL' which is missing from .env.example.",
+      "Backend references 'process.env.BKASH_APP_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.LICENSE_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.SENTRY_TRACES_SAMPLE_RATE' which is missing from .env.example.",
+      "Backend references 'process.env.AI_MAX_TOKENS_VISION' which is missing from .env.example.",
+      "Backend references 'process.env.BACKEND_URL' which is missing from .env.example.",
+      "Backend references 'process.env.SMTP_PORT' which is missing from .env.example.",
+      "Backend references 'process.env.AI_TOKEN_BUDGET' which is missing from .env.example.",
+      "Backend references 'process.env.GITHUB_CLIENT_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.APP_BRAND' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRODUCT_PRO' which is missing from .env.example.",
+      "Backend references 'process.env.AI_WEEKLY_BUDGET' which is missing from .env.example.",
+      "Backend references 'process.env.BKASH_USERNAME' which is missing from .env.example.",
+      "Backend references 'process.env.SMTP_USER' which is missing from .env.example.",
+      "Backend references 'process.env.MOLLIE_ORGANIZATION_ID' which is missing from .env.example.",
+      "Backend references 'process.env.RAZORPAY_KEY_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.EMAIL_FROM_ADDRESS' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_INDUSTRY_TYPE' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_MERCHANT_ID' which is missing from .env.example.",
+      "Backend references 'process.env.OPENROUTER_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.AI_AVG_TOKENS_GENERATION' which is missing from .env.example.",
+      "Backend references 'process.env.AI_CB_BLOCK_SECS' which is missing from .env.example.",
+      "Backend references 'process.env.AI_MAX_TOKENS_GENERATION' which is missing from .env.example.",
+      "Backend references 'process.env.AI_DAILY_VISION_LIMIT' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRICE_CREDITS_25' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_WEBSITE' which is missing from .env.example.",
+      "Backend references 'process.env.ANTHROPIC_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.VALID_API_KEYS' which is missing from .env.example.",
+      "Backend references 'process.env.MARKETPLACE_SELLER_NAME' which is missing from .env.example.",
+      "Backend references 'process.env.DEMO_MODE' which is missing from .env.example.",
+      "Backend references 'process.env.WAITLIST_MODE' which is missing from .env.example.",
+      "Backend references 'process.env.LIQPAY_PRIVATE_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.SQUARE_LOCATION_ID' which is missing from .env.example.",
+      "Backend references 'process.env.BKASH_MERCHANT_ID' which is missing from .env.example.",
+      "Backend references 'process.env.MERCADOPAGO_ACCESS_TOKEN' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PUBLISHABLE_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.AI_DAILY_GEN_LIMIT' which is missing from .env.example.",
+      "Backend references 'process.env.RATE_LIMIT_MAX_REQUESTS' which is missing from .env.example.",
+      "Backend references 'process.env.FLUTTERWAVE_PUBLIC_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.GITHUB_CLIENT_ID' which is missing from .env.example.",
+      "Backend references 'process.env.SMTP_HOST' which is missing from .env.example.",
+      "Backend references 'process.env.GOOGLE_CLIENT_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.PAYMENT_GATEWAYS_ENABLED' which is missing from .env.example.",
+      "Backend references 'process.env.DB_NAME' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_CHANNEL_ID' which is missing from .env.example.",
+      "Backend references 'process.env.LOG_LEVEL' which is missing from .env.example.",
+      "Backend references 'process.env.BKASH_PASSWORD' which is missing from .env.example.",
+      "Backend references 'process.env.PAYPAL_CLIENT_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.DB_PASSWORD' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_WEBHOOK_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.PADDLE_WEBHOOK_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.DEFAULT_CURRENCY' which is missing from .env.example.",
+      "Backend references 'process.env.MERCADOPAGO_PUBLIC_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.JWT_REFRESH_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.PAYPAL_CLIENT_ID' which is missing from .env.example.",
+      "Backend references 'process.env.DEEPSEEK_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.MAX_FILE_SIZE' which is missing from .env.example.",
+      "Backend references 'process.env.MERCADOPAGO_WEBHOOK_PASSWORD' which is missing from .env.example.",
+      "Backend references 'process.env.DB_USER' which is missing from .env.example.",
+      "Backend references 'process.env.AI_MAX_TOKENS_CHAT' which is missing from .env.example.",
+      "Backend references 'process.env.GEMINI_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.PAYPAL_WEBHOOK_ID' which is missing from .env.example.",
+      "Backend references 'process.env.FLUTTERWAVE_ENCRYPTION_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.AI_AGENT_URL' which is missing from .env.example.",
+      "Backend references 'process.env.INTERNAL_WEBHOOK_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.GOOGLE_CLIENT_ID' which is missing from .env.example.",
+      "Backend references 'process.env.LICENSE_PRODUCT' which is missing from .env.example.",
+      "Backend references 'process.env.MOLLIE_API_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.AI_TOKEN_COST_PER_1K' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_SECRET_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.JWT_REFRESH_EXPIRE' which is missing from .env.example.",
+      "Backend references 'process.env.RAZORPAY_WEBHOOK_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.FLUTTERWAVE_SECRET_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.JWT_EXPIRE' which is missing from .env.example.",
+      "Backend references 'process.env.AI_CB_MAX_REQUESTS' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRODUCT_STARTER' which is missing from .env.example.",
+      "Backend references 'process.env.ALLOWED_ORIGINS' which is missing from .env.example.",
+      "Backend references 'process.env.FLUTTERWAVE_WEBHOOK_SECRET' which is missing from .env.example.",
+      "Backend references 'process.env.PAYPAL_MODE' which is missing from .env.example.",
+      "Backend references 'process.env.AI_AVG_TOKENS_VISION' which is missing from .env.example.",
+      "Backend references 'process.env.SQUARE_ENVIRONMENT' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_MERCHANT_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.TURNSTILE_ENABLED' which is missing from .env.example.",
+      "Backend references 'process.env.PAYTM_MODE' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRODUCT_CREDITS_25' which is missing from .env.example.",
+      "Backend references 'process.env.AI_MAX_CONCURRENT' which is missing from .env.example.",
+      "Backend references 'process.env.REDIS_DISABLED' which is missing from .env.example.",
+      "Backend references 'process.env.ACTIVE_AI_PROVIDER' which is missing from .env.example.",
+      "Backend references 'process.env.AI_AVG_TOKENS_CHAT' which is missing from .env.example.",
+      "Backend references 'process.env.RAZORPAY_KEY_ID' which is missing from .env.example.",
+      "Backend references 'process.env.SQUARE_ACCESS_TOKEN' which is missing from .env.example.",
+      "Backend references 'process.env.TURNSTILE_SITE_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.UPLOAD_DIR' which is missing from .env.example.",
+      "Backend references 'process.env.BKASH_APP_KEY' which is missing from .env.example.",
+      "Backend references 'process.env.SENTRY_DSN' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRODUCT_AGENCY' which is missing from .env.example.",
+      "Backend references 'process.env.STRIPE_PRICE_STARTER' which is missing from .env.example.",
+      "Backend references 'process.env.MISTRAL_API_KEY' which is missing from .env.example.",
+      "SQL Schema foreign key references table 'products', but table 'products' is not defined in merged schema.",
+      "SQL Schema foreign key references table 'products', but table 'products' is not defined in merged schema.",
+      "SQL Schema foreign key references table 'products', but table 'products' is not defined in merged schema.",
+      "[contract] Component 'Footer.jsx' defines empty props signature.",
+      "[contract] Component 'Navbar.jsx' defines empty props signature.",
+      "[contract] Component 'CookieConsent.jsx' defines empty props signature.",
+      "[contract] Component 'ThemeCustomizer.jsx' defines empty props signature."
+    ],
+    "frontend": {
+      "status": "PASSED",
+      "files_checked": 121,
+      "imports_checked": [
+        "react",
+        "@/components",
+        "react-dom",
+        "framer-motion",
+        "axios",
+        "@tanstack/react-query",
+        "i18next",
+        "@/hooks",
+        "@/config",
+        "react-router-dom",
+        "react-i18next",
+        "zustand",
+        "lucide-react",
+        "i18next-browser-languagedetector"
+      ]
+    },
+    "backend": {
+      "status": "PASSED",
+      "files_checked": 141,
+      "requires_checked": [
+        "helmet",
+        "compression",
+        "pg",
+        "cors",
+        "jsonwebtoken",
+        "express-rate-limit",
+        "swagger-ui-express",
+        "express",
+        "dotenv",
+        "morgan",
+        "sequelize",
+        "bcryptjs"
+      ]
+    },
+    "database": {
+      "status": "PASSED",
+      "tables_found": [
+        "carts",
+        "cart_items",
+        "wishlists",
+        "orders",
+        "order_items",
+        "coupons",
+        "users",
+        "addresses"
+      ]
+    },
+    "components": {
+      "status": "FAILED",
+      "checked_components": 86,
+      "errors": [
+        "Component 'CurrencySelector.jsx' uses prop 'value' undefined in local contract (children, className, key, ref).",
+        "Component 'CurrencySelector.jsx' uses prop 'onChange' undefined in local contract (children, className, key, ref).",
+        "Component 'CurrencySelector.jsx' uses prop 'storageKey' undefined in local contract (children, className, key, ref).",
+        "Component 'CurrencySelector.jsx' uses prop 'compact' undefined in local contract (children, className, key, ref).",
+        "Component 'BentoGrid.jsx' uses prop 'span' undefined in local contract (children, className, columns, gap, key, lg, md, ref).",
+        "Component 'BentoGrid.jsx' uses prop 'rowSpan' undefined in local contract (children, className, columns, gap, key, lg, md, ref).",
+        "Component 'Dropdown.jsx' uses prop 'onClick' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+        "Component 'Dropdown.jsx' uses prop 'icon' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+        "Component 'Dropdown.jsx' uses prop 'danger' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger).",
+        "Component 'Dropdown.jsx' uses prop 'disabled' undefined in local contract (align, animate, children, className, closeOnSelect, defaultOpen, key, label, menuClassName, onClose, onOpenChange, open, ref, trigger)."
+      ],
+      "warnings": [
+        "Component 'Footer.jsx' defines empty props signature.",
+        "Component 'Navbar.jsx' defines empty props signature.",
+        "Component 'CookieConsent.jsx' defines empty props signature.",
+        "Component 'ThemeCustomizer.jsx' defines empty props signature."
+      ]
+    }
+  },
+  "quality_gates": {
+    "gates": {
+      "performance": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "vite_bundler",
+            "passed": true
+          },
+          {
+            "check": "tailwind_css",
+            "passed": true
+          }
+        ],
+        "target_lighthouse": 95
+      },
+      "security": {
+        "passed": false,
+        "checks": [
+          {
+            "check": "helmet_middleware",
+            "passed": false
+          },
+          {
+            "check": "rate_limiting",
+            "passed": true
+          },
+          {
+            "check": "cors_configured",
+            "passed": false
+          },
+          {
+            "check": "env_secrets_not_committed",
+            "passed": true
+          }
+        ]
+      },
+      "features": {
+        "passed": true,
+        "feature_count": 33,
+        "minimum_required": 5,
+        "trending_count": 7
+      },
+      "assets": {
+        "passed": true,
+        "real_assets": 7,
+        "ai_generated_detected": 0
+      },
+      "code_quality": {
+        "passed": false,
+        "errors": 10,
+        "warnings": 136
+      },
+      "differentiation": {
+        "passed": true,
+        "unique_features": 7,
+        "minimum_required": 3
+      },
+      "international_compliance": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "i18n_support",
+            "passed": true,
+            "weight": 1.0
+          },
+          {
+            "check": "cookie_consent",
+            "passed": true,
+            "weight": 1.5
+          },
+          {
+            "check": "pwa_manifest",
+            "passed": true,
+            "weight": 1.0
+          },
+          {
+            "check": "service_worker",
+            "passed": false,
+            "weight": 1.0
+          },
+          {
+            "check": "robots_txt",
+            "passed": true,
+            "weight": 0.5
+          },
+          {
+            "check": "sitemap_xml",
+            "passed": true,
+            "weight": 0.5
+          },
+          {
+            "check": "rtl_support",
+            "passed": true,
+            "weight": 1.0
+          },
+          {
+            "check": "whatsapp_integration",
+            "passed": true,
+            "weight": 1.0
+          },
+          {
+            "check": "accessibility_aria",
+            "passed": true,
+            "weight": 1.0
+          },
+          {
+            "check": "dark_mode_support",
+            "passed": true,
+            "weight": 0.5
+          },
+          {
+            "check": "mobile_responsive",
+            "passed": true,
+            "weight": 1.0
+          }
+        ],
+        "compliance_score": 90.0,
+        "international_ready": true,
+        "weighted_threshold": 75
+      },
+      "accessibility": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "semantic_landmarks",
+            "passed": true
+          },
+          {
+            "check": "accessible_labels",
+            "passed": true
+          },
+          {
+            "check": "keyboard_focus",
+            "passed": true
+          },
+          {
+            "check": "reduced_motion",
+            "passed": true
+          }
+        ],
+        "score": 100.0
+      },
+      "deployment_readiness": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "frontend\\package.json",
+            "passed": true
+          },
+          {
+            "check": "backend\\package.json",
+            "passed": true
+          },
+          {
+            "check": "backend\\server.js",
+            "passed": true
+          },
+          {
+            "check": "database\\schema.sql",
+            "passed": true
+          },
+          {
+            "check": "docker-compose.yml",
+            "passed": true
+          },
+          {
+            "check": "frontend\\Dockerfile",
+            "passed": true
+          }
+        ],
+        "score": 100.0
+      },
+      "marketplace_docs": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "readme_present",
+            "passed": true
+          },
+          {
+            "check": "readme_sections",
+            "passed": true,
+            "missing": []
+          },
+          {
+            "check": "license",
+            "passed": true
+          },
+          {
+            "check": "env_example",
+            "passed": true
+          }
+        ]
+      },
+      "pro_ui": {
+        "passed": true,
+        "checks": [
+          {
+            "check": "lucide_icons",
+            "passed": true
+          },
+          {
+            "check": "brand_logo",
+            "passed": true
+          },
+          {
+            "check": "dark_mode",
+            "passed": true
+          },
+          {
+            "check": "responsive",
+            "passed": true
+          },
+          {
+            "check": "pro_footer_or_nav",
+            "passed": true
+          }
+        ],
+        "score": 100.0
+      }
+    },
+    "passed_count": 9,
+    "total_gates": 11,
+    "overall_score": 81.8,
+    "marketplace_ready": false,
+    "enterprise_ready": false,
+    "targets": {
+      "lighthouse_performance": 95,
+      "lighthouse_accessibility": 90,
+      "lighthouse_best_practices": 90,
+      "lighthouse_seo": 90,
+      "first_contentful_paint": 1.2,
+      "time_to_interactive": 2.5,
+      "animation_fps": 60
+    },
+    "github_recovery_hint": null
+  },
+  "improvement_recommendations": {
+    "total_recommendations": 10,
+    "recommendations": [
+      {
+        "id": "conv_whatsapp",
+        "title": "Add WhatsApp floating chat button (3-5x better than contact forms)",
+        "roi": 94,
+        "effort_hours": 1,
+        "category": "conversion",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 94.0
+      },
+      {
+        "id": "seo_sitemap_robots",
+        "title": "Generate sitemap.xml + robots.txt + canonical URLs",
+        "roi": 80,
+        "effort_hours": 1,
+        "category": "seo",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 80.0
+      },
+      {
+        "id": "perf_images_webp",
+        "title": "Optimize images: WebP + lazy loading + AVIF fallback",
+        "roi": 96,
+        "effort_hours": 2,
+        "category": "performance",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 48.0
+      },
+      {
+        "id": "perf_cdn",
+        "title": "Deploy static assets to CDN (Cloudflare / Vercel Edge)",
+        "roi": 90,
+        "effort_hours": 2,
+        "category": "performance",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 45.0
+      },
+      {
+        "id": "sec_rate_limit",
+        "title": "Implement API rate limiting + DDoS protection headers",
+        "roi": 88,
+        "effort_hours": 2,
+        "category": "security",
+        "international_priority": true,
+        "reason": "Security gate needs improvement",
+        "roi_effort_ratio": 44.0
+      },
+      {
+        "id": "legal_gdpr_cookie",
+        "title": "GDPR/CCPA compliant cookie consent banner",
+        "roi": 83,
+        "effort_hours": 2,
+        "category": "legal",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 41.5
+      },
+      {
+        "id": "ops_monitoring",
+        "title": "Set up error monitoring with Sentry + uptime alerts",
+        "roi": 82,
+        "effort_hours": 2,
+        "category": "ops",
+        "international_priority": true,
+        "reason": "Multiple validation warnings detected",
+        "roi_effort_ratio": 41.0
+      },
+      {
+        "id": "seo_hreflang",
+        "title": "Add hreflang tags for multilingual/multi-region support",
+        "roi": 78,
+        "effort_hours": 2,
+        "category": "seo",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 39.0
+      },
+      {
+        "id": "seo_meta_og",
+        "title": "Complete Open Graph + Twitter Card meta tags per page",
+        "roi": 76,
+        "effort_hours": 2,
+        "category": "seo",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 38.0
+      },
+      {
+        "id": "legal_privacy_policy",
+        "title": "Add Privacy Policy + Terms of Service pages",
+        "roi": 75,
+        "effort_hours": 2,
+        "category": "legal",
+        "international_priority": true,
+        "reason": "International market requirement",
+        "roi_effort_ratio": 37.5
+      }
+    ],
+    "estimated_total_hours": 18,
+    "priority_order": [
+      "conv_whatsapp",
+      "seo_sitemap_robots",
+      "perf_images_webp",
+      "perf_cdn",
+      "sec_rate_limit",
+      "legal_gdpr_cookie",
+      "ops_monitoring",
+      "seo_hreflang",
+      "seo_meta_og",
+      "legal_privacy_policy"
+    ],
+    "international_compliance": {
+      "gdpr_ready": true,
+      "pwa_ready": false,
+      "seo_ready": true
+    }
+  },
+  "competitive_benchmark": {
+    "industry": "tourism",
+    "website_type": "saas",
+    "competitors_global": [
+      "Notion",
+      "Linear",
+      "Stripe",
+      "Vercel"
+    ],
+    "competitors_pk": [
+      "Rozee.pk",
+      "Zameen.com",
+      "Bookme.pk"
+    ],
+    "pk_market_growth": "+55% YoY",
+    "pk_mobile_share": "45%",
+    "our_metrics": {
+      "feature_count": 33,
+      "lighthouse_target": 92,
+      "quality_score": 81.8,
+      "must_have_coverage": 80.0
+    },
+    "industry_averages": {
+      "avg_lighthouse": 78,
+      "avg_features": 10,
+      "avg_load_time_ms": 2800,
+      "must_have": [
+        "pricing",
+        "auth",
+        "dashboard",
+        "analytics",
+        "free_trial"
+      ],
+      "top_competitors_global": [
+        "Notion",
+        "Linear",
+        "Stripe",
+        "Vercel"
+      ],
+      "top_competitors_pk": [
+        "Rozee.pk",
+        "Zameen.com",
+        "Bookme.pk"
+      ],
+      "pk_mobile_share": "45%",
+      "pk_market_growth": "+55% YoY"
+    },
+    "competitive_advantages": [
+      "Lighthouse target 92 vs industry avg 78",
+      "33 features vs industry avg 10",
+      "Component-library reuse — 95% token savings vs generic AI",
+      "RTL language support (Arabic/Urdu) — rare competitive advantage",
+      "PWA-ready: offline mode + install prompt + push notifications",
+      "Multi-language support — reaches 4.5B+ non-English internet users",
+      "WhatsApp CTA — 3-5x better conversion in South Asia & MENA"
+    ],
+    "market_positioning": "Premium tourism saas platform with positioned for +18% YoY market growth.",
+    "launch_ready": false,
+    "vs_generic_ai": {
+      "market_analysis": true,
+      "tech_optimization": true,
+      "trending_features": true,
+      "quality_gates": true,
+      "competitive_benchmark": true,
+      "deploy_ready": true,
+      "multilingual": true,
+      "pwa_ready": true,
+      "whatsapp_cta": true
+    }
+  },
+  "enterprise_ready": false,
+  "launch_ready": false,
+  "live_preview_url": "https://malikusmangoraya.github.io/saffron-voyage/",
+  "international": {
+    "region": "MENA",
+    "primary_currency": "AED",
+    "payment_gateways": [
+      "PayTabs",
+      "Telr",
+      "Checkout.com"
+    ],
+    "languages_generated": [
+      "ar",
+      "de",
+      "en",
+      "es",
+      "fr",
+      "hi",
+      "id",
+      "ja",
+      "ko",
+      "pt",
+      "ru",
+      "tr",
+      "ur",
+      "zh"
+    ],
+    "total_languages": 14,
+    "rtl_support": true,
+    "rtl_languages": [
+      "ar",
+      "ur"
+    ],
+    "compliance_regs": [
+      "KVKK",
+      "GDPR"
+    ],
+    "compliance_artifacts": 5,
+    "requires_consent_banner": true,
+    "accessibility_score": 57.1,
+    "wcag_aa_compliant": false
+  },
+  "seo_and_edge": {
+    "pages_optimized": 7,
+    "sitemap_url": "https://saffron-voyage.com/sitemap.xml",
+    "cdn_platforms": [
+      "vercel",
+      "netlify",
+      "nginx",
+      "cloudflare"
+    ]
+  },
+  "performance_and_growth": {
+    "performance_targets": {
+      "lcp_ms": 2500,
+      "cls": 0.05,
+      "inp_ms": 150,
+      "ttfb_ms": 600,
+      "fcp_ms": 1500,
+      "tbt_ms": 200,
+      "lighthouse": {
+        "performance": 90,
+        "accessibility": 92,
+        "best_practices": 93,
+        "seo": 90
+      },
+      "bundle_kb": {
+        "js": 300,
+        "css": 70,
+        "total": 500
+      },
+      "note": "SaaS: dashboard routes can lazy-load; landing must be fast"
+    },
+    "analytics_events": 12,
+    "ab_experiments": 3,
+    "webhook_events": 10
+  },
+  "multi_cloud_deployment": {
+    "supported_clouds": [
+      "vercel",
+      "railway",
+      "render",
+      "aws",
+      "gcp",
+      "digitalocean"
+    ],
+    "artifacts_count": 9,
+    "recommended_platform": "vercel",
+    "estimated_monthly_cost": {
+      "vercel": {
+        "monthly_usd": "$0",
+        "class": "static-site"
+      },
+      "cloudflare": {
+        "monthly_usd": "$0",
+        "class": "static-site"
+      },
+      "netlify": {
+        "monthly_usd": "$0",
+        "class": "static-site"
+      },
+      "github": {
+        "monthly_usd": "$0",
+        "class": "static-site"
+      },
+      "railway": {
+        "monthly_usd": "$5",
+        "class": "app-server"
+      },
+      "render": {
+        "monthly_usd": "$0",
+        "class": "app-server"
+      },
+      "digitalocean": {
+        "monthly_usd": "$12",
+        "class": "app-server"
+      },
+      "aws": {
+        "monthly_usd": "$7",
+        "class": "app-server"
+      },
+      "gcp": {
+        "monthly_usd": "$6",
+        "class": "app-server"
+      }
+    }
+  },
+  "design_style": {
+    "style": "minimalism",
+    "name": "Minimalism",
+    "dna": "White space, simple typography, 1-2 accent colors, content-first.",
+    "accent": "#0284c7",
+    "palette": {
+      "primary": "#111827",
+      "secondary": "#0ea5e9",
+      "accent": "#0284c7",
+      "bg": "#ffffff",
+      "card": "#f8fafc",
+      "surface": "#f1f5f9",
+      "text": "#0f172a",
+      "muted": "#64748b",
+      "border": "#e2e8f0"
+    },
+    "typography": {
+      "display": "Inter",
+      "sans": "Inter",
+      "mono": "JetBrains Mono"
+    },
+    "selected_by": "user",
+    "tokens_json": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\design-tokens.json",
+    "css_file": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\src\\index.css",
+    "assets_dir": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\public\\assets\\minimalism",
+    "assets_generated": 27,
+    "manifest_path": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\frontend\\public\\assets\\manifest.json",
+    "design_doc": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\DESIGN-STYLE.md"
+  },
+  "theme_variant": {
+    "variant": {
+      "template_id": "agency/creativeportfolio",
+      "template": "CreativePortfolio",
+      "category": "agency",
+      "style_id": "minimalism",
+      "style_name": "Minimalism",
+      "variant_id": "agency/creativeportfolio::minimalism",
+      "variant_count_total": 5
+    },
+    "variant_count_total": 585,
+    "compatible_styles": [
+      "neo_brutalism",
+      "swiss",
+      "editorial",
+      "cyberpunk",
+      "bento_grid"
+    ],
+    "quality_gate": {
+      "variant_id": "agency/creativeportfolio::minimalism",
+      "style_id": "minimalism",
+      "template_id": "agency/creativeportfolio",
+      "production_ready": true,
+      "checks": {
+        "contrast_text_on_bg": {
+          "pass": true,
+          "ratio": 17.85,
+          "required": 4.5
+        },
+        "contrast_text_on_card": {
+          "pass": true,
+          "ratio": 17.06,
+          "required": 4.5
+        },
+        "responsive_breakpoints": {
+          "pass": true,
+          "covered": [
+            "mobile",
+            "tablet",
+            "laptop",
+            "wide"
+          ],
+          "required": [
+            "mobile",
+            "tablet",
+            "laptop",
+            "wide"
+          ]
+        },
+        "lighthouse_budget": {
+          "pass": null,
+          "need_run": true,
+          "desktop_required": 90,
+          "mobile_required": 80,
+          "note": "Headless-browser pass required (scripts/generate_previews.py provisionally)."
+        }
+      },
+      "budget": {
+        "lighthouse_desktop": 90,
+        "lighthouse_mobile": 80
+      }
+    },
+    "preview_manifest": {
+      "gallery": "Browse before you generate (self-hosted)",
+      "active_variant": {
+        "template_id": "agency/creativeportfolio",
+        "template": "CreativePortfolio",
+        "category": "agency",
+        "style_id": "minimalism",
+        "style_name": "Minimalism",
+        "variant_id": "agency/creativeportfolio::minimalism",
+        "variant_count_total": 5
+      },
+      "captured": 0
+    }
+  },
+  "design_decision": {
+    "industry": "hospitality",
+    "brand": "minimal",
+    "hero": "minimal_composition",
+    "motion": "balanced",
+    "3d": false,
+    "cta_style": "booking_primary",
+    "conversion_primary_cta": "book_now",
+    "references": [
+      "minimal"
+    ]
+  },
+  "design_memory": {
+    "manifest": "C:\\Users\\AZAM COMPUTERS\\OneDrive\\Desktop\\lumicorepro-core\\generated-projects\\saffron-voyage\\design-manifest.json",
+    "chain": [
+      "01-business",
+      "02-audience",
+      "03-brand",
+      "04-reference",
+      "05-playbook",
+      "06-ux",
+      "07-design",
+      "08-architecture",
+      "09-build",
+      "10-designlint",
+      "11-visual-score",
+      "12-critic-review",
+      "13-qa",
+      "14-deployment"
+    ]
+  },
+  "design_scan": {
+    "lint": {
+      "total": 24,
+      "by_severity": {
+        "P2": 18,
+        "P1": 6
+      }
+    },
+    "score": {
+      "visual_quality_score": 87.4,
+      "benchmark_passed": false,
+      "metrics": {
+        "typography": 59.0,
+        "composition": 95.0,
+        "spacing": 87.0,
+        "color": 85.0,
+        "imagery": 95.0,
+        "hierarchy": 50.0,
+        "consistency": 95.0,
+        "brand_fit": 87.0,
+        "motion": 95,
+        "originality": 53.0
+      }
+    },
+    "gate": {
+      "passed": false,
+      "decision": "REDESIGN_REQUIRED",
+      "failing": [
+        "visual_hierarchy",
+        "typography",
+        "originality"
+      ],
+      "metrics": {
+        "brand_clarity": 87.0,
+        "visual_hierarchy": 50.0,
+        "typography": 59.0,
+        "spacing": 87.0,
+        "originality": 53.0,
+        "cta_clarity": 85.0,
+        "mobile_design": 95.0,
+        "interaction_quality": 95
+      },
+      "recommendations": [
+        {
+          "metric": "visual_hierarchy",
+          "advice": "Give each section one clear focal point; fix heading scale jumps."
+        },
+        {
+          "metric": "typography",
+          "advice": "Match type sizes to hierarchy; remove font soup; check measure and pairing."
+        },
+        {
+          "metric": "originality",
+          "advice": "Replace generic/lorem copy and repeated component formulas with brand-specific design."
+        }
+      ]
+    },
+    "visual_critic": {
+      "verdict": "FAIL",
+      "checks": [
+        {
+          "code": "hero_heading",
+          "passed": false,
+          "detail": "no h1 or h2 found in generated root html",
+          "concern": "no h1 or h2 found in generated root html"
+        },
+        {
+          "code": "cta_prominence",
+          "passed": true,
+          "detail": "primary CTA present (Start/Book/Buy/Sign/Get Started)",
+          "concern": ""
+        },
+        {
+          "code": "navigation",
+          "passed": false,
+          "detail": "no <nav>/<header> landmark",
+          "concern": "no <nav>/<header> landmark"
+        },
+        {
+          "code": "structure_density",
+          "passed": true,
+          "detail": "0 page sections (within 9-section editorial max)",
+          "concern": ""
+        },
+        {
+          "code": "repeated_cards",
+          "passed": true,
+          "detail": "6 repeated card patterns (acceptable)",
+          "concern": ""
+        },
+        {
+          "code": "no_empty_sections",
+          "passed": true,
+          "detail": "no empty placeholder sections",
+          "concern": ""
+        },
+        {
+          "code": "imagery_alt",
+          "passed": true,
+          "detail": "0/0 images carry alt text",
+          "concern": ""
+        },
+        {
+          "code": "restrained_motion",
+          "passed": true,
+          "detail": "no off-the-shelf motion stack",
+          "concern": ""
+        },
+        {
+          "code": "no_oversized_glass",
+          "passed": false,
+          "detail": "20 glass/backdrop-blur — anti-generic risk",
+          "concern": "20 glass/backdrop-blur — anti-generic risk"
+        }
+      ],
+      "evidence": {
+        "hero_heading_sample": "",
+        "sections": 0,
+        "images": 0,
+        "alts": 0,
+        "repeat_cards": 6,
+        "glass_hits": 20
+      },
+      "notes": [
+        "no h1 or h2 found in generated root html",
+        "no <nav>/<header> landmark",
+        "20 glass/backdrop-blur — anti-generic risk"
+      ],
+      "vision": {
+        "enabled": false,
+        "reason": "no vision output"
+      }
+    }
+  },
+  "visual_critic": {
+    "verdict": "FAIL",
+    "checks": [
+      {
+        "code": "hero_heading",
+        "passed": false,
+        "detail": "no h1 or h2 found in generated root html",
+        "concern": "no h1 or h2 found in generated root html"
+      },
+      {
+        "code": "cta_prominence",
+        "passed": true,
+        "detail": "primary CTA present (Start/Book/Buy/Sign/Get Started)",
+        "concern": ""
+      },
+      {
+        "code": "navigation",
+        "passed": false,
+        "detail": "no <nav>/<header> landmark",
+        "concern": "no <nav>/<header> landmark"
+      },
+      {
+        "code": "structure_density",
+        "passed": true,
+        "detail": "0 page sections (within 9-section editorial max)",
+        "concern": ""
+      },
+      {
+        "code": "repeated_cards",
+        "passed": true,
+        "detail": "6 repeated card patterns (acceptable)",
+        "concern": ""
+      },
+      {
+        "code": "no_empty_sections",
+        "passed": true,
+        "detail": "no empty placeholder sections",
+        "concern": ""
+      },
+      {
+        "code": "imagery_alt",
+        "passed": true,
+        "detail": "0/0 images carry alt text",
+        "concern": ""
+      },
+      {
+        "code": "restrained_motion",
+        "passed": true,
+        "detail": "no off-the-shelf motion stack",
+        "concern": ""
+      },
+      {
+        "code": "no_oversized_glass",
+        "passed": false,
+        "detail": "20 glass/backdrop-blur — anti-generic risk",
+        "concern": "20 glass/backdrop-blur — anti-generic risk"
+      }
+    ],
+    "evidence": {
+      "hero_heading_sample": "",
+      "sections": 0,
+      "images": 0,
+      "alts": 0,
+      "repeat_cards": 6,
+      "glass_hits": 20
+    },
+    "notes": [
+      "no h1 or h2 found in generated root html",
+      "no <nav>/<header> landmark",
+      "20 glass/backdrop-blur — anti-generic risk"
+    ],
+    "vision": {
+      "enabled": false,
+      "reason": "no vision output"
+    }
+  },
+  "learned_gaps": []
+}

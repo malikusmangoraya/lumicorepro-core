@@ -1,0 +1,85 @@
+{
+  "comment": "Cloudflare Cache Rules \u2014 edge caching tuned for the site",
+  "rules": [
+    {
+      "description": "Cache static assets 1 year",
+      "expression": "(http.request.uri.path matches \"^/assets/.*\\.(js|css|woff2|ttf)$\")",
+      "action": "cache",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": {
+          "mode": "override_origin",
+          "default": 31536000
+        },
+        "browser_ttl": {
+          "mode": "override_origin",
+          "default": 31536000
+        }
+      }
+    },
+    {
+      "description": "Cache images 30 days",
+      "expression": "(http.request.uri.path matches \".*\\.(jpg|jpeg|png|webp|avif|gif|svg|ico)$\")",
+      "action": "cache",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": {
+          "mode": "override_origin",
+          "default": 2592000
+        }
+      }
+    },
+    {
+      "description": "Bypass cache for API",
+      "expression": "(http.request.uri.path starts_with \"/api/\")",
+      "action": "bypass_cache"
+    },
+    {
+      "description": "Security headers on all responses",
+      "expression": "(http.request.uri.path matches \".*\")",
+      "action": "rewrite",
+      "action_parameters": {
+        "headers": {
+          "Strict-Transport-Security": {
+            "operation": "set",
+            "value": "max-age=31536000; includeSubDomains; preload"
+          },
+          "X-Content-Type-Options": {
+            "operation": "set",
+            "value": "nosniff"
+          },
+          "X-Frame-Options": {
+            "operation": "set",
+            "value": "SAMEORIGIN"
+          },
+          "X-XSS-Protection": {
+            "operation": "set",
+            "value": "1; mode=block"
+          }
+        }
+      }
+    }
+  ],
+  "security": {
+    "bot_fight_mode": true,
+    "browser_integrity_check": true,
+    "ddos_protection": "high",
+    "waf_managed_rules": ["OWASP Core Rule Set", "Cloudflare OWASP Core"],
+    "rate_limiting": [
+      {
+        "name": "API Rate Limit",
+        "path": "/api/*",
+        "requests": 100,
+        "period": 60,
+        "action": "block"
+      },
+      {
+        "name": "Auth Rate Limit",
+        "path": "/api/auth/*",
+        "requests": 10,
+        "period": 60,
+        "action": "challenge"
+      }
+    ]
+  }
+}

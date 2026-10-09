@@ -1,0 +1,74 @@
+{
+  "home": {
+    "title": "Home | build",
+    "description": "Welcome to build — the leading electronics platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "website",
+    "ogLocale": "en_US"
+  },
+  "products": {
+    "title": "Products | build",
+    "description": "Products — build",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/products",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "itemList",
+    "ogLocale": "en_US"
+  },
+  "cart": {
+    "title": "Cart | build",
+    "description": "Cart — build",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/cart",
+    "ogType": "article",
+    "noIndex": true,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "checkout": {
+    "title": "Checkout | build",
+    "description": "Checkout — build",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/checkout",
+    "ogType": "article",
+    "noIndex": true,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About Us | build",
+    "description": "About Us — build",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | build",
+    "description": "Get in touch with build. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | build",
+    "description": "Read the latest articles and insights from build.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "faq": {
+    "title": "FAQ | build",
+    "description": "Frequently asked questions about build.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/resupro/faq",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "faqPage",
+    "ogLocale": "en_US"
+  }
+}

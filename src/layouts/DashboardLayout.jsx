@@ -5,6 +5,8 @@ import { Menu, X, Home, BarChart3, Settings, Bell, ChevronRight } from 'lucide-r
 import { BrandLogo } from '../components/common';
 import NotificationBell from '../components/common/NotificationBell';
 import SkipToContent from '../components/common/SkipToContent';
+import ScrollProgress from '../components/ui/ScrollProgress';
+import BackToTop from '../components/ui/BackToTop';
 import { useTheme } from '../components/common/ThemeProvider';
 import { cn } from '../utils';
 
@@ -27,7 +29,7 @@ export default function DashboardLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SkipToContent />
-
+      <ScrollProgress />
       <div className="flex flex-1">
         {/* Mobile overlay */}
         {sidebarOpen && (
@@ -132,6 +134,7 @@ export default function DashboardLayout() {
           </main>
         </div>
       </div>
+      <BackToTop />
     </div>
   );
 }

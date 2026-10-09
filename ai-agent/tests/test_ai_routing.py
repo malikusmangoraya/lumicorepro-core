@@ -124,10 +124,10 @@ def test_every_declared_kind_maps_to_a_known_tier():
 def test_tier_selects_first_live_member():
     fast = StubProvider("f1")
     slow = StubProvider("s1")
-    r = _router_with({"gemini": slow, "openmuse": fast}, tiers={
-        "fast": ["openmuse", "gemini"], "balanced": ["gemini"], "reasoning": ["gemini"]})
+    r = _router_with({"gemini": slow, "cerebras": fast}, tiers={
+        "fast": ["cerebras", "gemini"], "balanced": ["gemini"], "reasoning": ["gemini"]})
     inst, name, tier = r.get("classify", "tiny")
-    assert name == "openmuse" and inst is fast and tier == "fast"
+    assert name == "cerebras" and inst is fast and tier == "fast"
 
 
 def test_cooldown_is_skipped_and_next_tier_member_is_used():
@@ -308,10 +308,12 @@ def test_hand_injected_provider_is_pinned(monkeypatch):
 
 
 def test_env_pin_overrides_everything(monkeypatch):
-    os.environ["AI_PROVIDER"] = "openmuse"
+    # A *usable* pin is required for the router to step aside; `omniroute` is
+    # keyless, so it counts as configured without a key.
+    monkeypatch.setenv("AI_PROVIDER", "omniroute")
     stub = StubProvider("caller")
     inst, name, tier = prefer("design", "prompt", explicit=stub)
-    assert name == "openmuse" and tier == "pinned"
+    assert name == "omniroute" and tier == "pinned"
 
 
 def test_no_pin_no_explicit_returns_routed_provider():

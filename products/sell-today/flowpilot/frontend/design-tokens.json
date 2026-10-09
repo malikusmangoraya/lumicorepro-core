@@ -1,0 +1,87 @@
+{
+  "style": "verdant",
+  "name": "Verdant Flow",
+  "dna": "Deep emerald surfaces, indigo flow lines, calm glass panels, modern SaaS clarity.",
+  "project_name": "flowpilot",
+  "palette": {
+    "primary": "#059669",
+    "secondary": "#6366f1",
+    "accent": "#6366f1",
+    "bg": "#05130e",
+    "card": "#0a1f18",
+    "surface": "#0e2a20",
+    "text": "#d1fae5",
+    "muted": "#6b8f83",
+    "border": "rgba(16,185,129,0.3)"
+  },
+  "palette_hsl": {
+    "primary": "160 84.1% 39.4%",
+    "secondary": "229 83.5% 65.1%",
+    "accent": "152 76.4% 53.5%",
+    "bg": "230 46.2% 5.1%",
+    "card": "223 44.7% 9.2%",
+    "surface": "221 44.6% 12.7%",
+    "text": "204 93.8% 93.7%",
+    "muted": "215 16.3% 46.9%",
+    "border": "rgba(0,229,255,0.3)"
+  },
+  "typography": {
+    "display": "Space Grotesk",
+    "sans": "Inter",
+    "mono": "JetBrains Mono",
+    "scale": [
+      12,
+      14,
+      16,
+      18,
+      24,
+      30,
+      36,
+      48,
+      64
+    ]
+  },
+  "radius": {
+    "card": "8px",
+    "button": "4px"
+  },
+  "shadow": {
+    "card": "0 0 25px rgba(16,185,129,0.15)",
+    "button": "0 0 15px rgba(16,185,129,0.3)"
+  },
+  "border": {
+    "card": "1px solid rgba(16,185,129,0.35)",
+    "button": "1px solid #10b981"
+  },
+  "effects": {
+    "blur": "12px",
+    "glow": "0 0 30px rgba(16,185,129,0.35)"
+  },
+  "weight": "bold",
+  "composition": "flowing",
+  "generated_by": "flowpilot-design-system",
+  "timestamp": "2026-09-29T15:36:54Z",
+  "rendered_theme": {
+    "mode": "light",
+    "note": "What index.css :root actually renders. palette.* above is the brand DNA; these are the applied values, kept in lockstep by products/_audit/unify-tokens.cjs.",
+    "canvas": "#f2faf6",
+    "surface": "#ffffff",
+    "primary": "#059669",
+    "accent": "#6366f1",
+    "heading": "#052e26",
+    "text": "#1f2937",
+    "muted": "#64748b",
+    "border": "#d6ece4",
+    "footer": "#052e26"
+  },
+  "token_sync": {
+    "source": "src/components/brand/BRAND.js",
+    "propagated_to": [
+      "src/index.css",
+      "tailwind.config.js",
+      "design-tokens.json",
+      "public/favicon.svg"
+    ],
+    "synced_at": "2026-10-08T17:28:00.795Z"
+  }
+}

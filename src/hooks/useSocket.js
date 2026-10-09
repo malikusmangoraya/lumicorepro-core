@@ -121,7 +121,13 @@ export function useSocket(roomId, eventHandlers = {}) {
   const [connected, setConnected] = useState(false);
 
   const handlersRef = useRef(eventHandlers);
-  handlersRef.current = eventHandlers;
+  // Keep the ref pointed at the latest handlers WITHOUT writing to it during
+  // render: a ref mutated mid-render is invisible to React's scheduler and can
+  // leave listeners bound to a stale closure. Updating in an effect keeps the
+  // stable socket listeners below always resolving the newest callbacks.
+  useEffect(() => {
+    handlersRef.current = eventHandlers;
+  }, [eventHandlers]);
 
   useEffect(() => {
     if (!token || !roomId) {

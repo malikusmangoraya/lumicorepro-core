@@ -1,0 +1,762 @@
+[
+ {
+  "project": "adjusterly",
+  "base": "split-duo",
+  "stats": "cards",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "apex-commerce",
+  "base": "ledger-two-col",
+  "stats": "cards",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "apex-digital",
+  "base": "rule-editorial",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "appointly",
+  "base": "index-offset",
+  "stats": "table",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "atlas-mobility",
+  "base": "split-checklist",
+  "stats": "aside",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "aurelia-estates",
+  "base": "rule-editorial",
+  "stats": "aside",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "aurora-cloud",
+  "base": "rule-editorial",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "aurum-fitness",
+  "base": "pullquote",
+  "stats": "rail",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "beacon-dental",
+  "base": "index-offset",
+  "stats": "table",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "bellweather",
+  "base": "split-checklist",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "blume-botanics",
+  "base": "mosaic-grid",
+  "stats": "aside",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "brass-basil",
+  "base": "mosaic-grid",
+  "stats": "cards",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "bristle-co",
+  "base": "rule-editorial",
+  "stats": "rail",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "capstone-advisors",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "cartwheel",
+  "base": "offset-right",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "cascade-hq",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "cinder-steel",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "cirrus-travel",
+  "base": "split-checklist",
+  "stats": "inline",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "claimflow",
+  "base": "steps-panel",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "clausecheck",
+  "base": "ledger-two-col",
+  "stats": "aside",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "clover-dental",
+  "base": "masthead-centre",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "copperline",
+  "base": "mosaic-grid",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "create-studio",
+  "base": "masthead-centre",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "deckflow",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "deploydock",
+  "base": "ledger-two-col",
+  "stats": "rail",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "ember-salt",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "fitly-academy",
+  "base": "ledger-two-col",
+  "stats": "aside",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "fleetwood-events",
+  "base": "rule-editorial",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "forgekit",
+  "base": "index-offset",
+  "stats": "numbered",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "foxglove-care",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "groundswell",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "halo-retail",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "harbor-insurance",
+  "base": "split-checklist",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "harborline",
+  "base": "steps-panel",
+  "stats": "numbered",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "heritage-trails",
+  "base": "offset-right",
+  "stats": "inline",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "insightpipe",
+  "base": "pullquote",
+  "stats": "rail",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "ironwood-realty",
+  "base": "split-checklist",
+  "stats": "numbered",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "juniper-goods",
+  "base": "index-offset",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "kestrel-fleet",
+  "base": "steps-panel",
+  "stats": "aside",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "kinetiq-health",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "launchbay",
+  "base": "rule-editorial",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "leadscout-ai",
+  "base": "split-checklist",
+  "stats": "aside",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "ledgerai",
+  "base": "steps-panel",
+  "stats": "table",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "ledgerline",
+  "base": "masthead-centre",
+  "stats": "aside",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "ledgerpoint",
+  "base": "split-checklist",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "linguagrid",
+  "base": "index-offset",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "lumen-studio",
+  "base": "steps-panel",
+  "stats": "inline",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "lumina-academy",
+  "base": "steps-panel",
+  "stats": "rail",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "luxemart",
+  "base": "index-offset",
+  "stats": "numbered",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "maison-noir",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "marble-run-hotels",
+  "base": "mosaic-grid",
+  "stats": "numbered",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "marlow-fitness",
+  "base": "split-checklist",
+  "stats": "rail",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "meridian-capital",
+  "base": "ledger-two-col",
+  "stats": "table",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "metrica-pulse",
+  "base": "steps-panel",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "mirage-beauty",
+  "base": "mosaic-grid",
+  "stats": "numbered",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "noir-frames",
+  "base": "offset-right",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "noora-khan",
+  "base": "masthead-centre",
+  "stats": "table",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "northbeam",
+  "base": "masthead-centre",
+  "stats": "aside",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "northpeak-outfitters",
+  "base": "mosaic-grid",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "nova-forge",
+  "base": "mosaic-grid",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "nuage-events",
+  "base": "ledger-two-col",
+  "stats": "table",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "onboarder",
+  "base": "split-checklist",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "orbit-studios",
+  "base": "steps-panel",
+  "stats": "cards",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "orbitboard",
+  "base": "mosaic-grid",
+  "stats": "numbered",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "orchard-grid",
+  "base": "split-duo",
+  "stats": "numbered",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "petrichor",
+  "base": "split-duo",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "pinnacle-events",
+  "base": "mosaic-grid",
+  "stats": "rail",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "pinnacle-fitness",
+  "base": "split-duo",
+  "stats": "rail",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "prestige-studio",
+  "base": "split-checklist",
+  "stats": "numbered",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "pulselabs",
+  "base": "ledger-two-col",
+  "stats": "table",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "quarry-learning",
+  "base": "split-duo",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "recruitiq",
+  "base": "mosaic-grid",
+  "stats": "table",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "resupro",
+  "base": "split-duo",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "roark-analytics",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "sable-fit",
+  "base": "band-underline",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "saffron-voyage",
+  "base": "pullquote",
+  "stats": "aside",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "sheetstack",
+  "base": "ledger-two-col",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "signalbase",
+  "base": "rule-editorial",
+  "stats": "inline",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "solstice-energy",
+  "base": "band-underline",
+  "stats": "rail",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "stacksail",
+  "base": "pullquote",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "stonemark-realty",
+  "base": "split-checklist",
+  "stats": "inline",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "studio-lumen",
+  "base": "offset-right",
+  "stats": "cards",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "sundial-media",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "supportdesk-ai",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "tablehost-ai",
+  "base": "rule-editorial",
+  "stats": "cards",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "ternion-instruments",
+  "base": "mosaic-grid",
+  "stats": "aside",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "terravista",
+  "base": "rule-editorial",
+  "stats": "inline",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "tidewater-travel",
+  "base": "band-underline",
+  "stats": "table",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "vantage-3d-estates",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "vantage-hr",
+  "base": "steps-panel",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "vaultline",
+  "base": "pullquote",
+  "stats": "rail",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "veridian-e-catalog",
+  "base": "masthead-centre",
+  "stats": "rail",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "vine-vale",
+  "base": "ledger-two-col",
+  "stats": "table",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "voltus-atelier",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "zephyr-way",
+  "base": "split-duo",
+  "stats": "cards",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ }
+]

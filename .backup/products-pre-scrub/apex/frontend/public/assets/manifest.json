@@ -1,0 +1,550 @@
+{
+  "generator": "lumicorepro-design-engine",
+  "project": "apex",
+  "style": "futuristic",
+  "generated_at": "2026-09-29T15:36:54Z",
+  "license": "All assets are self-generated original vector artwork (public-domain equivalent). No stock, no scraped, and no copyrighted material.",
+  "count": 27,
+  "assets": [
+    {
+      "file": "assets/futuristic/hero/hero-1.svg",
+      "category": "hero",
+      "style": "futuristic",
+      "title": "Apex Hero",
+      "prompt": "Abstract hero for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/hero/hero-2.svg",
+      "category": "hero",
+      "style": "futuristic",
+      "title": "Apex Hero",
+      "prompt": "Abstract hero for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/hero/hero-3.svg",
+      "category": "hero",
+      "style": "futuristic",
+      "title": "Apex Hero",
+      "prompt": "Abstract hero for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/hero/hero-4.svg",
+      "category": "hero",
+      "style": "futuristic",
+      "title": "Apex Hero",
+      "prompt": "Abstract hero for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-1.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 1",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-2.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 2",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-3.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 3",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-4.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 4",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-5.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 5",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-6.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 6",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-7.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 7",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-8.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 8",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-9.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 9",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-10.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 10",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-11.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 11",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/icons/icon-12.svg",
+      "category": "icons",
+      "style": "futuristic",
+      "title": "Apex Icons Icon 12",
+      "prompt": "Abstract icons for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/backgrounds/bg-1.svg",
+      "category": "backgrounds",
+      "style": "futuristic",
+      "title": "Apex Backgrounds Background 1",
+      "prompt": "Abstract backgrounds for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/backgrounds/bg-2.svg",
+      "category": "backgrounds",
+      "style": "futuristic",
+      "title": "Apex Backgrounds Background 2",
+      "prompt": "Abstract backgrounds for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/backgrounds/bg-3.svg",
+      "category": "backgrounds",
+      "style": "futuristic",
+      "title": "Apex Backgrounds Background 3",
+      "prompt": "Abstract backgrounds for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/illustrations/illustration-1.svg",
+      "category": "illustrations",
+      "style": "futuristic",
+      "title": "Apex Illustrations Illustration 1",
+      "prompt": "Abstract illustrations for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/illustrations/illustration-2.svg",
+      "category": "illustrations",
+      "style": "futuristic",
+      "title": "Apex Illustrations Illustration 2",
+      "prompt": "Abstract illustrations for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/illustrations/illustration-3.svg",
+      "category": "illustrations",
+      "style": "futuristic",
+      "title": "Apex Illustrations Illustration 3",
+      "prompt": "Abstract illustrations for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/illustrations/illustration-4.svg",
+      "category": "illustrations",
+      "style": "futuristic",
+      "title": "Apex Illustrations Illustration 4",
+      "prompt": "Abstract illustrations for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/illustrations/illustration-5.svg",
+      "category": "illustrations",
+      "style": "futuristic",
+      "title": "Apex Illustrations Illustration 5",
+      "prompt": "Abstract illustrations for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/mockups/mockup-1.svg",
+      "category": "mockups",
+      "style": "futuristic",
+      "title": "Apex Mockups UI Mockup 1",
+      "prompt": "Abstract mockups for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/mockups/mockup-2.svg",
+      "category": "mockups",
+      "style": "futuristic",
+      "title": "Apex Mockups UI Mockup 2",
+      "prompt": "Abstract mockups for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    },
+    {
+      "file": "assets/futuristic/mockups/mockup-3.svg",
+      "category": "mockups",
+      "style": "futuristic",
+      "title": "Apex Mockups UI Mockup 3",
+      "prompt": "Abstract mockups for a Futuristic Sci-Fi styled website; palette #00e5ff, #7c4dff, #00b0ff, #070913, #0d1322, #121b2f, #e0f2fe, #64748b, rgba(0,229,255,0.3); sleek carbon tones, cyan data feeds, holographic hud rings, ultra-modern tech.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#00e5ff",
+        "#7c4dff",
+        "#00b0ff",
+        "#070913",
+        "#0d1322",
+        "#121b2f",
+        "#e0f2fe",
+        "#64748b",
+        "rgba(0,229,255,0.3)"
+      ],
+      "seed": 4162736786
+    }
+  ]
+}

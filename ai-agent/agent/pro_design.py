@@ -1665,7 +1665,8 @@ def write_design_plan(project_root: Path, blueprint: Dict[str, Any]) -> None:
 
 
 def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_DEFAULT,
-                    region: str = 'default') -> bool:
+                    region: str = 'default',
+                    palette_override: Optional[Dict[str, str]] = None) -> bool:
     """Apply professional consulting-style design to a generated project."""
     try:
         root = Path(project_dir)
@@ -1680,6 +1681,19 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
 
         pal, extra_css, resolved_style = _resolve_style_blueprint(repo_name, ui_style, region)
         ui_style = resolved_style
+        allowed_palette_keys = {
+          'primary', 'accent', 'heading', 'navBg', 'footerBg',
+          'cardBg', 'text', 'muted', 'border',
+        }
+        for key, value in (palette_override or {}).items():
+          if (
+            key in allowed_palette_keys
+            and isinstance(value, str)
+            and len(value) in (4, 7)
+            and value.startswith('#')
+            and all(char in '0123456789abcdefABCDEF' for char in value[1:])
+          ):
+            pal[key] = value
         prof = PROFILES.get(repo_name) or _derive_profile(repo_name)
 
         # Ensure core build files exist (templates sometimes lack entry files)
@@ -1701,6 +1715,7 @@ def restyle_project(project_dir: str, repo_name: str, ui_style: str = UI_STYLE_D
             _design_tokens_json(repo_name, pal, ui_style, region), encoding='utf-8')
 
         blueprint = resolve_design_blueprint(repo_name, ui_style, region, prof['title'])
+        blueprint['palette'] = dict(pal)
         write_design_plan(root, blueprint)
 
         comps.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,87 @@
+{
+  "style": "skipper",
+  "name": "Skipper Minimalist Dark",
+  "dna": "Refined spotlight grids, dark bento boxes, subtle specular reflections, border beams, clean typography.",
+  "project_name": "meridian-capital",
+  "palette": {
+    "primary": "#be2c92",
+    "secondary": "#64748b",
+    "accent": "#be2c92",
+    "bg": "#020617",
+    "card": "rgba(15,23,42,0.85)",
+    "surface": "rgba(30,41,59,0.6)",
+    "text": "#f8fafc",
+    "muted": "#94a3b8",
+    "border": "rgba(51,65,85,0.7)"
+  },
+  "palette_hsl": {
+    "primary": "198 93.2% 59.6%",
+    "secondary": "215 16.3% 46.9%",
+    "accent": "271 91.0% 65.1%",
+    "bg": "229 84.0% 4.9%",
+    "card": "rgba(15,23,42,0.85)",
+    "surface": "rgba(30,41,59,0.6)",
+    "text": "210 40.0% 98.0%",
+    "muted": "215 20.2% 65.1%",
+    "border": "rgba(51,65,85,0.7)"
+  },
+  "typography": {
+    "display": "Inter",
+    "sans": "Inter",
+    "mono": "JetBrains Mono",
+    "scale": [
+      12,
+      14,
+      16,
+      18,
+      24,
+      30,
+      36,
+      48,
+      64
+    ]
+  },
+  "radius": {
+    "card": "16px",
+    "button": "10px"
+  },
+  "shadow": {
+    "card": "0 4px 24px rgba(0,0,0,0.4)",
+    "button": "0 2px 8px rgba(56,189,248,0.2)"
+  },
+  "border": {
+    "card": "1px solid rgba(51,65,85,0.8)",
+    "button": "1px solid rgba(56,189,248,0.3)"
+  },
+  "effects": {
+    "blur": "16px",
+    "glow": "0 0 24px rgba(56,189,248,0.15)"
+  },
+  "weight": "medium",
+  "composition": "spotlight",
+  "generated_by": "meridian-capital-design-system",
+  "timestamp": "2026-09-14T23:46:34Z",
+  "rendered_theme": {
+    "mode": "light",
+    "note": "What index.css :root actually renders. palette.* above is the brand DNA; these are the applied values, kept in lockstep by products/_audit/unify-tokens.cjs.",
+    "canvas": "#f8fafc",
+    "surface": "#ffffff",
+    "primary": "#be2c92",
+    "accent": "#be2c92",
+    "heading": "#be2c92",
+    "text": "#26292f",
+    "muted": "#be2c92",
+    "border": "#e2e8f0",
+    "footer": "#0e1116"
+  },
+  "token_sync": {
+    "source": "src/components/brand/BRAND.js",
+    "propagated_to": [
+      "src/index.css",
+      "tailwind.config.js",
+      "design-tokens.json",
+      "public/favicon.svg"
+    ],
+    "synced_at": "2026-10-08T17:28:00.848Z"
+  }
+}

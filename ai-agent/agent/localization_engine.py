@@ -26,6 +26,21 @@ from pathlib import Path
 from typing import Dict, Any, List
 from utils.logger import agent_logger
 
+try:
+    from .i18n_pack import (
+        LOCALES as PACK_LOCALES,
+        has_locale,
+        needs_translation,
+        translate,
+    )
+except ImportError:  # pragma: no cover - module imported outside the package
+    from agent.i18n_pack import (
+        LOCALES as PACK_LOCALES,
+        has_locale,
+        needs_translation,
+        translate,
+    )
+
 
 class LocalizationEngine:
     """Generates i18next-compatible locale files for 40+ languages."""
@@ -588,6 +603,20 @@ export default i18n;
         except Exception as e:
             agent_logger.warning(f"LocalizationEngine: Could not write i18n config: {e}")
 
+        # A locale that still contains English values is an English page with a
+        # foreign name on it. Report it rather than letting it ship silently.
+        coverage = {
+            code: self.english_leftovers(code, website_type)
+            for code in target_langs
+            if code != "en"
+        }
+        imperfect = {c: n for c, n in coverage.items() if n}
+        if imperfect:
+            agent_logger.warning(
+                "LocalizationEngine: English values remain in %s",
+                ", ".join(f"{c}={n}" for c, n in sorted(imperfect.items())),
+            )
+
         result = {
             "languages_generated":  target_langs,
             "total_languages":      len(target_langs),
@@ -595,6 +624,8 @@ export default i18n;
             "files_written":        len(generated_files),
             "locales_dir":          locales_dir,
             "primary_language":     self._get_primary_lang(spec),
+            "english_leftovers":    imperfect,
+            "fully_translated":     not imperfect,
             "language_metadata": {
                 code: {
                     "name": self.LANGUAGES.get(code, {}).get("name", code),
@@ -650,8 +681,18 @@ export default i18n;
         if spec.get("website_type") in ("saas", "fintech", "dashboard"):
             langs.update(["en", "ar", "fr", "de", "es", "zh", "ja", "pt"])
 
-        # Filter to known languages only
-        return sorted(c for c in langs if c in self.LANGUAGES)
+        # Only advertise locales that are actually translated. Emitting a locale
+        # file whose values are still English would ship an English page under a
+        # foreign label; generating fewer, honest locales is the correct trade.
+        supported = {"en"} | set(PACK_LOCALES)
+        dropped = sorted(c for c in langs if c in self.LANGUAGES and c not in supported)
+        if dropped:
+            agent_logger.info(
+                "LocalizationEngine: skipping locale(s) with no translation "
+                "table (%s) — English content would be mislabelled",
+                ", ".join(dropped),
+            )
+        return sorted(c for c in langs if c in supported)
 
     def _get_primary_lang(self, spec: Dict[str, Any]) -> str:
         lang = spec.get("language_detected", "english")
@@ -687,4 +728,54 @@ export default i18n;
                     section_data.update(overrides[section])
                 result[section] = section_data
 
-        return result
+        return self._complete_translations(lang_code, result)
+
+    def _complete_translations(self, lang_code: str, merged: Dict[str, Any]) -> Dict[str, Any]:
+        """Replace any value left in English with its reviewed translation.
+
+        The per-locale tables above are partial by design, so without this pass
+        a key with no override ships the English string inside an otherwise
+        translated page.
+        """
+        if lang_code == "en" or not has_locale(lang_code):
+            return merged
+        for section, values in merged.items():
+            if not isinstance(values, dict):
+                continue
+            for key, value in values.items():
+                if not isinstance(value, str) or not value.strip():
+                    continue
+                base_value = self.BASE_STRINGS.get(section, {}).get(key)
+                if not isinstance(base_value, str) or value.strip() != base_value.strip():
+                    continue  # already localised by a per-locale override
+                replacement = translate(lang_code, value)
+                if replacement is None or replacement.strip() == value.strip():
+                    continue
+                values[key] = replacement
+        return merged
+
+    def english_leftovers(self, lang_code: str, website_type: str = "ecommerce") -> int:
+        """Count values in a generated locale that are still the English source.
+
+        Zero means the locale is genuinely translated. Used by `generate()` and
+        by the test suite as the acceptance gate for localisation.
+        """
+        if lang_code == "en":
+            return 0
+        merged = self._build_translations(lang_code, website_type)
+        leftovers = 0
+        for section, values in merged.items():
+            if not isinstance(values, dict):
+                continue
+            source_section = self.BASE_STRINGS.get(section, {})
+            for key, value in values.items():
+                if not isinstance(value, str) or not value.strip():
+                    continue
+                source = source_section.get(key)
+                if not isinstance(source, str) or value.strip() != source.strip():
+                    continue
+                # Identical by design (proper nouns, reviewed cognates) is not
+                # an untranslated gap.
+                if needs_translation(lang_code, source):
+                    leftovers += 1
+        return leftovers

@@ -82,6 +82,19 @@ describe('HTTP layer basics', () => {
     expect(Number.isNaN(Date.parse(res.body.timestamp))).toBe(false);
   });
 
+  it('serves versioned /api/v1/* aliases of every route', async () => {
+    const res = await request(app).get('/api/v1/health');
+    expect(res.status).toBe(200);
+    expect(res.headers['api-version']).toBe('v1');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('marks legacy unversioned /api/* responses as deprecated', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(200);
+    expect(res.headers['deprecation']).toBe('true');
+  });
+
   it('enforces auth rate-limit on /api/auth/refresh with 429 Retry-After', async () => {
     // Hit the auth limiter (5/min) repeatedly with no refresh token → 401 (not 429)
     // to avoid DB; then confirm the limiter plumbing doesn't crash the route.

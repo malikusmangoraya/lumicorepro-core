@@ -15,6 +15,7 @@
     "format": "prettier --write src/",
     "size": "node scripts/check-bundle-budget.mjs",
     "check:budget": "node scripts/check-bundle-budget.mjs",
+    "test:perf": "node scripts/lighthouse.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -36,6 +37,8 @@
   },
   "dependencies": {
     "@react-three/fiber": "^9.7.0",
+    "@sentry/react": "^11.4.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@tanstack/react-query": "^5.62.10",
     "@webcontainer/api": "^1.6.4",
     "axios": "^1.19.0",
@@ -52,7 +55,9 @@
     "three": "^0.174.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.50.1",
     "@testing-library/dom": "^10.1.0",
     "@testing-library/jest-dom": "^6.6.3",

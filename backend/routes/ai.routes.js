@@ -8,6 +8,8 @@ import { enforcePlanLimit } from '../middleware/planUsageGuard.js';
 import { recordPlanUsage } from '../services/usage.service.js';
 import { dispatchAI } from '../services/aiCost/queue.service.js';
 import spendEstimator from '../services/aiCost/spendEstimator.service.js';
+import spendLedger from '../services/aiCost/spendLedger.service.js';
+import { downstreamTraceHeaders } from '../middleware/tracing.js';
 import {
   AI_AGENT_TIMEOUTS,
   agentBaseUrl,
@@ -29,6 +31,40 @@ router.post('/generate', circuitBreaker(), dailyGenLimit(), tokenCap('generation
 router.post('/chat', circuitBreaker(), dailyChatLimit(), tokenCap('chat'));
 router.post('/vision/analyze', circuitBreaker(), dailyGenLimit(), tokenCap('vision'));
 router.post('/generate/stream', circuitBreaker(), dailyGenLimit(), tokenCap('generation'));
+
+/**
+ * Hard per-user daily spend cap — the LAST line of cost defense after the
+ * rate limiter, plan quota and token cap. Refuses the run before any provider
+ * call is made when the projected cost would cross AI_DAILY_BUDGET_USD.
+ */
+async function hardBudgetGuard(req, res, next) {
+  try {
+    const verdict = await spendLedger.checkBudget(
+      req.user?.id ?? null,
+      spendLedger.estimateCostUsd(spendEstimator.estimateTokensForRequest('generation')),
+    );
+    res.setHeader('X-Spend-Today-Usd', String(verdict.spentTodayUsd));
+    if (!verdict.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: {
+          code: 'DAILY_BUDGET_EXCEEDED',
+          message: 'Daily AI spend budget reached. Try again tomorrow or raise AI_DAILY_BUDGET_USD.',
+          spentTodayUsd: verdict.spentTodayUsd,
+          budgetUsd: verdict.budgetUsd,
+        },
+      });
+    }
+    return next();
+  } catch (err) {
+    // Fail-open: a budget-check outage must not take the product down —
+    // the rate limiter + daily generation caps still apply.
+    logger.warn(`Budget check skipped: ${err.message}`);
+    return next();
+  }
+}
+router.post('/generate', hardBudgetGuard);
+router.post('/generate/stream', hardBudgetGuard);
 
 /**
  * Upstream AI-agent failure handler.
@@ -85,7 +121,12 @@ function timeoutForEndpoint(endpoint) {
 }
 
 async function callAgent(endpoint, options = {}, { timeoutMs } = {}) {
-  return fetchAgentJson(endpoint, { ...options, timeoutMs: timeoutMs ?? timeoutForEndpoint(endpoint) });
+  // Continue the distributed trace across the Express → FastAPI hop.
+  return fetchAgentJson(endpoint, {
+    ...options,
+    headers: { ...downstreamTraceHeaders(), ...(options.headers || {}) },
+    timeoutMs: timeoutMs ?? timeoutForEndpoint(endpoint),
+  });
 }
 
 /**
@@ -204,6 +245,16 @@ router.post('/generate', aiWriteLimiter, gateAI, enforcePlanLimit('ai_generation
       estimatedTokens: spendEstimator.estimateTokensForRequest('generation'),
     }).catch(() => {});
 
+    // Per-run ledger row + hard budget accounting (also best-effort)
+    spendLedger.recordRun({
+      userId: req.user?.id ?? null,
+      orgId: req.user?.orgId ?? null,
+      runId: data.run_id,
+      ip: req.ip,
+      endpoint: 'generation',
+      tokens: spendEstimator.estimateTokensForRequest('generation'),
+    }).catch(() => {});
+
     // Plan usage limiter — charge a monthly generation against the user's plan.
     recordPlanUsage(req.user?.id, 'ai_generation', 1);
 
@@ -277,7 +328,7 @@ router.get('/download/:runId', aiWriteLimiter, gateAI, async (req, res) => {
   const { runId } = req.params;
   try {
     const targetUrl = agentEndpointUrl(`/api/download/${encodeURIComponent(runId)}`);
-    const response = await fetchWithTimeout(targetUrl, {}, AI_AGENT_TIMEOUTS.download);
+    const response = await fetchWithTimeout(targetUrl, { headers: downstreamTraceHeaders() }, AI_AGENT_TIMEOUTS.download);
     if (!response.ok) {
       return res.status(response.status).json({ success: false, error: 'Project archive not found' });
     }
@@ -521,7 +572,7 @@ router.get('/preview/:slug', async (req, res) => {
   const { slug } = req.params;
   try {
     const targetUrl = agentPreviewUrl(slug);
-    const upstream = await fetchWithTimeout(targetUrl, {}, AI_AGENT_TIMEOUTS.preview);
+    const upstream = await fetchWithTimeout(targetUrl, { headers: downstreamTraceHeaders() }, AI_AGENT_TIMEOUTS.preview);
     const ct = upstream.headers.get('content-type') || 'text/html';
     res.setHeader('Content-Type', ct);
     res.setHeader('X-Preview-Slug', slug);
@@ -540,7 +591,7 @@ router.get('/preview/:slug/*', async (req, res) => {
   const rest = req.params[0] || '';
   try {
     const targetUrl = agentPreviewUrl(slug, rest);
-    const upstream = await fetchWithTimeout(targetUrl, {}, AI_AGENT_TIMEOUTS.preview);
+    const upstream = await fetchWithTimeout(targetUrl, { headers: downstreamTraceHeaders() }, AI_AGENT_TIMEOUTS.preview);
     const ct = upstream.headers.get('content-type') || 'application/octet-stream';
     res.setHeader('Content-Type', ct);
     res.setHeader('X-Preview-Slug', slug);
@@ -754,6 +805,39 @@ router.get('/spend-estimator', async (req, res, next) => {
   try {
     const summary = await spendEstimator.getSpendSummary(8);
     return res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @swagger
+ * /api/ai/spend/ledger:
+ *   get:
+ *     summary: Per-run AI spend ledger summary (admin) — rows, tokens, USD.
+ *     tags: [AI Generation]
+ */
+router.get('/spend/ledger', async (req, res, next) => {
+  try {
+    const days = Math.min(parseInt(req.query.days, 10) || 7, 30);
+    const summary = await spendLedger.getLedgerSummary(days);
+    return res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @swagger
+ * /api/ai/spend/budget:
+ *   get:
+ *     summary: The caller's AI budget state (spent today vs cap).
+ *     tags: [AI Generation]
+ */
+router.get('/spend/budget', async (req, res, next) => {
+  try {
+    const verdict = await spendLedger.checkBudget(req.user?.id ?? null, 0);
+    return res.json({ success: true, data: verdict });
   } catch (err) {
     next(err);
   }

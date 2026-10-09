@@ -138,14 +138,15 @@ KIMI_API_KEY  = os.getenv("KIMI_API_KEY", "") or os.getenv("MOONSHOT_API_KEY", "
 KIMI_MODEL    = os.getenv("KIMI_MODEL", "kimi-k2.7-code")
 KIMI_BASE_URL = os.getenv("KIMI_BASE_URL", "https://api.moonshot.ai/v1")
 
-# ── OpenMuse / local open-weight server (keyless) ─────────────────────────
-# OpenMuse (MIT, CopilotKit) is a self-hosted Meta-Muse-style agent that brings
-# its own model, so this targets any OpenAI-compatible endpoint: the OpenMuse
-# gateway, Ollama (:11434), vLLM/SGLang (:8000), llama.cpp (:8080), LM Studio
-# (:1234). All variables optional.
-OPENMUSE_API_KEY  = os.getenv("OPENMUSE_API_KEY", "")
-OPENMUSE_MODEL    = os.getenv("OPENMUSE_MODEL", "qwen3-coder")
-OPENMUSE_BASE_URL = os.getenv("OPENMUSE_BASE_URL", "http://127.0.0.1:8080/v1")
+# ── Internet-only open-weight cloud inference ─────────────────────────────
+# Open models served over a cloud HTTP API: Cerebras, Groq Cloud, Nebius,
+# Hyperbolic, Together, DeepInfra, Fireworks, SambaNova, Novita, the Hugging
+# Face router, Featherless and Chutes. Their keys, base URLs and model
+# candidates live in providers/openweight_provider.py — one table, so a vendor
+# is a data change and every endpoint is asserted to be a public HTTPS host.
+# Local GPU runtimes (Ollama, vLLM, llama.cpp, LM Studio) are intentionally NOT
+# supported: this agent must not require hardware on the operator's machine.
+# See that module for the per-vendor env vars.
 
 # ── OpenAI ─────────────────────────────────────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")

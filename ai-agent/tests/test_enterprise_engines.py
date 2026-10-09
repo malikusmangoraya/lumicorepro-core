@@ -11,6 +11,8 @@ if str(agent_dir) not in sys.path:
 
 from agent.orchestrator import AgentOrchestrator
 from agent.api_generator import APIGenerator
+from agent.project_builder import ProjectBuilder
+from agent.project_mode_engine import ProjectModeEngine
 from agent.seo_automation import SEOAutomationEngine
 from agent.cdn_optimizer import CDNOptimizer
 from agent.performance_budget import PerformanceBudgetEngine
@@ -57,6 +59,106 @@ class TestEnterpriseEngines(unittest.TestCase):
         self.assertTrue((target_backend / "routes").exists())
         self.assertTrue((target_backend / "controllers").exists())
         self.assertTrue((target_backend / "middleware").exists())
+
+    def test_frontend_auth_journeys_use_api_and_accessible_states(self):
+        frontend = Path(self.test_dir) / "frontend"
+        app = frontend / "src" / "App.jsx"
+        app.parent.mkdir(parents=True)
+        app.write_text(
+            "import React from 'react';\n"
+            "import { Routes, Route } from 'react-router-dom';\n"
+            "export default function App() { return <Routes><Route path=\"/\" element={<div />} /></Routes>; }\n",
+            encoding="utf-8",
+        )
+
+        ProjectBuilder()._generate_frontend_journeys(frontend, "Example Brand")
+
+        login = (frontend / "src" / "pages" / "GeneratedLogin.jsx").read_text(encoding="utf-8")
+        register = (frontend / "src" / "pages" / "GeneratedRegister.jsx").read_text(encoding="utf-8")
+        app_source = app.read_text(encoding="utf-8")
+        self.assertIn("api.post('/auth/login'", login)
+        self.assertIn("role=\"alert\"", login)
+        self.assertIn("disabled={submitting}", login)
+        self.assertIn("api.post('/auth/register'", register)
+        self.assertIn("aria-describedby", register)
+        self.assertIn('path="/login"', app_source)
+        self.assertIn('path="/register"', app_source)
+        self.assertIn("path=\"/\"", app_source)
+
+    def test_frontend_contact_form_only_reports_success_after_api_response(self):
+        frontend = Path(self.test_dir) / "frontend"
+        src = frontend / "src"
+        (src / "pages").mkdir(parents=True)
+        (src / "pages" / "Contact.jsx").write_text(
+            "import React from 'react';\n"
+            "export default function Contact() { return <main><h1>Contact us</h1>"
+            "<form onSubmit={handleSubmit}><input /><button>Send</button></form></main>; }\n",
+            encoding="utf-8",
+        )
+        (src / "App.jsx").write_text(
+            "import React from 'react';\n"
+            "import { Routes, Route } from 'react-router-dom';\n"
+            "import Contact from './pages/Contact.jsx';\n"
+            "export default function App() { return <Routes><Route path=\"/contact\" element={<Contact />} /></Routes>; }\n",
+            encoding="utf-8",
+        )
+        result = ProjectBuilder()._generate_frontend_journeys(frontend, "Example Brand")
+
+        contact = (
+            frontend / "src" / "components" / "forms" / "GeneratedContactForm.jsx"
+        ).read_text(encoding="utf-8")
+        self.assertIn("api.post('/contact'", contact)
+        self.assertIn("role=\"alert\"", contact)
+        self.assertIn("role=\"status\"", contact)
+        self.assertIn("disabled={submitting}", contact)
+        self.assertLess(contact.index("await api.post('/contact'"), contact.index("setSucceeded(true)"))
+        contact_page = (src / "pages" / "Contact.jsx").read_text(encoding="utf-8")
+        self.assertIn("<h1>Contact us</h1>", contact_page)
+        self.assertIn("<GeneratedContactForm />", contact_page)
+        self.assertTrue(result["contact_form"])
+
+    def test_enterprise_api_client_sends_cookies_and_rotates_expired_access_tokens(self):
+        client = ProjectModeEngine()._api_js()
+        self.assertIn("withCredentials: true", client)
+        self.assertIn("api.post('/auth/refresh')", client)
+        self.assertIn("originalRequest._retry", client)
+        self.assertIn("isAuthRequest", client)
+
+    def test_explicit_static_mode_skips_persisted_frontend_journeys(self):
+        root = Path(self.test_dir)
+        report = ProjectModeEngine().render_layout(
+            str(root),
+            {"project_name": "Static Brand", "website_type": "portfolio", "buyer_type": "static"},
+        )
+        self.assertEqual(report["mode"], "client-static")
+        self.assertFalse((root / "frontend" / "src" / "pages" / "GeneratedLogin.jsx").exists())
+        self.assertFalse((root / "frontend" / "src" / "pages" / "GeneratedContactPage.jsx").exists())
+
+    def test_enterprise_layout_generates_auth_routes_and_contact_form(self):
+        root = Path(self.test_dir)
+        app = root / "frontend" / "src" / "App.jsx"
+        app.parent.mkdir(parents=True)
+        app.write_text(
+            "import React from 'react';\n"
+            "import { Routes, Route } from 'react-router-dom';\n"
+            "export default function App() { return <Routes><Route path=\"/\" element={<div />} /></Routes>; }\n",
+            encoding="utf-8",
+        )
+
+        report = ProjectModeEngine().render_layout(
+            str(root),
+            {"project_name": "Example Brand", "website_type": "portfolio", "buyer_type": "enterprise"},
+        )
+
+        self.assertTrue(report["frontend_journeys"]["auth_routes"])
+        self.assertTrue(report["frontend_journeys"]["contact_form"])
+        app_source = app.read_text(encoding="utf-8")
+        self.assertIn("path=\"/login\"", app_source)
+        self.assertIn("path=\"/register\"", app_source)
+        self.assertIn("path=\"/contact\"", app_source)
+        self.assertTrue(
+            (root / "frontend" / "src" / "pages" / "GeneratedContactPage.jsx").is_file()
+        )
 
     def test_seo_automation(self):
         seo_engine = SEOAutomationEngine()

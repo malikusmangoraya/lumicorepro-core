@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | prestige-studio",
+    "description": "Welcome to prestige-studio — the leading personal platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | prestige-studio",
+    "description": "Features — prestige-studio",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | prestige-studio",
+    "description": "Pricing — prestige-studio",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | prestige-studio",
+    "description": "Read the latest articles and insights from prestige-studio.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | prestige-studio",
+    "description": "Documentation — prestige-studio",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | prestige-studio",
+    "description": "Learn about prestige-studio, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | prestige-studio",
+    "description": "Get in touch with prestige-studio. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/prestige-studio/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

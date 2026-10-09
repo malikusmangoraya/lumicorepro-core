@@ -1,0 +1,77 @@
+{
+  "website_type": "ecommerce",
+  "provider": "ga4",
+  "events": [
+    {
+      "name": "view_item_list",
+      "trigger": "Products page load",
+      "params": ["item_list_id", "item_list_name", "items"]
+    },
+    {
+      "name": "view_item",
+      "trigger": "Product detail page load",
+      "params": ["currency", "value", "items"]
+    },
+    {
+      "name": "add_to_cart",
+      "trigger": "Add to cart button click",
+      "params": ["currency", "value", "items"]
+    },
+    {
+      "name": "remove_from_cart",
+      "trigger": "Remove from cart",
+      "params": ["currency", "value", "items"]
+    },
+    {
+      "name": "view_cart",
+      "trigger": "Cart page view",
+      "params": ["currency", "value", "items"]
+    },
+    {
+      "name": "begin_checkout",
+      "trigger": "Checkout step 1",
+      "params": ["currency", "value", "coupon", "items"]
+    },
+    {
+      "name": "add_payment_info",
+      "trigger": "Payment info entered",
+      "params": ["currency", "value", "payment_type", "items"]
+    },
+    {
+      "name": "purchase",
+      "trigger": "Order confirmed",
+      "params": ["transaction_id", "affiliation", "revenue", "tax", "shipping", "coupon", "items"]
+    },
+    {
+      "name": "refund",
+      "trigger": "Refund processed",
+      "params": ["transaction_id", "value", "items"]
+    },
+    {
+      "name": "add_to_wishlist",
+      "trigger": "Wishlist button click",
+      "params": ["currency", "value", "items"]
+    },
+    {
+      "name": "search",
+      "trigger": "Search submitted",
+      "params": ["search_term"]
+    },
+    {
+      "name": "select_promotion",
+      "trigger": "Banner/promo click",
+      "params": ["creative_name", "creative_slot", "promotion_id"]
+    },
+    {
+      "name": "sign_up",
+      "trigger": "Account created",
+      "params": ["method"]
+    },
+    {
+      "name": "login",
+      "trigger": "User logged in",
+      "params": ["method"]
+    }
+  ],
+  "conversions": ["purchase", "add_to_cart", "begin_checkout", "sign_up"]
+}

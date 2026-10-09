@@ -86,6 +86,12 @@ npm run dev:all
 | Document | Description |
 |----------|-------------|
 | [🚀 Installation Guide](./INSTALLATION_GUIDE.md) | Complete setup instructions |
+| [📘 Product Manual](./docs/PRODUCT_MANUAL.md) | Operator manual: install, configure, run, troubleshoot |
+| [💸 Selling Guide](./docs/SELLING_GUIDE.md) | Lemon Squeezy store setup, licensing, webhooks, support |
+| [🧩 Open-Source Alternatives](./docs/OPENSOURCE_ALTERNATIVES.md) | What's integrated, what's deliberately out of scope |
+| [🧱 Website Build Playbook](./docs/WEBSITE_BUILD_PLAYBOOK.md) | Per-build spec: frontend, backend, DB, auth, payments, dashboard, CI/CD, Docker, gates |
+| [🎨 Unique Project Playbook](./docs/UNIQUE_PROJECT_PLAYBOOK.md) | How to design one-of-a-kind sites: identity, layout, motion, gates |
+| [🗺️ Master Plan (planning pack)](./00-MASTER-PLAN.md) | Internal 00–07 pack: architecture, features, docs standard, tasks, QA |
 | [✨ Advanced Features](./ADVANCED_FEATURES.md) | All new features with examples |
 | [📋 Upgrade Roadmap](./UPGRADE_ROADMAP.md) | Vision and implementation plan |
 | [🎯 Master Prompt](./MASTER_UPGRADE_PROMPT.md) | Single prompt for AI upgrades |

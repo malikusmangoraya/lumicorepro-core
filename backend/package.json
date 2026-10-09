@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.0",
+    "@jridgewell/gen-mapping": "^0.3.13",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@sentry/node": "^8.47.0",
     "awilix": "^13.0.5",
@@ -48,6 +49,7 @@
     "pg-hstore": "^2.3.4",
     "rate-limit-redis": "^4.3.1",
     "razorpay": "^2.9.4",
+    "resolve.exports": "^2.0.3",
     "sequelize": "^6.37.5",
     "sharp": "^0.33.5",
     "socket.io": "^4.8.1",

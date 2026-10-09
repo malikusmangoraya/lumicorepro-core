@@ -25,7 +25,7 @@ _ARTIFACT_CHAIN = [
 _MANIFEST_SCHEMA = [
     "brand", "visual", "typography", "colors", "spacing",
     "components", "industry", "reference_sources", "constraints_resolved",
-    "reproducibility", "created_at", "project",
+    "reproducibility", "design_signature", "created_at", "project",
 ]
 
 

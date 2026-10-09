@@ -369,7 +369,7 @@ grep -cE '^[A-Z_]*API_KEY=.+' .env.production      # at least one key must be no
 | Provider quota exhausted / key revoked | Logs: HTTP 401/429 from the provider | Rotate the key, or switch `ACTIVE_AI_PROVIDER` to a provider with quota |
 | `AGENT_API_KEY` set by mistake | Logs: `AGENT_API_KEY is not set` **or** 401 with `x-api-key` errors; § 3 of DEPLOYMENT.md | Unset it — the Express passthrough does not send an API key. Network isolation is the intended control |
 | `ALLOWED_HOSTS` missing the in-cluster name | Logs: 400 `Invalid host header` | Include `ai-agent,127.0.0.1,localhost` |
-| Out of memory (heavy generation) | `docker inspect lumicorepro-ai-agent --format '{{.State.OOMKilled}}'` → `true` | Raise the `ai-agent` memory limit, or leave `AI_AGENT_INSTALL_HEAVY_ML=false` so torch/chromadb are not loaded |
+| Out of memory (heavy generation) | <span v-pre>`docker inspect lumicorepro-ai-agent --format '{{.State.OOMKilled}}'`</span> → `true` | Raise the `ai-agent` memory limit, or leave `AI_AGENT_INSTALL_HEAVY_ML=false` so torch/chromadb are not loaded |
 | State volume unwritable | Logs: `unable to open database file` | `docker compose … exec -u 0 ai-agent chown -R 10001:10001 /app/database` |
 | Slow first start | `(health: starting)` for > 2 min | `start_period` is 60 s; a cold model load can exceed it. Check logs before restarting |
 

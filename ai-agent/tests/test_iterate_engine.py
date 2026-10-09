@@ -50,8 +50,8 @@ def _blanked_provider_keys():
             patch.dict(vars(providers_mod), {"PROVIDER_CONFIGS": _blanked(providers_mod.PROVIDER_CONFIGS)})
         )
         # Blanking keys is not enough on its own: the chain also contains
-        # keyless local gateways (ninerouter/omniroute/openmuse), so a provider
-        # would still resolve and a real hosted call could be attempted. AI_OFFLINE
+        # keyless gateways (ninerouter/omniroute), so a provider would still
+        # resolve and a real hosted call could be attempted. AI_OFFLINE
         # is the explicit, product-level switch that guarantees no AI call, which
         # is what these offline/determinism tests actually assert.
         stack.enter_context(patch.dict(os.environ, {"AI_OFFLINE": "1"}))
@@ -117,6 +117,23 @@ class TestIterateEngine(unittest.TestCase):
         self.assertEqual(manifest["version"], 1)
         self.assertEqual(len(manifest["history"]), 1)
         self.assertIn("provider", manifest["history"][0])
+
+    def test_ordinary_iteration_preserves_design_manifest(self):
+        with patch.dict(os.environ, EMPTY_ENV), _blanked_provider_keys():
+            orch = self._orch()
+        design_manifest = os.path.join(self.project_dir, "design-manifest.json")
+        original = b'{"design_signature":{"fingerprint":"stable"}}\n'
+        with open(design_manifest, "wb") as manifest_file:
+            manifest_file.write(original)
+
+        result = orch.iterate(
+            project_dir=self.project_dir,
+            instruction="change the hero heading text",
+        )
+
+        self.assertTrue(result["success"], result.get("reason"))
+        with open(design_manifest, "rb") as manifest_file:
+            self.assertEqual(manifest_file.read(), original)
 
     def test_iterate_reruns_verification_and_writes_security_evidence(self):
         with patch.dict(os.environ, EMPTY_ENV):

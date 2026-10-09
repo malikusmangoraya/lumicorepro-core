@@ -3,6 +3,7 @@ import os
 from typing import Dict, Any, List, Optional
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
+from config.master_prompt import WEBSITE_GENERATION_RUNTIME_RULES
 from .component_injection import library_prompt_note
 
 
@@ -40,11 +41,18 @@ Rules:
 
 PROJECT TREE + KEY FILE CONTENT:
 {context}
+
+WEBSITE GENERATION DELIVERY CONTRACT:
+{standards}
 """.strip()
 
 
 def build_diff_prompt(task: str, vfs_context: str) -> str:
-    return DIFF_PROMPT.format(task=task, context=vfs_context[:15000])
+    return DIFF_PROMPT.format(
+        task=task,
+        context=vfs_context[:15000],
+        standards=WEBSITE_GENERATION_RUNTIME_RULES,
+    )
 
 
 _FENCE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_+-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
@@ -171,6 +179,9 @@ Available components: {", ".join(component_names)}
 
 {library_prompt_note()}
 
+WEBSITE GENERATION DELIVERY CONTRACT:
+{WEBSITE_GENERATION_RUNTIME_RULES}
+
 Output ONLY the JSX code. Ensure proper import statements at the top.
         """.strip()
 
@@ -266,6 +277,7 @@ Output ONLY the JSX code. Ensure proper import statements at the top.
         contract = self._contract_instruction()
         if contract:
             instruction = f"{instruction}\n\n{contract}"
+        instruction = f"{instruction}\n\n{WEBSITE_GENERATION_RUNTIME_RULES}"
         hint = self._recovery_hint()
         if hint:
             instruction = f"{instruction}\n{hint}"

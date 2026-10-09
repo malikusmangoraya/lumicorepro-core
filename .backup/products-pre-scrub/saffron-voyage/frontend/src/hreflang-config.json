@@ -1,0 +1,15 @@
+{
+  "base_url": "https://saffron-voyage.com",
+  "region": "MENA",
+  "hreflangs": [
+    {
+      "lang": "ar",
+      "code": "ar"
+    },
+    {
+      "lang": "en",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "features", "pricing", "blog", "docs", "about", "contact"]
+}

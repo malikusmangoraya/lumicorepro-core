@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "glassmorphism",
+  "target_region": "default",
+  "project_name": "meridian-capital",
+  "palette": {
+    "primary": "#be2c92",
+    "accent": "#be2c92",
+    "heading": "#be2c92",
+    "navBg": "#f8fafc",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be2c92",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

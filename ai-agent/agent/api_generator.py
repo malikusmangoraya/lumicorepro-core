@@ -72,66 +72,78 @@ class APIGenerator:
         "table_orders": ["orders"],
     }
 
-    # Always-on SaaS base feature set — every generated project ships the full
-    # boilerplate: auth (JWT + OAuth + RBAC + MFA), users/profiles, billing,
-    # subscriptions, notifications, analytics and internationalization.
-    SAAS_BASE_FEATURES = [
-        "jwt_auth",
-        "oauth",
-        "role_based_access",
-        "multi_factor_auth",
-        "users",
-        "profiles",
-        "subscriptions",
-        "notifications",
-        "stripe_payments",
-        "analytics",
-        "i18n_multilingual",
-    ]
+    BASELINE_FEATURES = ("jwt_auth", "users", "contact")
 
     def generate_full_backend(self, target_dir: Path, plan: Dict[str, Any]) -> None:
         """Generate complete backend with all necessary APIs."""
-        spec = plan.get("spec", {})
+        spec = dict(plan.get("spec") or {})
+        if plan.get("layout_mode") == "client-static" or spec.get("layout_mode") == "client-static":
+            agent_logger.info("Skipping API generation for explicit client-static project.")
+            return
         website_type = spec.get("website_type", "business")
         industry = spec.get("industry", "general")
-        spec_features = spec.get("features", [])
-        features = [f for f in self.SAAS_BASE_FEATURES if f not in spec_features] + list(spec_features)
-        backend_info = plan.get("backend", {})
+        requested_features = plan.get("features") or spec.get("features") or []
+        if isinstance(requested_features, str):
+            requested_features = [requested_features]
+        if not isinstance(requested_features, (list, tuple, set)):
+            requested_features = []
+        features = list(dict.fromkeys(
+            list(self.BASELINE_FEATURES) +
+            [str(feature).strip() for feature in requested_features if str(feature).strip()]
+        ))
+        spec["features"] = features
+        plan["features"] = features
+        plan["spec"] = spec
         
         agent_logger.info(f"Generating full backend for {website_type} ({industry}) with {len(features)} features")
         
         # 1. Generate package.json with all dependencies
         self._generate_package_json(target_dir, features)
         
-        # 2. Generate server.js with all middleware and routes
-        self._generate_server_js(target_dir, features)
-        
-        # 3. Generate config files
+        # 2. Generate config files
         self._generate_config_files(target_dir)
         
-        # 4. Generate middleware
+        # 3. Generate middleware
         self._generate_middleware(target_dir, features)
         
-        # 5. Generate controllers based on features
+        # 4. Generate controllers based on features
         controllers = self._generate_controllers(target_dir, features, website_type, industry)
         
-        # 6. Generate routes
+        # 5. Generate routes
         self._generate_routes(target_dir, controllers)
+
+        # 6. Mount only route modules that were actually generated.
+        self._generate_server_js(target_dir, features, controllers)
         
-        # 7. Generate models (PostgreSQL with pg, or MongoDB with mongoose)
+        # 7. Generate PostgreSQL models
         self._generate_models(target_dir, features, website_type)
+
+        # 8. Generate versioned migrations and backend tests.
+        self._generate_migrations(target_dir)
+        self._generate_test_suite(target_dir)
         
-        # 8. Generate services layer
+        # 9. Generate services layer
         self._generate_services(target_dir, features)
         
-        # 9. Generate utils
+        # 10. Generate utils
         self._generate_utils(target_dir)
         
-        # 10. Generate environment files
-        self._generate_env_files(target_dir, features)
+        # 11. Generate environment files
+        self._generate_env_files(
+            target_dir, features, spec.get("project_name") or plan.get("project_name") or "app"
+        )
         
-        # 11. Generate API documentation
+        # 12. Generate API documentation
         self._generate_api_docs(target_dir, spec, controllers)
+
+        if "stripe_payments" in features:
+            from .extensions.checkout_stripe import CheckoutScaffolder
+
+            outcome = CheckoutScaffolder(str(target_dir.parent)).scaffold(features=features)
+            if outcome.get("status") != "ok":
+                raise RuntimeError(
+                    f"Explicit Stripe checkout generation failed: {outcome.get('message', 'unknown error')}"
+                )
         
         agent_logger.info(f"Backend generation complete: {len(controllers)} controllers, {len(controllers)} routes")
 
@@ -142,11 +154,16 @@ class APIGenerator:
             "express": "^4.19.2",
             "cors": "^2.8.5",
             "dotenv": "^16.4.5",
+            "sequelize": "^6.37.0",
+            "pg": "^8.11.5",
+            "pg-hstore": "^2.3.4",
             "helmet": "^7.1.0",
             "express-rate-limit": "^7.1.5",
             "jsonwebtoken": "^9.0.2",
             "bcryptjs": "^2.4.3",
+            "cookie-parser": "^1.4.6",
             "express-validator": "^7.0.1",
+            "validator": "^13.12.0",
             "morgan": "^1.10.0",
             "compression": "^1.7.4",
         }
@@ -158,14 +175,6 @@ class APIGenerator:
             "swagger-ui-express": "^5.0.0",
             "swagger-jsdoc": "^6.2.8",
         }
-        
-        # Add database driver based on features
-        if "postgresql_schema" in features or any(f in features for f in ["orders", "products", "subscriptions"]):
-            dependencies["pg"] = "^8.11.5"
-            dependencies["pg-hstore"] = "^2.3.4"
-        
-        if "mongodb" in features or any(f in features for f in ["blog", "cms", "contact"]):
-            dependencies["mongoose"] = "^8.0.0"
         
         # Add feature-specific dependencies
         if "stripe_payments" in features:
@@ -209,6 +218,7 @@ class APIGenerator:
                 "dev": "nodemon server.js",
                 "test": "jest --coverage",
                 "test:watch": "jest --watch",
+                "db:migrate": "node migrations/run.js",
                 "docs": "node generate-docs.js",
             },
             "dependencies": dependencies,
@@ -217,112 +227,39 @@ class APIGenerator:
         
         FileManager.write_json(str(target_dir / "package.json"), package_json)
 
-    def _generate_server_js(self, target_dir: Path, features: List[str]) -> None:
+    def _generate_server_js(
+        self, target_dir: Path, features: List[str], controllers: List[str]
+    ) -> None:
         """Generate main server.js file."""
         has_socket_io = any(f in features for f in ["chat", "real_time", "notifications"])
         has_swagger = True  # Always include API docs
         
+        route_names = {
+            "auth": ("authRoutes", "/api/auth"),
+            "products": ("productRoutes", "/api/products"),
+            "orders": ("orderRoutes", "/api/orders"),
+            "contact": ("contactRoutes", "/api/contact"),
+        }
         routes_imports = []
         routes_mounts = []
-        
-        # Determine which routes to include based on features
-        if any(f in features for f in ["jwt_auth", "oauth", "users"]):
-            routes_imports.append("const authRoutes = require('./routes/authRoutes');")
-            routes_mounts.append("app.use('/api/auth', authRoutes);")
-        
-        if "products" in features or "categories" in features:
-            routes_imports.append("const productRoutes = require('./routes/productRoutes');")
-            routes_mounts.append("app.use('/api/products', productRoutes);")
-        
-        if "orders" in features:
-            routes_imports.append("const orderRoutes = require('./routes/orderRoutes');")
-            routes_mounts.append("app.use('/api/orders', orderRoutes);")
-        
-        if "cart" in features:
-            routes_imports.append("const cartRoutes = require('./routes/cartRoutes');")
-            routes_mounts.append("app.use('/api/cart', cartRoutes);")
-        
-        if "wishlist" in features:
-            routes_imports.append("const wishlistRoutes = require('./routes/wishlistRoutes');")
-            routes_mounts.append("app.use('/api/wishlist', wishlistRoutes);")
-        
-        if "stripe_payments" in features or "paypal_payments" in features:
-            routes_imports.append("const paymentRoutes = require('./routes/paymentRoutes');")
-            routes_mounts.append("app.use('/api/payments', paymentRoutes);")
-        
-        if "users" in features:
-            routes_imports.append("const userRoutes = require('./routes/userRoutes');")
-            routes_mounts.append("app.use('/api/users', userRoutes);")
-        
-        if "analytics" in features:
-            routes_imports.append("const analyticsRoutes = require('./routes/analyticsRoutes');")
-            routes_mounts.append("app.use('/api/analytics', analyticsRoutes);")
-        
-        if "subscriptions" in features:
-            routes_imports.append("const subscriptionRoutes = require('./routes/subscriptionRoutes');")
-            routes_mounts.append("app.use('/api/subscriptions', subscriptionRoutes);")
-        
-        if "blog" in features or "posts" in features:
-            routes_imports.append("const postRoutes = require('./routes/postRoutes');")
-            routes_mounts.append("app.use('/api/posts', postRoutes);")
-        
-        if "reviews" in features:
-            routes_imports.append("const reviewRoutes = require('./routes/reviewRoutes');")
-            routes_mounts.append("app.use('/api/reviews', reviewRoutes);")
-        
-        if "appointments" in features:
-            routes_imports.append("const appointmentRoutes = require('./routes/appointmentRoutes');")
-            routes_mounts.append("app.use('/api/appointments', appointmentRoutes);")
-        
-        if "courses" in features:
-            routes_imports.append("const courseRoutes = require('./routes/courseRoutes');")
-            routes_mounts.append("app.use('/api/courses', courseRoutes);")
-        
-        if "properties" in features:
-            routes_imports.append("const propertyRoutes = require('./routes/propertyRoutes');")
-            routes_mounts.append("app.use('/api/properties', propertyRoutes);")
-        
-        if "menu" in features:
-            routes_imports.append("const menuRoutes = require('./routes/menuRoutes');")
-            routes_mounts.append("app.use('/api/menu', menuRoutes);")
-        
-        if "reservations" in features:
-            routes_imports.append("const reservationRoutes = require('./routes/reservationRoutes');")
-            routes_mounts.append("app.use('/api/reservations', reservationRoutes);")
-        
-        if "contact" in features:
-            routes_imports.append("const contactRoutes = require('./routes/contactRoutes');")
-            routes_mounts.append("app.use('/api/contact', contactRoutes);")
-        
-        if "newsletter" in features:
-            routes_imports.append("const newsletterRoutes = require('./routes/newsletterRoutes');")
-            routes_mounts.append("app.use('/api/newsletter', newsletterRoutes);")
-        
-        if "notifications" in features:
-            routes_imports.append("const notificationRoutes = require('./routes/notificationRoutes');")
-            routes_mounts.append("app.use('/api/notifications', notificationRoutes);")
-        
-        if "search" in features:
-            routes_imports.append("const searchRoutes = require('./routes/searchRoutes');")
-            routes_mounts.append("app.use('/api/search', searchRoutes);")
-        
-        if any(f in features for f in ["upload_images", "media"]):
-            routes_imports.append("const uploadRoutes = require('./routes/uploadRoutes');")
-            routes_mounts.append("app.use('/api/upload', uploadRoutes);")
-        
-        if "admin" in features or "role_based_access" in features:
-            routes_imports.append("const adminRoutes = require('./routes/adminRoutes');")
-            routes_mounts.append("app.use('/api/admin', adminRoutes);")
+        for controller in controllers:
+            route_spec = route_names.get(controller)
+            if route_spec:
+                route_name, route_path = route_spec
+                routes_imports.append(
+                    f"const {route_name} = require('./routes/{route_name}');"
+                )
+                routes_mounts.append(f"app.use('{route_path}', {route_name});")
         
         routes_imports_str = "\n".join(routes_imports) if routes_imports else "// Routes will be mounted here"
         routes_mounts_str = "\n".join(routes_mounts) if routes_mounts else "// Routes will be mounted here"
         
-        socket_io_import = "const http = require('http');\nconst { Server } = require('socket.io');" if has_socket_io else ""
+        socket_io_import = (
+            "const http = require('http');\nconst { Server } = require('socket.io');"
+            if has_socket_io else "const http = require('http');"
+        )
         swagger_import = "const swaggerUi = require('swagger-ui-express');\nconst swaggerSpec = require('./config/swagger');" if has_swagger else ""
         socket_io_setup = """
-// Create HTTP server
-const server = http.createServer(app);
-
 // Initialize Socket.IO
 const io = new Server(server, {
   cors: {
@@ -343,20 +280,22 @@ io.on('connection', (socket) => {
 });""" if has_socket_io else ""
 
         swagger_docs_mount = "\napp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));" if has_swagger else ""
-        if has_socket_io:
-            server_listen_block = """// Start server with Socket.IO support
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});"""
-            module_exports_str = "module.exports = { app, io };"
-        else:
-            server_listen_block = """// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});"""
-            module_exports_str = "module.exports = { app };"
+        server_listen_block = """const startServer = async () => {
+  await connectDB();
+  return server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+};
+
+if (require.main === module) {
+  startServer().catch(async (error) => {
+    console.error('Server startup failed:', error.message);
+    await sequelize.close();
+    process.exitCode = 1;
+  });
+}"""
+        module_exports_str = "module.exports = { app, server, startServer, io };" if has_socket_io else "module.exports = { app, server, startServer };"
 
         server_js = f"""const express = require('express');
 const cors = require('cors');
@@ -364,17 +303,21 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 {socket_io_import}
 
+const {{ connectDB, sequelize }} = require('./config/database');
 const {{ errorHandler, notFound }} = require('./middleware/errorHandler');
 const usageLimiter = require('./middleware/usageLimiter');
 const {{ auditRequest }} = require('./middleware/auditLogger');
 {swagger_import}
+{routes_imports_str}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
 {socket_io_setup}
 
 // Security Middleware
@@ -397,6 +340,7 @@ app.use(cors({{
 // Body Parsing
 app.use(express.json());
 app.use(express.urlencoded({{ extended: true }}));
+app.use(cookieParser());
 
 // Compression
 app.use(compression());
@@ -431,9 +375,14 @@ app.get('/health', (req, res) => {{
 }});
 
 // Ready Check
-app.get('/ready', (req, res) => {{
-  // Add your readiness checks here (database, cache, etc.)
-  res.json({{ status: 'ready' }});
+app.get('/ready', async (req, res) => {{
+  try {{
+    await sequelize.authenticate();
+    res.json({{ status: 'ready', database: 'connected' }});
+  }} catch (error) {{
+    console.error('Readiness check failed:', error.message);
+    res.status(503).json({{ status: 'not_ready', database: 'unavailable' }});
+  }}
 }});
 
 // Error Handling
@@ -455,30 +404,41 @@ app.use(errorHandler);
         db_js = """const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const sequelize = process.env.DATABASE_URL
-  ? new Sequelize(process.env.DATABASE_URL, {
+let sequelize;
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    dialectOptions: process.env.NODE_ENV === 'production'
+      ? { ssl: { require: true, rejectUnauthorized: true } }
+      : {},
+    pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
+  });
+} else if (process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER) {
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD || '',
+    {
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT || 5432),
       dialect: 'postgres',
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
-      dialectOptions: process.env.NODE_ENV === 'production' ? {
-        ssl: { require: true, rejectUnauthorized: false }
-      } : {},
-    })
-  : new Sequelize({
-      dialect: 'sqlite',
-      storage: './database.sqlite',
-      logging: false,
-    });
+      dialectOptions: process.env.NODE_ENV === 'production'
+        ? { ssl: { require: true, rejectUnauthorized: true } }
+        : {},
+      pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
+    }
+  );
+} else {
+  throw new Error('DATABASE_URL or DB_HOST/DB_NAME/DB_USER is required.');
+}
 
 const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connected successfully.');
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-    }
-  } catch (error) {
-    console.error('Database connection failed:', error.message);
-  }
+  await sequelize.authenticate();
+  const { runMigrations } = require('../migrations/run');
+  await runMigrations();
+  console.log('Database connected and migrations are current.');
 };
 
 module.exports = { sequelize, connectDB };
@@ -515,16 +475,18 @@ module.exports = { sequelize, connectDB };
 
         err_js = """const notFound = (req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
+  error.statusCode = 404;
   res.status(404);
   next(error);
 };
 
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const statusCode = Number.isInteger(err.statusCode) && err.statusCode >= 400 && err.statusCode < 500
+    ? err.statusCode
+    : 500;
   res.status(statusCode).json({
     success: false,
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    message: statusCode < 500 ? err.message : 'An unexpected server error occurred.',
   });
 };
 
@@ -535,21 +497,19 @@ module.exports = { notFound, errorHandler };
         auth_js = """const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../utils/jwtSecret');
 
-const protect = async (req, res, next) => {
-  let token;
+const protect = (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      token = req.headers.authorization.split(' ')[1];
+      const token = req.headers.authorization.split(' ')[1];
+      if (!token) throw new Error('Missing bearer token');
       const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
       req.user = decoded;
       return next();
-    } catch (error) {
+    } catch (_) {
       return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
     }
   }
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
-  }
+  return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
 };
 
 const adminOnly = (req, res, next) => {
@@ -690,36 +650,228 @@ module.exports = { auditRequest, persist };
         controllers = []
 
         # Auth Controller
-        auth_ctrl = """const jwt = require('jsonwebtoken');
+        auth_ctrl = """const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const validator = require('validator');
 const { jwtSecret } = require('../utils/jwtSecret');
+const { sequelize } = require('../config/database');
+const { User, RefreshSession } = require('../models');
 
-exports.register = async (req, res) => {
+const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const dummyPasswordHash = bcrypt.hashSync(crypto.randomBytes(32).toString('hex'), 12);
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/api/auth',
+  maxAge: REFRESH_TTL_MS,
+};
+
+const publicUser = (user) => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+});
+
+const createAccessToken = (user) => jwt.sign(
+  { sub: user.id, role: user.role },
+  jwtSecret,
+  { expiresIn: '15m', algorithm: 'HS256' }
+);
+
+const createRefreshSession = async (userId, transaction) => {
+  const token = crypto.randomBytes(48).toString('base64url');
+  await RefreshSession.create({
+    user_id: userId,
+    token_hash: crypto.createHash('sha256').update(token).digest('hex'),
+    expires_at: new Date(Date.now() + REFRESH_TTL_MS),
+  }, { transaction });
+  return token;
+};
+
+const setRefreshCookie = (res, token) => res.cookie('refreshToken', token, cookieOptions);
+const clearRefreshCookie = (res) => res.clearCookie('refreshToken', {
+  httpOnly: cookieOptions.httpOnly,
+  secure: cookieOptions.secure,
+  sameSite: cookieOptions.sameSite,
+  path: cookieOptions.path,
+});
+
+const invalidInput = (res, message) => res.status(422).json({
+  success: false,
+  code: 'VALIDATION_ERROR',
+  message,
+});
+
+exports.register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
-    const token = jwt.sign({ email, role: 'user' }, jwtSecret, { expiresIn: '7d' });
-    res.status(201).json({ success: true, message: 'User registered successfully', token, user: { email, name } });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const { email, password, name } = req.body || {};
+    if (
+      typeof email !== 'string' ||
+      !validator.isEmail(email, { allow_utf8_local_part: false }) ||
+      typeof name !== 'string' ||
+      name.trim().length < 2 ||
+      name.trim().length > 100 ||
+      typeof password !== 'string' ||
+      password.length < 10 ||
+      password.length > 128 ||
+      Buffer.byteLength(password, 'utf8') > 72
+    ) {
+      return invalidInput(res, 'Provide a valid email, a name of 2-100 characters, and a password of 10-72 bytes.');
+    }
+
+    const normalizedEmail = validator.normalizeEmail(email, { gmail_remove_dots: false });
+    if (!normalizedEmail) return invalidInput(res, 'Provide a valid email address.');
+    if (await User.findOne({ where: { email: normalizedEmail } })) {
+      return res.status(409).json({ success: false, code: 'EMAIL_IN_USE', message: 'An account already exists for this email.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    let user;
+    let refreshToken;
+    await sequelize.transaction(async (transaction) => {
+      user = await User.create({
+        email: normalizedEmail,
+        password_hash: passwordHash,
+        name: name.trim(),
+      }, { transaction });
+      refreshToken = await createRefreshSession(user.id, transaction);
+    });
+
+    setRefreshCookie(res, refreshToken);
+    return res.status(201).json({
+      success: true,
+      message: 'Account created.',
+      data: { user: publicUser(user), accessToken: createAccessToken(user) },
+    });
+  } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ success: false, code: 'EMAIL_IN_USE', message: 'An account already exists for this email.' });
+    }
+    return next(error);
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const token = jwt.sign({ email, role: 'user' }, jwtSecret, { expiresIn: '7d' });
-    res.json({ success: true, message: 'Login successful', token, user: { email } });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const { email, password } = req.body || {};
+    if (typeof email !== 'string' || typeof password !== 'string' || !validator.isEmail(email)) {
+      return res.status(401).json({ success: false, code: 'INVALID_CREDENTIALS', message: 'Email or password is incorrect.' });
+    }
+
+    const normalizedEmail = validator.normalizeEmail(email, { gmail_remove_dots: false });
+    const user = normalizedEmail ? await User.findOne({ where: { email: normalizedEmail } }) : null;
+    const passwordMatches = await bcrypt.compare(password, user ? user.password_hash : dummyPasswordHash);
+    if (!user || !passwordMatches) {
+      return res.status(401).json({ success: false, code: 'INVALID_CREDENTIALS', message: 'Email or password is incorrect.' });
+    }
+
+    const refreshToken = await createRefreshSession(user.id);
+    setRefreshCookie(res, refreshToken);
+    return res.json({
+      success: true,
+      message: 'Login successful.',
+      data: { user: publicUser(user), accessToken: createAccessToken(user) },
+    });
+  } catch (error) {
+    return next(error);
   }
 };
 
-exports.getProfile = async (req, res) => {
-  res.json({ success: true, user: req.user });
+exports.refresh = async (req, res, next) => {
+  try {
+    const rawToken = req.cookies && req.cookies.refreshToken;
+    if (typeof rawToken !== 'string' || rawToken.length > 256) {
+      clearRefreshCookie(res);
+      return res.status(401).json({ success: false, code: 'INVALID_SESSION', message: 'Session is invalid or expired.' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const rotated = await sequelize.transaction(async (transaction) => {
+      const session = await RefreshSession.findOne({
+        where: { token_hash: tokenHash, revoked_at: null },
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!session || session.expires_at <= new Date()) return null;
+
+      const user = await User.findByPk(session.user_id, { transaction });
+      if (!user) return null;
+
+      session.revoked_at = new Date();
+      await session.save({ transaction });
+      const refreshToken = await createRefreshSession(user.id, transaction);
+      return { user, refreshToken };
+    });
+
+    if (!rotated) {
+      clearRefreshCookie(res);
+      return res.status(401).json({ success: false, code: 'INVALID_SESSION', message: 'Session is invalid or expired.' });
+    }
+    setRefreshCookie(res, rotated.refreshToken);
+    return res.json({
+      success: true,
+      data: { user: publicUser(rotated.user), accessToken: createAccessToken(rotated.user) },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    const rawToken = req.cookies && req.cookies.refreshToken;
+    if (typeof rawToken === 'string' && rawToken.length <= 256) {
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      await RefreshSession.update(
+        { revoked_at: new Date() },
+        { where: { token_hash: tokenHash, revoked_at: null } }
+      );
+    }
+    clearRefreshCookie(res);
+    return res.json({ success: true, message: 'Logged out.' });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.sub);
+    if (!user) return res.status(404).json({ success: false, code: 'USER_NOT_FOUND', message: 'Account not found.' });
+    return res.json({ success: true, data: { user: publicUser(user) } });
+  } catch (error) {
+    return next(error);
+  }
 };
 """
         FileManager.write_file(str(ctrl_dir / "authController.js"), auth_ctrl)
         controllers.append("auth")
+
+        if "contact" in features:
+            contact_ctrl = """const { ContactSubmission } = require('../models');
+
+exports.submitContact = async (req, res, next) => {
+  try {
+    const submission = await ContactSubmission.create({
+      name: req.body.name.trim(),
+      email: req.body.email.trim().toLowerCase(),
+      message: req.body.message.trim(),
+    });
+    return res.status(201).json({
+      success: true,
+      message: 'Your message has been received.',
+      data: { id: submission.id, createdAt: submission.createdAt },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+"""
+            FileManager.write_file(str(ctrl_dir / "contactController.js"), contact_ctrl)
+            controllers.append("contact")
 
         # Entity controller based on website type (products for ecommerce, appointments for healthcare, etc.)
         if website_type in ("ecommerce", "retail", "fashion") or "products" in features or "cart" in features:
@@ -769,18 +921,6 @@ exports.bookAppointment = async (req, res) => {
             FileManager.write_file(str(ctrl_dir / "appointmentController.js"), app_ctrl)
             controllers.append("appointments")
 
-        else:
-            item_ctrl = """exports.getAll = async (req, res) => {
-  res.json({ success: true, data: [] });
-};
-
-exports.create = async (req, res) => {
-  res.status(201).json({ success: true, message: 'Item created', data: req.body });
-};
-"""
-            FileManager.write_file(str(ctrl_dir / "itemController.js"), item_ctrl)
-            controllers.append("items")
-
         return controllers
 
     def _generate_routes(self, target_dir: Path, controllers: List[str]) -> None:
@@ -791,12 +931,23 @@ exports.create = async (req, res) => {
         for ctrl in controllers:
             if ctrl == "auth":
                 route_code = """const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, code: 'AUTH_RATE_LIMIT', message: 'Too many authentication attempts. Try again later.' },
+});
+
+router.post('/register', authLimiter, authController.register);
+router.post('/login', authLimiter, authController.login);
+router.post('/refresh', authLimiter, authController.refresh);
+router.post('/logout', authController.logout);
 router.get('/profile', protect, authController.getProfile);
 
 module.exports = router;
@@ -826,6 +977,35 @@ router.get('/my-orders', protect, orderController.getUserOrders);
 module.exports = router;
 """
                 FileManager.write_file(str(routes_dir / "orderRoutes.js"), route_code)
+            elif ctrl == "contact":
+                route_code = """const express = require('express');
+const { body, validationResult } = require('express-validator');
+const contactController = require('../controllers/contactController');
+const router = express.Router();
+
+const validateContact = [
+  body('name').isString().trim().isLength({ min: 2, max: 100 }),
+  body('email').isEmail().normalizeEmail(),
+  body('message').isString().trim().isLength({ min: 10, max: 5000 }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: 'Please provide a valid name, email, and message.',
+        errors: errors.array().map(({ path, msg }) => ({ field: path, message: msg })),
+      });
+    }
+    return next();
+  },
+];
+
+router.post('/', validateContact, contactController.submitContact);
+
+module.exports = router;
+"""
+                FileManager.write_file(str(routes_dir / "contactRoutes.js"), route_code)
             else:
                 route_code = f"""const express = require('express');
 const router = express.Router();
@@ -849,21 +1029,289 @@ module.exports = router;
 const { sequelize } = require('../config/database');
 
 const User = sequelize.define('User', {
-  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  email: { type: DataTypes.STRING, unique: true, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false },
-  name: { type: DataTypes.STRING },
-  role: { type: DataTypes.STRING, defaultValue: 'user' },
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  email: { type: DataTypes.STRING(254), allowNull: false, unique: true },
+  password_hash: { type: DataTypes.STRING(255), allowNull: false },
+  name: { type: DataTypes.STRING(100), allowNull: false },
+  role: { type: DataTypes.STRING(32), allowNull: false, defaultValue: 'user' },
+}, {
+  tableName: 'users',
+  underscored: true,
 });
 
 module.exports = User;
 """
         FileManager.write_file(str(models_dir / "User.js"), user_model)
 
+        refresh_session_model = """const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+
+const RefreshSession = sequelize.define('RefreshSession', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  user_id: { type: DataTypes.UUID, allowNull: false },
+  token_hash: { type: DataTypes.STRING(64), allowNull: false, unique: true },
+  expires_at: { type: DataTypes.DATE, allowNull: false },
+  revoked_at: { type: DataTypes.DATE, allowNull: true },
+}, {
+  tableName: 'refresh_sessions',
+  underscored: true,
+});
+
+module.exports = RefreshSession;
+"""
+        FileManager.write_file(str(models_dir / "RefreshSession.js"), refresh_session_model)
+
+        contact_model = """const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+
+const ContactSubmission = sequelize.define('ContactSubmission', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  name: { type: DataTypes.STRING(100), allowNull: false },
+  email: { type: DataTypes.STRING(254), allowNull: false },
+  message: { type: DataTypes.TEXT, allowNull: false },
+}, {
+  tableName: 'contact_submissions',
+  underscored: true,
+});
+
+module.exports = ContactSubmission;
+"""
+        FileManager.write_file(str(models_dir / "ContactSubmission.js"), contact_model)
+
         index_model = """const User = require('./User');
-module.exports = { User };
+const RefreshSession = require('./RefreshSession');
+const ContactSubmission = require('./ContactSubmission');
+
+User.hasMany(RefreshSession, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+RefreshSession.belongsTo(User, { foreignKey: 'user_id' });
+
+module.exports = { User, RefreshSession, ContactSubmission };
 """
         FileManager.write_file(str(models_dir / "index.js"), index_model)
+
+    def _generate_migrations(self, target_dir: Path) -> None:
+        """Generate versioned, transactional PostgreSQL migrations."""
+        migrations_dir = target_dir / "migrations"
+        migrations_dir.mkdir(parents=True, exist_ok=True)
+
+        core_migration = """module.exports = {
+  up: async ({ queryInterface, Sequelize, transaction }) => {
+    await queryInterface.createTable('users', {
+      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
+      email: { type: Sequelize.STRING(254), allowNull: false, unique: true },
+      password_hash: { type: Sequelize.STRING(255), allowNull: false },
+      name: { type: Sequelize.STRING(100), allowNull: false },
+      role: { type: Sequelize.STRING(32), allowNull: false, defaultValue: 'user' },
+      created_at: { type: Sequelize.DATE, allowNull: false },
+      updated_at: { type: Sequelize.DATE, allowNull: false },
+    }, { transaction });
+
+    await queryInterface.createTable('refresh_sessions', {
+      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: 'users', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      token_hash: { type: Sequelize.STRING(64), allowNull: false, unique: true },
+      expires_at: { type: Sequelize.DATE, allowNull: false },
+      revoked_at: { type: Sequelize.DATE, allowNull: true },
+      created_at: { type: Sequelize.DATE, allowNull: false },
+      updated_at: { type: Sequelize.DATE, allowNull: false },
+    }, { transaction });
+
+    await queryInterface.createTable('contact_submissions', {
+      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
+      name: { type: Sequelize.STRING(100), allowNull: false },
+      email: { type: Sequelize.STRING(254), allowNull: false },
+      message: { type: Sequelize.TEXT, allowNull: false },
+      created_at: { type: Sequelize.DATE, allowNull: false },
+      updated_at: { type: Sequelize.DATE, allowNull: false },
+    }, { transaction });
+  },
+  down: async ({ queryInterface, transaction }) => {
+    await queryInterface.dropTable('contact_submissions', { transaction });
+    await queryInterface.dropTable('refresh_sessions', { transaction });
+    await queryInterface.dropTable('users', { transaction });
+  },
+};
+"""
+        FileManager.write_file(
+            str(migrations_dir / "001_create_core_tables.js"),
+            core_migration,
+        )
+
+        migration_runner = """const fs = require('fs');
+const path = require('path');
+const { Sequelize } = require('sequelize');
+const { sequelize } = require('../config/database');
+
+const runMigrations = async () => {
+  const queryInterface = sequelize.getQueryInterface();
+  const migrationDir = __dirname;
+  const migrationFiles = fs.readdirSync(migrationDir)
+    .filter((name) => /^\\d+_.*\\.js$/.test(name))
+    .sort();
+
+  await sequelize.transaction(async (transaction) => {
+    await sequelize.query('SELECT pg_advisory_xact_lock(724941)', { transaction });
+    await sequelize.query(
+      'CREATE TABLE IF NOT EXISTS schema_migrations (name VARCHAR(255) PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW())',
+      { transaction }
+    );
+    const [appliedRows] = await sequelize.query(
+      'SELECT name FROM schema_migrations',
+      { transaction }
+    );
+    const applied = new Set(appliedRows.map((row) => row.name));
+
+    for (const name of migrationFiles) {
+      if (applied.has(name)) continue;
+      const migration = require(path.join(migrationDir, name));
+      await migration.up({ queryInterface, Sequelize, transaction });
+      await sequelize.query(
+        'INSERT INTO schema_migrations (name) VALUES (?)',
+        { replacements: [name], transaction }
+      );
+    }
+  });
+};
+
+if (require.main === module) {
+  runMigrations()
+    .then(() => sequelize.close())
+    .catch(async (error) => {
+      console.error('Database migration failed:', error.message);
+      await sequelize.close();
+      process.exitCode = 1;
+    });
+}
+
+module.exports = { runMigrations };
+"""
+        FileManager.write_file(str(migrations_dir / "run.js"), migration_runner)
+
+    def _generate_test_suite(self, target_dir: Path) -> None:
+        """Generate integration tests that require an explicitly named test database."""
+        tests_dir = target_dir / "tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        auth_test = """const crypto = require('crypto');
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+if (!process.env.DATABASE_URL || !/test/i.test(new URL(process.env.DATABASE_URL).pathname)) {
+  throw new Error('Set TEST_DATABASE_URL to a dedicated PostgreSQL database whose name includes \"test\".');
+}
+process.env.JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
+
+const request = require('supertest');
+const { app } = require('../server');
+const { connectDB, sequelize } = require('../config/database');
+const { User, RefreshSession } = require('../models');
+
+describe('account authentication', () => {
+  const email = `auth-${crypto.randomUUID()}@example.test`;
+  const password = 'Sufficiently-Strong-Password-2026';
+
+  beforeAll(async () => {
+    await connectDB();
+  });
+
+  afterAll(async () => {
+    const user = await User.findOne({ where: { email } });
+    if (user) {
+      await RefreshSession.destroy({ where: { user_id: user.id } });
+      await user.destroy();
+    }
+    await sequelize.close();
+  });
+
+  test('registers, rejects duplicate email, logs in, and rejects invalid credentials', async () => {
+    const registration = await request(app)
+      .post('/api/auth/register')
+      .send({ email, password, name: 'Test User' });
+    expect(registration.status).toBe(201);
+    expect(registration.body.data.user.email).toBe(email);
+    expect(registration.body.data.user.password_hash).toBeUndefined();
+    expect(registration.headers['set-cookie'][0]).toContain('refreshToken=');
+
+    const duplicate = await request(app)
+      .post('/api/auth/register')
+      .send({ email, password, name: 'Test User' });
+    expect(duplicate.status).toBe(409);
+
+    const initialCookie = registration.headers['set-cookie'][0].split(';')[0];
+    const profile = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${registration.body.data.accessToken}`);
+    expect(profile.status).toBe(200);
+    expect(profile.body.data.user.email).toBe(email);
+
+    const rotated = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', initialCookie);
+    expect(rotated.status).toBe(200);
+    const rotatedCookie = rotated.headers['set-cookie'][0].split(';')[0];
+    expect(rotatedCookie).not.toBe(initialCookie);
+    expect((await request(app).post('/api/auth/refresh').set('Cookie', initialCookie)).status).toBe(401);
+
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password });
+    expect(login.status).toBe(200);
+    expect(login.body.data.accessToken).toBeTruthy();
+    const loginCookie = login.headers['set-cookie'][0].split(';')[0];
+
+    const invalidLogin = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password: 'incorrect-password-value' });
+    expect(invalidLogin.status).toBe(401);
+
+    expect((await request(app).post('/api/auth/logout').set('Cookie', loginCookie)).status).toBe(200);
+    expect((await request(app).post('/api/auth/refresh').set('Cookie', loginCookie)).status).toBe(401);
+  });
+});
+"""
+        FileManager.write_file(str(tests_dir / "auth.test.js"), auth_test)
+
+        contact_test = """const crypto = require('crypto');
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+if (!process.env.DATABASE_URL || !/test/i.test(new URL(process.env.DATABASE_URL).pathname)) {
+  throw new Error('Set TEST_DATABASE_URL to a dedicated PostgreSQL database whose name includes \"test\".');
+}
+process.env.JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(48).toString('hex');
+
+const request = require('supertest');
+const { app } = require('../server');
+const { connectDB, sequelize } = require('../config/database');
+const ContactSubmission = require('../models/ContactSubmission');
+
+describe('persistent contact form', () => {
+  const email = `contact-${crypto.randomUUID()}@example.test`;
+
+  beforeAll(async () => {
+    await connectDB();
+  });
+
+  afterAll(async () => {
+    await ContactSubmission.destroy({ where: { email } });
+    await sequelize.close();
+  });
+
+  test('validates and stores contact submissions', async () => {
+    const invalid = await request(app).post('/api/contact').send({ name: '', email, message: 'short' });
+    expect(invalid.status).toBe(422);
+
+    const result = await request(app).post('/api/contact').send({
+      name: 'Test Sender',
+      email,
+      message: 'Please contact me about the service.',
+    });
+    expect(result.status).toBe(201);
+    expect(await ContactSubmission.count({ where: { email } })).toBe(1);
+  });
+});
+"""
+        FileManager.write_file(str(tests_dir / "contact.test.js"), contact_test)
 
     def _generate_services(self, target_dir: Path, features: List[str]) -> None:
         """Generate backend services."""
@@ -957,8 +1405,14 @@ module.exports = { jwtSecret, MIN_LENGTH };
 """
         FileManager.write_file(str(utils_dir / "jwtSecret.js"), jwt_secret_js)
 
-    def _generate_env_files(self, target_dir: Path, features: List[str]) -> None:
+    def _generate_env_files(
+        self, target_dir: Path, features: List[str], project_name: str = "app"
+    ) -> None:
         """Generate environment example file."""
+        database_name = "".join(
+            character.lower() if character.isalnum() else "_"
+            for character in str(project_name or "app")
+        ).strip("_") or "app"
         env_content = """PORT=5000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:5173
@@ -971,6 +1425,12 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_db
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX=100
 """
+        env_content = "\n".join(
+            f"DATABASE_URL=postgresql://postgres:replace-me@localhost:5432/{database_name}_db"
+            if line.startswith("DATABASE_URL=")
+            else line
+            for line in env_content.splitlines()
+        ) + "\n"
         FileManager.write_file(str(target_dir / ".env.example"), env_content)
 
     def _generate_api_docs(self, target_dir: Path, spec: Dict[str, Any], controllers: List[str]) -> None:
@@ -985,11 +1445,32 @@ RATE_LIMIT_MAX=100
 
 ## Endpoints
 - `POST /api/auth/register` — Register a new account
-- `POST /api/auth/login` — Login and receive JWT bearer token
+- `POST /api/auth/login` — Verify credentials and receive a short-lived access token
+- `POST /api/auth/refresh` — Rotate the HttpOnly refresh-token cookie
+- `POST /api/auth/logout` — Revoke the refresh session
 - `GET /api/auth/profile` — Get authenticated user details
 """
+        if "contact" in spec.get("features", []):
+            md_content += "- `POST /api/contact` — Validate and persist a contact submission\n"
+        if "stripe_payments" in spec.get("features", []):
+            md_content += (
+                "- `POST /api/payments/checkout-session` — Create an authenticated Stripe Checkout session\n"
+                "- `GET /api/payments/orders/:orderId` — Read the authenticated order status\n"
+                "- `POST /api/payments/webhook` — Verify and idempotently apply Stripe events\n"
+            )
         for c in controllers:
-            if c != "auth":
+            if c not in ("auth", "contact"):
                 md_content += f"- `GET /api/{c}` — Retrieve {c} resources\n"
 
+        md_content += """
+## Local setup
+1. Copy `.env.example` to `.env` and set a strong `JWT_SECRET`.
+2. Set `DATABASE_URL` to a PostgreSQL database.
+3. Run `npm install`, then `npm run db:migrate`.
+4. Start the API with `npm run dev`.
+
+The API also applies pending migrations before it begins listening. Never point
+the integration tests at a production database; set `TEST_DATABASE_URL` to a
+dedicated PostgreSQL database whose name contains `test`, then run `npm test`.
+"""
         FileManager.write_file(str(docs_dir / "API_DOCUMENTATION.md"), md_content)

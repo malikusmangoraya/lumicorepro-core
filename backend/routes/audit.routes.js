@@ -9,7 +9,7 @@
  */
 import express from 'express';
 import { Op } from 'sequelize';
-import AuditLog from '../models/AuditLog.js';
+import AuditLog, { purgeAuditLogs, verifyAuditChain } from '../models/AuditLog.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -35,6 +35,29 @@ function csvEscape(value) {
   const str = value === null || value === undefined ? '' : String(value);
   return `"${str.replace(/"/g, '""')}"`;
 }
+
+/**
+ * @swagger
+ * /api/audit/verify:
+ *   get:
+ *     summary: Recompute the audit hash chain and report tampering (admin)
+ *     tags: [Audit]
+ *     security: [{ bearerAuth: [] }]
+ */
+router.get('/verify', async (req, res, next) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 5000, 50000);
+    const result = await verifyAuditChain(AuditLog, limit);
+    // A broken chain is a security incident: log it server-side too.
+    if (!result.valid) {
+      const { logger } = await import('../utils/logger.js');
+      logger.error(`AUDIT CHAIN BROKEN at id=${result.brokenAtId}: ${result.reason}`);
+    }
+    return res.json({ success: result.valid, ...result });
+  } catch (err) {
+    next(err);
+  }
+});
 
 /**
  * @swagger
@@ -96,6 +119,34 @@ router.get('/export', async (req, res, next) => {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.csv"');
     return res.send(`\uFEFF${lines.join('\n')}`);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
+ * /api/audit-logs/retention:
+ *   delete:
+ *     summary: Purge audit rows older than a cutoff (admin, explicit confirm)
+ *     tags: [Audit]
+ *     security: [{ bearerAuth: [] }]
+ */
+router.delete('/retention', async (req, res, next) => {
+  try {
+    const { before, confirm } = req.body || {};
+    const cutoff = new Date(before || '');
+    if (Number.isNaN(cutoff.getTime())) {
+      return res.status(400).json({ success: false, error: 'before (ISO date) is required' });
+    }
+    if (confirm !== 'PURGE-AUDIT-LOGS') {
+      return res.status(400).json({
+        success: false,
+        error: 'Retention purge requires explicit confirmation (confirm: "PURGE-AUDIT-LOGS")',
+      });
+    }
+    const deleted = await purgeAuditLogs(cutoff);
+    return res.json({ success: true, data: { deleted, before: cutoff.toISOString() } });
   } catch (error) {
     next(error);
   }

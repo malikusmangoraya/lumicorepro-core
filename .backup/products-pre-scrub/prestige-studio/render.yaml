@@ -1,0 +1,16 @@
+# Render Blueprint
+services:
+  - type: web
+    name: prestige-studio-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+  - type: web
+    name: prestige-studio-backend
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+databases:
+  - name: prestige-studio-db
+    databaseName: prestige_studio

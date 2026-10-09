@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "skeuomorphism",
+  "target_region": "default",
+  "project_name": "apex",
+  "palette": {
+    "primary": "#7c3aed",
+    "accent": "#ec4899",
+    "heading": "#2e1065",
+    "navBg": "#f7f3ea",
+    "footerBg": "#3f2e1e",
+    "text": "#26292f",
+    "muted": "#64748b",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

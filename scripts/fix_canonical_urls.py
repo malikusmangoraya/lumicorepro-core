@@ -1,112 +1,82 @@
-"""Force canonical / og:url / hreflang to the real deployed Pages URL.
+#!/usr/bin/env python3
+"""Repair GitHub Pages URLs that carry the brand casing instead of the repo casing.
 
-The 10 campaign brands carry legacy short repo names in their SEO meta
-(e.g. /aurelia/) while the site is actually served from /aurelia-estates/.
-A canonical that disagrees with the serving URL is an SEO defect, so the
-deployed URL recorded in LIVE_URL.txt is treated as authoritative and the
-meta is rewritten in source (frontend/index.html + index.html) before a
-rebuild regenerates dist.
+GitHub Pages paths are case-sensitive, so a canonical written with the brand's
+display casing - `github.io/ClaimFlow` - 404s even though the deployment is
+live at `github.io/claimflow`. That URL is the source of truth for every
+canonical tag: `LIVE_URL.txt`, `index.html` canonical and Open Graph tags,
+`sitemap.xml`, `structured-data.json`, `seo-config.json` and `hreflang-config.json`
+all copy from it, so one wrong letter de-indexes the whole product.
+
+Found by fetching the live URL in `products/README.md` for all ten products:
+eight answered 200, `ClaimFlow` and `ResuPro` answered 404, and fetching the
+lowercase form returned each product's own branded <title>, confirming the
+deployment is live and only the spelling was wrong.
+
+Usage:  python scripts/fix_canonical_urls.py [--dry-run]
 """
-import json
-import re
+
+from __future__ import annotations
+
+import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(r"D:\lumicorepro-core")
-GEN = ROOT / "generated-projects"
-sys.path.insert(0, str(ROOT / "scripts"))
-from brand_map import BRANDS  # noqa: E402
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
-URL_RE = re.compile(r"https?://[^\s'\"><)]+")
-LANG_DIR = {
-    "ar": "ar", "de": "de", "en": "en", "es": "es", "fr": "fr", "hi": "hi",
-    "id": "id", "ja": "ja", "ko": "ko", "pt": "pt", "ru": "ru", "tr": "tr",
-    "ur": "ur", "zh": "zh",
+ROOT = Path(__file__).resolve().parent.parent
+PRODUCTS_DIR = ROOT / "products"
+SKIP_DIRS = {"node_modules", ".git", "dist", "build", "coverage"}
+
+# Display name -> the repo path segment Pages actually serves.
+RENAMES = {
+    "github.io/ClaimFlow": "github.io/claimflow",
+    "github.io/ResuPro": "github.io/resupro",
 }
 
-CANON_RE = re.compile(r'(<link[^>]*rel="canonical"[^>]*href=")([^"]*)(")', re.I)
-OGURL_RE = re.compile(r'(<meta[^>]*property="og:url"[^>]*content=")([^"]*)(")', re.I)
-OGTITLE_RE = re.compile(r'(<meta[^>]*property="og:title"[^>]*content=")([^"]*)(")', re.I)
-OGSITE_RE = re.compile(r'(<meta[^>]*property="og:site_name"[^>]*content=")([^"]*)(")', re.I)
-OGDESC_RE = re.compile(r'(<meta[^>]*property="og:description"[^>]*content=")([^"]*)(")', re.I)
-OGIMG_RE = re.compile(r'(<meta[^>]*property="og:image"[^>]*content=")([^"]*)(")', re.I)
-ALT_RE = re.compile(r'(<link[^>]*rel="alternate"[^>]*hrefLang=")([^"]*)(")', re.I)
-ALTRE_RE = re.compile(r'(<link[^>]*rel="alternate"[^>]*hreflang=")([^"]*)(")', re.I)
 
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
 
-def live_url(slug):
-    f = GEN / slug / "LIVE_URL.txt"
-    if not f.exists():
-        return ""
-    for u in URL_RE.findall(f.read_text(errors="ignore")):
-        if "github.io" in u:
-            return u.rstrip("/")
-    return ""
+    changed = 0
+    total = 0
 
-
-def patch(html, base, card):
-    before = html
-    html = CANON_RE.sub(lambda m: m.group(1) + base + m.group(3), html)
-    html = OGURL_RE.sub(lambda m: m.group(1) + base + m.group(3), html)
-    html = OGSITE_RE.sub(lambda m: m.group(1) + card["name"] + m.group(3), html)
-    # alternate hreflang links must not point at the stale base either
-    for rx in (ALT_RE, ALTRE_RE):
-        def fix_alt(m, base=base):
-            lang = m.group(2)
-            tail = "" if lang == "x-default" else "/" + LANG_DIR.get(lang, lang)
-            return m.group(1) + base + tail + m.group(3)
-        html = rx.sub(fix_alt, html)
-
-    # hreflang sets are incomplete without an x-default entry. Rebuild the whole
-    # block so a malformed hreflang="<url>" attribute (a bad first pass that used
-    # a URL where a language code belongs) cannot survive.
-    if "LUMI-HREFLANG" in html:
-        block = [f'    <!-- LUMI-HREFLANG-START -->',
-                 f'    <link rel="alternate" hreflang="x-default" href="{base}/" />']
-        for lang in LANG_DIR:
-            block.append(
-                f'    <link rel="alternate" hreflang="{lang}" '
-                f'href="{base}/?lang={lang}" />')
-        block.append(f'    <!-- LUMI-HREFLANG-END -->')
-        start = html.find("<!-- LUMI-HREFLANG-START -->")
-        end = html.find("<!-- LUMI-HREFLANG-END -->")
-        if start != -1 and end != -1 and end > start:
-            html = html[:start] + "\n".join(block) + html[end + len("<!-- LUMI-HREFLANG-END -->"):]
-        else:
-            html = html.replace("<head>", "<head>\n" + "\n".join(block), 1)
-    return html, html != before
-
-
-fixed, skipped = [], []
-for slug, card in sorted(BRANDS.items()):
-    proj = GEN / slug
-    if not (proj / "frontend" / "package.json").exists():
-        continue
-    base = live_url(slug)
-    if not base:
-        skipped.append((slug, "no LIVE_URL"))
-        continue
-    targets = [proj / "frontend" / "index.html", proj / "frontend" / "public" / "index.html"]
-    touched = []
-    for t in targets:
-        if not t.exists():
+    for path in sorted(PRODUCTS_DIR.rglob("*")):
+        if not path.is_file() or any(p in SKIP_DIRS for p in path.parts):
             continue
-        html = t.read_text(encoding="utf-8", errors="ignore")
-        new, changed = patch(html, base, card)
-        if changed:
-            t.write_text(new, encoding="utf-8")
-            touched.append(t.relative_to(proj).as_posix())
-    if touched:
-        fixed.append((slug, base, touched))
-    else:
-        skipped.append((slug, "already consistent"))
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
 
-print(f"canonical/og:url aligned: {len(fixed)}")
-for slug, base, touched in fixed:
-    print(f"  {slug:<20} -> {base}   {touched}")
-print(f"no change needed / skipped: {len(skipped)}")
-for s, why in skipped[:10]:
-    print(f"  {s:<20} {why}")
-json.dump([{"slug": s, "url": b, "files": t} for s, b, t in fixed],
-          open(ROOT / "generated-projects" / "SEO_URL_FIX.json", "w", encoding="utf-8"),
-          indent=2)
+        new = text
+        hits = 0
+        for old, correct in RENAMES.items():
+            n = new.count(old)
+            if n:
+                new = new.replace(old, correct)
+                hits += n
+        if not hits:
+            continue
+
+        total += hits
+        changed += 1
+        rel = path.relative_to(ROOT).as_posix()
+        if args.dry_run:
+            print(f"  would fix {hits:3d}  {rel}")
+        else:
+            path.write_text(new, encoding="utf-8")
+            print(f"  fixed    {hits:3d}  {rel}")
+
+    verb = "would fix" if args.dry_run else "fixed"
+    print(f"\n{verb} {total} reference(s) across {changed} file(s).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

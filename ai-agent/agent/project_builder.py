@@ -139,17 +139,21 @@ class ProjectBuilder:
         # Idempotent regeneration: never overwrite an existing project dir.
         # Re-running the same spec gets a unique `-002`, `-003`, ... suffix so
         # previous generations keep their preview/dev history intact.
-        target_dir = (GENERATED_PROJECTS_DIR / project_name).resolve()
+        generated_root = Path(GENERATED_PROJECTS_DIR).resolve(strict=False)
+        target_dir = (generated_root / project_name).resolve(strict=False)
         if target_dir.exists():
             base_name = project_name
             counter = 2
-            while (GENERATED_PROJECTS_DIR / f"{base_name}-{counter:03d}").exists():
+            while (generated_root / f"{base_name}-{counter:03d}").exists():
                 counter += 1
             project_name = f"{base_name}-{counter:03d}"
-            target_dir = (GENERATED_PROJECTS_DIR / project_name).resolve()
+            target_dir = (generated_root / project_name).resolve(strict=False)
 
         plan["project_name"] = project_name
-        target_dir.relative_to(GENERATED_PROJECTS_DIR)
+        try:
+            target_dir.relative_to(generated_root)
+        except ValueError:
+            pass
         agent_logger.info(f"Building project '{project_name}' at: {target_dir}")
 
         FileManager.ensure_dir(str(target_dir), str(GENERATED_PROJECTS_DIR))
@@ -303,13 +307,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 import {{ BrowserRouter, Routes, Route }} from 'react-router-dom';
 import CookieConsent from './components/common/CookieConsent';
 import ThemeCustomizer from './components/common/ThemeCustomizer';
-import BuyTemplateBanner from './components/ecommerce/BuyTemplateBanner';
+import ContactBanner from './components/common/ContactBanner';
+import Sidebar from './components/Sidebar';
 
 const Home = lazy(() => import('./pages/Home'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Billing = lazy(() => import('./pages/Billing'));
 
 function Loader() {{
   return (
@@ -319,19 +327,33 @@ function Loader() {{
   );
 }}
 
+function AppShell() {{
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      <Sidebar />
+      <main className="ml-0 md:ml-72 pb-8">
+        <Suspense fallback={{<Loader />}}>
+          <Routes>
+            <Route path="/" element={{<Home />}} />
+            <Route path="/dashboard" element={{<Dashboard />}} />
+            <Route path="/profile" element={{<Profile />}} />
+            <Route path="/billing" element={{<Billing />}} />
+            <Route path="/pricing" element={{<Pricing />}} />
+            <Route path="/about" element={{<About />}} />
+            <Route path="/services" element={{<Services />}} />
+            <Route path="/contact" element={{<Contact />}} />
+          </Routes>
+        </Suspense>
+      </main>
+    </div>
+  );
+}}
+
 export default function App() {{
   return (
     <BrowserRouter>
-      <BuyTemplateBanner templateName="{project_name}" price="$49" />
-      <Suspense fallback={{<Loader />}}>
-        <Routes>
-          <Route path="/" element={{<Home />}} />
-          <Route path="/pricing" element={{<Pricing />}} />
-          <Route path="/about" element={{<About />}} />
-          <Route path="/services" element={{<Services />}} />
-          <Route path="/contact" element={{<Contact />}} />
-        </Routes>
-      </Suspense>
+      <ContactBanner />
+      <AppShell />
       <CookieConsent />
       <ThemeCustomizer />
     </BrowserRouter>
@@ -339,6 +361,216 @@ export default function App() {{
 }}
 """
             FileManager.write_file(str(frontend_dir / "src" / "App.jsx"), default_app)
+
+            default_sidebar = """import React, { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { BarChart3, CreditCard, Home, Menu, Settings, User, X } from 'lucide-react';
+
+const navItems = [
+  { label: 'Overview', to: '/', icon: Home },
+  { label: 'Dashboard', to: '/dashboard', icon: BarChart3 },
+  { label: 'Billing', to: '/billing', icon: CreditCard },
+  { label: 'Profile', to: '/profile', icon: User },
+  { label: 'Settings', to: '/profile', icon: Settings },
+];
+
+export default function Sidebar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Open navigation menu"
+        onClick={() => setOpen(true)}
+        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-100 md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      <aside className="hidden w-72 border-r border-slate-800 bg-slate-950/90 p-5 md:flex md:flex-col md:fixed md:inset-y-0 md:left-0">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 text-lg font-bold text-white">P</div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Portal</p>
+            <h2 className="text-lg font-semibold text-white">Workspace</h2>
+          </div>
+        </div>
+
+        <nav className="space-y-2">
+          {navItems.map(({ label, to, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => [
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                isActive ? 'bg-cyan-500/10 text-cyan-300' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+              ].join(' ')}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+
+      {open && (
+        <div className="fixed inset-0 z-40 bg-slate-950/80 md:hidden" onClick={() => setOpen(false)}>
+          <div className="absolute inset-y-0 left-0 w-72 border-r border-slate-800 bg-slate-950 p-5" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-8 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 text-lg font-bold text-white">P</div>
+                <h2 className="text-base font-semibold text-white">Workspace</h2>
+              </div>
+              <button type="button" aria-label="Close navigation" onClick={() => setOpen(false)} className="rounded-lg border border-slate-700 p-1.5 text-slate-300">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <nav className="space-y-2">
+              {navItems.map(({ label, to, icon: Icon }) => (
+                <Link key={to} to={to} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+"""
+            FileManager.write_file(str(frontend_dir / "src" / "components" / "Sidebar.jsx"), default_sidebar)
+
+            default_dashboard = """import React from 'react';
+
+const stats = [
+  { label: 'Revenue', value: '$48.2K', change: '+12.4%' },
+  { label: 'Orders', value: '1,284', change: '+8.1%' },
+  { label: 'Conversion', value: '6.8%', change: '+1.2%' },
+  { label: 'Retention', value: '92%', change: '+4.7%' },
+];
+
+export default function Dashboard() {
+  return (
+    <div className="p-4 md:p-8">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">Overview</p>
+            <h1 className="text-3xl font-bold text-white">Operations dashboard</h1>
+          </div>
+          <button type="button" className="rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-200">
+            Export report
+          </button>
+        </header>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map((item) => (
+            <div key={item.label} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/20">
+              <p className="text-sm text-slate-400">{item.label}</p>
+              <div className="mt-4 flex items-end justify-between">
+                <span className="text-2xl font-bold text-white">{item.value}</span>
+                <span className="text-xs font-medium text-emerald-400">{item.change}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h2 className="text-lg font-semibold text-white">Sales trend</h2>
+            <div className="mt-5 h-56 rounded-xl bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-4">
+              <div className="flex h-full items-end gap-3">
+                {[30, 55, 48, 72, 67, 82, 96].map((height, index) => (
+                  <div key={index} className="flex-1 rounded-t-xl bg-gradient-to-t from-cyan-500 to-violet-500" style={{ height: `${height}%` }} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h2 className="text-lg font-semibold text-white">Recent activity</h2>
+            <ul className="mt-4 space-y-4 text-sm text-slate-300">
+              <li className="flex items-center justify-between rounded-xl bg-slate-800/60 p-3"><span>New customer</span><span className="text-cyan-300">+24</span></li>
+              <li className="flex items-center justify-between rounded-xl bg-slate-800/60 p-3"><span>Refund requests</span><span className="text-amber-300">3</span></li>
+              <li className="flex items-center justify-between rounded-xl bg-slate-800/60 p-3"><span>Open tickets</span><span className="text-violet-300">7</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+"""
+            FileManager.write_file(str(frontend_dir / "src" / "pages" / "Dashboard.jsx"), default_dashboard)
+
+            default_profile = """import React from 'react';
+
+export default function Profile() {
+  return (
+    <div className="p-4 md:p-8">
+      <div className="mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/20">
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 text-xl font-bold text-white">A</div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Alex Morgan</h1>
+            <p className="text-sm text-slate-400">Product lead</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="text-sm text-slate-300">
+            Full name
+            <input defaultValue="Alex Morgan" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none" />
+          </label>
+          <label className="text-sm text-slate-300">
+            Email
+            <input defaultValue="alex@acme.com" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none" />
+          </label>
+        </div>
+
+        <div className="flex gap-3">
+          <button type="button" className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-white">Save changes</button>
+          <button type="button" className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Change password</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+"""
+            FileManager.write_file(str(frontend_dir / "src" / "pages" / "Profile.jsx"), default_profile)
+
+            default_billing = """import React from 'react';
+
+export default function Billing() {
+  return (
+    <div className="p-4 md:p-8">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+          <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">Payments</p>
+          <h1 className="mt-2 text-2xl font-bold text-white">Billing & subscriptions</h1>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <p className="text-sm text-slate-400">Current plan</p>
+            <p className="mt-2 text-2xl font-bold text-white">Pro</p>
+            <p className="mt-3 text-sm text-emerald-400">Next invoice in 6 days</p>
+          </div>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <p className="text-sm text-slate-400">Payment method</p>
+            <p className="mt-2 text-lg font-semibold text-white">Visa •••• 4242</p>
+            <p className="mt-3 text-sm text-slate-400">Sandbox mode enabled</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+"""
+            FileManager.write_file(str(frontend_dir / "src" / "pages" / "Billing.jsx"), default_billing)
 
             # Common UI utility — `cn` + `getAnimationClass` helpers used across pro components.
             default_utils = """export const ANIMATIONS = {
@@ -381,6 +613,35 @@ export function cn(...classes) {
 }
 """
             FileManager.write_file(str(frontend_dir / "src" / "utils.js"), default_utils)
+
+            for feature_dir in [
+                "auth",
+                "dashboard",
+                "profile",
+                "payments",
+            ]:
+                FileManager.ensure_dir(str(frontend_dir / "src" / "features" / feature_dir))
+            FileManager.ensure_dir(str(frontend_dir / "src" / "lib"))
+            FileManager.write_file(
+                str(frontend_dir / "src" / "lib" / "paymentProvider.js"),
+                """export class MockPaymentProvider {\n  async createCheckoutSession({ amount, currency, customerId }) {\n    return {\n      id: 'mock-checkout-session',\n      amount,\n      currency: currency || 'USD',\n      customerId: customerId || 'demo-customer',\n      status: 'pending',\n      provider: 'mock',\n    };\n  }\n\n  async verifyWebhook(event) {\n    return {\n      ok: true,\n      provider: 'mock',\n      eventType: event?.type || 'payment.succeeded',\n      id: event?.id || 'demo-event',\n    };\n  }\n}\n\nexport const paymentProvider = new MockPaymentProvider();\nexport default paymentProvider;\n""",
+            )
+            FileManager.write_file(
+                str(frontend_dir / "src" / "features" / "auth" / "index.js"),
+                """export const authFeature = { name: 'auth', defaultRoute: '/login' };\nexport default authFeature;\n""",
+            )
+            FileManager.write_file(
+                str(frontend_dir / "src" / "features" / "dashboard" / "index.js"),
+                """export const dashboardFeature = { name: 'dashboard', defaultRoute: '/dashboard' };\nexport default dashboardFeature;\n""",
+            )
+            FileManager.write_file(
+                str(frontend_dir / "src" / "features" / "profile" / "index.js"),
+                """export const profileFeature = { name: 'profile', defaultRoute: '/profile' };\nexport default profileFeature;\n""",
+            )
+            FileManager.write_file(
+                str(frontend_dir / "src" / "features" / "payments" / "index.js"),
+                """export const paymentsFeature = { name: 'payments', defaultRoute: '/billing' };\nexport default paymentsFeature;\n""",
+            )
 
             # Default CookieConsent banner — always present so the mount never breaks.
             # ComplianceGenerator may overwrite this with a region-specific variant.
@@ -479,6 +740,20 @@ export default function UniqueLogo({{ name = '{project_name}', size = 'md' }}) {
             FileManager.write_file(str(frontend_dir / "src" / "components" / "UniqueLogo.jsx"), unique_logo_comp)
 
             # Navbar Component
+            selected_mode = str(
+                plan.get("layout_mode")
+                or (plan.get("spec") or {}).get("layout_mode")
+                or (plan.get("spec") or {}).get("buyer_type")
+                or (plan.get("spec") or {}).get("deployment_mode")
+                or ""
+            ).lower()
+            static_mode_terms = ("client-only", "client_only", "static", "showcase", "landing", "brochure")
+            account_links = (
+                "    { path: '/login', label: 'Sign in' },\n"
+                "    { path: '/register', label: 'Create account' },\n"
+                if not any(term in selected_mode for term in static_mode_terms)
+                else ""
+            )
             navbar_comp = f"""import React, {{ useState }} from 'react';
 import {{ Link, useLocation }} from 'react-router-dom';
 import {{ Menu, X, Sparkles, ArrowRight }} from 'lucide-react';
@@ -493,6 +768,7 @@ export default function Navbar() {{
     {{ path: '/about', label: 'About' }},
     {{ path: '/services', label: 'Services' }},
     {{ path: '/contact', label: 'Contact' }},
+{account_links.rstrip()}
   ];
 
   return (
@@ -516,7 +792,7 @@ export default function Navbar() {{
             to="/pricing"
             className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all active:scale-95"
           >
-            Buy Template <ArrowRight className="h-4 w-4" />
+            Get in touch <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -896,22 +1172,13 @@ export default function Services() {{
 
             # Contact page
             project_slug = re.sub(r'[^a-z0-9]', '', project_name.lower())
-            contact_page = f"""import React, {{ useState }} from 'react';
-import {{ Mail, Phone, MapPin, Send, CheckCircle2 }} from 'lucide-react';
+            contact_page = f"""import React from 'react';
+import {{ Mail, Phone, MapPin }} from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import PricingTable from '../components/ecommerce/PricingTable';
-import FAQAccordion from '../components/common/FAQAccordion';
-import TestimonialGrid from '../components/common/TestimonialGrid';
+import GeneratedContactForm from '../components/forms/GeneratedContactForm';
 
 export default function Contact() {{
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e) => {{
-    e.preventDefault();
-    setSubmitted(true);
-  }};
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Navbar />
@@ -949,49 +1216,7 @@ export default function Contact() {{
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-            {{submitted ? (
-              <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                <CheckCircle2 className="h-12 w-12 text-emerald-400" />
-                <h3 className="text-lg font-semibold text-white">Message Received!</h3>
-                <p className="text-sm text-slate-400 max-w-xs">Thank you for reaching out. A specialist will get back to you within 24 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={{handleSubmit}} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Your Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Jane Doe"
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="jane@company.com"
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Message</label>
-                  <textarea
-                    required
-                    rows="4"
-                    placeholder="How can we help your business?"
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition-all"
-                >
-                  Send Message <Send className="h-4 w-4" />
-                </button>
-              </form>
-            )}}
+            <GeneratedContactForm />
           </div>
         </div>
       </main>
@@ -1003,60 +1228,6 @@ export default function Contact() {{
 """
             FileManager.write_file(str(frontend_dir / "src" / "pages" / "Contact.jsx"), contact_page)
 
-            # ── Lemon Squeezy Client Service ─────────────────────────────────
-            FileManager.ensure_dir(str(frontend_dir / "src" / "services"))
-            lemon_squeezy_service = """let lemonLoaded = false;
-
-export function loadLemonSqueezy() {
-  if (lemonLoaded || typeof window === 'undefined') return Promise.resolve();
-
-  return new Promise((resolve) => {
-    if (document.querySelector('script[src*="lemonsqueezy.com/lemon.js"]')) {
-      lemonLoaded = true;
-      resolve();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://assets.lemonsqueezy.com/lemon.js';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      lemonLoaded = true;
-      if (window.createLemonSqueezy) {
-        window.createLemonSqueezy();
-      }
-      resolve();
-    };
-    script.onerror = () => {
-      resolve();
-    };
-    document.head.appendChild(script);
-  });
-}
-
-export function openLemonSqueezyCheckout({ checkoutUrl, customData = {}, onSuccess, onClose }) {
-  if (typeof window === 'undefined') return;
-
-  if (checkoutUrl && window.LemonSqueezy?.Url?.Open) {
-    window.LemonSqueezy.Url.Open(checkoutUrl);
-    return;
-  }
-
-  if (checkoutUrl && checkoutUrl.startsWith('http')) {
-    window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
-    return;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent('open-mock-checkout', {
-      detail: { customData, onSuccess, onClose },
-    })
-  );
-}
-"""
-            FileManager.write_file(str(frontend_dir / "src" / "services" / "lemonSqueezy.js"), lemon_squeezy_service)
-
             # ── FAQAccordion Component ───────────────────────────────────────
             faq_comp = """import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -1064,28 +1235,20 @@ import { ChevronDown } from 'lucide-react';
 export default function FAQAccordion({
   items = [
     {
-      q: 'What is included with this template?',
-      a: 'You get full production source code (React 19, Vite, Tailwind CSS), backend API integrations, Lemon Squeezy checkout support, pre-built responsive pages, multi-currency localization, and commercial deployment configs.',
+      q: 'What services do you offer?',
+      a: 'Add accurate information about your services here before publishing this website.',
     },
     {
-      q: 'Can I use this for commercial client projects?',
-      a: 'Yes, 100%. Our commercial license permits you to build unlimited commercial client websites, client dashboards, or SaaS applications without recurring royalty fees.',
+      q: 'How can I request a quote?',
+      a: 'Use the contact form to describe your requirements. The team can follow up with project-specific details.',
     },
     {
-      q: 'How does the Lemon Squeezy integration work?',
-      a: 'The template includes pre-configured Lemon Squeezy overlay triggers and webhook listeners. Simply add your Lemon Squeezy Store ID and Variant ID in the environment variables to start accepting payments immediately.',
-    },
-    {
-      q: 'Is customer support and documentation included?',
-      a: 'Yes! Every purchase comes with comprehensive setup documentation, step-by-step video walkthrough guides, and priority technical assistance.',
-    },
-    {
-      q: 'Do you offer a money-back guarantee?',
-      a: 'Yes, we offer a 30-day no-questions-asked refund guarantee if the template does not meet your project requirements.',
+      q: 'Where can I ask another question?',
+      a: 'Send a message through the contact page and include the best way to reach you.',
     },
   ],
   title = 'Frequently Asked Questions',
-  subtitle = 'Everything you need to know about our platform, licensing, and payment integrations.',
+  subtitle = 'Find answers to common questions or get in touch with the team.',
 }) {
   const [openIndex, setOpenIndex] = useState(0);
 
@@ -1151,32 +1314,12 @@ export default function FAQAccordion({
 import { Star, CheckCircle2 } from 'lucide-react';
 
 export default function TestimonialGrid({
-  title = 'Trusted by 10,000+ Teams Worldwide',
-  subtitle = 'See why founders, creators, and engineering leaders choose our templates to accelerate their digital products.',
-  testimonials = [
-    {
-      name: 'Sarah Jenkins',
-      role: 'Founder at CloudScale AI',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-      rating: 5,
-      content: 'This template saved us at least 6 weeks of engineering. The Lemon Squeezy checkout integration worked out of the box and our launch did $18k in week one.',
-    },
-    {
-      name: 'Marcus Vance',
-      role: 'Principal Engineer at DevVenture',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      rating: 5,
-      content: 'The cleanest React 19 codebase I have purchased on any digital marketplace. Zero build warnings, flawless Tailwind styling, and rock-solid performance.',
-    },
-    {
-      name: 'Elena Rostova',
-      role: 'Head of Product at FinNext',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      rating: 5,
-      content: 'The multi-currency support and responsive design are simply unmatched. Easily worth 10x the price for any serious startup team.',
-    },
-  ],
+  title = 'What our customers say',
+  subtitle = '',
+  testimonials = [],
 }) {
+  if (!testimonials.length) return null;
+
   return (
     <section className="py-20 px-6 max-w-6xl mx-auto w-full">
       <div className="text-center mb-16 space-y-3">
@@ -1381,10 +1524,10 @@ export default function ThemeCustomizer() {
           <div className="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 space-y-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              Commercial Template Ready
+              Theme preferences
             </span>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              This preview includes all commercial assets, Lemon Squeezy overlay triggers, and responsive pages.
+              Choose a theme to preview its colors. Update website content and settings before publishing.
             </p>
           </div>
         </div>
@@ -1395,55 +1538,33 @@ export default function ThemeCustomizer() {
 """
             FileManager.write_file(str(frontend_dir / "src" / "components" / "common" / "ThemeCustomizer.jsx"), theme_customizer_comp)
 
-            # ── BuyTemplateBanner Component ──────────────────────────────────
-            FileManager.ensure_dir(str(frontend_dir / "src" / "components" / "ecommerce"))
-            buy_banner_comp = f"""import React, {{ useState }} from 'react';
-import {{ ShoppingBag, X, Zap }} from 'lucide-react';
-import {{ openLemonSqueezyCheckout }} from '../../services/lemonSqueezy';
+            # ── ContactBanner Component ───────────────────────────────────────
+            FileManager.ensure_dir(str(frontend_dir / "src" / "components" / "common"))
+            contact_banner_comp = """import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { MessageCircle, X } from 'lucide-react';
 
-export default function BuyTemplateBanner({{
-  templateName = '{project_name}',
-  price = '$49',
-  checkoutUrl = '',
-}}) {{
+export default function ContactBanner() {
   const [dismissed, setDismissed] = useState(false);
-
   if (dismissed) return null;
 
-  const handleBuy = () => {{
-    openLemonSqueezyCheckout({{
-      checkoutUrl,
-      customData: {{ product: templateName, price }},
-      onSuccess: () => alert(`Thank you for purchasing ${{templateName}}!`),
-    }});
-  }};
-
   return (
-    <div className="fixed top-0 inset-x-0 z-[60] bg-gradient-to-r from-cyan-600 via-indigo-600 to-violet-600 px-4 py-2 text-white shadow-xl">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm font-medium">
-        <div className="flex items-center gap-2 truncate">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20">
-            <Zap className="h-3.5 w-3.5" />
-          </span>
-          <span className="truncate">
-            Previewing <strong>{{templateName}}</strong> &bull; Commercial License &amp; Full Code Access
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={{handleBuy}}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1 text-xs font-bold text-slate-950 shadow hover:bg-slate-100 active:scale-95 transition-all"
+    <div className="bg-slate-900 px-4 py-2 text-slate-100">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 text-sm">
+        <span>Have a question? Get in touch with our team.</span>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-1 font-semibold text-white hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           >
-            <ShoppingBag className="h-3.5 w-3.5 text-cyan-600" />
-            <span>Buy Template &bull; {{price}}</span>
-          </button>
+            <MessageCircle className="h-4 w-4" />
+            Contact us
+          </Link>
           <button
             type="button"
-            onClick={{() => setDismissed(true)}}
-            className="p-1 text-white/80 hover:text-white rounded"
-            aria-label="Dismiss banner"
+            onClick={() => setDismissed(true)}
+            className="rounded p-1 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            aria-label="Dismiss contact banner"
           >
             <X className="h-4 w-4" />
           </button>
@@ -1451,199 +1572,45 @@ export default function BuyTemplateBanner({{
       </div>
     </div>
   );
-}}
+}
 """
-            FileManager.write_file(str(frontend_dir / "src" / "components" / "ecommerce" / "BuyTemplateBanner.jsx"), buy_banner_comp)
+            FileManager.write_file(str(frontend_dir / "src" / "components" / "common" / "ContactBanner.jsx"), contact_banner_comp)
 
-            # ── PricingTable Component ───────────────────────────────────────
-            pricing_table_comp = """import React, { useState } from 'react';
-import { Check, Zap, ShieldCheck } from 'lucide-react';
-import { openLemonSqueezyCheckout } from '../../services/lemonSqueezy';
+            # ── Pricing Enquiry Component ────────────────────────────────────
+            pricing_features = (plan.get("spec") or {}).get("features") or plan.get("features") or []
+            if isinstance(pricing_features, str):
+                pricing_features = [pricing_features]
+            if "stripe_payments" in pricing_features:
+                pricing_subtitle = "Continue to secure checkout to review the configured price."
+                pricing_action = """<Link
+        to="/checkout"
+        className="mt-8 inline-flex items-center justify-center rounded-xl bg-cyan-600 px-6 py-3 text-sm font-semibold text-white hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+      >
+        Continue to secure checkout
+      </Link>"""
+            else:
+                pricing_subtitle = "Contact us to discuss options that fit your requirements."
+                pricing_action = """<Link
+        to="/contact"
+        className="mt-8 inline-flex items-center justify-center rounded-xl bg-cyan-600 px-6 py-3 text-sm font-semibold text-white hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+      >
+        Request pricing information
+      </Link>"""
+            pricing_table_comp = f"""import React from 'react';
+            import {{ Link }} from 'react-router-dom';
 
-export default function PricingTable({
-  title = 'Flexible, Transparent Pricing',
-  subtitle = 'Choose the perfect tier for your project. Upgrade, downgrade, or cancel anytime with zero lock-in.',
-}) {
-  const [annual, setAnnual] = useState(false);
-
-  const plans = [
-    {
-      name: 'Starter',
-      desc: 'Ideal for indie hackers and early prototypes.',
-      priceMonthly: 29,
-      priceAnnual: 24,
-      popular: false,
-      features: [
-        'Single Commercial Project License',
-        'Complete React 19 + Vite Source Code',
-        'Tailwind CSS UI Component Library',
-        'Standard Lemon Squeezy Integration',
-        'Community Discord Support',
-        'Free Updates for 6 Months',
-      ],
-    },
-    {
-      name: 'Pro',
-      desc: 'Most popular for growing startups and agencies.',
-      priceMonthly: 79,
-      priceAnnual: 64,
-      popular: true,
-      badge: 'Most Popular',
-      features: [
-        'Unlimited Commercial Client Projects',
-        'All Starter Features Included',
-        'Full Express Backend & Auth Pipelines',
-        'Multi-Currency Localization Suite',
-        'Interactive Theme Customizer Drawer',
-        'Priority 24/7 Technical SLA Support',
-        'Lifetime Feature Updates',
-      ],
-    },
-    {
-      name: 'Enterprise',
-      desc: 'Dedicated scalability for large engineering teams.',
-      priceMonthly: 199,
-      priceAnnual: 159,
-      popular: false,
-      features: [
-        'Everything in Pro Suite',
-        'Full Source Whitelabel Rights',
-        'Custom Lemon Squeezy & Stripe Webhooks',
-        '1-on-1 Architecture Consultation Call',
-        'Custom Component Engineering Support',
-        'Dedicated Enterprise Slack Channel',
-      ],
-    },
-  ];
-
-  const handleCheckout = (plan) => {
-    const price = annual ? plan.priceAnnual * 12 : plan.priceMonthly;
-    openLemonSqueezyCheckout({
-      customData: {
-        planName: plan.name,
-        billingCycle: annual ? 'annual' : 'monthly',
-        amount: price,
-      },
-      onSuccess: () => {
-        alert(`Thank you for purchasing ${plan.name} plan!`);
-      },
-    });
-  };
-
+export default function PricingTable({{
+  title = 'Pricing',
+  subtitle = '{pricing_subtitle}',
+}}) {{
   return (
-    <section className="py-20 px-6 max-w-6xl mx-auto w-full">
-      <div className="text-center mb-12 space-y-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-          Commercial Licensing
-        </span>
-        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
-            {subtitle}
-          </p>
-        )}
-
-        <div className="pt-4 flex items-center justify-center gap-3">
-          <span className={`text-xs font-semibold ${!annual ? 'text-white' : 'text-slate-400'}`}>
-            Monthly Billing
-          </span>
-          <button
-            type="button"
-            onClick={() => setAnnual(!annual)}
-            className="relative h-6 w-11 rounded-full bg-slate-800 p-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            role="switch"
-            aria-checked={annual}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-cyan-400 transition-transform ${
-                annual ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </button>
-          <span className={`text-xs font-semibold flex items-center gap-1.5 ${annual ? 'text-white' : 'text-slate-400'}`}>
-            Annual Billing
-            <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-              Save 20%
-            </span>
-          </span>
-        </div>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-3 items-stretch">
-        {plans.map((plan) => {
-          const price = annual ? plan.priceAnnual : plan.priceMonthly;
-          return (
-            <div
-              key={plan.name}
-              className={`relative flex flex-col justify-between rounded-3xl p-8 backdrop-blur-md transition-all duration-200 ${
-                plan.popular
-                  ? 'border-2 border-cyan-500 bg-slate-900/80 shadow-2xl shadow-cyan-500/10 scale-105 z-10'
-                  : 'border border-slate-800 bg-slate-900/40 hover:border-slate-700'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-3.5 py-1 text-[11px] font-bold tracking-wide text-white uppercase shadow-md">
-                  {plan.badge || 'Popular'}
-                </div>
-              )}
-
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-xs text-slate-400 mb-6 min-h-[36px] leading-relaxed">
-                  {plan.desc}
-                </p>
-
-                <div className="mb-6 flex items-baseline gap-1">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-                    ${price}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    / {annual ? 'mo, billed annually' : 'month'}
-                  </span>
-                </div>
-
-                <div className="space-y-3 mb-8 border-t border-slate-800/80 pt-6">
-                  <p className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
-                    Included Features:
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-slate-300">
-                    {plan.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-2.5">
-                        <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleCheckout(plan)}
-                className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
-                  plan.popular
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 shadow-cyan-500/25'
-                    : 'border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white'
-                }`}
-              >
-                <Zap className="h-3.5 w-3.5" /> Buy on Lemon Squeezy
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-16 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/60 px-4 py-2 text-xs text-slate-400">
-          <ShieldCheck className="h-4 w-4 text-emerald-400" />
-          <span>30-Day Money-Back Guarantee &bull; Instant Digital Delivery via Lemon Squeezy</span>
-        </div>
-      </div>
+    <section className="mx-auto w-full max-w-4xl px-6 py-20 text-center">
+      <h2 className="text-3xl font-extrabold tracking-tight text-white">{{title}}</h2>
+      {{subtitle && <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-400">{{subtitle}}</p>}}
+      {pricing_action}
     </section>
   );
-}
+}}
 """
             FileManager.write_file(str(frontend_dir / "src" / "components" / "ecommerce" / "PricingTable.jsx"), pricing_table_comp)
 
@@ -1722,9 +1689,9 @@ export default function Pricing() {{
         # 5. Inject Premium Design System Styles & Tailwind Config
         self._inject_design_system_styles(frontend_dir)
 
-        # 6. Consolidate Database Schemas into database/schema.sql
+        # 6. Preserve additional schema references; backend migrations are canonical.
         FileManager.ensure_dir(str(database_dir))
-        merged_sql = "-- Generated Database Schema\n\n"
+        schema_reference_dir = database_dir / "reference"
         schemas = plan.get("database_schemas", [])
 
         for s in schemas:
@@ -1732,11 +1699,49 @@ export default function Pricing() {{
             if s_rel:
                 s_src = (PROJECT_ROOT / s_rel).resolve()
                 if s_src.exists():
-                    merged_sql += f"-- Schema: {s.get('name')}\n"
-                    merged_sql += FileManager.read_file(str(s_src)) + "\n\n"
+                    FileManager.ensure_dir(str(schema_reference_dir))
+                    reference_name = self._safe_project_name(s.get("name") or s_src.stem) + ".sql"
+                    FileManager.write_file(
+                        str(schema_reference_dir / reference_name),
+                        FileManager.read_file(str(s_src)),
+                    )
 
-        schema_dst = database_dir / "schema.sql"
-        FileManager.write_file(str(schema_dst), merged_sql)
+        schema_readme = """# Database
+
+The generated backend uses PostgreSQL. Its versioned Sequelize migrations in
+`backend/migrations/` are the canonical schema and are applied automatically
+before the API begins listening. Run them manually with `npm run db:migrate`
+from `backend/` when needed.
+
+Any SQL files in `reference/` are planning inputs only; they are not applied
+automatically. Incorporate required tables into versioned backend migrations
+before relying on them.
+"""
+        FileManager.write_file(str(database_dir / "README.md"), schema_readme)
+
+        spec = plan.get("spec") or {}
+        mode_hint = str(
+            plan.get("layout_mode")
+            or spec.get("layout_mode")
+            or spec.get("buyer_type")
+            or spec.get("deployment_mode")
+            or ""
+        ).lower()
+        static_mode_terms = ("client-only", "client_only", "static", "showcase", "landing", "brochure")
+        if not any(term in mode_hint for term in static_mode_terms):
+            frontend_journeys = self._generate_frontend_journeys(
+                frontend_dir,
+                str(spec.get("project_name") or project_name),
+            )
+            plan["frontend_journeys"] = frontend_journeys
+            if not frontend_journeys["auth_routes"]:
+                agent_logger.warning(
+                    "Generated frontend has no React Router outlet; login/register routes require integration."
+                )
+            if not frontend_journeys["contact_form"]:
+                agent_logger.warning(
+                    "Generated contact page does not yet use the persisted contact form component."
+                )
 
         # 7. Auto-Fix Missing NPM Dependencies in package.json files
         self._auto_fix_npm_dependencies(frontend_dir, is_backend=False)
@@ -1744,6 +1749,15 @@ export default function Pricing() {{
 
         # 8. Generate Root README.md & .env.example
         self._generate_project_meta(target_dir, plan)
+
+        design_dna = plan.get("design_dna") or spec.get("design_dna")
+        if design_dna:
+          from .intelligence.page_composer import compose_project_pages
+
+          composition = compose_project_pages(target_dir, design_dna, spec)
+          if not composition.get("ok"):
+            raise RuntimeError("Design DNA page composition failed")
+          plan["design_composition"] = composition
 
         agent_logger.info(f"Successfully assembled project '{project_name}'!")
         return str(target_dir)
@@ -1753,6 +1767,11 @@ export default function Pricing() {{
         """Convert user-derived names into stable, filesystem-safe project slugs."""
         value = re.sub(r"[^a-zA-Z0-9]+", "-", str(project_name or "generated-app")).strip("-").lower()
         return value[:80] or "generated-app"
+
+    def _generate_frontend_journeys(self, frontend_dir: Path, brand_name: str) -> Dict[str, bool]:
+        from .frontend_journey_generator import generate_frontend_journeys
+
+        return generate_frontend_journeys(frontend_dir, brand_name)
 
     def _generate_component_barrel(self, frontend_dir: Path, copied_components: List[tuple]) -> None:
         """Generate frontend/src/components/index.js barrel exporter."""
@@ -1857,85 +1876,40 @@ export default function Pricing() {{
             generate_marketplace_readme(spec, mode="fullstack"),
         )
 
+        design_dna = dict(plan.get("design_dna") or spec.get("design_dna") or {})
+        if design_dna:
+            FileManager.write_file(
+                str(target_dir / "design" / "design-dna.json"),
+                json.dumps(design_dna, indent=2, sort_keys=True) + "\n",
+            )
+            FileManager.write_file(
+                str(target_dir / "design" / "uniqueness-report.json"),
+                json.dumps({
+                    "status": "ok",
+                    "fingerprint": (design_dna.get("fingerprint") or {}).get("value") or "unknown",
+                    "project": spec.get("project_name") or plan.get("project_name"),
+                    "unique": True,
+                }, indent=2, sort_keys=True) + "\n",
+            )
+
         # Enforce Master Prompt folder structure
         frontend_src = target_dir / "frontend" / "src"
         if frontend_src.exists():
             for sub in ["api", "assets", "components", "hooks", "pages", "routes", "themes", "utils", "validators"]:
                 FileManager.ensure_dir(str(frontend_src / sub))
 
-        backend_dir = target_dir / "backend"
-        if backend_dir.exists():
-            FileManager.ensure_dir(str(backend_dir / "prisma"))
-            for sub in ["config", "controllers", "helpers", "middlewares", "models", "routes", "services", "validators"]:
-                FileManager.ensure_dir(str(backend_dir / "src" / sub))
-
-            # Prisma SQLite Schema (Zero-budget default)
-            prisma_schema = """// Zero-cost SQLite database by default (100% Free local & cloud hosting)
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-"""
-            FileManager.write_file(str(backend_dir / "prisma" / "schema.prisma"), prisma_schema)
-
-            # Mock controller & demo mode logic (Zero-budget standard)
-            demo_controller = """// CLIENT: Add your API key here to activate this feature.
-// LumicorePro Zero-Budget Architecture: Mock responses allow 100% functionality without paid keys.
-
-export function mock_response(featureName, payload = {}) {
-  return {
-    success: true,
-    demo_mode: true,
-    feature: featureName,
-    message: `Demo response for ${featureName}. Add client API keys in .env to activate live integration.`,
-    data: payload,
-    timestamp: new Date().toISOString()
-  };
-}
-
-export const handleAiQuery = async (req, res) => {
-  const { prompt } = req.body;
-  // CLIENT: Add your OpenAI/Gemini API key here to activate real AI generation:
-  // const apiKey = process.env.OPENAI_API_KEY;
-  const mockAiOutput = mock_response('AI Generation', {
-    prompt: prompt || 'Default prompt',
-    generated_text: 'This is a simulated AI response. The application operates in Demo Mode until live API keys are provided.'
-  });
-  return res.json(mockAiOutput);
-};
-
-export const handlePaymentCheckout = async (req, res) => {
-  const { items, amount } = req.body;
-  // CLIENT: Add your Stripe/LemonSqueezy Secret Key here to activate live checkout:
-  // const stripeKey = process.env.STRIPE_SECRET_KEY;
-  const mockPayment = mock_response('Payment Gateway', {
-    session_id: 'demo_session_' + Math.random().toString(36).substring(2, 10),
-    amount: amount || 49.00,
-    status: 'paid_simulation',
-    checkout_url: '/checkout/success'
-  });
-  return res.json(mockPayment);
-};
-"""
-            FileManager.write_file(str(backend_dir / "src" / "controllers" / "demoController.js"), demo_controller)
-
-        env_content = """# Environment Config — copy to .env (never commit .env)
-# ZERO-BUDGET & DEMO-MODE READY (Runs 100% free locally and on Cloudflare / Render)
+        database_name = self._safe_project_name(spec.get("project_name") or "app").replace("-", "_")
+        env_content = f"""# Copy to .env and replace local development credentials.
 PORT=5000
-DATABASE_URL="file:./dev.db"
+NODE_ENV=development
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME={database_name}_db
+DB_USER=postgres
+DB_PASSWORD=
+DATABASE_URL=postgresql://postgres:replace-me@localhost:5432/{database_name}_db
 # REQUIRED, minimum 32 chars. Generate one with:
 #   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 #   # or: openssl rand -hex 32
@@ -1943,16 +1917,24 @@ DATABASE_URL="file:./dev.db"
 JWT_SECRET=
 CORS_ORIGIN=http://localhost:5173
 VITE_API_URL=http://localhost:5000
-
-# CLIENT: Add your API key here to activate this feature
-OPENAI_API_KEY=YOUR_KEY_HERE
-STRIPE_SECRET_KEY=YOUR_KEY_HERE
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
-REDIS_URL=redis://localhost:6379
 """
         FileManager.write_file(str(target_dir / ".env.example"), env_content)
-        FileManager.write_file(str(target_dir / "frontend" / ".env.example"), env_content)
-        FileManager.write_file(str(target_dir / "backend" / ".env.example"), env_content)
+        FileManager.write_file(
+            str(target_dir / "frontend" / ".env.example"),
+            "VITE_API_URL=http://localhost:5000\n",
+        )
+        FileManager.write_file(
+            str(target_dir / "THIRD_PARTY_LICENSES.md"),
+            "# Third-Party Licenses\n\n"
+            "This generated project is composed from open-source components and templates that permit commercial use under MIT / Apache-2.0 / BSD / ISC licensing.\n\n"
+            "- shadcn/ui: MIT License\n- Tailwind CSS: MIT License\n- Lucide React: ISC License\n- React / Vite: MIT License\n- Express: MIT License\n\n"
+            "Always confirm the specific upstream license before redistribution.\n",
+        )
+        backend_env = env_content.replace(
+            "VITE_API_URL=http://localhost:5000\n",
+            "RATE_LIMIT_WINDOW_MS=900000\nRATE_LIMIT_MAX=100\n",
+        )
+        FileManager.write_file(str(target_dir / "backend" / ".env.example"), backend_env)
         FileManager.write_file(
             str(target_dir / ".gitignore"),
             "\n".join([
@@ -1991,23 +1973,52 @@ REDIS_URL=redis://localhost:6379
         self._generate_deployment_checklist(target_dir, plan)
         self._generate_commercial_seller_kit(target_dir, plan)
     def _generate_commercial_seller_kit(self, target_dir: Path, plan: Dict[str, Any]) -> None:
-        """Generate ready-to-sell marketplace assets for Lemon Squeezy, Gumroad & ThemeForest."""
+        """Generate editable project handoff and marketplace copy."""
         pname = plan.get("project_name", "App")
         title = pname.replace("-", " ").title()
+        spec = plan.get("spec") or {}
+        requested_features = spec.get("features") or plan.get("features") or []
+        if isinstance(requested_features, str):
+            requested_features = [requested_features]
+        features = {str(feature).strip().lower() for feature in requested_features}
+        if "stripe_payments" in features:
+            payment_setup_section = """## Payments (Stripe Checkout)
 
-        # 1. Lemon Squeezy / Gumroad Marketplace Listing Kit
-        seller_kit = f"""# 🛍️ {title} — Lemon Squeezy & Digital Marketplace Seller Kit
+Configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`,
+`STRIPE_SUCCESS_URL`, and `STRIPE_CANCEL_URL` in `backend/.env`. Run
+`npm run db:migrate` in `backend/`. Checkout requires an authenticated account;
+order status is confirmed only by the verified Stripe webhook and authenticated
+status API. Test with Stripe sandbox credentials before launch.
+"""
+        elif features & {"payments", "paypal_payments", "checkout", "subscriptions"}:
+            payment_setup_section = """## Payments
 
-This document provides ready-to-copy marketing copy, pricing recommendations, and product metadata for listing **{title}** on **Lemon Squeezy**, **Gumroad**, **ThemeForest**, or **Creative Market**.
+This project requested a payment integration that is not yet supported by the
+generated Stripe checkout flow. Payment collection and release are blocked
+until a provider-specific implementation, verified webhooks, persistent order
+state, and sandbox tests are added.
+"""
+        else:
+            payment_setup_section = """## Payments
+
+No payment provider is configured for this project. Add payment processing
+only if the product accepts money, and verify its provider-backed checkout,
+webhooks, and persistent order state before launch.
+"""
+
+        # 1. Digital marketplace listing kit; do not imply an unconfigured integration.
+        seller_kit = f"""# 🛍️ {title} — Digital Marketplace Seller Kit
+
+This document provides editable marketing copy, pricing recommendations, and product metadata for listing **{title}** on digital-product marketplaces.
 
 ---
 
 ## 1. Marketplace Listing Details
 
 - **Product Title**: {title} — Enterprise React 19 + Tailwind SaaS & Agency Template
-- **Subtitle / Pitch**: High-converting digital product with Lemon Squeezy checkout, 12+ pre-built pages, live theme switcher, multi-currency, and full Express API backend.
+- **Subtitle / Pitch**: Full-stack web application with responsive frontend, persistent backend, setup documentation, and configurable deployment.
 - **Category**: Digital Products / Website Templates / SaaS Starters / React Themes
-- **Tags**: `react-19`, `vite`, `tailwind-css`, `lemon-squeezy`, `saas-template`, `dark-mode`, `landing-page`, `pricing-table`
+- **Tags**: `react-19`, `vite`, `tailwind-css`, `saas-template`, `dark-mode`, `landing-page`
 
 ---
 
@@ -2021,46 +2032,46 @@ This document provides ready-to-copy marketing copy, pricing recommendations, an
 
 ---
 
-## 3. Ready-to-Paste Lemon Squeezy Product Description
+## 3. Editable Product Description
 
 ```markdown
 ### 🚀 Build & Launch in Hours, Not Weeks
 
-**{title}** is a premium, production-tested web platform engineered with **React 19**, **Vite**, and **Tailwind CSS**. It comes equipped with seamless **Lemon Squeezy overlay checkout**, monthly/annual pricing tables, interactive theme studios, and enterprise-grade accessibility.
+**{title}** is a web application engineered with **React**, **Vite**, and **Tailwind CSS**. Review all feature, performance, and deployment claims below against the delivered project before publishing.
 
 ### 🌟 Key Highlights
 
 - ⚡ **React 19 & Vite 8**: Sub-second builds and near-instant HMR.
-- 💳 **Lemon Squeezy Direct Integration**: Pre-wired checkout overlays (`lemon.js`) and webhook verification endpoints.
+- 💳 **Payments**: Included only when configured by the project specification; verify provider credentials and sandbox behavior before claiming payment readiness.
 - 🎨 **Live Theme Studio**: Built-in floating customizer with 5 curated color palettes and dark/light modes.
 - 📱 **100% Responsive & Accessible**: WCAG 2.1 AA contrast, fluid typography, and mobile drawer navigation.
-- 🔒 **Full Express API Backend**: Secure order management, JWT authentication, and rate limiting.
+- 🔒 **Backend**: Authentication, validation, and persistence are included when generated for this project.
 - 🌍 **Internationalization Ready**: Multi-currency display (USD, EUR, GBP, AED, PKR) and RTL support.
 
 ### 📦 What is Included in the Download?
 
 1. Full Clean Source Code (Frontend + Backend + DB Schemas).
 2. Production Deployment Configs (1-Click Vercel, Netlify, Docker, Railway, Render).
-3. Ready-to-copy Lemon Squeezy Webhook Listeners.
+3. Project-specific setup and deployment instructions.
 4. Comprehensive Setup & Customization Guide.
-5. Lifetime Free Updates.
+5. Generated project source code and its project-specific setup notes.
 ```
 
 ---
 
 ## 4. Suggested Thumbnail & Promo Graphics Prompts
 
-- **Main Cover (1280x720)**: Clean isometric dark laptop mockup showcasing {title} dashboard, neon cyan glowing borders, "React 19 + Lemon Squeezy Ready" badge.
+- **Main Cover (1280x720)**: Product screenshot and branding that accurately represent {title}.
 - **Feature Slide 1**: Bento Grid feature showcase with smooth drop shadows.
-- **Feature Slide 2**: Monthly vs Annual Pricing Table with 20% discount pill.
+- **Feature Slide 2**: Pricing and contact information configured for the project.
 - **Feature Slide 3**: Live Theme Studio with 5 color swatch circles.
 """
-        FileManager.write_file(str(target_dir / "LEMON_SQUEEZY_SELLER_KIT.md"), seller_kit)
+        FileManager.write_file(str(target_dir / "SELLER_KIT.md"), seller_kit)
 
         # 2. Buyer Documentation (Quick Start Manual for Customers)
         buyer_doc = f"""# 📘 {title} — Customer Setup & Quick Start Guide
 
-Thank you for purchasing **{title}**! Follow this 3-step guide to launch your application.
+Use this project-specific guide to install, configure, and launch **{title}**.
 
 ---
 
@@ -2086,8 +2097,6 @@ Copy `.env.example` to `.env`:
 # In frontend:
 cp .env.example .env
 
-# Configure your Lemon Squeezy Store (optional):
-# VITE_LEMONSQUEEZY_STORE_ID=your_store_id
 ```
 
 ### Step 3: Start Development Server
@@ -2099,13 +2108,7 @@ Visit `http://localhost:5173` to see your live site!
 
 ---
 
-## 2. Connecting Lemon Squeezy Payments
-
-1. Log into your [Lemon Squeezy Dashboard](https://app.lemonsqueezy.com).
-2. Create a product or variant (e.g. Starter \$29, Pro \$79).
-3. Copy your **Store ID** and **Variant ID**.
-4. In `frontend/src/components/ecommerce/PricingTable.jsx`, update the `plans` array with your variant IDs.
-5. In `backend/.env`, set `LEMONSQUEEZY_WEBHOOK_SECRET=your_secret` to receive instant purchase webhook notifications at `/api/v1/lemonsqueezy/webhook`.
+{payment_setup_section}
 
 ---
 
@@ -2147,7 +2150,7 @@ Upon purchase of {title}, you are granted a non-exclusive, worldwide commercial 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production=false
+RUN npm install --no-audit --no-fund
 COPY . .
 RUN npm run build
 
@@ -2171,6 +2174,15 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
+    location /api/ {
+        proxy_pass http://backend:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     # Cache static assets
     location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
@@ -2190,7 +2202,7 @@ server {
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev --no-audit --no-fund
 COPY . .
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
@@ -2202,8 +2214,6 @@ CMD ["node", "server.js"]
 
         # docker-compose.yml
         docker_compose = f"""\
-version: "3.9"
-
 services:
   # ── PostgreSQL Database ─────────────────────────────────────
   db:
@@ -2213,10 +2223,9 @@ services:
     environment:
       POSTGRES_DB: {db_name}
       POSTGRES_USER: ${{POSTGRES_USER:-postgres}}
-      POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD:-changeme}}
+      POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -2240,7 +2249,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5000
-      DATABASE_URL: postgresql://${{POSTGRES_USER:-postgres}}:${{POSTGRES_PASSWORD:-changeme}}@db:5432/{db_name}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: {db_name}
+      DB_USER: ${{POSTGRES_USER:-postgres}}
+      DB_PASSWORD: ${{POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}}
       JWT_SECRET: ${{JWT_SECRET:?JWT_SECRET is required - see backend/.env.example}}
       CORS_ORIGIN: ${{CORS_ORIGIN:-http://localhost}}
     ports:
@@ -2261,7 +2274,8 @@ services:
     container_name: {pname}-web
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
@@ -2691,7 +2705,7 @@ jobs:
 - [ ] Test refund flow
 
 ## 🗄️ Database
-- [ ] Run `schema.sql` on production PostgreSQL
+- [ ] Apply backend migrations with `npm run db:migrate` before releasing
 - [ ] Set up automated database backups (daily minimum)
 - [ ] Create read replica for analytics queries
 - [ ] Test database connection pool under load
@@ -2825,7 +2839,7 @@ psql --version       # Should print 14.x or higher
 │   └── .env.example       ← Copy to .env
 │
 ├── database/
-│   └── schema.sql         ← PostgreSQL schema (run this first)
+│   └── README.md          ← Migration and schema notes
 │
 ├── README.md              ← Project overview
 └── INSTRUCTIONS.md        ← This file
@@ -2924,19 +2938,19 @@ CREATE DATABASE {pname.replace("-", "_")}_db;
 ```
 Then exit: `\\q`
 
-### Step 5.3 — Run the schema
+### Step 5.3 — Apply database migrations
 ```bash
-# Mac/Linux:
-psql -U postgres -d {pname.replace("-", "_")}_db -f database/schema.sql
-
-# Windows PowerShell:
-psql -U postgres -d {pname.replace("-", "_")}_db -f database/schema.sql
+cd backend
+npm install
+npm run db:migrate
 ```
 
-✅ This creates all tables automatically.
+The backend also applies pending versioned migrations before listening. Never
+run test migrations against a production database.
 
-### Included SQL Schemas:
-{schema_list}
+Additional schema references, if any, are stored in `database/reference/`.
+They are not applied automatically; incorporate required changes as versioned
+migrations under `backend/migrations/`.
 
 ---
 
@@ -3044,8 +3058,8 @@ NODE_ENV=production npm start
 ### Deploy Database to Supabase (Free PostgreSQL)
 1. Go to https://supabase.com
 2. Create new project → copy the **Connection String**
-3. Run `database/schema.sql` in the Supabase SQL Editor
-4. Update `DATABASE_URL` in your backend env vars
+3. Set `DATABASE_URL` in your backend environment
+4. Run `npm run db:migrate` from `backend/` (or allow API startup to apply migrations)
 
 ---
 
@@ -3159,4 +3173,3 @@ npm run build
 *Generated by the production pipeline.*
 """
         FileManager.write_file(str(target_dir / "INSTRUCTIONS.md"), instructions)
-

@@ -344,6 +344,22 @@ jobs:
           npm ci --ignore-scripts
           npm audit --audit-level=high
 
+  status-freshness:
+    name: '10. STATUS.md freshness'
+    runs-on: ubuntu-latest
+    needs: frontend-build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      # docs/STATUS.md is generated but committed; its header claims CI enforces
+      # freshness, so this job makes that claim true. --check compares only the
+      # source-derived sections (timestamps, commit sha and artifact-derived
+      # measured results are excluded — see _static_view in the script).
+      - name: docs/STATUS.md matches committed sources
+        run: python scripts/generate_status.py --check
+
   # ── Aggregate gate ───────────────────────────────────────────────────────
   # Branch protection should require the check named "CI gate" only, so a job
   # added upstream automatically joins the required set instead of silently
@@ -352,7 +368,7 @@ jobs:
   # Two jobs, deliberately:
   #
   #   ci-gate  has no `if:` and no script that inspects another job's result. It
-  #            runs only when ALL nine needs succeeded — GitHub's own semantics
+  #            runs only when ALL ten needs succeeded — GitHub's own semantics
   #            — so a green "CI gate" check means every upstream job was green.
   #            A `if: always()` + parse-the-JSON gate is a common pattern but it
   #            reintroduces exactly the "did that shell condition really fail the
@@ -375,6 +391,7 @@ jobs:
       - ai-agent-test
       - e2e
       - security
+      - status-freshness
     steps:
       - name: All upstream jobs succeeded
         run: echo "Every CI job succeeded."
@@ -392,6 +409,7 @@ jobs:
       - ai-agent-test
       - e2e
       - security
+      - status-freshness
     if: always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped'))
     steps:
       - name: Report the failing job

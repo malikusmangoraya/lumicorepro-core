@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="18" width="64" height="64" rx="16" fill="url(#g1)"/>
+  <path d="M14 62 L38 26 L62 62" fill="none" stroke="url(#g2)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="38" cy="34" r="6" fill="#f8fafc"/>
+  <text x="84" y="62" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700"
+        letter-spacing="1" fill="#f8fafc">Nuage Events</text>
+</svg>

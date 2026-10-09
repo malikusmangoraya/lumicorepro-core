@@ -1,0 +1,16 @@
+# Render Blueprint
+services:
+  - type: web
+    name: meridian-capital-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+  - type: web
+    name: meridian-capital-backend
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+databases:
+  - name: meridian-capital-db
+    databaseName: meridian_capital

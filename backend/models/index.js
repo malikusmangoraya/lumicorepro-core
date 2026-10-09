@@ -23,6 +23,7 @@ import Membership from './Membership.js';
 import Booking from './Booking.js';
 import Doctor from './Doctor.js';
 import Service from './Service.js';
+import FeatureFlag from './FeatureFlag.js';
 
 /* ── User relationships ── */
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' });
@@ -153,4 +154,5 @@ export {
   Booking,
   Doctor,
   Service,
+  FeatureFlag,
 };

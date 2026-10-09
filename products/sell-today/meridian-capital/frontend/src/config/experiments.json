@@ -1,0 +1,46 @@
+{
+  "experiments": [
+    {
+      "id": "hero_headline",
+      "name": "Hero Headline Copy",
+      "hypothesis": "Benefit-focused headline outperforms feature-focused",
+      "metric": "scroll_depth",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Feature-focused",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Benefit-focused",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 500,
+      "expected_lift": "10-20%",
+      "priority": "high"
+    },
+    {
+      "id": "contact_form_cta",
+      "name": "Contact Form CTA",
+      "hypothesis": "'Send Message' vs 'Get Free Consultation' increases submissions",
+      "metric": "form_submission_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Send Message",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Get Free Consultation",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 200,
+      "expected_lift": "15-30%",
+      "priority": "high"
+    }
+  ]
+}

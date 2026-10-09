@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "minimalist",
+  "target_region": "south-asia",
+  "project_name": "studio-lumen",
+  "palette": {
+    "primary": "#ea580c",
+    "accent": "#16a34a",
+    "heading": "#451a03",
+    "navBg": "#ffffff",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be692c",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

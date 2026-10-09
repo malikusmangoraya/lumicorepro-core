@@ -328,7 +328,38 @@ class PlannerIntegrationTest(unittest.TestCase):
             [],
         )
         self.assertIn("market_signals", plan)
+        self.assertIn("WEBSITE GENERATION DELIVERY CONTRACT", plan["master_prompt"])
         self.assertTrue(any("live community signal" in t for t in plan["ai_tasks_required"]))
+
+    def test_planner_adds_fullstack_baseline_without_optional_saas_features(self):
+        from agent.planner import GenerationPlanner
+
+        spec = {"project_name": "local-business", "website_type": "business"}
+        plan = GenerationPlanner().create_plan(
+            spec, {}, [], {"images": [], "icons": [], "animations": []}, {}, [],
+        )
+
+        self.assertEqual(plan["layout_mode"], "enterprise")
+        self.assertTrue({"jwt_auth", "users", "contact"}.issubset(set(spec["features"])))
+        self.assertFalse(
+            {"stripe_payments", "oauth", "multi_factor_auth", "subscriptions", "analytics"}
+            .intersection(spec["features"])
+        )
+
+    def test_planner_respects_explicit_static_opt_out(self):
+        from agent.planner import GenerationPlanner
+
+        spec = {
+            "project_name": "static-portfolio",
+            "website_type": "portfolio",
+            "buyer_type": "static",
+        }
+        plan = GenerationPlanner().create_plan(
+            spec, {}, [], {"images": [], "icons": [], "animations": []}, {}, [],
+        )
+
+        self.assertEqual(plan["layout_mode"], "client-static")
+        self.assertFalse({"jwt_auth", "users", "contact"}.intersection(spec["features"]))
 
 
 class CodeModifierRecoveryTest(unittest.TestCase):

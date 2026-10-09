@@ -1,0 +1,810 @@
+[
+ {
+  "project": "3d-luxury-realestate",
+  "base": "index-offset",
+  "stats": "numbered",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "apex-002",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "appointly-ai",
+  "base": "mosaic-grid",
+  "stats": "cards",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "auto-deploy-test",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build",
+  "base": "rule-editorial",
+  "stats": "table",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-002",
+  "base": "split-duo",
+  "stats": "aside",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-003",
+  "base": "rule-editorial",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-004",
+  "base": "band-underline",
+  "stats": "rail",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-005",
+  "base": "mosaic-grid",
+  "stats": "rail",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-006",
+  "base": "offset-right",
+  "stats": "cards",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-007",
+  "base": "masthead-centre",
+  "stats": "rail",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-008",
+  "base": "band-underline",
+  "stats": "numbered",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-009",
+  "base": "steps-panel",
+  "stats": "numbered",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-010",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-011",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-012",
+  "base": "steps-panel",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-013",
+  "base": "steps-panel",
+  "stats": "numbered",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-014",
+  "base": "offset-right",
+  "stats": "cards",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-015",
+  "base": "index-offset",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-016",
+  "base": "pullquote",
+  "stats": "cards",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-017",
+  "base": "mosaic-grid",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-018",
+  "base": "pullquote",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-019",
+  "base": "steps-panel",
+  "stats": "aside",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-020",
+  "base": "offset-right",
+  "stats": "table",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-021",
+  "base": "split-checklist",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-022",
+  "base": "index-offset",
+  "stats": "table",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-023",
+  "base": "mosaic-grid",
+  "stats": "table",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-024",
+  "base": "mosaic-grid",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-025",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-026",
+  "base": "mosaic-grid",
+  "stats": "inline",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-027",
+  "base": "offset-right",
+  "stats": "numbered",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-028",
+  "base": "rule-editorial",
+  "stats": "table",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-029",
+  "base": "band-underline",
+  "stats": "numbered",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-030",
+  "base": "steps-panel",
+  "stats": "aside",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-031",
+  "base": "masthead-centre",
+  "stats": "aside",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-032",
+  "base": "steps-panel",
+  "stats": "rail",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-033",
+  "base": "offset-right",
+  "stats": "aside",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-034",
+  "base": "pullquote",
+  "stats": "table",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-035",
+  "base": "steps-panel",
+  "stats": "inline",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-036",
+  "base": "rule-editorial",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-037",
+  "base": "index-offset",
+  "stats": "inline",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-038",
+  "base": "steps-panel",
+  "stats": "table",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-039",
+  "base": "pullquote",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-040",
+  "base": "pullquote",
+  "stats": "rail",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-041",
+  "base": "ledger-two-col",
+  "stats": "rail",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-042",
+  "base": "pullquote",
+  "stats": "inline",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-043",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-044",
+  "base": "pullquote",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-045",
+  "base": "masthead-centre",
+  "stats": "rail",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-046",
+  "base": "split-duo",
+  "stats": "inline",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-047",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-048",
+  "base": "band-underline",
+  "stats": "rail",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-049",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-050",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-051",
+  "base": "rule-editorial",
+  "stats": "numbered",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "build-052",
+  "base": "offset-right",
+  "stats": "aside",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-053",
+  "base": "masthead-centre",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-054",
+  "base": "mosaic-grid",
+  "stats": "numbered",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-055",
+  "base": "masthead-centre",
+  "stats": "cards",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "build-056",
+  "base": "split-duo",
+  "stats": "rail",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "build-057",
+  "base": "rule-editorial",
+  "stats": "table",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "claimflow-ai",
+  "base": "rule-editorial",
+  "stats": "table",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "clausecheck-ai",
+  "base": "split-duo",
+  "stats": "rail",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "create",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "edtech-fitness-001",
+  "base": "split-duo",
+  "stats": "numbered",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "electronics-portfolio-001",
+  "base": "ledger-two-col",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "electronics-portfolio-001-002",
+  "base": "steps-panel",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "ember-salt",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "food-restaurant-001",
+  "base": "mosaic-grid",
+  "stats": "numbered",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "generated-website",
+  "base": "pullquote",
+  "stats": "table",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "generated-website-002",
+  "base": "ledger-two-col",
+  "stats": "numbered",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "generated-website-003",
+  "base": "split-checklist",
+  "stats": "rail",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "generated-website-004",
+  "base": "mosaic-grid",
+  "stats": "aside",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "generated-website-005",
+  "base": "steps-panel",
+  "stats": "table",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "generated-website-006",
+  "base": "pullquote",
+  "stats": "numbered",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "generated-website-007",
+  "base": "split-duo",
+  "stats": "cards",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "generated-website-008",
+  "base": "ledger-two-col",
+  "stats": "rail",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "generated-website-009",
+  "base": "pullquote",
+  "stats": "inline",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "insightpipe-ai",
+  "base": "ledger-two-col",
+  "stats": "cards",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "leadscout-ai",
+  "base": "split-checklist",
+  "stats": "aside",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "ledgerai",
+  "base": "steps-panel",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "luxemart",
+  "base": "index-offset",
+  "stats": "numbered",
+  "align": "left",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "maison-noir",
+  "base": "ledger-two-col",
+  "stats": "inline",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "onboarder-ai",
+  "base": "split-duo",
+  "stats": "table",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "personal-creative-001",
+  "base": "offset-right",
+  "stats": "aside",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "personal-portfolio-001",
+  "base": "band-underline",
+  "stats": "cards",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "realestate-realestate-001",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "recruitiq-ai",
+  "base": "steps-panel",
+  "stats": "rail",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "rest",
+  "base": "rule-editorial",
+  "stats": "table",
+  "align": "left",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "resupro",
+  "base": "split-duo",
+  "stats": "inline",
+  "align": "left",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "saas-saas-001",
+  "base": "band-underline",
+  "stats": "rail",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "saas-saas-001-002",
+  "base": "split-checklist",
+  "stats": "table",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "saas-saas-001-003",
+  "base": "mosaic-grid",
+  "stats": "table",
+  "align": "center",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "saas-saas-001-004",
+  "base": "masthead-centre",
+  "stats": "aside",
+  "align": "center",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "supportdesk-ai",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "tablehost-ai",
+  "base": "rule-editorial",
+  "stats": "cards",
+  "align": "right",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "test-i18n",
+  "base": "rule-editorial",
+  "stats": "cards",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "tourism-travel-001",
+  "base": "split-duo",
+  "stats": "table",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ },
+ {
+  "project": "tourism-travel-001-002",
+  "base": "split-duo",
+  "stats": "inline",
+  "align": "right",
+  "media": "below",
+  "changed": true
+ },
+ {
+  "project": "ui-style-wheel",
+  "base": "rule-editorial",
+  "stats": "rail",
+  "align": "center",
+  "media": "none",
+  "changed": true
+ },
+ {
+  "project": "voltus-atelier",
+  "base": "masthead-centre",
+  "stats": "inline",
+  "align": "right",
+  "media": "right",
+  "changed": true
+ }
+]

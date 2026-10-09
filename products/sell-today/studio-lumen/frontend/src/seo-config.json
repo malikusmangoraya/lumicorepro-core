@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | studio-lumen",
+    "description": "Welcome to studio-lumen — the leading personal platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | studio-lumen",
+    "description": "Features — studio-lumen",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | studio-lumen",
+    "description": "Pricing — studio-lumen",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | studio-lumen",
+    "description": "Read the latest articles and insights from studio-lumen.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | studio-lumen",
+    "description": "Documentation — studio-lumen",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | studio-lumen",
+    "description": "Learn about studio-lumen, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | studio-lumen",
+    "description": "Get in touch with studio-lumen. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/studio-lumen/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

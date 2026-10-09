@@ -1,0 +1,67 @@
+{
+  "website_type": "saas",
+  "provider": "ga4",
+  "events": [
+    {
+      "name": "sign_up",
+      "trigger": "Account created",
+      "params": ["method", "plan"]
+    },
+    {
+      "name": "login",
+      "trigger": "User logged in",
+      "params": ["method"]
+    },
+    {
+      "name": "trial_started",
+      "trigger": "Free trial started",
+      "params": ["plan", "trial_days"]
+    },
+    {
+      "name": "trial_converted",
+      "trigger": "Trial \u2192 paid conversion",
+      "params": ["plan", "value", "currency"]
+    },
+    {
+      "name": "plan_selected",
+      "trigger": "Pricing page plan click",
+      "params": ["plan_id", "plan_name", "value"]
+    },
+    {
+      "name": "subscription_created",
+      "trigger": "Subscription confirmed",
+      "params": ["plan_id", "value", "currency"]
+    },
+    {
+      "name": "subscription_cancelled",
+      "trigger": "Cancellation confirmed",
+      "params": ["plan_id", "reason"]
+    },
+    {
+      "name": "feature_used",
+      "trigger": "Key feature interaction",
+      "params": ["feature_name", "feature_category"]
+    },
+    {
+      "name": "onboarding_step",
+      "trigger": "Onboarding step completed",
+      "params": ["step", "step_name"]
+    },
+    {
+      "name": "onboarding_completed",
+      "trigger": "Full onboarding done",
+      "params": ["duration_seconds"]
+    },
+    {
+      "name": "invite_sent",
+      "trigger": "Team member invited",
+      "params": ["invitee_role"]
+    },
+    {
+      "name": "search",
+      "trigger": "In-app search",
+      "params": ["search_term", "results_count"]
+    }
+  ],
+  "conversions": ["subscription_created", "trial_started", "sign_up", "trial_converted"]
+}

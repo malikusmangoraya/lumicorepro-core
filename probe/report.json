@@ -1,0 +1,251 @@
+[
+ {
+  "site": "apex-digital",
+  "page": "home",
+  "status": 200,
+  "title": "Apex Digital — Conversion engineering for B2B teams.",
+  "rootLen": 48803,
+  "bodyLen": 5275,
+  "errors": [
+   "CONSOLE: Loading media from  'https://videos.pexels.com/video-files/3129671/3129671-hd_1920_1080_30fps.mp4' violates the following Content Security Policy directive: \"de"
+  ]
+ },
+ {
+  "site": "apex-digital",
+  "page": "login",
+  "status": 404,
+  "title": "Apex Digital — Conversion engineering for B2B teams.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "aurelia-estates",
+  "page": "home",
+  "status": 200,
+  "title": "Aurelia Estates — Exceptional residences, curated for the di",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "aurelia-estates",
+  "page": "login",
+  "status": 404,
+  "title": "Aurelia Estates — Exceptional residences, curated for the di",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "aurum-fitness",
+  "page": "home",
+  "status": 200,
+  "title": "Aurum Fitness — Train like the clock is watching.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "aurum-fitness",
+  "page": "login",
+  "status": 404,
+  "title": "Aurum Fitness — Train like the clock is watching.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "claimflow",
+  "page": "home",
+  "status": 200,
+  "title": "ClaimFlow — Claims intake without the backlog.",
+  "rootLen": 48562,
+  "bodyLen": 5304,
+  "errors": []
+ },
+ {
+  "site": "claimflow",
+  "page": "login",
+  "status": 404,
+  "title": "ClaimFlow — Claims intake without the backlog.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "flowpilot",
+  "page": "home",
+  "status": 200,
+  "title": "FlowPilot — Projects, billing and insight in one calm worksp",
+  "rootLen": 48676,
+  "bodyLen": 5227,
+  "errors": []
+ },
+ {
+  "site": "flowpilot",
+  "page": "login",
+  "status": 404,
+  "title": "FlowPilot — Projects, billing and insight in one calm worksp",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "meridian-capital",
+  "page": "home",
+  "status": 200,
+  "title": "Meridian Capital — Institutional discipline. Founder's urgen",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "meridian-capital",
+  "page": "login",
+  "status": 404,
+  "title": "Meridian Capital — Institutional discipline. Founder's urgen",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "nuage-events",
+  "page": "home",
+  "status": 200,
+  "title": "Nuage Events — Unforgettable is the minimum.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "nuage-events",
+  "page": "login",
+  "status": 404,
+  "title": "Nuage Events — Unforgettable is the minimum.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "prestige-studio",
+  "page": "home",
+  "status": 200,
+  "title": "Prestige Studio — Independent creative direction for ambitio",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "prestige-studio",
+  "page": "login",
+  "status": 404,
+  "title": "Prestige Studio — Independent creative direction for ambitio",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "resupro",
+  "page": "home",
+  "status": 200,
+  "title": "ResuPro — Resumes that get you the interview.",
+  "rootLen": 0,
+  "bodyLen": 290,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "resupro",
+  "page": "login",
+  "status": 404,
+  "title": "ResuPro — Resumes that get you the interview.",
+  "rootLen": 0,
+  "bodyLen": 290,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "saffron-voyage",
+  "page": "home",
+  "status": 200,
+  "title": "Saffron Voyage — Journeys woven from local story.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "saffron-voyage",
+  "page": "login",
+  "status": 404,
+  "title": "Saffron Voyage — Journeys woven from local story.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "studio-lumen",
+  "page": "home",
+  "status": 200,
+  "title": "Studio Lumen — Photography in pursuit of light.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ },
+ {
+  "site": "studio-lumen",
+  "page": "login",
+  "status": 404,
+  "title": "Studio Lumen — Photography in pursuit of light.",
+  "rootLen": 0,
+  "bodyLen": 0,
+  "errors": [
+   "CONSOLE: Failed to load resource: the server responded with a status of 404 ()",
+   "PAGEERROR: ReferenceError: t is not defined"
+  ]
+ }
+]

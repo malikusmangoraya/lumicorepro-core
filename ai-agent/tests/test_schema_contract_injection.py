@@ -304,6 +304,7 @@ class SchemaContractTest(unittest.TestCase):
 
     def test_render_static_reports_schema_not_applicable(self):
         spec = self._spec("portfolio")
+        spec["buyer_type"] = "static"
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_static")
         _write(os.path.join(root, "frontend", "src", "services", ".keep"))

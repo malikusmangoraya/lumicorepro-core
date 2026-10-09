@@ -1,0 +1,16 @@
+# Render Blueprint
+services:
+  - type: web
+    name: claimflow-ai-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+  - type: web
+    name: claimflow-ai-backend
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+databases:
+  - name: claimflow-ai-db
+    databaseName: claimflow_ai

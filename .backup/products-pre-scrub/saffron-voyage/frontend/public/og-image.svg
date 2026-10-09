@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="og_5117" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--t-primary, #be702c)"/>
+      <stop offset="100%" stop-color="var(--t-accent, #be702c)"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0e1116"/>
+  <rect x="60" y="200" width="100" height="100" rx="20" fill="url(#og_5117)"/>
+  <g transform="translate(80, 220) scale(2.5)" fill="white" opacity="0.95">
+    <circle cx="24" cy="24" r="18" fill="none" stroke="var(--t-primary)" stroke-width="3"/><circle cx="24" cy="24" r="14" fill="none" stroke="var(--t-accent)" stroke-width="1.5"/><polygon points="24,8 26,22 24,24 22,22" fill="var(--t-primary)"/><polygon points="24,40 22,26 24,24 26,26" fill="var(--t-accent)"/><polygon points="8,24 22,22 24,24 22,26" fill="var(--t-accent)" opacity="0.6"/><polygon points="40,24 26,26 24,24 26,22" fill="var(--t-primary)" opacity="0.6"/>
+  </g>
+  <text x="190" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="700"
+        fill="white">Saffron Voyage</text>
+  <text x="190" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500"
+        fill="#94a3b8">Travel Concierge</text>
+  <text x="60" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="400"
+        fill="#475569">Powered by LumicorePro</text>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Aurum Fitness",
+  "url": "https://malikusmangoraya.github.io/aurum-fitness",
+  "description": "Professional, fast, and built to turn visitors into customers.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/aurum-fitness",
+    "https://www.instagram.com/aurum-fitness",
+    "https://twitter.com/aurum-fitness"
+  ]
+}

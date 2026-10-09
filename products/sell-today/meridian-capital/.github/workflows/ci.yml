@@ -1,0 +1,102 @@
+# Continuous integration. Every job here must fail loudly: a red pipeline
+# is useful, a green one that hides errors is not.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend — install and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The frontend has no unit-test runner configured; the production build
+      # is the real gate, because it type-strips, bundles and fails on any
+      # unresolved import or syntax error in the whole component tree.
+      - name: Build
+        run: npm run build
+
+      - name: Verify the SPA fallback was generated
+        run: test -f dist/404.html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  backend:
+    name: Backend — install and parse
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Parse every backend module with Node's ESM parser. This catches the
+      # class of defect where a file does not load at runtime, without needing
+      # a database or any running service.
+      - name: Parse every backend module
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          count=0
+          while IFS= read -r -d '' f; do
+            cp "$f" "$tmp/probe.mjs"
+            if ! node --check "$tmp/probe.mjs"; then
+              echo "::error file=$f::does not parse"
+              exit 1
+            fi
+            count=$((count + 1))
+          done < <(find . -name '*.js' -not -path './node_modules/*' -print0)
+          echo "Parsed $count backend modules successfully."
+
+      - name: Boot the API and probe /health
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-placeholder-secret-ci-placeholder-secret
+        run: |
+          set -euo pipefail
+          node server.js &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:${PORT:-5000}/health > /dev/null; then
+              echo "API responded to /health"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::API did not become healthy in 30s"
+          exit 1

@@ -1,0 +1,15 @@
+{
+  "base_url": "https://malikusmangoraya.github.io/resupro",
+  "region": "SA",
+  "hreflangs": [
+    {
+      "lang": "ur-pk",
+      "code": "ur"
+    },
+    {
+      "lang": "en-pk",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "products", "cart", "checkout", "about", "contact", "blog", "faq"]
+}

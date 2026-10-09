@@ -1,0 +1,28 @@
+{
+  "flags": [
+    {
+      "key": "show_ai_recommendations",
+      "description": "AI product recommendations widget",
+      "default": false,
+      "rollout": 20
+    },
+    {
+      "key": "one_click_checkout",
+      "description": "One-click checkout for returning users",
+      "default": false,
+      "rollout": 10
+    },
+    {
+      "key": "live_inventory_counter",
+      "description": "Show live stock countdown",
+      "default": true,
+      "rollout": 100
+    },
+    {
+      "key": "social_proof_notifications",
+      "description": "Live purchase notifications popup",
+      "default": false,
+      "rollout": 50
+    }
+  ]
+}

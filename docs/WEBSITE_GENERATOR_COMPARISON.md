@@ -4,7 +4,7 @@ Comparison of the LumicorePro monorepo web-generation engine against the popular
 AI website builders on the market today (Lovable, Vercel v0, Wix ADI/Editor,
 Bubble, and classic WordPress).
 
-> Last updated: 2026-09-07 · Version 5.0+
+> Last updated: 2026-10-06 · Version 8.0+
 
 ---
 
@@ -39,7 +39,7 @@ A self-hosted, open-architecture AI website generator:
 | Code quality gates | 6 automated gates | Limited | None | n/a | n/a | Plugins |
 | Offline / no-API work | Yes (local fallback) | No | No | No (cloud) | No | No |
 | Self-hosting | Full monorepo | No (SaaS) | Deploy via Vercel | No | No | Yes |
-| AI provider choice | 6 (Gemini, Claude, GPT, Mistral, DeepSeek, OpenRouter) | Fixed | Fixed (OpenAI) | Internal | Internal | Plugin-dependent |
+| AI provider choice | 24-hop chain: 15 internet-only open-weight clouds + NVIDIA NIM, Gemini, Claude, GPT, Mistral, DeepSeek, Kimi, OpenRouter | Fixed | Fixed (OpenAI) | Internal | Internal | Plugin-dependent |
 | Localization & RTL | 13 locales + RTL out of the box | Partial | None | Multi-language paywall | Plugin | Plugin |
 | Compliance (GDPR/CCPA, WCAG) | Auto-generated artifacts | Partial | No | Partial | Partial | Plugin |
 | Multi-currency & payments | Stripe+PayPal+Square+Razorpay pre-wired | Stripe | Stripe | Wix Payments | Plugin | Plugin |
@@ -71,8 +71,10 @@ A self-hosted, open-architecture AI website generator:
    rebuild per theme or limit themes behind paywalls.
 3. **True portability** — output is standard React/Vite/Express code you own,
    with Spring-clean JSON registry + OpenAPI-style contracts.
-4. **Provider-agnostic AI** — swap Gemini ↔ Claude ↔ GPT ↔ Mistral ↔ DeepSeek ↔
-   OpenRouter via one env var.
+4. **Provider-agnostic AI** — swap any of 24 internet-hosted providers via one env
+   var, including open-weight clouds (Groq, Cerebras, Nebius, Hyperbolic, Z.ai GLM,
+   Qwen/DashScope, Together, DeepInfra, Fireworks, SambaNova, Novita, Hugging Face,
+   Featherless, Chutes, MiniMax, Cohere).
 5. **Enterprise-grade by default** — WCAG 2.1 AA, GDPR/CCPA artifacts, RTL, 13
    languages, 7 currencies, 4 payment gateways, 4 cloud recipes included.
 
@@ -86,7 +88,8 @@ A self-hosted, open-architecture AI website generator:
 | Cost + hosting simulator | Built-in monthly-cost estimate per platform/traffic tier (GitHub/Vercel/Cloudflare/Netlify/Railway/Render/DO/AWS/GCP), surfaced in phase 12 & 15 of every run and after every iteration. | ✅ Live |
 | Compliance proof export | `COMPLIANCE.md` carries a machine-readable "Verification Evidence" block (a11y score, WCAG status, security controls, cost estimates, timestamp) appended on every re-run — audit-proof output. | ✅ Live |
 | White-label / agency mode | `client_brand` parameter stamps client identity onto iteration reports (ITERATIONS.md + manifest) so agencies can deliver branded audit trails. | ✅ Live |
-| Local-first LLM (Ollama) | No native support yet — roadmap item. Existing provider interface makes adding a local endpoint a small adapter. | 🚧 Roadmap |
+| Open-weight hosts (internet only) | 15 cloud APIs serving open weights over HTTPS — Groq Cloud, Cerebras, Nebius, Hyperbolic, Z.ai GLM, Alibaba Model Studio (Qwen3), Together, DeepInfra, Fireworks, SambaNova, Novita, Hugging Face, Featherless, Chutes, MiniMax, Cohere — plus NVIDIA NIM, DeepSeek, Mistral, Kimi and the OpenRouter aggregator. One key per host; the router rotates automatically. | ✅ Live |
+| Local GPU runtime (Ollama / vLLM / LM Studio) | **Deliberately out of scope, not a roadmap item.** A local runtime would require a GPU on the operator's machine; every supported provider is reached over the public internet. `providers/openweight_provider.py` records the decision and the test suite enforces it. | ⛔ Out of scope |
 
 ---
 

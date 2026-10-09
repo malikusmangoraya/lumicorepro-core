@@ -1,0 +1,41 @@
+{
+  "brand": {
+    "archetype": "futuristic",
+    "personality": []
+  },
+  "visual": {
+    "density": 0.45,
+    "motion": 0.6,
+    "3d": false
+  },
+  "typography": {
+    "heading_style": "display_driven",
+    "body_style": "modern_sans"
+  },
+  "colors": {
+    "tokens": {},
+    "source": "design_tokens.json"
+  },
+  "spacing": {
+    "scale": "token_based"
+  },
+  "components": {
+    "critical": {
+      "primary_cta": "start_free_trial",
+      "secondary_cta": "book_demo"
+    }
+  },
+  "industry": "saas",
+  "reference_sources": [
+    "stripe",
+    "linear",
+    "vercel",
+    "minimal",
+    "restrained",
+    "tech",
+    "futuristic"
+  ],
+  "constraints_resolved": {},
+  "created_at": "2026-09-29T15:37:09.285405+00:00",
+  "project": "apex"
+}

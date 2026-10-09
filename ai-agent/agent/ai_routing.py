@@ -31,9 +31,9 @@ explicit pins, offline mode, cooldowns/circuit breakers and the EWMA latency
 ranking all live here, so there is exactly one routing implementation.
 
 Configuration (all optional, env):
-  AI_TIER_FAST       = "openmuse,grok,gemini,ninerouter"
-  AI_TIER_BALANCED   = "gemini,openai,kimi,openrouter,mistral"
-  AI_TIER_REASONING  = "kimi,openai,grok,gemini,openmuse"
+  AI_TIER_FAST       = "cerebras,groq,gemini,ninerouter"
+  AI_TIER_BALANCED   = "gemini,together,deepinfra,kimi,openai"
+  AI_TIER_REASONING  = "kimi,claude,openai,deepseek,sambanova"
   AI_FAST_MODE       = 1        # force every call onto the fast tier
   AI_ROUTER_CACHE    = 1        # 0 disables the dedupe cache
   AI_ROUTER_PARALLEL = 6        # default fan-out width
@@ -73,12 +73,23 @@ _BALANCED_MIN_CHARS = 4_000
 _REASONING_MIN_CHARS = 24_000
 
 # Default tier membership. The first entry of each tier is its preferred model.
-# A local `openmuse` entry keeps the last tier honest offline: when every hosted
-# provider is rate-limited, an air-gapped build still gets real work done.
+#
+# Every entry is an internet-hosted API. Local GPU runtimes (Ollama, vLLM,
+# llama.cpp, LM Studio) are deliberately absent: this agent must run without
+# hardware on the operator's machine, so an unavailable provider rotates to the
+# next hosted one instead of falling back to a local model.
 DEFAULT_TIERS: Dict[str, List[str]] = {
-    "fast": ["ninerouter", "omniroute", "grok", "gemini", "openmuse"],
-    "balanced": ["gemini", "openai", "kimi", "openrouter", "mistral", "openmuse"],
-    "reasoning": ["kimi", "openai", "grok", "gemini", "openrouter", "openmuse"],
+    # Fast tier favours time-to-first-token: Cerebras and Groq lead.
+    "fast": [
+        "cerebras", "groq", "nebius", "hyperbolic", "zai", "gemini", "ninerouter", "omniroute",
+    ],
+    "balanced": [
+        "gemini", "dashscope", "together", "deepinfra", "zai", "featherless", "chutes",
+        "minimax", "kimi", "openai", "openrouter", "mistral",
+    ],
+    "reasoning": [
+        "kimi", "claude", "openai", "deepseek", "sambanova", "together", "openrouter",
+    ],
 }
 
 # Task kind -> default tier, before size/prompt upgrades.
@@ -764,8 +775,9 @@ def _pinned(pin: Optional[str] = None) -> Optional[str]:
 def _is_real_provider(explicit: Any) -> bool:
     """True when `explicit` is a genuine `BaseAIProvider` instance.
 
-    Every shipped provider (gateway, Gemini, OpenAI, Mistral, Kimi, OpenMuse)
-    subclasses `BaseAIProvider`, while a hand-injected stub used by a caller or
+    Every shipped provider (the cloud gateways, the native vendors and the
+    internet-only open-weight clouds) subclasses `BaseAIProvider`, while a
+    hand-injected stub used by a caller or
     a unit test does not. Deciding on the type — rather than asking the pool —
     means this check can never construct the process-wide provider pool, which
     would leak live instances into unrelated offline tests.

@@ -24,7 +24,9 @@ ROOT = Path(__file__).resolve().parent.parent
 GEN = ROOT / "generated-projects"
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
+sys.path.insert(0, str(ROOT / "ai-agent"))
 from brand_map import BRANDS
+from agent.gh_token import clean_token, is_placeholder
 
 # Campaign repos already deployed + verified unique (do not touch).
 VERIFIED = {
@@ -64,16 +66,18 @@ def load_token() -> str:
     process env var.
     """
     candidates = []
-    candidates.append(("env", os.environ.get("GITHUB_TOKEN", "").strip()))
+    # Quote-strip the process env too: `setx GITHUB_TOKEN "ghp_..."` bakes the
+    # quotes into the value, which otherwise fails validation as a false 401.
+    candidates.append(("env", clean_token(os.environ.get("GITHUB_TOKEN", ""))))
     for envf in (ROOT / ".env", ROOT / "ai-agent" / ".env", ROOT / "backend" / ".env"):
         if envf.exists():
             for line in envf.read_text(encoding="utf-8", errors="ignore").splitlines():
                 line = line.strip()
                 if line.startswith("GITHUB_TOKEN="):
-                    val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                    val = clean_token(line.split("=", 1)[1])
                     candidates.append((str(envf), val))
     for label, val in candidates:
-        if _token_is_valid(val):
+        if val and not is_placeholder(val) and _token_is_valid(val):
             print(f"using working GITHUB_TOKEN from {label}")
             return val
     # fallback: Windows Credential Manager via git credential fill (kept in-process)
@@ -87,8 +91,8 @@ def load_token() -> str:
                 out = run.stdout if not run.stderr else run.stdout
                 for line in out.splitlines():
                     if line.startswith("password="):
-                        val = line.split("=", 1)[1].strip()
-                        if val and not val.startswith("your_"):
+                        val = clean_token(line.split("=", 1)[1])
+                        if val and not is_placeholder(val):
                             if _token_is_valid(val):
                                 print("using working GITHUB_TOKEN from git credential manager")
                                 return val

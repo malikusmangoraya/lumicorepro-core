@@ -80,6 +80,154 @@ class TestOrchestratorInit(unittest.TestCase):
         )
         self.assertIn("design_planner", orch.PHASE_DEPENDENCIES["code_generation"])
 
+    def test_portfolio_uniqueness_helper_selects_and_attaches_signature(self):
+        import json
+        from unittest.mock import patch
+        from agent.intelligence.design_uniqueness import extract_design_signature
+
+        orch = AgentOrchestrator.__new__(AgentOrchestrator)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            projects_dir = Path(temp_dir) / "projects"
+            prior_dir = projects_dir / "prior-site"
+            prior_dir.mkdir(parents=True)
+            target_dir = projects_dir / "new-site"
+            decision = {
+                "industry": "saas",
+                "brand": "minimal",
+                "ui_style": "glassmorphism",
+                "hero": "minimal_composition",
+                "navigation": "minimal_sticky",
+                "grid": "balanced",
+                "typography": "clean_sans",
+                "motion": "subtle",
+                "3d": False,
+                "image_ratio": "16:9",
+                "cta_style": "clear_primary",
+                "surface_style": "flat",
+                "card_usage": "minimal",
+                "design_manifest": {
+                    "brand": {"archetype": "minimal"},
+                    "visual": {"motion": 0.3, "3d": False, "ui_style": "glassmorphism"},
+                    "typography": {"heading_style": "clean_sans"},
+                    "colors": {"tokens": {"primary": "#315b42", "accent": "#d89b45"}},
+                    "industry": "saas",
+                },
+            }
+            design_plan = {
+                "brand_style": "minimal",
+                "page_plans": {"Home": {"sections": ["hero", "features", "cta"]}},
+                "design_system": {"colors": {"primary": "#315b42", "accent": "#d89b45"}},
+            }
+            prior_signature = extract_design_signature(decision, design_plan)
+            (prior_dir / "design-manifest.json").write_text(
+                json.dumps({"design_signature": prior_signature}), encoding="utf-8"
+            )
+            spec = {
+                "project_name": "new-site",
+                "original_prompt": "A modern SaaS for independent studios",
+                "design_constraints": {"hero": "minimal_composition"},
+            }
+
+            with patch("agent.orchestrator.GENERATED_PROJECTS_DIR", projects_dir):
+                result = orch._select_portfolio_unique_design(
+                    spec, decision, design_plan, target_dir
+                )
+            with patch(
+                "agent.intelligence.design_uniqueness.load_portfolio_signatures",
+                side_effect=PermissionError("scan denied"),
+            ):
+                unavailable = orch._select_portfolio_unique_design(
+                    spec, decision, design_plan, target_dir
+                )
+
+        self.assertNotEqual(
+            result["design_signature"]["fingerprint"], prior_signature["fingerprint"]
+        )
+        self.assertEqual(result["decision"]["hero"], "minimal_composition")
+        self.assertEqual(
+            result["decision"]["design_manifest"]["design_signature"],
+            result["design_signature"],
+        )
+        self.assertEqual(result["comparison"]["compared_projects"], 1)
+        self.assertEqual(unavailable["comparison"]["status"], "unavailable")
+        self.assertIn("scan denied", unavailable["comparison"]["reason"])
+        self.assertNotEqual(result["decision"]["ui_style"], "glassmorphism")
+        self.assertEqual(
+            result["design_blueprint"]["ui_style"], result["decision"]["ui_style"]
+        )
+        self.assertEqual(
+            result["design_plan"]["design_system"]["colors"]["primary"],
+            result["design_blueprint"]["palette"]["primary"],
+        )
+
+    def test_portfolio_uniqueness_preserves_explicit_ui_style(self):
+        import json
+        from unittest.mock import patch
+        from agent.intelligence.design_uniqueness import extract_design_signature
+
+        orch = AgentOrchestrator.__new__(AgentOrchestrator)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            projects_dir = Path(temp_dir)
+            prior_dir = projects_dir / "prior-site"
+            prior_dir.mkdir()
+            decision = {
+                "industry": "saas",
+                "ui_style": "glassmorphism",
+                "design_manifest": {"visual": {"ui_style": "glassmorphism"}},
+            }
+            plan = {"design_system": {"colors": {"primary": "#315b42"}}}
+            signature = extract_design_signature(decision, plan)
+            (prior_dir / "design-manifest.json").write_text(
+                json.dumps({"design_signature": signature}), encoding="utf-8"
+            )
+
+            with patch("agent.orchestrator.GENERATED_PROJECTS_DIR", projects_dir):
+                result = orch._select_portfolio_unique_design(
+                    {
+                        "project_name": "new",
+                        "ui_style": "glassmorphism",
+                        "style": ["glassmorphism"],
+                    },
+                    decision,
+                    plan,
+                    projects_dir / "new",
+                )
+
+        self.assertEqual(result["decision"]["ui_style"], "glassmorphism")
+
+    def test_portfolio_uniqueness_preserves_color_and_reference_constraints(self):
+        import json
+        from unittest.mock import patch
+        from agent.intelligence.design_uniqueness import extract_design_signature
+
+        orch = AgentOrchestrator.__new__(AgentOrchestrator)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            projects_dir = Path(temp_dir)
+            prior_dir = projects_dir / "prior-site"
+            prior_dir.mkdir()
+            decision = {
+                "industry": "saas",
+                "ui_style": "glassmorphism",
+                "reference_hints": ["editorial restraint"],
+                "design_manifest": {"visual": {"ui_style": "glassmorphism"}},
+            }
+            plan = {"design_system": {"colors": {"primary": "#315b42"}}}
+            signature = extract_design_signature(decision, plan)
+            (prior_dir / "design-manifest.json").write_text(
+                json.dumps({"design_signature": signature}), encoding="utf-8"
+            )
+            spec = {
+                "project_name": "new",
+                "primary_color_hint": "#123456",
+                "screenshot_spec": {"analyzed": True, "colors_measured": True},
+            }
+
+            with patch("agent.orchestrator.GENERATED_PROJECTS_DIR", projects_dir):
+                result = orch._select_portfolio_unique_design(spec, decision, plan, projects_dir / "new")
+
+        self.assertEqual(result["decision"]["ui_style"], "glassmorphism")
+        self.assertEqual(result["design_blueprint"]["palette"]["primary"], "#123456")
+
     def test_browser_qa_follows_quality_verification(self):
         """Browser QA must run after the build is quality-verified."""
         orch = AgentOrchestrator()
@@ -173,6 +321,8 @@ class TestOrchestratorFailurePolicy(unittest.TestCase):
             {"overall_score": 92},
             {"passed": False},
             {"passed": True},
+            {"status": "complete", "blockers": []},
+            {"passed": True},
         )
         self.assertFalse(result["passed"])
         self.assertEqual(result["blockers"], ["devops_quality_gate_failed"])
@@ -183,9 +333,37 @@ class TestOrchestratorFailurePolicy(unittest.TestCase):
             {"overall_score": 80},
             {"passed": True},
             {"passed": True},
+            {"status": "complete", "blockers": []},
+            {"passed": True},
         )
         self.assertTrue(result["passed"])
         self.assertEqual(result["blockers"], [])
+
+    def test_deployment_release_gate_blocks_incomplete_generated_project(self):
+        result = AgentOrchestrator._deployment_release_gate(
+            {"valid": True},
+            {"overall_score": 95},
+            {"passed": True},
+            {"passed": True},
+            {"status": "incomplete", "blockers": ["auth_routes"]},
+            {"passed": True},
+        )
+
+        self.assertFalse(result["passed"])
+        self.assertIn("generated_project_incomplete:auth_routes", result["blockers"])
+
+    def test_deployment_release_gate_blocks_failed_output_guardrails(self):
+        result = AgentOrchestrator._deployment_release_gate(
+            {"valid": True},
+            {"overall_score": 95},
+            {"passed": True},
+            {"passed": True},
+            {"status": "complete", "blockers": []},
+            {"passed": False},
+        )
+
+        self.assertFalse(result["passed"])
+        self.assertIn("output_guardrails_failed", result["blockers"])
 
     def test_workflow_agents_report_four_role_handoffs(self):
         report = AgentOrchestrator._build_workflow_agents_report(

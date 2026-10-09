@@ -1,0 +1,42 @@
+{
+  "website_type": "dashboard",
+  "provider": "ga4",
+  "events": [
+    {
+      "name": "page_view",
+      "trigger": "Page load",
+      "params": ["page_title", "page_location"]
+    },
+    {
+      "name": "scroll",
+      "trigger": "25/50/75/90% scroll depth",
+      "params": ["percent_scrolled"]
+    },
+    {
+      "name": "click",
+      "trigger": "Link/button click",
+      "params": ["link_text", "link_url"]
+    },
+    {
+      "name": "search",
+      "trigger": "Site search",
+      "params": ["search_term"]
+    },
+    {
+      "name": "contact_submitted",
+      "trigger": "Contact form submitted",
+      "params": ["form_id"]
+    },
+    {
+      "name": "sign_up",
+      "trigger": "Newsletter/account signup",
+      "params": ["method"]
+    },
+    {
+      "name": "share",
+      "trigger": "Social share button click",
+      "params": ["method", "content_type"]
+    }
+  ],
+  "conversions": ["contact_submitted", "sign_up"]
+}

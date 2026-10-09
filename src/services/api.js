@@ -1,5 +1,17 @@
 import axios from 'axios';
 import { getApiKey, isProviderEnabled } from './apiConfig';
+import { setTraceId } from '../utils/sentry';
+
+// ── Distributed tracing (W3C traceparent) ──────────────────────────────────
+// Each request starts (or continues) a trace: random 32-hex trace id + 16-hex
+// span id. The backend echoes X-Trace-Id, which we feed into Sentry so error
+// reports link to the full backend → AI-agent trace.
+const randomHex = (bytes) =>
+  Array.from({ length: bytes }, () => Math.floor(Math.random() * 256))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+const buildTraceparent = () => `00-${randomHex(16)}-${randomHex(8)}-01`;
 
 // API Configuration from environment variables
 const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -33,6 +45,9 @@ api.interceptors.request.use(
     if (orgId) {
       config.headers['x-org-id'] = orgId;
     }
+    // Distributed tracing: continue an existing trace (navigation-level) or
+    // start a fresh one per request.
+    config.headers.traceparent = config.headers.traceparent || buildTraceparent();
     return config;
   },
   (error) => {
@@ -65,8 +80,22 @@ const redirectToLogin = () => {
 };
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const traceId = response?.headers?.['x-trace-id'];
+    if (traceId) {
+      response.traceId = traceId;
+      setTraceId(traceId);
+    }
+    return response;
+  },
   async (error) => {
+    // Attach the server-side trace id to the error and the Sentry scope so
+    // crash reports are traceable end-to-end.
+    const traceId = error?.response?.headers?.['x-trace-id'];
+    if (traceId) {
+      error.traceId = traceId;
+      setTraceId(traceId);
+    }
     const original = error.config;
     if (!error.response
       || error.response.status !== 401

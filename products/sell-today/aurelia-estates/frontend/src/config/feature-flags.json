@@ -1,0 +1,22 @@
+{
+  "flags": [
+    {
+      "key": "dark_mode",
+      "description": "Dark mode toggle",
+      "default": false,
+      "rollout": 100
+    },
+    {
+      "key": "newsletter_popup",
+      "description": "Newsletter signup popup",
+      "default": true,
+      "rollout": 80
+    },
+    {
+      "key": "chat_widget",
+      "description": "Live chat widget",
+      "default": false,
+      "rollout": 50
+    }
+  ]
+}

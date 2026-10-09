@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://adjusterly.com/sitemap.xml

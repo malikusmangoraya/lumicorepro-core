@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 64 64" role="img" aria-label="Aurelia Estates">
+  <defs>
+    <linearGradient id="lgb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#be882c"/><stop offset="1" stop-color="#d1a760"/>
+    </linearGradient>
+    <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#be882c"/><stop offset="1" stop-color="#d1a760"/>
+    </linearGradient>
+    <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d1a760"/><stop offset="1" stop-color="#be882c"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#lgb)" opacity="0.12"/>
+  <path d="M36 4 L14 36 L28 36 L24 60 L50 26 L34 26 Z" fill="url(lg1)"/><path d="M36 4 L14 36 L28 36 L24 60 L50 26 L34 26 Z" fill="none" stroke="url(lg2)" stroke-width="1.5"/>
+  <rect x="42" y="8" width="16" height="16" rx="5" fill="url(#lgb)"/>
+  <text x="50" y="20.5" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="12" font-weight="800" fill="#fff" letter-spacing="0.5">A</text>
+</svg>

@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | aurum-fitness",
+    "description": "Welcome to aurum-fitness — the leading edtech platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | aurum-fitness",
+    "description": "Features — aurum-fitness",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | aurum-fitness",
+    "description": "Pricing — aurum-fitness",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | aurum-fitness",
+    "description": "Read the latest articles and insights from aurum-fitness.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | aurum-fitness",
+    "description": "Documentation — aurum-fitness",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | aurum-fitness",
+    "description": "Learn about aurum-fitness, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | aurum-fitness",
+    "description": "Get in touch with aurum-fitness. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurum-fitness/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

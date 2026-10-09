@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | saffron-voyage",
+    "description": "Welcome to saffron-voyage — the leading tourism platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | saffron-voyage",
+    "description": "Features — saffron-voyage",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | saffron-voyage",
+    "description": "Pricing — saffron-voyage",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | saffron-voyage",
+    "description": "Read the latest articles and insights from saffron-voyage.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | saffron-voyage",
+    "description": "Documentation — saffron-voyage",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | saffron-voyage",
+    "description": "Learn about saffron-voyage, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | saffron-voyage",
+    "description": "Get in touch with saffron-voyage. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/saffron-voyage/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

@@ -12,11 +12,13 @@ AGENT = ROOT / "ai-agent"
 OUT = ROOT / "generated-projects"
 sys.path.insert(0, str(AGENT))
 
+from agent.gh_token import clean_token  # noqa: E402  (path set above)
+
 for env_file in [(ROOT / ".env"), (AGENT / ".env")]:
     for line in env_file.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if line.startswith("GITHUB_TOKEN="):
-            os.environ.setdefault("GITHUB_TOKEN", line.split("=", 1)[1])
+            os.environ.setdefault("GITHUB_TOKEN", clean_token(line.split("=", 1)[1]))
 
 SLUGS = [
     "aurelia-estates", "maison-noir", "ember-salt", "saffron-voyage",

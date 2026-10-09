@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | apex",
+    "description": "Welcome to apex — the leading saas platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://apex.com",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | apex",
+    "description": "Features — apex",
+    "canonicalUrl": "https://apex.com/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | apex",
+    "description": "Pricing — apex",
+    "canonicalUrl": "https://apex.com/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | apex",
+    "description": "Read the latest articles and insights from apex.",
+    "canonicalUrl": "https://apex.com/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | apex",
+    "description": "Documentation — apex",
+    "canonicalUrl": "https://apex.com/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | apex",
+    "description": "Learn about apex, our mission, team, and story.",
+    "canonicalUrl": "https://apex.com/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | apex",
+    "description": "Get in touch with apex. We're here to help.",
+    "canonicalUrl": "https://apex.com/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

@@ -1,0 +1,14 @@
+﻿=== CHANGELOG SURGERY 2026-10-03 23:18:58Z ===
+language mode: FullLanguage
+agents exists : True
+agents bytes  : 65737
+agents lines  : 373
+section index : 333
+head lines    : 333
+body lines    : 38 (dropped artifacts: 2)
+clean rows    : 35
+CHANGELOG.md  : 50 lines written
+header line replaced: > v7.13 (Marketplace Delivery) | audit remediation in progress (target v8.0)
+AGENTS.md     : 349 lines written (was 373)
+AGENTS.md new size: 23065 bytes
+=== DONE ===

@@ -1,0 +1,15 @@
+{
+  "base_url": "https://aurelia-estates.com",
+  "region": "MENA",
+  "hreflangs": [
+    {
+      "lang": "ar",
+      "code": "ar"
+    },
+    {
+      "lang": "en",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "listings", "agents", "about", "contact", "blog"]
+}

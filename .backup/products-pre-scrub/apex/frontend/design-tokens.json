@@ -1,0 +1,54 @@
+{
+  "style": "futuristic",
+  "name": "Futuristic Sci-Fi",
+  "dna": "Sleek carbon tones, cyan data feeds, holographic HUD rings, ultra-modern tech.",
+  "project_name": "apex",
+  "palette": {
+    "primary": "#00e5ff",
+    "secondary": "#7c4dff",
+    "accent": "#00b0ff",
+    "bg": "#070913",
+    "card": "#0d1322",
+    "surface": "#121b2f",
+    "text": "#e0f2fe",
+    "muted": "#64748b",
+    "border": "rgba(0,229,255,0.3)"
+  },
+  "palette_hsl": {
+    "primary": "186 100.0% 50.0%",
+    "secondary": "256 100.0% 65.1%",
+    "accent": "199 100.0% 50.0%",
+    "bg": "230 46.2% 5.1%",
+    "card": "223 44.7% 9.2%",
+    "surface": "221 44.6% 12.7%",
+    "text": "204 93.8% 93.7%",
+    "muted": "215 16.3% 46.9%",
+    "border": "rgba(0,229,255,0.3)"
+  },
+  "typography": {
+    "display": "Orbitron",
+    "sans": "Inter",
+    "mono": "JetBrains Mono",
+    "scale": [12, 14, 16, 18, 24, 30, 36, 48, 64]
+  },
+  "radius": {
+    "card": "8px",
+    "button": "4px"
+  },
+  "shadow": {
+    "card": "0 0 25px rgba(0,229,255,0.15)",
+    "button": "0 0 15px rgba(0,229,255,0.3)"
+  },
+  "border": {
+    "card": "1px solid rgba(0,229,255,0.35)",
+    "button": "1px solid #00e5ff"
+  },
+  "effects": {
+    "blur": "12px",
+    "glow": "0 0 30px rgba(0,229,255,0.35)"
+  },
+  "weight": "bold",
+  "composition": "holographic",
+  "generated_by": "lumicorepro-design-engine",
+  "timestamp": "2026-09-29T15:36:54Z"
+}

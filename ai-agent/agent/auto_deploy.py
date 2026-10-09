@@ -15,6 +15,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+try:  # works both as `agent.auto_deploy` and as a direct script
+    from agent.gh_token import clean_token, load_token as _load_gh_token
+except ImportError:
+    from gh_token import clean_token, load_token as _load_gh_token
+
 ROOT = Path(__file__).resolve().parents[2]
 ENV_FILE = ROOT / ".env"
 OWNER = "malikusmangoraya"
@@ -22,14 +27,7 @@ OWNER = "malikusmangoraya"
 
 def load_token() -> str:
     candidates = [ENV_FILE, Path(__file__).resolve().parents[1] / ".env"]
-    for env in candidates:
-        if env and env.exists():
-            for line in env.read_text().splitlines():
-                if line.startswith("GITHUB_TOKEN="):
-                    token = line.split("=", 1)[1].strip()
-                    if token:
-                        return token
-    return os.getenv("GITHUB_TOKEN", "")
+    return _load_gh_token(env_files=candidates)
 
 
 def gh_request(method: str, url: str, token: str, body: dict | None = None) -> dict | list:

@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "event": "user.registered",
+      "source": "internal",
+      "description": "New user registration"
+    },
+    {
+      "event": "contact.submitted",
+      "source": "internal",
+      "description": "Contact form submitted"
+    },
+    {
+      "event": "payment.received",
+      "source": "stripe",
+      "description": "Payment received"
+    },
+    {
+      "event": "newsletter.subscribed",
+      "source": "internal",
+      "description": "Newsletter signup"
+    }
+  ],
+  "integrations": ["slack", "discord", "mailchimp", "zapier", "n8n", "make", "stripe"]
+}

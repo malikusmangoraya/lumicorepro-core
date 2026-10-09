@@ -1,0 +1,35 @@
+AURELIA ESTATES GENERATED APPLICATION — LICENSE & COMPLIANCE NOTICE
+================================================================
+Project      : aurelia-estates
+Generated    : 2026-09-15
+License      : Commercial — licensed to the original buyer for unlimited
+               production use on owned/rented infrastructure.
+
+This application is 100%% SELF-CONTAINED and is NOT connected to any SaaS
+network, telemetry backbone or licensing server. It runs entirely on your own
+infrastructure (Node.js + PostgreSQL, optionally Redis) and keeps operating
+indefinitely without external services.
+
+PERFORMANCE & STANDARDS
+-----------------------
+The generated site ships with:
+  * Semantic HTML + landmark regions (header/nav/main/footer) — WCAG 2.1 AA
+  * Server-set security headers (HSTS ready, anti-clickjacking, CORS whitelist)
+  * SEO metadata, canonical URLs, Open Graph and social previews
+  * Cache-first static asset serving & route-level code splitting
+  * `prefers-reduced-motion` and dark-mode support
+These defaults are engineered to satisfy common international web-performance
+audits (Lighthouse Performance/SEO/Accessibility) without further tuning.
+
+DATA & PRIVACY
+--------------
+* Sample data (products, doctors, bookings) is illustrative placeholder content.
+* Keys entered via the Admin Settings panel are stored in your own database.
+* You are responsible for your privacy policy, consent tooling and applicable
+  compliance (GDPR/CCPA etc.) for production use.
+
+DISCLAIMER
+----------
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. The buyer acknowledges that payment-provider, hosting and domain
+services are third-party offerings subject to their own terms.

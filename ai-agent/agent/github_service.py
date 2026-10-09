@@ -19,6 +19,11 @@ from pathlib import Path
 
 from utils.logger import agent_logger
 
+try:  # works both as `agent.github_service` and as a direct script
+    from agent.gh_token import clean_token, is_placeholder
+except ImportError:
+    from gh_token import clean_token, is_placeholder
+
 
 GITHUB_API = "https://api.github.com"
 
@@ -34,8 +39,14 @@ class GitHubService:
     VENDOR_DIRS = {"node_modules", ".git", "dist", "build", "__pycache__", ".pytest_cache"}
 
     def __init__(self, token: Optional[str] = None):
-        self.token = token or os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_APP_TOKEN") or ""
-        self.enabled = bool(self.token and not self.token.startswith("your_"))
+        # clean_token: a token read from the environment may still carry the
+        # quote characters from `setx GITHUB_TOKEN "ghp_..."`. Sending those
+        # verbatim makes GitHub answer 401 "Bad credentials" for a token that
+        # is in fact valid, which is indistinguishable from an expired token.
+        self.token = clean_token(
+            token or os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_APP_TOKEN")
+        )
+        self.enabled = bool(self.token) and not is_placeholder(self.token)
 
     def _request(self, method: str, path: str, data: Optional[dict] = None,
                  accept: str = "application/vnd.github+json") -> Any:

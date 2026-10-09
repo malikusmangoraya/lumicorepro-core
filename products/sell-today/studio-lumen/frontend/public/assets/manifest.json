@@ -1,0 +1,550 @@
+{
+  "generator": "studio-lumen-design-system",
+  "project": "studio-lumen",
+  "style": "animaster",
+  "generated_at": "2026-09-14T23:49:38Z",
+  "license": "All assets are self-generated original vector artwork (public-domain equivalent). No stock, no scraped, and no copyrighted material.",
+  "count": 27,
+  "assets": [
+    {
+      "file": "assets/animaster/hero/hero-1.svg",
+      "category": "hero",
+      "style": "animaster",
+      "title": "Studio Lumen Hero",
+      "prompt": "Abstract hero for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/hero/hero-2.svg",
+      "category": "hero",
+      "style": "animaster",
+      "title": "Studio Lumen Hero",
+      "prompt": "Abstract hero for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/hero/hero-3.svg",
+      "category": "hero",
+      "style": "animaster",
+      "title": "Studio Lumen Hero",
+      "prompt": "Abstract hero for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/hero/hero-4.svg",
+      "category": "hero",
+      "style": "animaster",
+      "title": "Studio Lumen Hero",
+      "prompt": "Abstract hero for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-1.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 1",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-2.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 2",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-3.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 3",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-4.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 4",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-5.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 5",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-6.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 6",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-7.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 7",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-8.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 8",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-9.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 9",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-10.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 10",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-11.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 11",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/icons/icon-12.svg",
+      "category": "icons",
+      "style": "animaster",
+      "title": "Studio Lumen Icons Icon 12",
+      "prompt": "Abstract icons for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/backgrounds/bg-1.svg",
+      "category": "backgrounds",
+      "style": "animaster",
+      "title": "Studio Lumen Backgrounds Background 1",
+      "prompt": "Abstract backgrounds for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/backgrounds/bg-2.svg",
+      "category": "backgrounds",
+      "style": "animaster",
+      "title": "Studio Lumen Backgrounds Background 2",
+      "prompt": "Abstract backgrounds for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/backgrounds/bg-3.svg",
+      "category": "backgrounds",
+      "style": "animaster",
+      "title": "Studio Lumen Backgrounds Background 3",
+      "prompt": "Abstract backgrounds for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/illustrations/illustration-1.svg",
+      "category": "illustrations",
+      "style": "animaster",
+      "title": "Studio Lumen Illustrations Illustration 1",
+      "prompt": "Abstract illustrations for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/illustrations/illustration-2.svg",
+      "category": "illustrations",
+      "style": "animaster",
+      "title": "Studio Lumen Illustrations Illustration 2",
+      "prompt": "Abstract illustrations for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/illustrations/illustration-3.svg",
+      "category": "illustrations",
+      "style": "animaster",
+      "title": "Studio Lumen Illustrations Illustration 3",
+      "prompt": "Abstract illustrations for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/illustrations/illustration-4.svg",
+      "category": "illustrations",
+      "style": "animaster",
+      "title": "Studio Lumen Illustrations Illustration 4",
+      "prompt": "Abstract illustrations for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/illustrations/illustration-5.svg",
+      "category": "illustrations",
+      "style": "animaster",
+      "title": "Studio Lumen Illustrations Illustration 5",
+      "prompt": "Abstract illustrations for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/mockups/mockup-1.svg",
+      "category": "mockups",
+      "style": "animaster",
+      "title": "Studio Lumen Mockups UI Mockup 1",
+      "prompt": "Abstract mockups for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/mockups/mockup-2.svg",
+      "category": "mockups",
+      "style": "animaster",
+      "title": "Studio Lumen Mockups UI Mockup 2",
+      "prompt": "Abstract mockups for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    },
+    {
+      "file": "assets/animaster/mockups/mockup-3.svg",
+      "category": "mockups",
+      "style": "animaster",
+      "title": "Studio Lumen Mockups UI Mockup 3",
+      "prompt": "Abstract mockups for a Animaster Motion UI styled website; palette #71717a, #8b5cf6, #ec4899, #030712, rgba(15,23,42,0.7), rgba(30,41,59,0.5), #f8fafc, #94a3b8, rgba(6,182,212,0.25); kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+      "license": "Self-generated original vector art - free for commercial use",
+      "palette": [
+        "#71717a",
+        "#8b5cf6",
+        "#ec4899",
+        "#030712",
+        "rgba(15,23,42,0.7)",
+        "rgba(30,41,59,0.5)",
+        "#f8fafc",
+        "#94a3b8",
+        "rgba(6,182,212,0.25)"
+      ],
+      "seed": 3037546633
+    }
+  ]
+}

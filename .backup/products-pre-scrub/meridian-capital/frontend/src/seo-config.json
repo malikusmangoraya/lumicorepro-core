@@ -1,0 +1,38 @@
+{
+  "home": {
+    "title": "Home | meridian-capital",
+    "description": "Welcome to meridian-capital — the leading electronics platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://meridian-capital.com",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "website",
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | meridian-capital",
+    "description": "Learn about meridian-capital, our mission, team, and story.",
+    "canonicalUrl": "https://meridian-capital.com/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "services": {
+    "title": "Services | meridian-capital",
+    "description": "Services — meridian-capital",
+    "canonicalUrl": "https://meridian-capital.com/services",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | meridian-capital",
+    "description": "Get in touch with meridian-capital. We're here to help.",
+    "canonicalUrl": "https://meridian-capital.com/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

@@ -92,6 +92,86 @@ def patch_rtl(slug: str) -> list:
     return done
 
 
+def rewrite_seo_html(t: str, base_url: str, langs: list | None = None) -> str:
+    """Pure HTML transform: point every SEO identity field at `base_url`.
+
+    Single source of truth for the campaign SEO contract, shared by
+    patch_seo() and scripts/fix_campaign_seo.py so the generator and the
+    repair tool can never drift apart.
+
+    Fixes (all three were broken on every deployed campaign site):
+      - og:image pointed at a truncated repo slug  -> 404
+      - twitter:image pointed at an invented <brand>.com domain -> 404
+      - JSON-LD @id/url/logo used that same invented domain, contradicting
+        og:url/canonical so the entity had no resolvable identity
+    """
+    # Strip any previously injected block so this stays idempotent. Both the
+    # leading and trailing run of whitespace have to go: leaving either behind
+    # means every pass grows the document by one blank line before the block.
+    t = re.sub(r"\s*<!--\s*LUMI-HREFLANG-START\s*-->.*?<!--\s*LUMI-HREFLANG-END\s*-->\s*", "\n    ", t, flags=re.S)
+
+    if base_url:
+        t = re.sub(r'(<link\s+rel="canonical"\s+href=")[^"]*(")',
+                   lambda m: m.group(1) + base_url + "/\"", t)
+        t = re.sub(r'(<meta\s+property="og:url"\s+content=")[^"]*(")',
+                   lambda m: m.group(1) + base_url + "/\"", t)
+        t = re.sub(r'(<meta\s+property="og:image"\s+content=")[^"]*(")',
+                   lambda m: m.group(1) + base_url + "/og-image.svg\"", t)
+        # twitter:image was left pointing at the invented custom domain
+        # (e.g. https://brand.com/og-image.svg) while og:image moved to the
+        # real Pages URL — X/Twitter previews were silently 404.
+        t = re.sub(r'(<meta\s+name="twitter:image"\s+content=")[^"]*(")',
+                   lambda m: m.group(1) + base_url + "/og-image.svg\"", t)
+        t = re.sub(r'(<meta\s+property="og:locale"\s+content=")[^"]*(")',
+                   lambda m: m.group(1) + "en_US\"", t)
+
+        # JSON-LD must describe the URL that is actually served. Scoped to the
+        # ld+json block and to @id/url keys only, so genuine third-party links
+        # (fonts, Stripe, analytics) and inline <script> payloads are never
+        # touched.
+        #
+        # Each value is rewritten as a whole, not by substituting just the
+        # origin: the original regex consumed scheme+host only, so a second run
+        # turned /ember-salt/#website into /ember-salt/ember-salt/#website.
+        # Keeping the original path suffix, and returning already-correct
+        # values unchanged, makes repeated runs converge.
+        _defect = re.compile(r'("(?:@id|url)"\s*:\s*")(https?://[^"]*)(")')
+
+        def _jsonld_value(m):
+            head, value, tail = m.groups()
+            if value.rstrip("/") == base_url.rstrip("/") or value.startswith(base_url + "/"):
+                return m.group(0)
+            _, _, rest = value.partition("://")[2].partition("/")
+            suffix = ("/" + rest) if rest else ""
+            return head + base_url + suffix + tail
+
+        def _fix_jsonld_block(block_match):
+            return _defect.sub(_jsonld_value, block_match.group(0))
+
+        t = re.sub(
+            r'<script type="application/ld\+json">.*?</script>',
+            _fix_jsonld_block,
+            t,
+            flags=re.S,
+        )
+
+    if langs:
+        rows = [
+            f'    <link rel="alternate" hreflang="{lg}" href="{base_url}/?lang={lg}" />'
+            for lg in langs
+        ]
+        rows.append(f'    <link rel="alternate" hreflang="x-default" href="{base_url}/" />')
+        block = ("\n    <!-- LUMI-HREFLANG-START -->\n" + "\n".join(rows)
+                 + "\n    <!-- LUMI-HREFLANG-END -->")
+        # place right after <html ...> head opening, before <title>. The
+        # replacement consumes any whitespace immediately before <title> so a
+        # re-run cannot accumulate a blank line ahead of the block.
+        t = (re.sub(r"\s*<title>", block + "\n    <title>", t, count=1)
+             if "<title>" in t else block + t)
+
+    return t
+
+
 def patch_seo(slug: str, base_url: str, langs: list) -> list:
     """hreflang alternates + correct canonical/og for the real deploy URL."""
     done = []
@@ -99,38 +179,8 @@ def patch_seo(slug: str, base_url: str, langs: list) -> list:
         f = PROJECTS / slug / cand
         if not f.exists():
             continue
-        t = read(f)
-        orig = t
-
-        # strip any previously injected block so this stays idempotent
-        t = re.sub(r"\s*<!--\s*LUMI-HREFLANG-START\s*-->.*?<!--\s*LUMI-HREFLANG-END\s*-->", "", t, flags=re.S)
-
-        if base_url:
-            t = re.sub(r'(<link\s+rel="canonical"\s+href=")[^"]*(")',
-                       lambda m: m.group(1) + base_url + "/\"", t)
-            t = re.sub(r'(<meta\s+property="og:url"\s+content=")[^"]*(")',
-                       lambda m: m.group(1) + base_url + "/\"", t)
-            t = re.sub(r'(<meta\s+property="og:image"\s+content=")[^"]*(")',
-                       lambda m: m.group(1) + base_url + "/og-image.svg\"", t)
-            t = re.sub(r'(<meta\s+property="og:locale"\s+content=")[^"]*(")',
-                       lambda m: m.group(1) + "en_US\"", t)
-
-        if langs:
-            rows = []
-            for lg in langs:
-                rows.append(
-                    f'    <link rel="alternate" hreflang="{lg}" '
-                    f'href="{base_url}/?lang={lg}" />'
-                )
-            rows.append(f'    <link rel="alternate" hreflang="x-default" href="{base_url}/" />')
-            block = ("\n    <!-- LUMI-HREFLANG-START -->\n" + "\n".join(rows)
-                     + "\n    <!-- LUMI-HREFLANG-END -->")
-            # place right after <html ...> head opening, before <title>
-            if "<title>" in t:
-                t = t.replace("<title>", block + "\n    <title>", 1)
-            else:
-                t = block + t
-
+        orig = read(f)
+        t = rewrite_seo_html(orig, base_url, langs)
         if t != orig:
             write(f, t)
             done.append(cand.split("/")[-2] + "/" + cand.split("/")[-1])

@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "glassmorphism",
+  "target_region": "north-america",
+  "project_name": "claimflow-ai",
+  "palette": {
+    "primary": "#374151",
+    "accent": "#dc2626",
+    "heading": "#111827",
+    "navBg": "#f8fafc",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#64748b",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

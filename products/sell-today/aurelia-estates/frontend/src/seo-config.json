@@ -1,0 +1,56 @@
+{
+  "home": {
+    "title": "Home | aurelia-estates",
+    "description": "Welcome to aurelia-estates — the leading realestate platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "realEstateAgent",
+    "ogLocale": "en_US"
+  },
+  "listings": {
+    "title": "Properties | aurelia-estates",
+    "description": "Properties — aurelia-estates",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates/listings",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "itemList",
+    "ogLocale": "en_US"
+  },
+  "agents": {
+    "title": "Our Agents | aurelia-estates",
+    "description": "Our Agents — aurelia-estates",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates/agents",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "person",
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | aurelia-estates",
+    "description": "Learn about aurelia-estates, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | aurelia-estates",
+    "description": "Get in touch with aurelia-estates. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | aurelia-estates",
+    "description": "Read the latest articles and insights from aurelia-estates.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/aurelia-estates/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  }
+}

@@ -1,0 +1,5230 @@
+{
+  "generatedAt": "2026-10-06T11:49:19",
+  "products": [
+    {
+      "name": "apex",
+      "path": "products/apex",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "15 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "35 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "9 page components: about, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "66 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (179 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 179 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, apex-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml, test.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/apex-digital",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/apex-digital",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (9,562 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,045 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (807 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (3,982 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,588 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,499 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,337 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 9,212 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "7 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 150 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 143 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "aurelia-estates",
+      "path": "products/aurelia-estates",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "33 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "84 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (314 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 314 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, aurelia-estates-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/aurelia-estates",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/aurelia-estates",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,526 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,070 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (827 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,004 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,643 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,517 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,348 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,180 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 146 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "aurum-fitness",
+      "path": "products/aurum-fitness",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "32 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "57 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (216 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 216 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, aurum-fitness-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/aurum-fitness",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/aurum-fitness",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,431 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,064 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (819 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,000 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,633 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,505 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,346 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,079 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 143 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "claimflow-ai",
+      "path": "products/claimflow-ai",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "15 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "35 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "9 page components: about, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "50 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (174 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 174 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, claimflow-ai-002-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/claimflow",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/claimflow",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,641 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,058 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (806 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,006 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,648 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,481 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,345 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,293 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "34 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 150 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 142 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "flowpilot",
+      "path": "products/flowpilot",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "15 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "35 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "9 page components: about, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "66 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (179 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 179 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, flowpilot-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml, test.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/flowpilot",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/flowpilot",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (9,581 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,052 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (803 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (3,992 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,686 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,481 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,342 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 9,231 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "7 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 150 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 142 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "meridian-capital",
+      "path": "products/meridian-capital",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "32 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "50 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (189 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 189 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, meridian-capital-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/meridian-capital",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/meridian-capital",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,378 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,073 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (831 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,006 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,648 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,523 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,349 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,025 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 143 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "nuage-events",
+      "path": "products/nuage-events",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "32 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "67 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (189 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 189 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, nuage-events-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/nuage-events",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/nuage-events",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,470 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,061 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (815 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (3,998 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,628 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,499 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,345 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,117 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 144 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "prestige-studio",
+      "path": "products/prestige-studio",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "33 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "67 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (190 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 190 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, prestige-studio-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/prestige-studio",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/prestige-studio",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,364 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,070 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (827 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,004 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,643 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,517 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,348 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,014 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 143 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "resupro",
+      "path": "products/resupro",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "15 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "33 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "48 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (231 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 231 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, resupro-002-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/resupro",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/resupro",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (7,927 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,046 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (795 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (3,996 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,623 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,469 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,340 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 7,578 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 121 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "saffron-voyage",
+      "path": "products/saffron-voyage",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "33 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "67 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (193 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 193 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, saffron-voyage-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/saffron-voyage",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/saffron-voyage",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,370 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,067 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (823 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (4,002 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,638 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,511 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,347 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,019 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 144 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "name": "studio-lumen",
+      "path": "products/studio-lumen",
+      "score": 100,
+      "sellable": true,
+      "counts": {
+        "pass": 66,
+        "warn": 0,
+        "fail": 0
+      },
+      "findings": [
+        {
+          "check": "no-hardcoded-credentials",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no hardcoded password literals in runtime code",
+          "evidence": null
+        },
+        {
+          "check": "no-committed-secrets",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no private keys or provider tokens in the tree",
+          "evidence": null
+        },
+        {
+          "check": "no-env-file-shipped",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "no live .env file in the deliverable",
+          "evidence": null
+        },
+        {
+          "check": "backend-hardening",
+          "category": "Security",
+          "status": "PASS",
+          "detail": "helmet + cors + rate limiting wired in server.js",
+          "evidence": null
+        },
+        {
+          "check": "gitignore-coverage",
+          "category": "Security",
+          "status": "PASS",
+          "detail": ".gitignore covers .env and node_modules",
+          "evidence": null
+        },
+        {
+          "check": "no-developer-paths",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no absolute developer paths",
+          "evidence": null
+        },
+        {
+          "check": "no-generator-attribution",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no generator attribution",
+          "evidence": null
+        },
+        {
+          "check": "no-stray-vcs-or-archives",
+          "category": "Provenance",
+          "status": "PASS",
+          "detail": "no .git directory or bundled archives",
+          "evidence": null
+        },
+        {
+          "check": "frontend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "16 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "frontend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "backend-version-pins",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "33 dependency ranges resolve",
+          "evidence": null
+        },
+        {
+          "check": "backend-lockfile",
+          "category": "Dependencies",
+          "status": "PASS",
+          "detail": "package-lock.json present (npm ci reproducible)",
+          "evidence": null
+        },
+        {
+          "check": "frontend-pages",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "11 page components: about, admin, checkout, contact, home, login, pricing, privacy, register, services, terms",
+          "evidence": null
+        },
+        {
+          "check": "login-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "login page: login.jsx",
+          "evidence": null
+        },
+        {
+          "check": "signup-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "signup page: register.jsx",
+          "evidence": null
+        },
+        {
+          "check": "auth-routed",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "auth screens routed in App.jsx: Login, Register",
+          "evidence": null
+        },
+        {
+          "check": "privacy-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Privacy.jsx",
+          "evidence": null
+        },
+        {
+          "check": "terms-page",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "frontend/src/pages/Terms.jsx",
+          "evidence": null
+        },
+        {
+          "check": "design-tokens",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "design tokens present (design-tokens.json)",
+          "evidence": null
+        },
+        {
+          "check": "reduced-motion",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "honours prefers-reduced-motion",
+          "evidence": null
+        },
+        {
+          "check": "layout-system",
+          "category": "Frontend / UI-UX",
+          "status": "PASS",
+          "detail": "utility layout system (Tailwind) configured",
+          "evidence": null
+        },
+        {
+          "check": "i18n-coverage",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "14 locales: ar, de, en, es, fr, hi, id, ja, ko, pt, ru, tr, ur, zh",
+          "evidence": null
+        },
+        {
+          "check": "rtl-support",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "RTL styles for ar, ur in rtl.css",
+          "evidence": null
+        },
+        {
+          "check": "currency-localisation",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "67 currency/locale-formatting reference(s)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-translated",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "all 13 non-English locales fully translated (190 keys each, 0 English leftovers)",
+          "evidence": null
+        },
+        {
+          "check": "i18n-key-parity",
+          "category": "Internationalisation",
+          "status": "PASS",
+          "detail": "every locale carries exactly the 190 English keys",
+          "evidence": null
+        },
+        {
+          "check": "dockerfiles",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend/Dockerfile and backend/Dockerfile present",
+          "evidence": null
+        },
+        {
+          "check": "compose-services",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "5 services: db, backend, frontend, postgres_data, studio-lumen-network (healthchecks present)",
+          "evidence": null
+        },
+        {
+          "check": "docker-multistage",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "frontend Dockerfile is multi-stage",
+          "evidence": null
+        },
+        {
+          "check": "docker-pinned-base",
+          "category": "Docker",
+          "status": "PASS",
+          "detail": "pinned alpine base image",
+          "evidence": null
+        },
+        {
+          "check": "workflows-present",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "workflows: ci.yml, deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "ci-runs-install",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI installs dependencies with npm ci",
+          "evidence": null
+        },
+        {
+          "check": "ci-no-error-masking",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "no `|| true` failure masking in CI",
+          "evidence": null
+        },
+        {
+          "check": "ci-build",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI runs the frontend build",
+          "evidence": null
+        },
+        {
+          "check": "ci-boot-probe",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "CI boots the API and probes /health",
+          "evidence": null
+        },
+        {
+          "check": "deploy-pages",
+          "category": "CI/CD",
+          "status": "PASS",
+          "detail": "GitHub Pages deploy workflow: deploy.yml",
+          "evidence": null
+        },
+        {
+          "check": "vite-base",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite base is env-driven via VITE_BASE_PATH — correct for a Pages subpath and for a custom domain alike",
+          "evidence": null
+        },
+        {
+          "check": "vite-env-config",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "vite config reads environment variables",
+          "evidence": null
+        },
+        {
+          "check": "spa-routing",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "BrowserRouter with a 404.html fallback regenerated on every build",
+          "evidence": null
+        },
+        {
+          "check": "live-url-recorded",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "live URL recorded: https://malikusmangoraya.github.io/studio-lumen",
+          "evidence": null
+        },
+        {
+          "check": "live-url-consistent",
+          "category": "Live demo",
+          "status": "PASS",
+          "detail": "every shipped reference matches https://malikusmangoraya.github.io/studio-lumen",
+          "evidence": null
+        },
+        {
+          "check": "doc-readme",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README.md (8,424 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-deployment-guide",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "DEPLOYMENT.md (5,061 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LICENSE.md (815 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-security-policy",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "SECURITY.md (2,379 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-changelog",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CHANGELOG.md (1,480 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-buyer-docs",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "BUYER_DOCUMENTATION.md (3,998 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-seller-kit",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "LEMON_SQUEEZY_SELLER_KIT.md (4,628 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-commercial-license",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "COMMERCIAL_LICENSE.md (1,499 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "doc-contributing",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "CONTRIBUTING.md (1,345 bytes)",
+          "evidence": null
+        },
+        {
+          "check": "readme-no-placeholders",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is free of placeholder text",
+          "evidence": null
+        },
+        {
+          "check": "readme-substance",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "README is 8,072 chars",
+          "evidence": null
+        },
+        {
+          "check": "support-contact",
+          "category": "Documentation",
+          "status": "PASS",
+          "detail": "6 support email reference(s) in docs",
+          "evidence": null
+        },
+        {
+          "check": "license-present",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE.md references a recognised licence",
+          "evidence": null
+        },
+        {
+          "check": "license-seal",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "LICENSE-SEAL.md present",
+          "evidence": null
+        },
+        {
+          "check": "third-party-notices",
+          "category": "Licensing",
+          "status": "PASS",
+          "detail": "THIRD_PARTY_NOTICES.md present",
+          "evidence": null
+        },
+        {
+          "check": "no-placeholder-text",
+          "category": "Content hygiene",
+          "status": "PASS",
+          "detail": "no placeholder or filler text in shipped code or docs",
+          "evidence": null
+        },
+        {
+          "check": "backend-routes",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "33 route modules",
+          "evidence": null
+        },
+        {
+          "check": "backend-auth-endpoints",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "auth.routes.js exposes both register and login",
+          "evidence": null
+        },
+        {
+          "check": "backend-jwt",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "JWT dependency declared",
+          "evidence": null
+        },
+        {
+          "check": "backend-health",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "health endpoint present",
+          "evidence": null
+        },
+        {
+          "check": "backend-env-example",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "backend/.env.example present",
+          "evidence": null
+        },
+        {
+          "check": "database-schema",
+          "category": "Backend",
+          "status": "PASS",
+          "detail": "database schema files: 3",
+          "evidence": null
+        },
+        {
+          "check": "backend-syntax",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "all 145 backend JavaScript files parse",
+          "evidence": null
+        },
+        {
+          "check": "frontend-imports-resolve",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "every relative import in 143 frontend files resolves",
+          "evidence": null
+        },
+        {
+          "check": "service-worker-subpath",
+          "category": "Code health",
+          "status": "PASS",
+          "detail": "service worker URLs and scope are base-relative",
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}

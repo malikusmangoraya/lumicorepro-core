@@ -7,16 +7,15 @@ Python backend (no new dependencies).
 Why a backend at all, instead of a static HTML file:
   - the agent API does not send CORS headers, so a `file://` page cannot call it
   - API keys must never reach the browser, so they are masked server-side
-  - probing a *local* model server (Ollama/LM Studio/vLLM/OpenMuse) needs a
-    server-side request, otherwise the browser hits mixed-content/CORS walls
+  - probing a provider's latency needs a server-side request, otherwise the
+    browser hits mixed-content/CORS walls
 
 Endpoints (all JSON unless noted):
   GET  /                          the console page
   GET  /assets/<file>             css + js
   GET  /api/console/overview      health, providers (masked), tiers, routing stats,
-                                  local-model probe, recent runs  (one round trip)
+                                  recent runs  (one round trip)
   POST /api/console/tiers         save tier membership to .router.json
-  POST /api/console/local-model   set OPENMUSE_* for a detected local server
   POST /api/console/launch        start a pipeline run (JSON body)
   GET  /api/console/runs          recent runs (the page polls this for progress;
                                   the agent API has no SSE, so there is no
@@ -35,7 +34,6 @@ import os
 import re
 import subprocess
 import sys
-import threading
 import time
 import urllib.error
 import urllib.request
@@ -58,15 +56,6 @@ CONTENT_TYPES = {
     ".svg": "image/svg+xml",
     ".ico": "image/x-icon",
 }
-
-LOCAL_MODEL_PORTS = [
-    (11434, "Ollama"),
-    (8080, "LM Studio / OpenMuse gateway / llama.cpp"),
-    (8000, "vLLM / SGLang / OpenMuse agent"),
-    (1234, "LM Studio (alt)"),
-    (20128, "ninerouter local gateway"),
-]
-
 
 def agent_get(path: str, timeout: float = 6.0) -> Tuple[int, Any]:
     """GET the agent API. Returns (status, parsed_or_text)."""
@@ -112,47 +101,6 @@ def mask_key(value: str) -> str:
     if len(value) <= 8:
         return "*" * len(value)
     return f"{value[:4]}{'*' * (len(value) - 8)}{value[-4:]}"
-
-
-def probe_local_model(port: int) -> Optional[Dict[str, Any]]:
-    """Ask a local OpenAI-compatible server what models it serves."""
-    base = f"http://127.0.0.1:{port}"
-    req = urllib.request.Request(f"{base}/v1/models", headers={"Accept": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=1.5) as resp:
-            payload = json.loads(resp.read().decode("utf-8", "replace"))
-    except Exception:
-        return None
-    models: List[str] = []
-    for item in (payload or {}).get("data", []) or []:
-        name = item.get("id") if isinstance(item, dict) else str(item)
-        if name:
-            models.append(str(name))
-    return {"base_url": f"{base}/v1", "port": port, "models": models}
-
-
-def scan_local_servers() -> List[Dict[str, Any]]:
-    """Probe known local ports concurrently so the page loads fast."""
-    found: List[Dict[str, Any]] = []
-    threads: List[threading.Thread] = []
-    results: Dict[int, Optional[Dict[str, Any]]] = {}
-
-    def worker(port: int, label: str) -> None:
-        hit = probe_local_model(port)
-        if hit:
-            hit["label"] = label
-            results[port] = hit
-
-    for port, label in LOCAL_MODEL_PORTS:
-        t = threading.Thread(target=worker, args=(port, label), daemon=True)
-        t.start()
-        threads.append(t)
-    for t in threads:
-        t.join(timeout=2.5)
-    for port, _label in LOCAL_MODEL_PORTS:
-        if port in results:
-            found.append(results[port])
-    return found
 
 
 def build_overview() -> Dict[str, Any]:
@@ -219,7 +167,6 @@ def build_overview() -> Dict[str, Any]:
         "providers": cards,
         "fallback_order": list(FALLBACK_ORDER),
         "available_providers": sorted(available or set(get_available_providers())),
-        "local_models": scan_local_servers(),
         "watchtower": watchtower if watchtower_status == 200 else None,
         "usage": usage if usage_status == 200 else None,
         "runs": (runs if runs_status == 200 else None),
@@ -320,46 +267,6 @@ def open_result_dir(payload: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as exc:
         return {"ok": False, "error": str(exc)[:200]}
     return {"ok": True, "path": target}
-
-
-def set_local_model(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Point OPENMUSE_* at a detected local server, persisted to ai-agent/.env."""
-    base_url = str(payload.get("base_url", "")).strip().rstrip("/")
-    model = str(payload.get("model", "")).strip()
-    if not base_url.startswith("http://127.0.0.1") and not base_url.startswith("http://localhost"):
-        return {"ok": False, "error": "base_url must be a local address (127.0.0.1 or localhost)"}
-    if not model:
-        return {"ok": False, "error": "model is required"}
-
-    env_path = os.path.join(HERE, ".env")
-    updates = {"OPENMUSE_BASE_URL": base_url, "OPENMUSE_MODEL": model}
-    try:
-        existing = []
-        if os.path.exists(env_path):
-            with open(env_path, "r", encoding="utf-8", errors="replace") as fh:
-                existing = fh.read().splitlines()
-    except OSError as exc:
-        return {"ok": False, "error": f"cannot read .env: {exc}"}
-
-    out: List[str] = []
-    seen = set()
-    for line in existing:
-        key = line.split("=", 1)[0].strip() if "=" in line else ""
-        if key in updates:
-            out.append(f"{key}={updates[key]}")
-            seen.add(key)
-        else:
-            out.append(line)
-    for key, value in updates.items():
-        if key not in seen:
-            out.append(f"{key}={value}")
-
-    try:
-        with open(env_path, "w", encoding="utf-8") as fh:
-            fh.write("\n".join(out).rstrip() + "\n")
-    except OSError as exc:
-        return {"ok": False, "error": f"cannot write .env: {exc}"}
-    return {"ok": True, "saved": updates, "env": env_path}
 
 
 def launch_run(payload: Dict[str, Any]) -> Tuple[int, Any]:
@@ -496,8 +403,6 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         try:
             if path == "/api/console/tiers":
                 self._json(write_tiers(payload))
-            elif path == "/api/console/local-model":
-                self._json(set_local_model(payload))
             elif path == "/api/console/launch":
                 status, data = launch_run(payload)
                 self._json(data if isinstance(data, (dict, list)) else {"raw": data}, status if status else 502)

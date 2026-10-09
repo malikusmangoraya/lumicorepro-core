@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="ClaimFlow">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070913"/><stop offset="1" stop-color="#0d1322"/></linearGradient><linearGradient id="mark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#374151"/><stop offset="1" stop-color="#000000"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g opacity="0.10" transform="translate(292,315)"><rect x="-204" y="-235" width="1040" height="470" rx="28" fill="none" stroke="#f8fafc" stroke-width="2"/></g>
+  <rect x="88" y="241" width="148" height="148" rx="33" fill="url(#mark)"/>
+  <g transform="translate(125 278) scale(2.3125)"><path d="M32 8 L52 16 V30 C52 42 43 50 32 54 C21 50 12 42 12 30 V16 Z" fill="#ffffff"/><path d="M25 31 L30 37 L41 24" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 8 L52 16 L32 20 L12 16 Z" fill="rgba(255,255,255,0.55)"/></g>
+  <text x="292" y="290" font-family="Helvetica Neue, Inter, system-ui, sans-serif" font-size="64" font-weight="800" fill="#f8fafc">ClaimFlow</text>
+  <rect x="292" y="308" width="92" height="5" rx="2.5" fill="#374151"/>
+  <text x="292" y="352" font-family="Inter, system-ui, sans-serif" font-size="28" fill="#cbd5e1">Claims intake without the backlog.</text>
+</svg>

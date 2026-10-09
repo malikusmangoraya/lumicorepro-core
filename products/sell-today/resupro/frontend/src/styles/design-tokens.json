@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "glassmorphism",
+  "target_region": "default",
+  "project_name": "build",
+  "palette": {
+    "primary": "#be2c44",
+    "accent": "#059669",
+    "heading": "#be2c44",
+    "navBg": "#f8fafc",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be2c44",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

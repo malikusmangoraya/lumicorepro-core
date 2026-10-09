@@ -4,7 +4,10 @@
    ============================================================ */
 
 /* ── Google Fonts ──────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+/* The stylesheet is loaded once, from index.html (async preload,
+   display=optional). The duplicate @import that used to live here made
+   Google Fonts fetch twice and reflow the page on every font swap
+   (measured: +90px hero growth per swap — the CLS failure). */
 
 /* ── Base Layer ────────────────────────────────────────────── */
 @layer base {

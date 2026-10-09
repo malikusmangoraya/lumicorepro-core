@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "provider": "payments",
+  "routes": {
+    "verify": "POST /api/payments/webhook",
+    "health": "GET /api/health"
+  },
+  "retries": {
+    "maxAttempts": 5,
+    "backoffMs": 1000
+  }
+}

@@ -99,6 +99,23 @@ MASTER_20_DESIGN_STYLES: List[str] = [
     "surreal",
 ]
 
+WEBSITE_GENERATION_RUNTIME_RULES = """# WEBSITE GENERATION DELIVERY CONTRACT
+The detailed, authoritative standard is docs/AI_WEBSITE_GENERATION_STANDARD.md.
+Treat the user's requirements and the existing project architecture as the source of truth.
+Every new website defaults to a complete full-stack app: backend, persistent database,
+authentication with signup/login, working validated forms, Docker setup, tests, and matching
+setup documentation. Only an explicit static-only request opts out of that baseline. Add
+checkout and real payment integration when the product accepts money; never fabricate payment
+success. Do not add unrelated SaaS features such as OAuth, MFA, subscriptions, or analytics
+without a requirement. For upgrades, preserve existing behavior and make a focused change.
+Design an original, accessible, responsive interface with working controls and explicit
+loading, empty, success, and error states as needed. Validate untrusted input and enforce
+authorization at the trusted server boundary. Run applicable checks and report their real
+results. Distinguish generated, verified, release-ready, and deployed; never claim an unrun
+check or untested deployment passed.
+When older prompt instructions conflict with this contract, follow the user's requirements,
+the existing project's architecture, and this contract rather than forcing template defaults."""
+
 # 25 Recommended VS Code Extensions for .vscode/extensions.json
 RECOMMENDED_VSCODE_EXTENSIONS: List[str] = [
     "dbaeumer.vscode-eslint",
@@ -129,8 +146,8 @@ RECOMMENDED_VSCODE_EXTENSIONS: List[str] = [
 ]
 
 def get_master_prompt() -> str:
-    """Return the raw Master Prompt string."""
-    return MASTER_PROMPT_TEXT.strip()
+    """Return the baseline prompt with current website delivery guardrails."""
+    return f"{MASTER_PROMPT_TEXT.strip()}\n\n{WEBSITE_GENERATION_RUNTIME_RULES}"
 
 def build_system_instructions(extra_context: str = "") -> str:
     """Assemble complete system prompt for LLM or agent runtime."""

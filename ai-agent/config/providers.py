@@ -39,11 +39,24 @@ KIMI_API_KEY  = os.getenv("KIMI_API_KEY", "") or os.getenv("MOONSHOT_API_KEY", "
 KIMI_MODEL    = os.getenv("KIMI_MODEL",   "kimi-k2.7-code")
 KIMI_BASE_URL = os.getenv("KIMI_BASE_URL", "")
 
-# OpenMuse (MIT open-source Meta-Muse-style agent) / any local OpenAI-compatible
-# open-weight runtime: Ollama, vLLM/SGLang, llama.cpp, LM Studio. Keyless.
-OPENMUSE_API_KEY  = os.getenv("OPENMUSE_API_KEY", "")
-OPENMUSE_MODEL    = os.getenv("OPENMUSE_MODEL",   "qwen3-coder")
-OPENMUSE_BASE_URL = os.getenv("OPENMUSE_BASE_URL", "")
+# OpenCode — MIT-licensed open-source coding agent CLI (the free, open-source
+# Claude Code alternative: https://github.com/sst/opencode). Local CLI adapter,
+# so there is no API key here: OpenCode holds its own provider credentials.
+OPENCODE_BIN   = os.getenv("OPENCODE_BIN", "opencode")
+OPENCODE_MODEL = os.getenv("OPENCODE_MODEL", "")
+
+# ── Internet-only open-weight cloud inference ─────────────────────────────
+# Open models (Llama, Qwen, DeepSeek, GLM, Mistral, gpt-oss) served over a
+# cloud HTTP API. There is deliberately no local/offline path here: an offline
+# runtime needs a GPU on the operator's machine, which is out of scope. Keys,
+# base URLs and model candidates all come from providers/openweight_provider.py
+# so a vendor is a data change, not a new file.
+from providers.openweight_provider import (
+    OPENWEIGHT_VENDORS,
+    vendor_api_key,
+    vendor_base_url,
+    vendor_models,
+)
 
 PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
     # ── Active providers ──────────────────────────────────────────────
@@ -62,6 +75,15 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "env_var_name": "NINEROUTER_API_KEY",
         "class_path": "providers.ninerouter_provider.NinerouterProvider",
         "keyless": True,  # local gateway; requires connected provider + DSL key to reply
+    },
+    "opencode": {
+        "provider_name": "opencode",
+        "api_key": "",
+        "model": OPENCODE_MODEL,
+        "env_var_name": "OPENCODE_BIN",
+        "class_path": "providers.opencode_provider.OpenCodeProvider",
+        "keyless": True,  # local CLI agent; OpenCode carries its own credentials
+        "open_source": True,
     },
     "gemini": {
         "provider_name": "gemini",
@@ -92,12 +114,23 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "env_var_name": "OPENROUTER_API_KEY",
         "class_path": "providers.openrouter_provider.OpenRouterProvider",
     },
+    # Groq Cloud serves open models. The historical slug is `grok` (the class
+    # hits api.groq.com); `groq` is accepted as the natural spelling.
     "grok": {
         "provider_name": "grok",
         "api_key": GROK_API_KEY,
         "model": GROK_MODEL,
         "env_var_name": "GROK_API_KEY",
         "class_path": "providers.grok_provider.GrokProvider",
+        "open_source": True,
+    },
+    "groq": {
+        "provider_name": "grok",  # alias of `grok` -> Groq Cloud
+        "api_key": GROK_API_KEY,
+        "model": GROK_MODEL,
+        "env_var_name": "GROK_API_KEY",
+        "class_path": "providers.grok_provider.GrokProvider",
+        "open_source": True,
     },
     "mistral": {
         "provider_name": "mistral",
@@ -145,16 +178,6 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "class_path": "providers.kimi_provider.KimiProvider",
         "open_source": True,
     },
-    "openmuse": {
-        "provider_name": "openmuse",
-        "api_key": OPENMUSE_API_KEY,
-        "model": OPENMUSE_MODEL,
-        "base_url": OPENMUSE_BASE_URL,
-        "env_var_name": "OPENMUSE_API_KEY",
-        "class_path": "providers.openmuse_provider.OpenMuseProvider",
-        "keyless": True,  # local Ollama/vLLM/llama.cpp/LM Studio need no key
-        "open_source": True,
-    },
     "nvidia": {
         "provider_name": "nvidia",
         "api_key": NVIDIA_API_KEY,
@@ -176,18 +199,37 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
 # returned None).
 FALLBACK_ORDER: List[str] = [
     "nvidia",       # NVIDIA NIM free tier — DeepSeek V4.1 Flash, GLM 5.3, Kimi K3 (free, no credit card)
-    "ninerouter",   # 9Router local gateway — free-tier routing + RTK token saver (default, boots :20128)
-    "omniroute",    # OmniRoute gateway — fast-first 'auto' + 150+ free fallbacks (alt, same port)
+    "cerebras",     # open-weight cloud — fastest time-to-first-token
+    "groq",         # Groq Cloud — LPU, open models
+    "nebius",       # open-weight cloud — fast + cheap (Token Factory)
+    "hyperbolic",   # open-weight cloud — open-access GPU cloud
+    "zai",          # open-weight cloud — GLM (MIT for the 4.5 family)
+    "dashscope",    # open-weight cloud — Qwen3 (Apache-2.0), Alibaba Model Studio
+    "together",     # open-weight cloud — 200+ open models
+    "deepinfra",    # open-weight cloud — cheapest per token
+    "fireworks",    # open-weight cloud — high throughput
+    "sambanova",    # open-weight cloud — dataflow hardware
+    "novita",       # open-weight cloud — low-cost
+    "huggingface",  # HF Inference Providers router — one key, many backends
+    "featherless",  # open-weight cloud — largest catalogue, no cold start
+    "chutes",       # open-weight cloud — decentralised, very low cost
+    "minimax",      # open-weight cloud — M-series, long context, agentic
+    "cohere",       # open-weight cloud — Command A/R (CC-BY-NC: non-commercial only)
     "gemini",       # Google — fast, free tier (primary native)
     "deepseek",     # DeepSeek — cheap reasoning/code tier
     "claude",       # Anthropic — strongest reasoning tier when a key is present
     "openai",       # GPT-4/4o — standard
-    "openrouter",   # aggregator — fallback
-    "grok",         # Groq Cloud — fast but rate limited
-    "mistral",      # cheap, multilingual
-    "kimi",         # Moonshot AI — open-weight K2, strong coder (last hosted hop)
-    "openmuse",     # local open-weight server (Ollama/vLLM/llama.cpp) — offline/air-gapped last hop
+    "openrouter",   # aggregator — 200+ models, routing + fallbacks
+    "mistral",      # open-weight + frontier, multilingual
+    "opencode",     # OpenCode CLI — local MIT coding agent (free Claude Code); keyless
+    "kimi",         # Moonshot AI — open-weight K2, strong coder
 ]
+
+# NOTE: every provider above is reached over the public internet. Local GPU
+# runtimes (Ollama, vLLM, llama.cpp, LM Studio) are intentionally absent — they
+# need hardware on the operator's machine, which this agent must not require.
+# `providers/openweight_provider.OFFLINE_ONLY_SLUGS` records that decision and
+# tests/test_open_weight_cloud.py enforces it.
 
 def active_provider_name(env: Any = os.environ, default: str = "grok") -> str:
     """Resolve the configured active provider from `ACTIVE_AI_PROVIDER`/`AI_PROVIDER`."""
@@ -313,14 +355,27 @@ def _build_ninerouter(cfg: Dict[str, Any]):
     return NinerouterProvider(cfg["api_key"], cfg["model"])
 
 
+def _build_opencode(cfg: Dict[str, Any]):
+    from providers.opencode_provider import OpenCodeProvider
+    return OpenCodeProvider(cfg.get("api_key", ""), cfg.get("model", ""))
+
+
 def _build_kimi(cfg: Dict[str, Any]):
     from providers.kimi_provider import KimiProvider
     return KimiProvider(cfg["api_key"], cfg["model"], base_url=cfg.get("base_url") or None)
 
 
-def _build_openmuse(cfg: Dict[str, Any]):
-    from providers.openmuse_provider import OpenMuseProvider
-    return OpenMuseProvider(cfg["api_key"], cfg["model"], base_url=cfg.get("base_url") or None)
+def _build_openweight(slug: str):
+    """Build a cloud open-weight provider for one vendor slug."""
+    def _builder(cfg: Dict[str, Any]):
+        from providers.openweight_provider import OpenWeightCloudProvider
+        return OpenWeightCloudProvider(
+            slug,
+            api_key=cfg.get("api_key") or None,
+            model_name=cfg.get("model") or None,
+            base_url=cfg.get("base_url") or None,
+        )
+    return _builder
 
 
 def _build_nvidia(cfg: Dict[str, Any]):
@@ -349,12 +404,29 @@ _PROVIDER_BUILDERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
     "mistral": _build_mistral,
     "omniroute": _build_omniroute,
     "ninerouter": _build_ninerouter,
+    "opencode": _build_opencode,
     "kimi": _build_kimi,
-    "openmuse": _build_openmuse,
     "nvidia": _build_nvidia,
     "claude": _build_claude,
     "deepseek": _build_deepseek,
 }
+
+# Register every internet-only open-weight vendor from the single vendor table,
+# so adding a vendor is a data change and can never drift from its constructor.
+for _slug in OPENWEIGHT_VENDORS:
+    PROVIDER_CONFIGS[_slug] = {
+        "provider_name": _slug,
+        "api_key": vendor_api_key(_slug),
+        "model": vendor_models(_slug)[0],
+        "models": vendor_models(_slug),
+        "base_url": vendor_base_url(_slug),
+        "env_var_name": OPENWEIGHT_VENDORS[_slug]["env_var"],
+        "class_path": "providers.openweight_provider.OpenWeightCloudProvider",
+        "open_source": True,
+        "internet_only": True,  # reachable over HTTPS; never a local runtime
+        "docs": OPENWEIGHT_VENDORS[_slug]["docs"],
+    }
+    _PROVIDER_BUILDERS[_slug] = _build_openweight(_slug)
 
 
 #: API-key placeholders shipped in `.env.example` — never a configured key.
@@ -365,7 +437,21 @@ _PLACEHOLDER_KEYS = {
     "your_mistral_api_key_here",
     "your_grok_api_key_here",
     "your_kimi_api_key_here",
-    "your_openmuse_api_key_here",
+    "your_cerebras_api_key_here",
+    "your_deepinfra_api_key_here",
+    "your_together_api_key_here",
+    "your_fireworks_api_key_here",
+    "your_sambanova_api_key_here",
+    "your_novita_api_key_here",
+    "your_huggingface_token_here",
+    "your_nebius_api_key_here",
+    "your_hyperbolic_api_key_here",
+    "your_featherless_api_key_here",
+    "your_chutes_api_key_here",
+    "your_zai_api_key_here",
+    "your_dashscope_api_key_here",
+    "your_minimax_api_key_here",
+    "your_cohere_api_key_here",
     "your_anthropic_api_key_here",
     "your_claude_api_key_here",
     "your_deepseek_api_key_here",
@@ -399,13 +485,32 @@ def key_present(provider_name: str) -> bool:
     return not is_placeholder_key(key)
 
 
+def _local_runtime_ready(provider: Any) -> bool:
+    """Reachability self-check for a *keyless* adapter.
+
+    A keyless provider fronts a local runtime — a gateway server or, for
+    `opencode`, an installed CLI. Providers that expose `is_available()` answer
+    for themselves; those that cannot (the gateway adapters) stay assumed
+    reachable, which preserves their existing behaviour.
+    """
+    probe = getattr(provider, "is_available", None)
+    if not callable(probe):
+        return True
+    try:
+        return bool(probe())
+    except Exception:
+        return False
+
+
 def provider_status(provider_name: str) -> Dict[str, Any]:
-    """Honest per-provider wiring report: configured / key_present / constructor_ok.
+    """Honest per-provider wiring report.
 
     `/api/providers` used to advertise a provider as available purely because a
     key existed, even when `instantiate_provider` had no branch for it (nvidia
-    was the live example). All three facts are reported separately now, and
-    `configured` requires the constructor to work.
+    was the live example). Every fact is now reported separately and
+    `configured` requires all of them: a working constructor, a real key (unless
+    the provider is keyless) and, for keyless adapters, a reachable local
+    runtime — so an uninstalled CLI is never advertised as an available hop.
     """
     cfg = get_active_provider_config(provider_name)
     keyless = bool(cfg.get("keyless"))
@@ -413,10 +518,16 @@ def provider_status(provider_name: str) -> Dict[str, Any]:
         key_ok = key_present(provider_name)
     except ValueError:
         key_ok = False
+
+    provider = None
     try:
-        constructor_ok = instantiate_provider(provider_name) is not None
+        provider = instantiate_provider(provider_name)
+        constructor_ok = provider is not None
     except Exception:
         constructor_ok = False
+
+    local_ready = _local_runtime_ready(provider) if (keyless and provider is not None) else True
+
     return {
         "name": cfg.get("provider_name", provider_name),
         "model": cfg.get("model", ""),
@@ -424,7 +535,8 @@ def provider_status(provider_name: str) -> Dict[str, Any]:
         "keyless": keyless,
         "key_present": key_ok,
         "constructor_ok": constructor_ok,
-        "configured": constructor_ok and (keyless or key_ok),
+        "local_ready": local_ready,
+        "configured": constructor_ok and local_ready and (keyless or key_ok),
     }
 
 
@@ -479,6 +591,7 @@ def describe_providers() -> List[Dict[str, Any]]:
                 "keyless": False,
                 "key_present": False,
                 "constructor_ok": False,
+                "local_ready": False,
                 "configured": False,
                 "error": str(exc)[:200],
             }

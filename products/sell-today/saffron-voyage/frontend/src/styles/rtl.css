@@ -1,0 +1,120 @@
+/* Saffron Voyage — RTL (right-to-left) support layer.
+   Applied to <html dir="rtl"> by src/i18n/index.js for ar/fa/he/ps/sd/ur.
+   Uses logical properties so a single rule flips both directions. */
+
+[dir='rtl'] {
+  text-align: right;
+}
+
+/* --- Logical property rewrites for common utility classes --- */
+[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* Icon-only directional glyphs must mirror when direction flips. */
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Explicit physical margins used by generated pages become logical. */
+[dir='rtl'] .ms-auto {
+  margin-inline-start: auto;
+}
+[dir='rtl'] .me-auto {
+  margin-inline-end: auto;
+}
+[dir='rtl'] .ms-0 {
+  margin-inline-start: 0;
+}
+[dir='rtl'] .me-0 {
+  margin-inline-end: 0;
+}
+[dir='rtl'] .ms-1 {
+  margin-inline-start: 0.25rem;
+}
+[dir='rtl'] .me-1 {
+  margin-inline-end: 0.25rem;
+}
+[dir='rtl'] .ms-2 {
+  margin-inline-start: 0.5rem;
+}
+[dir='rtl'] .me-2 {
+  margin-inline-end: 0.5rem;
+}
+[dir='rtl'] .ms-3 {
+  margin-inline-start: 0.75rem;
+}
+[dir='rtl'] .me-3 {
+  margin-inline-end: 0.75rem;
+}
+[dir='rtl'] .ms-4 {
+  margin-inline-start: 1rem;
+}
+[dir='rtl'] .me-4 {
+  margin-inline-end: 1rem;
+}
+[dir='rtl'] .ms-6 {
+  margin-inline-start: 1.5rem;
+}
+[dir='rtl'] .me-6 {
+  margin-inline-end: 1.5rem;
+}
+[dir='rtl'] .ms-8 {
+  margin-inline-start: 2rem;
+}
+[dir='rtl'] .me-8 {
+  margin-inline-end: 2rem;
+}
+[dir='rtl'] .ms-auto,
+[dir='rtl'] .me-auto {
+  margin-inline: auto;
+}
+
+/* --- Flex/grid direction follows writing mode --- */
+[dir='rtl'] .flip-rtl-row {
+  flex-direction: row-reverse;
+}
+
+/* --- Form controls inherit correct writing direction --- */
+[dir='rtl'] input,
+[dir='rtl'] textarea,
+[dir='rtl'] select {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='rtl'] input[type='email'],
+[dir='rtl'] input[type='url'],
+[dir='rtl'] input[type='tel'],
+[dir='rtl'] input[type='number'] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* --- Keep numerals and currency LTR inside RTL prose --- */
+[dir='rtl'] .ltr-nums {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+
+/* --- Shadows that imply a light source flip with direction --- */
+[dir='rtl'] .card-panel,
+[dir='rtl'] .card-lift,
+[dir='rtl'] .glass-md {
+  text-align: start;
+}
+
+/* --- Lists keep their marker on the correct side --- */
+[dir='rtl'] ul,
+[dir='rtl'] ol {
+  padding-inline-start: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [dir='rtl'] .rtl-flip,
+  [dir='rtl'] .flip-rtl {
+    transition: none;
+    animation: none;
+  }
+}

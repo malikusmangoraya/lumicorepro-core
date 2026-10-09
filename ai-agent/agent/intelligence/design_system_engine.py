@@ -327,6 +327,31 @@ class DesignSystemEngine:
             "navigation": navigation,
             "home_sections": pages["Home"]["section_order"],
         }
+        grid_system = "asymmetric_12_column" if _stable_int(seed, "grid") % 2 else "editorial_2_column"
+        density = "compact" if _stable_int(seed, "density") % 2 else "spacious"
+        tokens = _build_tokens(spec, niche)
+        tokens["layout"] = {
+            "container_max": "72rem" if grid_system == "editorial_2_column" else "80rem",
+            "hero_columns": (
+                "minmax(0, 1fr) minmax(0, 0.82fr)"
+                if grid_system == "editorial_2_column"
+                else "repeat(12, minmax(0, 1fr))"
+            ),
+            "tablet_breakpoint": "48rem",
+            "sidebar_width": "18rem" if density == "compact" else "20rem",
+            "card_min_width": "18rem",
+            "heading_measure": "14ch",
+            "body_measure": "62ch",
+            "section_measure": "48rem",
+            "hero_copy_span": 7 if grid_system == "asymmetric_12_column" else 1,
+            "hero_visual_span": 5 if grid_system == "asymmetric_12_column" else 1,
+            "page_min_height": "100vh",
+        }
+        tokens["borders"] = {"width": "1px"}
+        tokens["typography"]["line_height_heading"] = "1.05"
+        tokens["typography"]["line_height_body"] = "1.6"
+        tokens["typography"]["weight_strong"] = 700
+        tokens["motion"]["reduced_duration"] = "0.01ms"
         canonical = {
             "version": 1,
             "project": project,
@@ -334,15 +359,15 @@ class DesignSystemEngine:
             "niche": niche,
             "audience": list(audience),
             "tone": str(tone),
-            "tokens": _build_tokens(spec, niche),
+            "tokens": tokens,
             "layout": {
                 "navigation_pattern": navigation,
                 "hero_archetype": hero,
                 "pages": pages,
-                "grid_system": "asymmetric_12_column" if _stable_int(seed, "grid") % 2 else "editorial_2_column",
+                "grid_system": grid_system,
                 "card_style": "bordered" if _stable_int(seed, "cards") % 2 else "open_surface",
                 "footer_type": "sitemap_columns" if _stable_int(seed, "footer") % 2 else "editorial_contact",
-                "density": "compact" if _stable_int(seed, "density") % 2 else "spacious",
+                "density": density,
             },
             "content_sources": {
                 "brief_sha256": hashlib.sha256(str(spec.get("original_prompt") or spec.get("prompt") or "").encode("utf-8")).hexdigest(),

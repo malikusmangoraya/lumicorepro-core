@@ -50,10 +50,24 @@
     <title>LumicorePro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Fonts load async (preload → stylesheet) so they never block first paint,
+      and display=optional guarantees a late font can never reflow the page
+      after first paint (CLS hard limit, AGENTS.md §7). Same families/weights
+      as the historical @import — that duplicate was removed from globals.css.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=optional"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=optional"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

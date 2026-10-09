@@ -1,0 +1,54 @@
+{
+  "style": "animaster",
+  "name": "Animaster Motion UI",
+  "dna": "Kinetic typography, text morphing, magnetic buttons, glowing border beams, fluid micro-interactions.",
+  "project_name": "studio-lumen",
+  "palette": {
+    "primary": "#06b6d4",
+    "secondary": "#8b5cf6",
+    "accent": "#ec4899",
+    "bg": "#030712",
+    "card": "rgba(15,23,42,0.7)",
+    "surface": "rgba(30,41,59,0.5)",
+    "text": "#f8fafc",
+    "muted": "#94a3b8",
+    "border": "rgba(6,182,212,0.25)"
+  },
+  "palette_hsl": {
+    "primary": "189 94.5% 42.7%",
+    "secondary": "258 89.5% 66.3%",
+    "accent": "330 81.2% 60.4%",
+    "bg": "224 71.4% 4.1%",
+    "card": "rgba(15,23,42,0.7)",
+    "surface": "rgba(30,41,59,0.5)",
+    "text": "210 40.0% 98.0%",
+    "muted": "215 20.2% 65.1%",
+    "border": "rgba(6,182,212,0.25)"
+  },
+  "typography": {
+    "display": "Outfit",
+    "sans": "Inter",
+    "mono": "JetBrains Mono",
+    "scale": [12, 14, 16, 18, 24, 30, 36, 48, 64]
+  },
+  "radius": {
+    "card": "20px",
+    "button": "12px"
+  },
+  "shadow": {
+    "card": "0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(6,182,212,0.15)",
+    "button": "0 4px 20px rgba(6,182,212,0.3)"
+  },
+  "border": {
+    "card": "1px solid rgba(6,182,212,0.25)",
+    "button": "1px solid rgba(6,182,212,0.4)"
+  },
+  "effects": {
+    "blur": "20px",
+    "glow": "0 0 30px rgba(6,182,212,0.3)"
+  },
+  "weight": "bold",
+  "composition": "motion",
+  "generated_by": "lumicorepro-design-engine",
+  "timestamp": "2026-09-14T23:49:38Z"
+}

@@ -2,7 +2,7 @@
 
 Production-ready, local-first Python AI Website Generation Agent built for **LumicorePro Core**.
 
-The agent analyzes natural language website generation prompts, queries the local reusable library (templates, React components, images, icons, animations, Node.js/Express backend micro-modules, and PostgreSQL database schemas) **first**, and invokes external LLMs (Gemini, DeepSeek, OpenRouter) strictly when required for missing features or custom code logic.
+The agent analyzes natural language website generation prompts, queries the local reusable library (templates, React components, images, icons, animations, Node.js/Express backend micro-modules, and PostgreSQL database schemas) **first**, and invokes external LLM APIs strictly when required for missing features or custom code logic.
 
 ---
 
@@ -10,7 +10,7 @@ The agent analyzes natural language website generation prompts, queries the loca
 
 - ⚡ **Local-First Assembly Engine**: Prioritizes local component, template, and backend reuse to achieve **~95% token savings** and **<1s generation speeds**.
 - 🛡️ **Hardened Security & Path Protection**: Includes path traversal bounds, code injection regex & syntax sanitization, and SQL parameterized query enforcement.
-- 🔄 **Multi-Provider Fallback & Retries**: 3-attempt exponential backoff with automatic fallback chain (`Gemini` ➔ `DeepSeek` ➔ `OpenRouter` ➔ `Local Offline Mode`).
+- 🔄 **Multi-Provider Fallback & Retries**: 24-hop **internet-only** fallback chain with 3-attempt exponential backoff — open-weight clouds first (Groq, Cerebras, Nebius, Hyperbolic, Z.ai GLM, Qwen/DashScope, Together, DeepInfra, Fireworks, SambaNova, Novita, Hugging Face, Featherless, Chutes, MiniMax, Cohere), then native vendors (Gemini, DeepSeek, Claude, OpenAI, OpenRouter, Mistral, Kimi). No local GPU runtime is required or supported; with `AI_OFFLINE=1` the agent still produces a full site from the deterministic local assembler. See [docs/OPENSOURCE_ALTERNATIVES.md](../docs/OPENSOURCE_ALTERNATIVES.md) for the full map, including licence cautions.
 - 🗄️ **SQLite WAL Concurrency**: WAL journal mode with lock-retry logic for concurrent database access.
 - 📦 **End-to-End Stack Generation**: React.js + Vite + Tailwind CSS frontend, Express.js backend, PostgreSQL database schema.
 - 🔍 **Deep Validation & Testing**: Deep validator checking NPM packages, env vars, component props, and SQL foreign keys; comprehensive `pytest` test suite.

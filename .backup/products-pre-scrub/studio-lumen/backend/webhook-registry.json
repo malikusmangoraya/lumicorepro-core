@@ -1,0 +1,55 @@
+{
+  "events": [
+    {
+      "event": "subscription.created",
+      "source": "stripe",
+      "description": "New subscription"
+    },
+    {
+      "event": "subscription.upgraded",
+      "source": "stripe",
+      "description": "Plan upgraded"
+    },
+    {
+      "event": "subscription.downgraded",
+      "source": "stripe",
+      "description": "Plan downgraded"
+    },
+    {
+      "event": "subscription.cancelled",
+      "source": "stripe",
+      "description": "Subscription cancelled"
+    },
+    {
+      "event": "invoice.paid",
+      "source": "stripe",
+      "description": "Invoice payment succeeded"
+    },
+    {
+      "event": "invoice.failed",
+      "source": "stripe",
+      "description": "Invoice payment failed"
+    },
+    {
+      "event": "user.registered",
+      "source": "internal",
+      "description": "New user signup"
+    },
+    {
+      "event": "user.trial_started",
+      "source": "internal",
+      "description": "Trial period started"
+    },
+    {
+      "event": "user.trial_expiring",
+      "source": "internal",
+      "description": "Trial ending in 3 days"
+    },
+    {
+      "event": "feature.limit_reached",
+      "source": "internal",
+      "description": "Usage limit hit"
+    }
+  ],
+  "integrations": ["slack", "discord", "mailchimp", "zapier", "n8n", "make", "stripe"]
+}

@@ -7,6 +7,7 @@ import Membership from '../models/Membership.js';
 import { protect, authorize } from '../middleware/auth.js';
 import analyticsService from '../services/analyticsService.js';
 import { callerOrgId, tenantWhere } from '../services/tenantScope.service.js';
+import { cachedRead } from '../services/cache/readCache.service.js';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.get('/dashboard', protect, authorize('admin', 'vendor'), async (req, res,
       Membership.count({ where: tenantWhere(req, { status: 'active' }) }),
       Product.count({ where: tenantWhere(req, { isActive: true }) }),
       Order.count({ where: tenantWhere(req) }),
-      Product.count({ where: tenantWhere(req, { stock: { [Op.lte]: 5 }, isActive: true } })),
+      Product.count({ where: tenantWhere(req, { stock: { [Op.lte]: 5 }, isActive: true }) }),
     ]);
 
     // Revenue aggregation using Sequelize
@@ -160,10 +161,12 @@ router.get('/top-products', protect, authorize('admin', 'vendor'), async (req, r
     const days = parseInt(req.query.days, 10) || 90;
     const orgId = callerOrgId(req);
 
-    // Use a single SQL pass (window function) instead of loading every order
+    // Use a single SQL pass (window function) instead of loading every order.
+    // Result is read-cached (60s) — dashboards hammer this endpoint.
     let rows;
     try {
-      rows = await analyticsService.topProducts({ days, limit, orgId });
+      rows = await cachedRead(`analytics:top-products:${orgId ?? 'all'}:${days}:${limit}`, 60, () =>
+        analyticsService.topProducts({ days, limit, orgId }));
     } catch (err) {
       // Fallback to the previous in-JS aggregation if DB/CTE unavailable
       const orders = await Order.findAll({ attributes: ['items'], where: tenantWhere(req), raw: true });
@@ -197,7 +200,11 @@ router.get('/top-products', protect, authorize('admin', 'vendor'), async (req, r
 router.get('/revenue-report', protect, authorize('admin', 'vendor'), async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
-    const report = await analyticsService.revenueReport({ days, orgId: callerOrgId(req) });
+    const orgId = callerOrgId(req);
+    // Read-cached (60s) — CTE + window-function report on every refresh is
+    // the heaviest query in the dashboard.
+    const report = await cachedRead(`analytics:revenue:${orgId ?? 'all'}:${days}`, 60, () =>
+      analyticsService.revenueReport({ days, orgId }));
     res.json({ success: true, days, data: report });
   } catch (error) {
     next(error);

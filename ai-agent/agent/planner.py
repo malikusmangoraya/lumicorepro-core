@@ -1,6 +1,12 @@
 from typing import Dict, Any, List
 from utils.logger import agent_logger
-from config.master_prompt import get_master_prompt, MASTER_20_DESIGN_STYLES
+from config.master_prompt import (
+    get_master_prompt,
+    MASTER_20_DESIGN_STYLES,
+    WEBSITE_GENERATION_RUNTIME_RULES,
+)
+from .prompt_registry import get_prompt_registry
+from .project_mode_engine import ProjectModeEngine
 
 class GenerationPlanner:
     """Creates a step-by-step project assembly and generation plan with interactive style configuration."""
@@ -48,11 +54,50 @@ class GenerationPlanner:
         agent_logger.info("Constructing assembly & generation plan aligned with Master Prompt...")
 
         project_name = spec.get("project_name", "generated-website")
+        layout_mode = ProjectModeEngine().select_mode(spec)
+        requested_features = spec.get("features") or []
+        if isinstance(requested_features, str):
+            requested_features = [requested_features]
+        elif not isinstance(requested_features, (list, tuple, set)):
+            requested_features = []
+        baseline_features = ["jwt_auth", "users", "contact"] if layout_mode == "enterprise" else []
+        normalized_features = list(dict.fromkeys(
+            baseline_features + [
+                str(feature).strip()
+                for feature in requested_features
+                if str(feature).strip()
+            ]
+        ))
+        spec["features"] = normalized_features
+
+        # Versioned prompt resolution: which exact prompt text (sha256) built
+        # this run is recorded in the plan for provenance / A/B analysis.
+        registry = get_prompt_registry()
+        resolved = None
+        try:
+            resolved = registry.resolve("master_prompt", seed=project_name)
+        except Exception:
+            resolved = None
+
+        master_prompt = resolved["text"] if resolved else get_master_prompt()
+        if WEBSITE_GENERATION_RUNTIME_RULES not in master_prompt:
+            master_prompt = f"{master_prompt}\n\n{WEBSITE_GENERATION_RUNTIME_RULES}"
 
         plan = {
             "project_name": project_name,
             "destination": f"generated-projects/{project_name}",
-            "master_prompt": get_master_prompt(),
+            "layout_mode": layout_mode,
+            "features": normalized_features,
+            "master_prompt": master_prompt,
+            "prompt_provenance": ([
+                {"prompt": resolved["prompt"], "version": resolved["version"],
+                 "sha256": resolved["sha256"], "rollout": resolved["rollout"]}
+            ] if resolved else []),
+            # RAG retrieval (Phase 0a in orchestrator) — the retrieved best
+            # practices + past-build lessons travel with the plan so every
+            # downstream engine generates from the same evidence base.
+            "rag_context": spec.get("rag_context", "") or "",
+            "past_lessons": spec.get("past_lessons", []) or [],
             "zero_budget_mode": True,
             "template": selected_template,
             "components": selected_components,

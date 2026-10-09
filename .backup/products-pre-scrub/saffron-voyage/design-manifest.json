@@ -1,0 +1,33 @@
+{
+  "brand": {
+    "archetype": "minimal",
+    "personality": []
+  },
+  "visual": {
+    "density": 0.45,
+    "motion": 0.45,
+    "3d": false
+  },
+  "typography": {
+    "heading_style": "clean_sans",
+    "body_style": "modern_sans"
+  },
+  "colors": {
+    "tokens": {},
+    "source": "design_tokens.json"
+  },
+  "spacing": {
+    "scale": "token_based"
+  },
+  "components": {
+    "critical": {
+      "primary_cta": "book_now",
+      "secondary_cta": "check_availability"
+    }
+  },
+  "industry": "hospitality",
+  "reference_sources": ["minimal"],
+  "constraints_resolved": {},
+  "created_at": "2026-09-14T23:42:53.378344+00:00",
+  "project": "saffron-voyage"
+}

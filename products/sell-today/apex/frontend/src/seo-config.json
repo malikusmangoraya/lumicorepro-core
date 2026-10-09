@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | apex",
+    "description": "Welcome to apex — the leading saas platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | apex",
+    "description": "Features — apex",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | apex",
+    "description": "Pricing — apex",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | apex",
+    "description": "Read the latest articles and insights from apex.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | apex",
+    "description": "Documentation — apex",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | apex",
+    "description": "Learn about apex, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | apex",
+    "description": "Get in touch with apex. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/apex-digital/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

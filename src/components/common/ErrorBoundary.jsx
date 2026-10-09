@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { AlertTriangle, RotateCcw, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { captureError } from '../../utils/sentry';
 
 /**
  * ErrorBoundary — catches React render errors and shows a user-friendly fallback.
@@ -18,6 +19,8 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
+    // Report to Sentry when configured; no-op locally (see utils/sentry.js).
+    captureError(error, { componentStack: errorInfo?.componentStack?.slice(0, 2000) });
   }
 
   handleReset = () => {

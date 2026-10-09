@@ -102,6 +102,7 @@ from database.init_db import init_database
 from utils.file_manager import FileManager, PathTraversalError
 from utils.telemetry import Telemetry
 from utils.logger import agent_logger
+from utils import tracing as trace_util
 from agent import run_status as rs
 from agent.memory_retriever import MemoryRetriever
 from agent.orchestrator import PipelineCancelled
@@ -184,6 +185,9 @@ def _client_completion_result(report: Dict[str, Any]) -> Dict[str, Any]:
 # ── Lifespan handler (replaces deprecated @app.on_event) ──────────────────
 @asynccontextmanager
 async def _lifespan(application: "FastAPI"):
+    # One-time: wrap `requests` so every provider call continues the W3C trace.
+    if trace_util.instrument_requests_session():
+        agent_logger.info("Distributed tracing: requests session instrumented (traceparent propagation)")
     """Startup + shutdown lifecycle for the FastAPI application."""
     # ── startup ──────────────────────────────────────────────────────────
     # Provider-name validation never performs a network call, so it also runs
@@ -265,6 +269,35 @@ async def _security_headers(request: Request, call_next):
         response.headers.setdefault(
             "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
         )
+    return response
+
+
+# ── Distributed tracing (W3C traceparent) ─────────────────────────────────
+# Express forwards `traceparent` on every agent call; we continue the same
+# trace, echo X-Trace-Id on responses and keep the id in a contextvar so
+# provider HTTP calls (utils.tracing.trace_headers()) stay in the same trace.
+@app.middleware("http")
+async def _trace_context(request: Request, call_next):
+    if not trace_util.tracing_enabled():
+        return await call_next(request)
+    parsed = trace_util.parse_traceparent(request.headers.get("traceparent"))
+    if parsed:
+        trace_id, parent_span, _flags = parsed
+    else:
+        trace_id, parent_span = trace_util.new_trace_id(), None
+    span_id = trace_util.new_span_id()
+    trace_util.set_current_trace(trace_id, span_id)
+    started = time.perf_counter()
+    try:
+        response = await call_next(request)
+    finally:
+        elapsed_ms = (time.perf_counter() - started) * 1000.0
+        agent_logger.info(
+            "trace method=%s path=%s trace_id=%s span_id=%s parent_span=%s elapsed_ms=%.1f",
+            request.method, request.url.path, trace_id, span_id, parent_span or "-", elapsed_ms,
+        )
+    response.headers["X-Trace-Id"] = trace_id
+    response.headers["traceparent"] = trace_util.format_traceparent(trace_id, span_id)
     return response
 
 
@@ -783,6 +816,41 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
             if len(_pending_events) >= 5:
                 _flush_events()
 
+        # ── Semantic cache: replay an identical/similar successful build ──
+        # 30–50% of provider spend is repeat prompts; a hit skips the whole
+        # 18-phase pipeline and returns the stored, quality-gated report.
+        try:
+            from agent.semantic_cache import get_semantic_cache
+            cache_hit = get_semantic_cache().lookup(prompt)
+        except Exception:  # noqa: BLE001
+            cache_hit = None
+        if cache_hit and isinstance(cache_hit.get("report"), dict) and os.path.isdir(
+            str((cache_hit["report"] or {}).get("generated_project_dir") or "")
+        ):
+            cached_report = cache_hit["report"]
+            run["result"] = cached_report
+            run["status"] = "done"
+            run["finished_at"] = time.time()
+            run["cache_hit"] = True
+            _emit("cache_hit", {
+                "match": cache_hit.get("match"),
+                "similarity": cache_hit.get("similarity"),
+                "project_name": cached_report.get("project_name"),
+            })
+            _emit("complete", {
+                "project_name": cached_report.get("project_name"),
+                "quality_score": (cached_report.get("quality_gates", {}) or {}).get("overall_score"),
+                "status": str(cached_report.get("status") or "succeeded") + " (cache)",
+                "zip": cached_report.get("zip_archive_path"),
+                "result": _client_completion_result(cached_report),
+            })
+            _telemetry.record(run_id, "run_cache_hit", match=cache_hit.get("match"),
+                              similarity=cache_hit.get("similarity"))
+            _flush_events()
+            _pipeline_store.set_status(run_id, "done", result_json=cached_report, finished_at=run["finished_at"])
+            _persist_history(prompt, f"cache:{cache_hit.get('match', 'exact')}", cached_report)
+            return
+
         try:
             # Import inside function so server starts even if agent deps are missing
             from agent.orchestrator import AgentOrchestrator
@@ -863,6 +931,30 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
             )
             _flush_events()
             _pipeline_store.set_status(run_id, "done", result_json=report, finished_at=run["finished_at"])
+
+            # Post-run recording: semantic cache store + quality trend entry.
+            # Best-effort — an observability failure never fails the run.
+            try:
+                from agent.semantic_cache import get_semantic_cache
+                from agent.quality_trends import get_quality_tracker
+                _qscore = (report.get("quality_gates", {}) or {}).get("overall_score")
+                if report_status in ("succeeded", "succeeded_with_skips"):
+                    get_semantic_cache().store(prompt, report, quality_score=_qscore)
+                trend = get_quality_tracker().record(
+                    _qscore,
+                    project=report.get("project_name", ""),
+                    status=report_status or "unknown",
+                    provider=(report.get("ai_evidence", {}) or {}).get("provider_resolved") or provider or "",
+                    run_id=run_id,
+                )
+                _trend_eval = get_quality_tracker().evaluate(_qscore)
+                if _trend_eval.get("state") == "regression":
+                    agent_logger.warning(
+                        "QUALITY REGRESSION on run %s: %s", run_id, _trend_eval.get("reason", "")
+                    )
+                    run["quality_trend"] = _trend_eval
+            except Exception:  # noqa: BLE001
+                agent_logger.warning("Post-run cache/trend recording skipped", exc_info=True)
 
             # Persist to generation_history
             _persist_history(prompt, provider, report)
@@ -1315,11 +1407,22 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         if not screenshot and prepared.get("images"):
             screenshot = prepared["images"][0].get("data")
         if attachment_context:
-            effective_prompt = (
-                f"{attachment_context}\n\n---\n\nREQUEST: {req.prompt}"
-                if req.prompt else attachment_context
-            )
+                effective_prompt = (
+                    f"{attachment_context}\n\n---\n\nREQUEST: {req.prompt}"
+                    if req.prompt else attachment_context
+                )
     vision_mode = bool(screenshot or req.files)
+
+    # ── Prompt-injection guardrail: neutralize override attempts ─────────
+    try:
+        from agent.guardrails import scrub_prompt_injection
+        scrubbed = scrub_prompt_injection(effective_prompt)
+        effective_prompt = scrubbed["text"]
+        if scrubbed["flags"]:
+            _runs[run_id]["prompt_flags"] = scrubbed["flags"]
+            agent_logger.warning("Prompt injection scrubbed for run %s: %s", run_id, scrubbed["flags"])
+    except Exception:  # noqa: BLE001
+        agent_logger.warning("Prompt scrubber unavailable — passing prompt through", exc_info=True)
 
     _pipeline_store.create_run(
         run_id,
@@ -3298,6 +3401,92 @@ async def rag_get_context(req: RAGContextRequest, _auth: bool = Depends(_verify_
         engine = get_rag_engine()
         ctx = engine.get_context_for_prompt(req.prompt, req.max_context_length)
         return {"success": True, "context": ctx}
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+# ── AI platform: prompt registry / semantic cache / quality trends / guardrails ──
+
+@app.get("/api/v1/prompt-registry", tags=["Ultra AI Engines"])
+async def prompt_registry_describe(_auth: bool = Depends(_verify_api_key)):
+    """Versioned prompts: active version, rollout % and content hashes."""
+    try:
+        from agent.prompt_registry import get_prompt_registry
+        return {"success": True, "registry": get_prompt_registry().describe()}
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+class PromptVersionRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=100)
+    label: str = Field(..., min_length=1, max_length=64)
+    text: str = Field(..., min_length=1)
+    rollout: int = Field(0, ge=0, le=100)
+    notes: str = Field("", max_length=500)
+
+
+@app.post("/api/v1/prompt-registry/versions", tags=["Ultra AI Engines"])
+async def prompt_registry_register(req: PromptVersionRequest, _auth: bool = Depends(_verify_api_key)):
+    """Register a new prompt version (rollout=0 shadows it until promoted)."""
+    try:
+        from agent.prompt_registry import get_prompt_registry
+        created = get_prompt_registry().register_version(
+            req.prompt, req.label, req.text, rollout=req.rollout, notes=req.notes
+        )
+        return {"success": True, "registered": created}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+@app.get("/api/v1/semantic-cache", tags=["Ultra AI Engines"])
+async def semantic_cache_stats(_auth: bool = Depends(_verify_api_key)):
+    """Cache size, hit/miss counters and threshold — the 30–50% cost saver."""
+    try:
+        from agent.semantic_cache import get_semantic_cache
+        return {"success": True, "cache": get_semantic_cache().describe()}
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+class CacheInvalidateRequest(BaseModel):
+    prompt: str = Field(..., min_length=5)
+
+
+@app.post("/api/v1/semantic-cache/invalidate", tags=["Ultra AI Engines"])
+async def semantic_cache_invalidate(req: CacheInvalidateRequest, _auth: bool = Depends(_verify_api_key)):
+    try:
+        from agent.semantic_cache import get_semantic_cache
+        return {"success": True, "invalidated": get_semantic_cache().invalidate(req.prompt)}
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+@app.get("/api/v1/quality/trends", tags=["Ultra AI Engines"])
+async def quality_trends(_auth: bool = Depends(_verify_api_key)):
+    """Rolling quality-score trend + regression verdict for recent builds."""
+    try:
+        from agent.quality_trends import get_quality_tracker
+        return {"success": True, "trends": get_quality_tracker().describe()}
+    except Exception as exc:
+        raise _internal_error(exc)
+
+
+class GuardrailScanRequest(BaseModel):
+    project_dir: str = Field(..., min_length=2, description="Generated project directory to scan")
+
+
+@app.post("/api/v1/guardrails/scan", tags=["Ultra AI Engines"])
+async def guardrails_scan(req: GuardrailScanRequest, _auth: bool = Depends(_verify_api_key)):
+    """Re-run the output guardrail pass (CSP + PII/secret scrub) on demand."""
+    p_dir = _resolve_project_target(req.project_dir, create=False)
+    try:
+        from agent.guardrails import apply_guardrails
+        report = apply_guardrails(p_dir)
+        return {"success": True, "report": report}
+    except HTTPException:
+        raise
     except Exception as exc:
         raise _internal_error(exc)
 

@@ -1,0 +1,87 @@
+{
+  "style": "minimalism",
+  "name": "Minimalism",
+  "dna": "White space, simple typography, 1-2 accent colors, content-first.",
+  "project_name": "nuage-events",
+  "palette": {
+    "primary": "#be2c4e",
+    "secondary": "#0ea5e9",
+    "accent": "#82162f",
+    "bg": "#ffffff",
+    "card": "#f8fafc",
+    "surface": "#f1f5f9",
+    "text": "#0f172a",
+    "muted": "#64748b",
+    "border": "#e2e8f0"
+  },
+  "palette_hsl": {
+    "primary": "221 39.3% 11.0%",
+    "secondary": "199 88.7% 48.4%",
+    "accent": "200 98.0% 39.4%",
+    "bg": "0 0.0% 100.0%",
+    "card": "210 40.0% 98.0%",
+    "surface": "210 40.0% 96.1%",
+    "text": "222 47.4% 11.2%",
+    "muted": "215 16.3% 46.9%",
+    "border": "214 31.8% 91.4%"
+  },
+  "typography": {
+    "display": "Inter",
+    "sans": "Inter",
+    "mono": "JetBrains Mono",
+    "scale": [
+      12,
+      14,
+      16,
+      18,
+      24,
+      30,
+      36,
+      48,
+      64
+    ]
+  },
+  "radius": {
+    "card": "16px",
+    "button": "9999px"
+  },
+  "shadow": {
+    "card": "0 1px 3px rgba(15,23,42,0.08)",
+    "button": "0 1px 2px rgba(15,23,42,0.1)"
+  },
+  "border": {
+    "card": "1px solid #e2e8f0",
+    "button": "1px solid #e2e8f0"
+  },
+  "effects": {
+    "blur": "0px",
+    "glow": "none"
+  },
+  "weight": "thin",
+  "composition": "blocks",
+  "generated_by": "nuage-events-design-system",
+  "timestamp": "2026-09-14T23:51:30Z",
+  "rendered_theme": {
+    "mode": "light",
+    "note": "What index.css :root actually renders. palette.* above is the brand DNA; these are the applied values, kept in lockstep by products/_audit/unify-tokens.cjs.",
+    "canvas": "#f8fafc",
+    "surface": "#ffffff",
+    "primary": "#be2c4e",
+    "accent": "#82162f",
+    "heading": "#5b3200",
+    "text": "#26292f",
+    "muted": "#be2c4e",
+    "border": "#e2e8f0",
+    "footer": "#0e1116"
+  },
+  "token_sync": {
+    "source": "src/components/brand/BRAND.js",
+    "propagated_to": [
+      "src/index.css",
+      "tailwind.config.js",
+      "design-tokens.json",
+      "public/favicon.svg"
+    ],
+    "synced_at": "2026-10-08T17:28:00.878Z"
+  }
+}

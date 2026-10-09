@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Saffron Voyage",
+  "url": "https://malikusmangoraya.github.io/saffron-voyage",
+  "description": "Curated packages and instant booking. Your next adventure awaits.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/saffron-voyage",
+    "https://www.instagram.com/saffron-voyage",
+    "https://twitter.com/saffron-voyage"
+  ]
+}

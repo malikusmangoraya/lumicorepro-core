@@ -1,0 +1,72 @@
+{
+  "experiments": [
+    {
+      "id": "pricing_page_layout",
+      "name": "Pricing Page Highlight",
+      "hypothesis": "Highlighting 'Pro' plan increases Pro signups by 25%",
+      "metric": "plan_selection_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "All plans equal",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Pro plan highlighted",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 300,
+      "expected_lift": "18-30%",
+      "priority": "critical"
+    },
+    {
+      "id": "cta_trial_copy",
+      "name": "Free Trial CTA Copy",
+      "hypothesis": "'Start free trial' vs 'Get started free' \u2014 testing urgency",
+      "metric": "signup_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Start free trial",
+          "weight": 0.33
+        },
+        {
+          "id": "variant_a",
+          "name": "Get started free",
+          "weight": 0.33
+        },
+        {
+          "id": "variant_b",
+          "name": "Try free for 14 days",
+          "weight": 0.34
+        }
+      ],
+      "min_sample": 500,
+      "expected_lift": "8-20%",
+      "priority": "high"
+    },
+    {
+      "id": "social_proof_position",
+      "name": "Social Proof Placement",
+      "hypothesis": "Testimonials above fold vs below \u2014 above increases signups",
+      "metric": "signup_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Below hero",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "In hero section",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 400,
+      "expected_lift": "10-15%",
+      "priority": "medium"
+    }
+  ]
+}

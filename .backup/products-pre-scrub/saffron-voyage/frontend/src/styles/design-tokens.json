@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "glassmorphism",
+  "target_region": "default",
+  "project_name": "saffron-voyage",
+  "palette": {
+    "primary": "#be702c",
+    "accent": "#f59e0b",
+    "heading": "#be702c",
+    "navBg": "#f8fafc",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be702c",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

@@ -1,0 +1,166 @@
+# =====================================================================
+# BACKEND .env.example  (backend/.env.example)
+# Copy:  cp .env.example .env     phir values bharo.
+# NOTE: Is file mein asal secrets kabhi na likho. .env ko git mein commit na karo.
+# Secret generate karne ke liye:  openssl rand -hex 32
+# Legend: [REQUIRED] zaroori | [OPTIONAL] na ho to feature "not configured" dikhaye
+# =====================================================================
+
+# ---------- 1. APP ----------
+NODE_ENV=development                 # [REQUIRED] development | test | production
+PORT=5000                            # [REQUIRED]
+APP_NAME=ProductName                 # [REQUIRED] emails/UI mein dikhta hai
+APP_URL=http://localhost:5173        # [REQUIRED] frontend ka public URL
+API_URL=http://localhost:5000        # [REQUIRED] backend ka public URL
+CORS_ORIGINS=http://localhost:5173   # [REQUIRED] comma-separated allowed origins
+TRUST_PROXY=false                    # [OPTIONAL] Nginx/Cloudflare ke peeche ho to true
+LOG_LEVEL=info                       # [OPTIONAL] debug | info | warn | error
+
+# ---------- 2. DATABASE ----------
+DATABASE_URL=postgres://app:change_me@db:5432/app   # [REQUIRED] Postgres (Docker mein host = db)
+DB_SSL=false                         # [OPTIONAL] managed DB par true
+DB_POOL_MAX=10                       # [OPTIONAL]
+SQLITE_FALLBACK=false                # [OPTIONAL] sirf quick demo ke liye, production mein nahi
+RUN_MIGRATIONS_ON_START=true         # [OPTIONAL] Docker entrypoint par migrate
+
+# ---------- 3. AUTH / JWT ----------
+JWT_SECRET=                          # [REQUIRED] 64+ random chars (openssl rand -hex 32)
+JWT_EXPIRE=15m                       # [OPTIONAL] access token umar
+JWT_REFRESH_SECRET=                  # [REQUIRED] JWT_SECRET se ALAG random value
+JWT_REFRESH_EXPIRE=30d               # [OPTIONAL] refresh token umar
+COOKIE_DOMAIN=                       # [OPTIONAL] e.g. .yourdomain.com
+COOKIE_SECURE=false                  # [OPTIONAL] production mein true (HTTPS)
+BCRYPT_ROUNDS=12                     # [OPTIONAL]
+TOTP_ENCRYPTION_KEY=                 # [REQUIRED if 2FA] 32-byte hex, TOTP secrets encrypt karta hai
+TOTP_ISSUER=ProductName              # [OPTIONAL] authenticator app mein naam
+EMAIL_OTP_EXPIRE_MINUTES=10          # [OPTIONAL]
+
+# ---------- 4. OAUTH (Social login) ----------
+# Google: https://console.cloud.google.com/apis/credentials
+# Redirect URI: {API_URL}/api/auth/google/callback
+GOOGLE_CLIENT_ID=                    # [OPTIONAL]
+GOOGLE_CLIENT_SECRET=                # [OPTIONAL]
+# GitHub: https://github.com/settings/developers
+# Callback URL: {API_URL}/api/auth/github/callback
+GITHUB_CLIENT_ID=                    # [OPTIONAL]
+GITHUB_CLIENT_SECRET=                # [OPTIONAL]
+
+# ---------- 5. EMAIL (SMTP) ----------
+SMTP_HOST=                           # [OPTIONAL] e.g. smtp.sendgrid.net / smtp.gmail.com
+SMTP_PORT=587                        # [OPTIONAL]
+SMTP_SECURE=false                    # [OPTIONAL] port 465 par true
+SMTP_USER=                           # [OPTIONAL]
+SMTP_PASS=                           # [OPTIONAL]
+EMAIL_FROM="ProductName <no-reply@yourdomain.com>"   # [OPTIONAL]
+
+# ---------- 6. REDIS / CACHE / QUEUE ----------
+REDIS_URL=redis://redis:6379         # [OPTIONAL] na ho to in-memory fallback
+REDIS_DISABLED=false                 # [OPTIONAL] true = Redis band, memory cache
+QUEUE_ENABLED=true                   # [OPTIONAL] bullmq workers (Redis chahiye)
+
+# ---------- 7. SECURITY ----------
+RATE_LIMIT_WINDOW_MS=900000          # [OPTIONAL] 15 min
+RATE_LIMIT_MAX=300                   # [OPTIONAL] general
+AUTH_RATE_LIMIT_MAX=10               # [OPTIONAL] login/reset par sakht limit
+TURNSTILE_SITE_KEY=                  # [OPTIONAL] Cloudflare Turnstile (public key)
+TURNSTILE_SECRET=                    # [OPTIONAL] Turnstile server secret
+MAX_UPLOAD_MB=10                     # [OPTIONAL]
+UPLOAD_DIR=./uploads                 # [OPTIONAL] ya S3 use karo (neeche)
+
+# ---------- 8. PAYMENTS ----------
+# Sab optional. Key na ho to gateway "not configured" return karta hai.
+DEFAULT_CURRENCY=USD
+
+# Lemon Squeezy (merchant of record)
+LEMONSQUEEZY_API_KEY=
+LEMONSQUEEZY_STORE_ID=
+LEMONSQUEEZY_WEBHOOK_SECRET=
+LEMONSQUEEZY_VARIANT_STANDARD=
+LEMONSQUEEZY_VARIANT_PRO=
+LEMONSQUEEZY_VARIANT_PREMIUM=
+
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# PayPal
+PAYPAL_CLIENT_ID=
+PAYPAL_CLIENT_SECRET=
+PAYPAL_MODE=sandbox                  # sandbox | live
+PAYPAL_WEBHOOK_ID=
+
+# Paddle
+PADDLE_API_KEY=
+PADDLE_WEBHOOK_SECRET=
+
+# Razorpay
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+
+# Square
+SQUARE_ACCESS_TOKEN=
+SQUARE_LOCATION_ID=
+
+# Mollie
+MOLLIE_API_KEY=
+
+# Flutterwave
+FLUTTERWAVE_SECRET_KEY=
+FLUTTERWAVE_WEBHOOK_HASH=
+
+# MercadoPago
+MERCADOPAGO_ACCESS_TOKEN=
+
+# LiqPay
+LIQPAY_PUBLIC_KEY=
+LIQPAY_PRIVATE_KEY=
+
+# Paytm
+PAYTM_MID=
+PAYTM_MERCHANT_KEY=
+
+# bKash
+BKASH_APP_KEY=
+BKASH_APP_SECRET=
+BKASH_USERNAME=
+BKASH_PASSWORD=
+
+# ---------- 9. AI PROVIDERS (sab OPTIONAL) ----------
+AI_ENABLED=false
+AI_DEFAULT_PROVIDER=anthropic        # anthropic | gemini | deepseek | mistral | openrouter
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+DEEPSEEK_API_KEY=
+MISTRAL_API_KEY=
+OPENROUTER_API_KEY=
+AI_REQUESTS_PER_USER_DAILY=50        # [OPTIONAL] kharcha control
+AI_MAX_TOKENS=1000                   # [OPTIONAL]
+AI_TIMEOUT_MS=30000                  # [OPTIONAL]
+
+# ---------- 10. MESSAGING (jahan product use kare) ----------
+TWILIO_ACCOUNT_SID=                  # [OPTIONAL] aurelia, saffron, studio-lumen
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
+
+# ---------- 11. STORAGE (optional S3-compatible) ----------
+S3_ENDPOINT=
+S3_REGION=
+S3_BUCKET=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+
+# ---------- 12. MONITORING ----------
+SENTRY_DSN=                          # [OPTIONAL]
+SENTRY_ENVIRONMENT=development
+
+# ---------- 13. LICENSE GATING ----------
+LICENSE_ENABLED=false                # [OPTIONAL]
+LICENSE_SECRET=                      # [REQUIRED if LICENSE_ENABLED=true]
+LICENSE_KEY=                         # [OPTIONAL] buyer ki license key
+
+# ---------- 14. SEED / DEMO ----------
+SEED_ADMIN_EMAIL=admin@example.com   # [OPTIONAL] sirf dev/demo
+SEED_ADMIN_PASSWORD=                 # [OPTIONAL] strong password khud dalo, default na rakho
+DEMO_MODE=false                      # [OPTIONAL] true = demo data nightly reset

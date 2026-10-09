@@ -1,0 +1,15 @@
+{
+  "base_url": "https://malikusmangoraya.github.io/apex-digital",
+  "region": "SA",
+  "hreflangs": [
+    {
+      "lang": "ur-pk",
+      "code": "ur"
+    },
+    {
+      "lang": "en-pk",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "features", "pricing", "blog", "docs", "about", "contact"]
+}

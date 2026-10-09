@@ -346,6 +346,172 @@ class AgentOrchestrator:
             brand_name=brand_name,
         )
 
+    def _select_portfolio_unique_design(
+        self,
+        spec: Dict[str, Any],
+        decision: Dict[str, Any],
+        design_plan: Dict[str, Any],
+        project_dir: Path,
+    ) -> Dict[str, Any]:
+        """Apply a portfolio-aware design choice before code generation."""
+        from .intelligence.design_uniqueness import (
+            apply_design_uniqueness,
+            extract_design_signature,
+            load_portfolio_signatures,
+            normalize_palette_overrides,
+        )
+
+        scan_error = ""
+        try:
+            prior_signatures = load_portfolio_signatures(
+                Path(GENERATED_PROJECTS_DIR), exclude_project=Path(project_dir)
+            )
+        except Exception as exc:
+            prior_signatures = []
+            scan_error = str(exc)[:160]
+
+        prompt = str(spec.get("original_prompt") or spec.get("prompt") or "")
+        project_name = str(spec.get("project_name") or Path(project_dir).name)
+        fingerprints = sorted(
+            str(item.get("fingerprint"))
+            for item in prior_signatures
+            if item.get("fingerprint")
+        )
+        seed = str(spec.get("design_seed") or hashlib.sha256(
+            "\n".join((prompt.strip().lower(), project_name, *fingerprints)).encode("utf-8")
+        ).hexdigest())
+
+        explicit_constraints = dict(spec.get("design_constraints") or {})
+        requested_styles = spec.get("style") or []
+        requested_style = spec.get("ui_style") or (decision or {}).get("ui_style")
+        reference_inputs = any(
+            spec.get(key)
+            for key in (
+                "screenshot", "screenshot_url", "image_url", "reference_spec",
+                "reference_url", "reference_site",
+            )
+        ) or bool((decision or {}).get("reference_hints") or spec.get("reference_hints")) or bool(
+            isinstance(spec.get("screenshot_spec"), dict)
+            and spec["screenshot_spec"].get("analyzed")
+        )
+        color_inputs = bool(
+            spec.get("primary_color_hint") or spec.get("color_palette_hints")
+        )
+        if requested_style and (
+            requested_style in requested_styles
+            or explicit_constraints.get("ui_style")
+            or reference_inputs
+            or color_inputs
+        ):
+            explicit_constraints.setdefault("ui_style", requested_style)
+        decision = copy.deepcopy(decision or {})
+        if requested_style:
+            decision["ui_style"] = requested_style
+        preferences = spec.get("style_preference") or {}
+        if isinstance(preferences, dict):
+            if preferences.get("animation") and "motion" in decision:
+                explicit_constraints.setdefault("motion", decision["motion"])
+            if preferences.get("layout") and "grid" in decision:
+                explicit_constraints.setdefault("grid", decision["grid"])
+        screenshot_spec = spec.get("screenshot_spec") or {}
+        if isinstance(screenshot_spec, dict) and screenshot_spec.get("analyzed"):
+            for key in ("hero", "grid"):
+                if key in decision:
+                    explicit_constraints.setdefault(key, decision[key])
+
+        selected = apply_design_uniqueness(
+            decision,
+            design_plan,
+            prior_signatures,
+            seed=seed,
+            explicit_constraints=explicit_constraints,
+        )
+        selected_ui_style = selected["decision"].get("ui_style") or requested_style or "glassmorphism"
+        from agent.pro_design import resolve_design_blueprint
+        from .intelligence.design_planner import build_design_system
+
+        blueprint = resolve_design_blueprint(
+            project_name,
+            selected_ui_style,
+            str(spec.get("target_region") or "default"),
+            str(spec.get("brand_title") or project_name),
+        )
+        palette_override: Dict[str, Any] = {}
+        screenshot_spec = spec.get("screenshot_spec") or {}
+        if isinstance(screenshot_spec, dict) and screenshot_spec.get("colors_measured"):
+            measured_colors = (
+                ((selected["design_plan"].get("design_system") or {}).get("colors"))
+                or {}
+            )
+            palette_override.update({
+                "primary": measured_colors.get("primary"),
+                "accent": measured_colors.get("accent"),
+                "heading": measured_colors.get("text"),
+                "navBg": measured_colors.get("bg"),
+                "footerBg": measured_colors.get("surface_2"),
+                "cardBg": measured_colors.get("surface"),
+                "text": measured_colors.get("text"),
+                "muted": measured_colors.get("text_dim"),
+                "border": measured_colors.get("border"),
+            })
+        color_hints = spec.get("color_palette_hints") or []
+        if isinstance(color_hints, str):
+            color_hints = [color_hints]
+        primary_hint = spec.get("primary_color_hint")
+        if isinstance(primary_hint, str) and primary_hint.startswith("#"):
+            palette_override["primary"] = primary_hint
+        elif color_hints and isinstance(color_hints[0], str):
+            palette_override["primary"] = color_hints[0]
+        if len(color_hints) > 1 and isinstance(color_hints[1], str):
+            palette_override["accent"] = color_hints[1]
+        palette_override = normalize_palette_overrides(palette_override)
+        blueprint.setdefault("palette", {}).update(palette_override)
+        selected["decision"]["ui_style"] = blueprint.get("ui_style", selected_ui_style)
+        selected["design_blueprint"] = blueprint
+        selected["palette_override"] = palette_override
+        selected["design_plan"]["ui_style"] = blueprint.get("ui_style", selected_ui_style)
+        palette = blueprint.get("palette") or {}
+        color_tokens = {
+            "primary": palette.get("primary"),
+            "accent": palette.get("accent"),
+            "bg": palette.get("navBg"),
+            "surface": palette.get("cardBg"),
+            "surface_2": palette.get("footerBg"),
+            "border": palette.get("border"),
+            "text": palette.get("text"),
+            "text_dim": palette.get("muted"),
+        }
+        color_tokens = {key: value for key, value in color_tokens.items() if value}
+        fonts = blueprint.get("fonts") or {}
+        resolved_system = build_design_system(
+            palette=color_tokens,
+            design_tokens={
+                "heading_font": fonts.get("display"),
+                "body_font": fonts.get("sans"),
+            },
+        )
+        selected["design_plan"].setdefault("design_system", {})
+        selected["design_plan"]["design_system"]["colors"] = resolved_system["colors"]
+        selected["design_plan"]["design_system"]["contrast"] = resolved_system["contrast"]
+        selected["design_plan"]["design_system"]["typography"] = resolved_system["typography"]
+        manifest = selected["decision"].get("design_manifest")
+        if isinstance(manifest, dict):
+            manifest.setdefault("visual", {})["ui_style"] = selected["decision"]["ui_style"]
+            manifest["colors"] = {"tokens": color_tokens, "source": "pro_design_blueprint"}
+        signature = extract_design_signature(
+            selected["decision"], selected["design_plan"]
+        )
+        selected["design_signature"] = signature
+        selected["decision"].setdefault("design_manifest", {})["design_signature"] = signature
+        selected["design_plan"]["design_signature"] = signature
+        selected["comparison"]["status"] = (
+            "unavailable" if scan_error else
+            "compared" if prior_signatures else "empty"
+        )
+        if scan_error:
+            selected["comparison"]["reason"] = scan_error
+        return selected
+
     def _provider_name(self) -> str:
         """Name of the provider currently serving this run ("" when none)."""
         if self.ai_provider is None:
@@ -392,9 +558,9 @@ class AgentOrchestrator:
         self.ai_provider_name = ""
         if ai_routing.offline():
             # AI_OFFLINE=1 is a product-level switch, not a router preference: it
-            # must win over the pool too, otherwise the keyless local gateways
-            # (ninerouter/omniroute/openmuse) still resolve and local-first runs
-            # quietly reach the network. This is also what makes the offline and
+            # must win over the pool too, otherwise the keyless gateways
+            # (ninerouter/omniroute) still resolve and local-first runs quietly
+            # reach the network. This is also what makes the offline and
             # determinism tests hermetic.
             agent_logger.info("[ORCH] AI_OFFLINE=1: local-first mode, no provider resolved.")
             return None
@@ -648,6 +814,8 @@ class AgentOrchestrator:
         quality_report: Dict[str, Any],
         devops_gate: Dict[str, Any],
         architect_gate: Dict[str, Any],
+        completeness_report: Dict[str, Any],
+        guardrails_report: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Allow deployment only after project, DevOps, and architecture checks pass."""
         blockers = []
@@ -659,6 +827,11 @@ class AgentOrchestrator:
             blockers.append("devops_quality_gate_failed")
         if not (architect_gate.get("skipped") or architect_gate.get("passed")):
             blockers.append("enterprise_architecture_gate_failed")
+        if completeness_report.get("status") != "complete":
+            missing = completeness_report.get("blockers") or ["required_artifacts_missing"]
+            blockers.extend(f"generated_project_incomplete:{item}" for item in missing)
+        if not guardrails_report.get("passed", False):
+            blockers.append("output_guardrails_failed")
         return {"passed": not blockers, "blockers": blockers}
 
     @staticmethod
@@ -1148,6 +1321,8 @@ class AgentOrchestrator:
         quality_gate: Optional[Dict[str, Any]] = None,
         architect_gate: Optional[Dict[str, Any]] = None,
         live_url: str = "",
+        rag_context: Optional[Dict[str, Any]] = None,
+        prompt_provenance: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         instructions_file_path = os.path.join(project_dir, "INSTRUCTIONS.md")
         execution_time = round(time.time() - start_time, 2)
@@ -1188,10 +1363,18 @@ class AgentOrchestrator:
         report = {
             "user_prompt": prompt,
             "project_name": spec.get("project_name", "generated-website"),
+            "features": spec.get("features") or [],
             "generated_project_dir": project_dir,
             "zip_archive_path": zip_archive_path,
             "quality_gate_devops": quality_gate or {},
             "architect_enterprise_gate": architect_gate or {},
+            "generated_project_completeness": phase_log.get("generated_project_completeness", {}),
+            "release_ready": bool((phase_log.get("qa_release_gate") or {}).get("passed")),
+            "zip_classification": (
+                "release_candidate"
+                if (phase_log.get("qa_release_gate") or {}).get("passed")
+                else "diagnostic_incomplete"
+            ),
             "instructions_file_path": instructions_file_path,
             "execution_time_seconds": execution_time,
             "pipeline_version": "18-phase-enterprise-v3.6",
@@ -1240,7 +1423,10 @@ class AgentOrchestrator:
             "quality_gates": quality_report,
             "improvement_recommendations": improvements,
             "competitive_benchmark": benchmark,
-            "enterprise_ready": quality_report.get("enterprise_ready", False),
+            "enterprise_ready": (
+                quality_report.get("enterprise_ready", False)
+                and (phase_log.get("generated_project_completeness") or {}).get("status") == "complete"
+            ),
             "launch_ready": benchmark.get("launch_ready", False),
             "live_preview_url": live_url,
             # ── Enterprise Capabilities ────────────────────────────────
@@ -1265,6 +1451,15 @@ class AgentOrchestrator:
             "theme_variant": phase_log.get("phase_6_theme_matrix", {}),
             "design_decision": phase_log.get("phase_2_design_decision", {}),
             "design_memory": phase_log.get("phase_6_design_memory", {}),
+            # ── Provenance / safety / retrieval observability ────────────
+            "rag_context": {
+                "retrieved": bool((rag_context or {}).get("retrieved", False)),
+                "chars": (rag_context or {}).get("chars", 0),
+                "sources": (rag_context or {}).get("sources", []),
+                "past_lessons": len((rag_context or {}).get("past_lessons", [])),
+            },
+            "guardrails": phase_log.get("phase_16_output_guardrails", {}),
+            "prompt_provenance": prompt_provenance or [],
             "design_scan": phase_log.get("phase_7_1_design_scan", {}),
             "visual_critic": phase_log.get("phase_7_1_design_scan", {}).get(
                 "visual_critic", {}),
@@ -1382,6 +1577,42 @@ class AgentOrchestrator:
         agent_logger.info("  LUMICOREPRO 18-PHASE ENTERPRISE GENERATION AGENT")
         agent_logger.info("==================================================")
         agent_logger.info(f"User Prompt: '{prompt}'")
+
+        # ── Phase 0a: RAG context retrieval (past builds + best practices) ──
+        # Retrieval is observational: a RAG outage degrades to empty context,
+        # never a failed run. Retrieved context rides in spec/plan so the
+        # planner and every downstream engine see the same guidance.
+        rag_context: Dict[str, Any] = {
+            "retrieved": False,
+            "chars": 0,
+            "text": "",
+            "sources": [],
+            "past_lessons": [],
+        }
+        try:
+            from .rag_engine import get_rag_engine
+            rag = get_rag_engine()
+            if getattr(rag, "enabled", False):
+                retrieved_text = rag.get_context_for_prompt(prompt, max_context_length=2400) or ""
+                rag_context["retrieved"] = bool(retrieved_text.strip())
+                rag_context["chars"] = len(retrieved_text)
+                rag_context["text"] = retrieved_text
+                try:
+                    rag_context["sources"] = [
+                        (r.get("title") or r.get("name") or r.get("id") or "doc")
+                        for r in rag.search_documentation(prompt, top_k=3)
+                    ][:5]
+                except Exception:  # noqa: BLE001
+                    pass
+        except Exception as rag_exc:  # noqa: BLE001
+            agent_logger.warning(f"RAG retrieval skipped: {rag_exc}")
+        try:
+            rag_context["past_lessons"] = [
+                {"query": s.get("query", "")[:160], "summary": s.get("summary", "")[:400]}
+                for s in self.memory_retriever.recent_searches(limit=5)
+            ]
+        except Exception as mem_exc:  # noqa: BLE001
+            agent_logger.warning(f"Memory lesson retrieval skipped: {mem_exc}")
 
         # ── Phase 0: Vision Layout & Theme Extraction (pre-P1, screenshot-driven) ──
         vision_source = (
@@ -1646,11 +1877,17 @@ class AgentOrchestrator:
                     if comp["name"] not in existing_names:
                         selected_components.append(comp)
 
+            # RAG context + past-build lessons become part of the generation
+            # contract: spec → plan → builder all see identical guidance.
+            spec.setdefault("rag_context", rag_context.get("text", ""))
+            spec.setdefault("past_lessons", rag_context.get("past_lessons", []))
+
             plan = self.planner.create_plan(
                 spec, selected_template, selected_components,
                 selected_assets, selected_backend, selected_schemas,
             )
             plan["spec"] = spec
+            plan["rag_context"] = rag_context
             phase_log["phase_5_assembly_plan"] = {
                 "project_name": plan["project_name"],
                 "steps": len(plan["assembly_steps"]),
@@ -1844,6 +2081,24 @@ class AgentOrchestrator:
                 )
             except Exception as de_exc:
                 agent_logger.warning(f"Design Decision Engine skipped: {de_exc}")
+            try:
+                uniqueness = self._select_portfolio_unique_design(
+                    spec, design_decision, design_plan, Path(project_dir)
+                )
+                design_decision = uniqueness["decision"]
+                design_plan = uniqueness["design_plan"]
+                spec["ui_style"] = design_decision.get("ui_style", spec.get("ui_style"))
+                spec["design_blueprint"] = uniqueness["design_blueprint"]
+                spec["design_palette_override"] = uniqueness.get("palette_override", {})
+                spec["design_plan"] = design_plan
+                spec["design_decision"] = design_decision
+                spec["design_signature"] = uniqueness["design_signature"]
+                spec["design_uniqueness"] = uniqueness["comparison"]
+            except Exception as unique_exc:
+                agent_logger.warning(
+                    f"Portfolio design uniqueness skipped: {unique_exc}"
+                )
+                uniqueness = {"design_signature": {}, "comparison": {"status": "unavailable"}}
             phase_log["phase_2_design_decision"] = {
                 "industry": design_decision.get("industry"),
                 "brand": design_decision.get("brand"),
@@ -1856,6 +2111,8 @@ class AgentOrchestrator:
                 "reproducibility": (
                     design_decision.get("design_manifest") or {}
                 ).get("reproducibility") or {"seed": spec.get("design_seed")},
+                "design_signature": uniqueness.get("design_signature", {}),
+                "uniqueness_comparison": uniqueness.get("comparison", {}),
             }
 
             plan["spec"] = copy.deepcopy(spec)
@@ -1872,33 +2129,6 @@ class AgentOrchestrator:
             #                     Sequelize models / 18 API route groups / Redis+BullMQ
             #                     + Axios interceptor for relative /api/* via Nginx.
             layout_mode_report: Dict[str, Any] = {}
-            if project_dir:
-                # ── Deterministic storefront routing (LUMICORE_COMMERCE_READY) ──
-                # Retail/shop generations run the fully-supported client-static
-                # lane; the commerce injector mounts the live order backend
-                # (Express + JSON persistence, COD + WhatsApp, admin) on top.
-                # This overrides AI website_type classification drift so every
-                # storefront ships production-ready without enterprise-gate risk.
-                try:
-                    hint = (" %s " % str(prompt or "")).lower()
-                    hint += " " + str(spec.get("website_type", "")).lower()
-                    hint += " " + str(spec.get("project_name", "")).lower()
-                    storefront_hint = (
-                        "ecommerce" in hint or "e-commerce" in hint or "retail" in hint
-                        or " store" in hint or " shop " in hint or "mart" in hint
-                        or "laundry" in hint or "banquet" in hint or "courier" in hint
-                        or "selling " in hint or "cart and checkout" in hint
-                    )
-                    if storefront_hint and all(
-                        t not in hint for t in ("enterprise", "saas", "fintech", "dashboard")
-                    ):
-                        spec["website_type"] = "ecommerce"
-                        spec["layout_mode"] = "client-static"
-                        spec["runtime_mode"] = "static"
-                        spec["deployment_mode"] = "client-static"
-                        spec["has_api"] = False
-                except Exception as route_err:
-                    agent_logger.warning(f"Storefront routing skipped: {route_err}")
             if project_dir:
                 try:
                     layout_mode_report = self.mode_engine.render_layout(project_dir, spec)
@@ -2578,7 +2808,13 @@ class AgentOrchestrator:
                 repo_key = brand_key
                 ui_style = spec.get("ui_style", "glassmorphism")
                 region = spec.get("target_region", "default")
-                applied = restyle_project(project_dir, repo_key, ui_style, region)
+                applied = restyle_project(
+                    project_dir,
+                    repo_key,
+                    ui_style,
+                    region,
+                    palette_override=spec.get("design_palette_override"),
+                )
                 phase_log["pro_design_restyle"] = applied
                 phase_log["pro_design_ui_style"] = ui_style
                 phase_log["pro_design_region"] = region
@@ -2626,6 +2862,18 @@ class AgentOrchestrator:
                 phase_failures.append("architect_enterprise_verification")
             try:
                 self._checkpoint_cancel()
+                try:
+                    from .guardrails import apply_guardrails
+                    guardrails_report = apply_guardrails(project_dir)
+                except Exception as guardrails_error:
+                    guardrails_report = {
+                        "passed": False,
+                        "error": str(guardrails_error)[:200],
+                    }
+                phase_log["phase_16_output_guardrails"] = guardrails_report
+                from .generated_project_completeness import evaluate_generated_project
+                completeness_report = evaluate_generated_project(project_dir, spec)
+                phase_log["generated_project_completeness"] = completeness_report
                 quality_gate_devops = self._run_devops_quality_gate(project_dir)
                 phase_log["quality_gate_devops"] = quality_gate_devops
                 architect_ok = architect_gate.get("skipped") or architect_gate.get("passed")
@@ -2648,6 +2896,8 @@ class AgentOrchestrator:
                     quality_report,
                     quality_gate_devops,
                     architect_gate,
+                    completeness_report,
+                    guardrails_report,
                 )
                 phase_log["qa_release_gate"] = qa_release_gate
                 if qa_release_gate["passed"]:
@@ -2788,6 +3038,8 @@ class AgentOrchestrator:
             quality_gate=quality_gate_devops,
             architect_gate=architect_gate,
             live_url=phase_log.get("live_deployment", {}).get("url", ""),
+            rag_context=rag_context,
+            prompt_provenance=plan.get("prompt_provenance", []),
         )
         report["workflow_agents"] = self._build_workflow_agents_report(
             phase_log, spec, project_dir

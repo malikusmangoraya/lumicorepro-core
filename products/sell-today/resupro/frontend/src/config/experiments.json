@@ -1,0 +1,93 @@
+{
+  "experiments": [
+    {
+      "id": "hero_cta_text",
+      "name": "Hero CTA Button Text",
+      "hypothesis": "Changing CTA from 'Shop Now' to 'Explore Collection' increases CTR by 15%",
+      "metric": "cta_click_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Shop Now",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Explore Collection",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 1000,
+      "expected_lift": "12-18%",
+      "priority": "high"
+    },
+    {
+      "id": "product_card_layout",
+      "name": "Product Card Layout",
+      "hypothesis": "Grid view vs list view \u2014 grid increases add-to-cart by 22%",
+      "metric": "add_to_cart_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Grid 4-col",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Grid 3-col",
+          "weight": 0.25
+        },
+        {
+          "id": "variant_b",
+          "name": "List view",
+          "weight": 0.25
+        }
+      ],
+      "min_sample": 2000,
+      "expected_lift": "10-25%",
+      "priority": "high"
+    },
+    {
+      "id": "checkout_steps",
+      "name": "Checkout Flow Steps",
+      "hypothesis": "Single-page checkout reduces abandonment by 30% vs multi-step",
+      "metric": "checkout_completion_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Multi-step (3 pages)",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Single page",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 500,
+      "expected_lift": "20-35%",
+      "priority": "critical"
+    },
+    {
+      "id": "trust_badges",
+      "name": "Trust Badge Placement",
+      "hypothesis": "Moving trust badges near checkout button increases conversions",
+      "metric": "purchase_rate",
+      "variants": [
+        {
+          "id": "control",
+          "name": "Footer only",
+          "weight": 0.5
+        },
+        {
+          "id": "variant_a",
+          "name": "Near add-to-cart btn",
+          "weight": 0.5
+        }
+      ],
+      "min_sample": 800,
+      "expected_lift": "5-12%",
+      "priority": "medium"
+    }
+  ]
+}

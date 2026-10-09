@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Aurelia Estates",
+  "url": "https://www.aurelia-estates.com",
+  "description": "Beautifully presented listings with virtual tours and instant lead alerts.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/aurelia-estates",
+    "https://www.instagram.com/aurelia-estates",
+    "https://twitter.com/aurelia-estates"
+  ]
+}

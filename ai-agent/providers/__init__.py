@@ -16,11 +16,12 @@ _PROVIDER_MODULES = {
     "GrokProvider": "providers.grok_provider",
     "OmnirouteProvider": "providers.omniroute_provider",
     "NinerouterProvider": "providers.ninerouter_provider",
+    "OpenCodeProvider": "providers.opencode_provider",
     "NvidiaProvider": "providers.nvidia_provider",
     "ClaudeProvider": "providers.claude_provider",
     "DeepSeekProvider": "providers.deepseek_provider",
     "KimiProvider": "providers.kimi_provider",
-    "OpenMuseProvider": "providers.openmuse_provider",
+    "OpenWeightCloudProvider": "providers.openweight_provider",
 }
 
 __all__ = list(_PROVIDER_MODULES.keys())

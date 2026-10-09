@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Apex",
+  "url": "https://malikusmangoraya.github.io/apex-digital",
+  "description": "Pricing, onboarding, and analytics built in — launch in days.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/apex",
+    "https://www.instagram.com/apex",
+    "https://twitter.com/apex"
+  ]
+}

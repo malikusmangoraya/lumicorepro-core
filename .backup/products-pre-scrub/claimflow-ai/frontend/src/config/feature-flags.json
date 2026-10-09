@@ -1,0 +1,22 @@
+{
+  "flags": [
+    {
+      "key": "new_onboarding_flow",
+      "description": "Redesigned onboarding wizard",
+      "default": false,
+      "rollout": 25
+    },
+    {
+      "key": "ai_assistant",
+      "description": "In-app AI assistant",
+      "default": false,
+      "rollout": 5
+    },
+    {
+      "key": "advanced_analytics",
+      "description": "Advanced analytics dashboard beta",
+      "default": false,
+      "rollout": 15
+    }
+  ]
+}

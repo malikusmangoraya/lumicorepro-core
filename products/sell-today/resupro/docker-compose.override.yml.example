@@ -1,0 +1,31 @@
+# docker-compose.override.yml.example
+# Copy to docker-compose.override.yml for local development.
+# This file is ignored by git in each product.
+
+version: "3.9"
+
+services:
+  backend:
+    build:
+      target: dev
+    environment:
+      NODE_ENV: development
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/dist

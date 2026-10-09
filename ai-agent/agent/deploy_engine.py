@@ -20,6 +20,11 @@ from typing import Dict, Any, Optional, List
 
 from utils.logger import agent_logger
 
+try:  # works both as `agent.deploy_engine` and as a direct script
+    from agent.gh_token import clean_token, is_placeholder
+except ImportError:
+    from gh_token import clean_token, is_placeholder
+
 
 def _which_git() -> str:
     git = shutil.which("git")
@@ -272,10 +277,10 @@ def _github_pages_deploy(project_dir: str) -> Dict[str, Any]:
     else:
         return {"status": "failed", "message": "No built dist/ found for GitHub Pages."}
 
-    token = os.getenv("GITHUB_TOKEN", "").strip()
+    token = clean_token(os.getenv("GITHUB_TOKEN", ""))
     repo = Path(project_dir).name.lower().replace("_", "-")
 
-    if token and not token.startswith("your_"):
+    if token and not is_placeholder(token):
         try:
             # 1) resolve the authenticated user login
             req = urllib.request.Request(

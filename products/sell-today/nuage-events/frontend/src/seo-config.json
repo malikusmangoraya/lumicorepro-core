@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | nuage-events",
+    "description": "Welcome to nuage-events — the leading tourism platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | nuage-events",
+    "description": "Features — nuage-events",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | nuage-events",
+    "description": "Pricing — nuage-events",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | nuage-events",
+    "description": "Read the latest articles and insights from nuage-events.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | nuage-events",
+    "description": "Documentation — nuage-events",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | nuage-events",
+    "description": "Learn about nuage-events, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | nuage-events",
+    "description": "Get in touch with nuage-events. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/nuage-events/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

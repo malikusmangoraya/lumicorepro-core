@@ -1,0 +1,38 @@
+{
+  "home": {
+    "title": "Home | meridian-capital",
+    "description": "Welcome to meridian-capital — the leading electronics platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/meridian-capital",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "website",
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | meridian-capital",
+    "description": "Learn about meridian-capital, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/meridian-capital/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "services": {
+    "title": "Services | meridian-capital",
+    "description": "Services — meridian-capital",
+    "canonicalUrl": "https://malikusmangoraya.github.io/meridian-capital/services",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | meridian-capital",
+    "description": "Get in touch with meridian-capital. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/meridian-capital/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Nuage Events",
+  "url": "https://malikusmangoraya.github.io/nuage-events",
+  "description": "Curated packages and instant booking. Your next adventure awaits.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/nuage-events",
+    "https://www.instagram.com/nuage-events",
+    "https://twitter.com/nuage-events"
+  ]
+}

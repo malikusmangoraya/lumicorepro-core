@@ -101,4 +101,9 @@ pgdata/
 vendors/
 playwright-report/
 test-results/
+.lighthouseci/
 .artifacts/
+
+# Sale packages built by scripts/package_for_sale.py (upload these to Lemon
+# Squeezy as version files — they must never be committed)
+release/

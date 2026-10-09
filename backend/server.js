@@ -11,6 +11,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { corsMiddleware, helmetMiddleware } from './middleware/security.js';
 import { requestId } from './middleware/requestId.js';
+import { tracingMiddleware } from './middleware/tracing.js';
+import { metricsMiddleware } from './middleware/metrics.js';
 import { apiLimiter } from './middleware/rateLimit.js';
 import { verifyAccessToken } from './middleware/auth.js';
 import { assertValidConfig, validateConfig } from './config/env.js';
@@ -62,6 +64,7 @@ import uploadRoutes from './routes/upload.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import healthRoutes from './routes/health.routes.js';
+import metricsRoutes from './routes/metrics.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 import auditRoutes from './routes/audit.routes.js';
@@ -79,6 +82,10 @@ import licenseRoutes from './routes/license.routes.js';
 import refundPolicyRoutes from './routes/refund-policy.js';
 import aiDisclosureRoutes from './routes/ai-disclosure.js';
 import settingsRoutes from './routes/settings.routes.js';
+import flagsRoutes from './routes/flags.routes.js';
+import privacyRoutes from './routes/privacy.routes.js';
+import templateUpdateRoutes from './routes/templateUpdate.routes.js';
+import lemonSqueezyRoutes from './routes/lemonsqueezy.routes.js';
 import systemConfig from './services/systemConfig.service.js';
 import errorHandler, { notFound } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
@@ -93,12 +100,37 @@ const io = new Server(server, {
   },
 });
 
+// Cross-replica rooms via Redis when available (standalone fallback otherwise).
+// Fire-and-forget on purpose: boot must never block on the adapter handshake.
+import('./services/socket.service.js')
+  .then(({ setupSocketScaling }) => setupSocketScaling(io))
+  .catch((err) => logger.warn(`Socket scaling skipped: ${err.message}`));
+
 // Middleware
 app.use(helmetMiddleware);
 app.use(compression());
 app.use(corsMiddleware);
 app.use(requestId);
+// Distributed tracing + metrics run before any route work so even 429/401
+// responses are traced and counted.
+app.use(tracingMiddleware);
+app.use(metricsMiddleware);
 app.use(cookieParser());
+
+// ── API versioning ─────────────────────────────────────────────────────
+// /api/v1/* is canonical and rewritten to the versioned handlers below.
+// Legacy unversioned /api/* keeps working but carries RFC 8594 deprecation
+// headers, so clients can migrate before any Sunset date is ever set.
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/v1/')) {
+    req.url = `/api/${req.url.slice(8)}`;
+    res.setHeader('API-Version', 'v1');
+  } else if (req.url.startsWith('/api/')) {
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('API-Version', 'unversioned');
+  }
+  next();
+});
 
 // OAuth (Passport) — Google / GitHub strategies if configured
 app.use(passport.initialize());
@@ -108,10 +140,15 @@ configureOAuth();
 // Register this BEFORE express.json() parses the body globally
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
+// Lemon Squeezy signs webhooks with HMAC over the RAW body, so it needs the
+// same raw-parser treatment (registered before express.json() as well).
+app.use('/api/lemonsqueezy/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 morgan.token('reqId', (req) => req.id || '');
-app.use(morgan(':method :url :status :response-time ms :reqId', { stream: { write: (msg) => logger.info(msg.trim(), { http: true }) } }));
+morgan.token('traceId', (req, res) => req.traceId || res.getHeaders()['x-trace-id'] || '');
+app.use(morgan(':method :url :status :response-time ms :reqId :traceId', { stream: { write: (msg) => logger.info(msg.trim(), { http: true }) } }));
 // Uploaded files are user-supplied and may include SVGs, which can carry
 // <script>. Serve them with a locked-down CSP + nosniff so a stored SVG cannot
 // execute script in our origin (stored-XSS hardening).
@@ -172,9 +209,18 @@ app.use('/api/license', licenseRoutes);
 app.use('/api/legal/refund-policy', refundPolicyRoutes);
 app.use('/api/legal/ai-disclosure', aiDisclosureRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/flags', flagsRoutes);
+app.use('/api/privacy', privacyRoutes);
+// Sold-template update delivery (admin publish → buyer notify → download)
+app.use('/api/template-updates', templateUpdateRoutes);
+// Lemon Squeezy: sales webhooks + entitlement activation
+app.use('/api/lemonsqueezy', lemonSqueezyRoutes);
 
 // Health check routes
 app.use('/api/health', healthRoutes);
+
+// Observability — Prometheus scrape endpoint + SLO summary
+app.use('/api/metrics', metricsRoutes);
 
 // WebSocket for real-time notifications
 //
@@ -246,6 +292,9 @@ io.on('connection', (socket) => {
 
 // Make io accessible to routes
 app.set('io', io);
+// Services (outside the request cycle) emit realtime notifications through
+// this global — e.g. template updates pinging every buyer's user room.
+global.__lumicore_io = io;
 
 // ── Sentry error handler — must be AFTER all routes, BEFORE custom errorHandler ──
 if (process.env.SENTRY_DSN) {

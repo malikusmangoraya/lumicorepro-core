@@ -1,0 +1,87 @@
+{
+  "style": "swiss",
+  "name": "Swiss / International Typographic",
+  "dna": "Strict grid, sans-serif type, high contrast, asymmetric balance.",
+  "project_name": "prestige-studio",
+  "palette": {
+    "primary": "#be502c",
+    "secondary": "#000000",
+    "accent": "#be502c",
+    "bg": "#ffffff",
+    "card": "#ffffff",
+    "surface": "#f3f4f6",
+    "text": "#000000",
+    "muted": "#4b5563",
+    "border": "#d1d5db"
+  },
+  "palette_hsl": {
+    "primary": "0 72.2% 50.6%",
+    "secondary": "0 0.0% 0.0%",
+    "accent": "221 83.2% 53.3%",
+    "bg": "0 0.0% 100.0%",
+    "card": "0 0.0% 100.0%",
+    "surface": "220 14.3% 95.9%",
+    "text": "0 0.0% 0.0%",
+    "muted": "215 13.8% 34.1%",
+    "border": "216 12.2% 83.9%"
+  },
+  "typography": {
+    "display": "Helvetica Neue",
+    "sans": "Helvetica Neue",
+    "mono": "JetBrains Mono",
+    "scale": [
+      12,
+      14,
+      16,
+      18,
+      24,
+      30,
+      36,
+      48,
+      64
+    ]
+  },
+  "radius": {
+    "card": "0px",
+    "button": "0px"
+  },
+  "shadow": {
+    "card": "0 0 0 0",
+    "button": "0 0 0 0"
+  },
+  "border": {
+    "card": "1px solid #d1d5db",
+    "button": "2px solid #000000"
+  },
+  "effects": {
+    "blur": "0px",
+    "glow": "none"
+  },
+  "weight": "bold",
+  "composition": "grid",
+  "generated_by": "prestige-studio-design-system",
+  "timestamp": "2026-09-14T23:44:46Z",
+  "rendered_theme": {
+    "mode": "light",
+    "note": "What index.css :root actually renders. palette.* above is the brand DNA; these are the applied values, kept in lockstep by products/_audit/unify-tokens.cjs.",
+    "canvas": "#f8fafc",
+    "surface": "#ffffff",
+    "primary": "#be502c",
+    "accent": "#be502c",
+    "heading": "#be502c",
+    "text": "#26292f",
+    "muted": "#be502c",
+    "border": "#e2e8f0",
+    "footer": "#0e1116"
+  },
+  "token_sync": {
+    "source": "src/components/brand/BRAND.js",
+    "propagated_to": [
+      "src/index.css",
+      "tailwind.config.js",
+      "design-tokens.json",
+      "public/favicon.svg"
+    ],
+    "synced_at": "2026-10-08T17:28:00.898Z"
+  }
+}

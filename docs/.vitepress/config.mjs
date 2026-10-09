@@ -18,6 +18,13 @@ export default defineConfig({
     ],
     sidebar: [
       {
+        text: 'Build',
+        items: [
+          { text: 'AI Website Generation Standard', link: '/AI_WEBSITE_GENERATION_STANDARD' },
+          { text: 'Website Build Playbook', link: '/WEBSITE_BUILD_PLAYBOOK' }
+        ]
+      },
+      {
         text: 'Getting Started',
         items: [
           { text: 'Introduction', link: '/' },
@@ -34,6 +41,26 @@ export default defineConfig({
         text: 'Deployment Guide',
         items: [
           { text: 'Deployment Options', link: '/DEPLOYMENT' }
+        ]
+      },
+      {
+        text: 'Product Guides',
+        items: [
+          { text: 'Product Manual', link: '/PRODUCT_MANUAL' },
+          { text: 'Selling on Lemon Squeezy', link: '/SELLING_GUIDE' }
+        ]
+      },
+      {
+        text: 'Design',
+        items: [
+          { text: 'Unique Project Playbook', link: '/UNIQUE_PROJECT_PLAYBOOK' }
+        ]
+      },
+      {
+        text: 'Architecture',
+        items: [
+          { text: 'Open-Source Alternatives', link: '/OPENSOURCE_ALTERNATIVES' },
+          { text: 'Generator Comparison', link: '/WEBSITE_GENERATOR_COMPARISON' }
         ]
       }
     ],

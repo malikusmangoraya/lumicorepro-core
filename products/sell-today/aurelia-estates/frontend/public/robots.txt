@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://malikusmangoraya.github.io/aurelia-estates/sitemap.xml

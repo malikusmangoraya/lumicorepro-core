@@ -14,7 +14,7 @@
 | Origin | `https://github.com/malikusmangoraya/lumicorepro-core.git` |
 | Default branch | `master` |
 | Working tree | 463 changed entries, 334 untracked files (archived) |
-| GITHUB_TOKEN | **EXPIRED** — returns 401 Unauthorized |
+| GITHUB_TOKEN | **DEAD in all 5 sources** — verified 401 Bad credentials on 2026-10-05: `.env`, `ai-agent/.env`, `.history/.env_20260929102938`, User env var, Windows Credential Manager. A NEW PAT is required. |
 
 ### 1.2 Campaign / Delivery Repos (VERIFIED list from AGENTS.md)
 
@@ -134,7 +134,20 @@ Effort: 5 minutes
 ```
 
 1. Generate a new GitHub PAT (`repo` scope) at https://github.com/settings/tokens
-2. Update `GITHUB_TOKEN` in `.env` and Windows Credential Manager
+   (fine-grained alternative: Contents Read+Write + Workflows, Account Email Read)
+2. Put the token in `.env` **unquoted** as `GITHUB_TOKEN=ghp_...`, then prove it
+   before touching anything else:
+   ```
+   python -c "import sys;sys.path.insert(0,'ai-agent');from agent.gh_token import load_token,validate_token;print(validate_token(load_token(env_files=['.env'])))"
+   ```
+   Expect `True` plus your login. A `401 Bad credentials` on a token you just
+   created almost always means the quotes got baked into the value, or the PAT
+   was never saved. Every reader is now quote-tolerant
+   (`agent/gh_token.py`), so this is a diagnostic, not a workaround.
+   Optionally refresh Windows Credential Manager for `git push` over HTTPS:
+   ```
+   "protocol=https`nhost=github.com`nusername=malikusmangoraya`npassword=ghp_..." | git credential approve
+   ```
 3. Create the 11 campaign repos (they are all 404):
    ```
    aurelia-estates, aurum-fitness, ember-salt, maison-noir,

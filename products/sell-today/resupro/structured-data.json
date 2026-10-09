@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Resupro 002",
+  "url": "https://malikusmangoraya.github.io/resupro",
+  "description": "Case studies, client results, and work you'll want to hire.",
+  "foundingDate": "2026",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Urdu"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/resupro-002",
+    "https://www.instagram.com/resupro-002",
+    "https://twitter.com/resupro-002"
+  ]
+}

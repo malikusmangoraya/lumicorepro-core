@@ -1,0 +1,15 @@
+{
+  "base_url": "https://malikusmangoraya.github.io/meridian-capital",
+  "region": "MENA",
+  "hreflangs": [
+    {
+      "lang": "ar",
+      "code": "ar"
+    },
+    {
+      "lang": "en",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "about", "services", "contact"]
+}

@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "minimalist",
+  "target_region": "gcc",
+  "project_name": "aurelia-estates",
+  "palette": {
+    "primary": "#b8860b",
+    "accent": "#0f766e",
+    "heading": "#5b3200",
+    "navBg": "#ffffff",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be2c2c",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

@@ -1,0 +1,16 @@
+# Render Blueprint
+services:
+  - type: web
+    name: resupro-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+  - type: web
+    name: resupro-backend
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+databases:
+  - name: resupro-db
+    databaseName: resupro

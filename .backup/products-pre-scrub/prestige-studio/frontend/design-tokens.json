@@ -1,0 +1,54 @@
+{
+  "style": "swiss",
+  "name": "Swiss / International Typographic",
+  "dna": "Strict grid, sans-serif type, high contrast, asymmetric balance.",
+  "project_name": "prestige-studio",
+  "palette": {
+    "primary": "#dc2626",
+    "secondary": "#000000",
+    "accent": "#2563eb",
+    "bg": "#ffffff",
+    "card": "#ffffff",
+    "surface": "#f3f4f6",
+    "text": "#000000",
+    "muted": "#4b5563",
+    "border": "#d1d5db"
+  },
+  "palette_hsl": {
+    "primary": "0 72.2% 50.6%",
+    "secondary": "0 0.0% 0.0%",
+    "accent": "221 83.2% 53.3%",
+    "bg": "0 0.0% 100.0%",
+    "card": "0 0.0% 100.0%",
+    "surface": "220 14.3% 95.9%",
+    "text": "0 0.0% 0.0%",
+    "muted": "215 13.8% 34.1%",
+    "border": "216 12.2% 83.9%"
+  },
+  "typography": {
+    "display": "Helvetica Neue",
+    "sans": "Helvetica Neue",
+    "mono": "JetBrains Mono",
+    "scale": [12, 14, 16, 18, 24, 30, 36, 48, 64]
+  },
+  "radius": {
+    "card": "0px",
+    "button": "0px"
+  },
+  "shadow": {
+    "card": "0 0 0 0",
+    "button": "0 0 0 0"
+  },
+  "border": {
+    "card": "1px solid #d1d5db",
+    "button": "2px solid #000000"
+  },
+  "effects": {
+    "blur": "0px",
+    "glow": "none"
+  },
+  "weight": "bold",
+  "composition": "grid",
+  "generated_by": "lumicorepro-design-engine",
+  "timestamp": "2026-09-14T23:44:46Z"
+}

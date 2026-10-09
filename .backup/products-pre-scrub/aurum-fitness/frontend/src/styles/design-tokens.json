@@ -1,0 +1,26 @@
+{
+  "style": "consulting_pro",
+  "name": "Consulting Professional",
+  "ui_style": "minimalist",
+  "target_region": "default",
+  "project_name": "aurum-fitness",
+  "palette": {
+    "primary": "#be882c",
+    "accent": "#ec4899",
+    "heading": "#be882c",
+    "navBg": "#ffffff",
+    "footerBg": "#0e1116",
+    "text": "#26292f",
+    "muted": "#be882c",
+    "card": "#ffffff",
+    "surface": "#f8fafc",
+    "border": "#e2e8f0",
+    "bg": "#ffffff"
+  },
+  "typography": {
+    "display": "Poppins",
+    "sans": "Roboto",
+    "mono": "JetBrains Mono"
+  },
+  "theme": "light"
+}

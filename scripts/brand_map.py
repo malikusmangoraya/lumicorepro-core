@@ -576,11 +576,51 @@ AGENT_BRANDS = {
 
 BRANDS.update(AGENT_BRANDS)
 
+# `apex` shipped as one of the ten catalogue products but was still registered as
+# a stub, so it had a name and a tagline and nothing else - no hero line, no
+# stats, no feature copy. Its landing page was generated straight from those two
+# strings, which is why it read like filler. Given a full card.
+BRANDS["apex"] = {
+    "name": "Apex Digital", "industry": "saas",
+    "tagline": "Conversion engineering for B2B teams.",
+    "eyebrow": "CONVERSION ENGINEERING",
+    "hero": "Pipeline you can defend in the boardroom",
+    "sub": "Apex Digital turns scattered intent data into a forecast the whole revenue team trusts - account scoring, sequence automation and attribution in one workspace.",
+    "cta": "Start Free", "cta2": "See a Live Demo",
+    "feat1": "Account Intent Scoring", "feat2": "Sequence Automation",
+    "feat3": "Multi-Touch Attribution", "feat4": "Revenue Forecasting",
+    "stat1": "38%", "stat2": "2.4x", "stat3": "11 days", "stat4": "99.98%",
+    "stat1l": "More qualified pipeline", "stat2l": "Faster lead response",
+    "stat3l": "Faster time to first value", "stat4l": "Platform uptime",
+    "feata": "Scored on the signals that actually close",
+    "featb": "Sequences that stop the moment a deal goes quiet",
+    "featc": "One attribution model everyone agrees on",
+}
+
+# `flowpilot` is the eleventh catalogue product: a full SaaS work operating
+# system (projects, billing, insight) cloned from the proven `apex` stack and
+# given its own emerald/indigo identity.
+BRANDS["flowpilot"] = {
+    "name": "FlowPilot", "industry": "saas",
+    "tagline": "Projects, billing and insight in one calm workspace.",
+    "eyebrow": "WORK OPERATING SYSTEM",
+    "hero": "The whole operation, on one calm screen",
+    "sub": "FlowPilot runs projects, invoices and team insight from a single workspace — plans that stay current, billing that sends itself, and numbers the whole company trusts.",
+    "cta": "Start Free", "cta2": "See a Live Demo",
+    "feat1": "Project Plans That Stay Current", "feat2": "Self-Sending Invoicing",
+    "feat3": "Team Insight Boards", "feat4": "Client Portals",
+    "stat1": "6 hrs", "stat2": "3.1x", "stat3": "9 days", "stat4": "99.99%",
+    "stat1l": "Saved every week", "stat2l": "Faster invoicing",
+    "stat3l": "Faster time to first value", "stat4l": "Platform uptime",
+    "feata": "Plans that update themselves as work moves",
+    "featb": "Invoices that chase themselves politely",
+    "featc": "One board the whole company reads",
+}
+
 # --- generic template builds: each stub gets its own human brand identity ---
 # These 26 shipped with the shared "Build" name and a LumicorePro lockup, so
 # their titles, footers and logos were indistinguishable from each other.
 STUB_BRANDS = {
-    "apex": ("Apex Digital", "saas", "Conversion engineering for B2B teams."),
     "apex-002": ("Apex Commerce", "ecommerce", "Storefronts that load in under a second."),
     "claimflow-ai-002": ("Adjusterly", "fintech", "Claims intake without the backlog."),
     "create": ("Create Studio", "saas", "Ship the work, not the process."),

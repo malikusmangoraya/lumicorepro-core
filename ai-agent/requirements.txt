@@ -91,3 +91,8 @@ stability-sdk>=0.8.5            # Stable Diffusion
 # built-in sequential executor, so the UI component agent works fully offline.
 # Install only if you want StateGraph-based execution + checkpointing.
 # langgraph>=0.2.0
+
+# MCP (Model Context Protocol) server bridge — exposes the agent pipeline as
+# stdio MCP tools (mcp_server.py) for Claude Desktop, Cursor, VS Code, etc.
+# FastMCP lives in mcp.server.fastmcp; 2.x renamed it, hence the <2 pin.
+mcp>=1.9.0,<2

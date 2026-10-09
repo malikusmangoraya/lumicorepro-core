@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | claimflow-ai",
+    "description": "Welcome to claimflow-ai — the leading saas platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | claimflow-ai",
+    "description": "Features — claimflow-ai",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | claimflow-ai",
+    "description": "Pricing — claimflow-ai",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | claimflow-ai",
+    "description": "Read the latest articles and insights from claimflow-ai.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | claimflow-ai",
+    "description": "Documentation — claimflow-ai",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | claimflow-ai",
+    "description": "Learn about claimflow-ai, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | claimflow-ai",
+    "description": "Get in touch with claimflow-ai. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/claimflow/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

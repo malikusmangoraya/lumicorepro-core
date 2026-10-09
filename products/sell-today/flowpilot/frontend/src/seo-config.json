@@ -1,0 +1,65 @@
+{
+  "home": {
+    "title": "Home | flowpilot",
+    "description": "Welcome to flowpilot — the leading saas platform. Discover our services, products, and more.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot",
+    "ogType": "website",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "features": {
+    "title": "Features | flowpilot",
+    "description": "Features — flowpilot",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/features",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "software",
+    "ogLocale": "en_US"
+  },
+  "pricing": {
+    "title": "Pricing | flowpilot",
+    "description": "Pricing — flowpilot",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/pricing",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "offer",
+    "ogLocale": "en_US"
+  },
+  "blog": {
+    "title": "Blog | flowpilot",
+    "description": "Read the latest articles and insights from flowpilot.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/blog",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "blog",
+    "ogLocale": "en_US"
+  },
+  "docs": {
+    "title": "Documentation | flowpilot",
+    "description": "Documentation — flowpilot",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/docs",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": null,
+    "ogLocale": "en_US"
+  },
+  "about": {
+    "title": "About | flowpilot",
+    "description": "Learn about flowpilot, our mission, team, and story.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/about",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "organization",
+    "ogLocale": "en_US"
+  },
+  "contact": {
+    "title": "Contact | flowpilot",
+    "description": "Get in touch with flowpilot. We're here to help.",
+    "canonicalUrl": "https://malikusmangoraya.github.io/flowpilot/contact",
+    "ogType": "article",
+    "noIndex": false,
+    "schema": "localBusiness",
+    "ogLocale": "en_US"
+  }
+}

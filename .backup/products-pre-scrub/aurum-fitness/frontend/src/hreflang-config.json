@@ -1,0 +1,15 @@
+{
+  "base_url": "https://aurum-fitness.com",
+  "region": "MENA",
+  "hreflangs": [
+    {
+      "lang": "ar",
+      "code": "ar"
+    },
+    {
+      "lang": "en",
+      "code": "en"
+    }
+  ],
+  "pages": ["", "features", "pricing", "blog", "docs", "about", "contact"]
+}

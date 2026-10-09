@@ -1,24 +1,37 @@
-"""Tests for the open-weight providers: Kimi (Moonshot) and OpenMuse (local)."""
+"""Tests for the primary open-weight providers: Kimi (Moonshot) and Groq Cloud.
+
+The internet-only open-weight *cloud* vendors (Cerebras, DeepInfra, Together,
+Fireworks, SambaNova, Novita, Hugging Face, Nebius, Hyperbolic, Featherless,
+Chutes) have their own guard file: `test_open_weight_cloud.py`.
+
+There is deliberately no test for a local/offline runtime here. Ollama, vLLM,
+llama.cpp and LM Studio are out of scope — the agent must not need a GPU on the
+operator's machine — and `OFFLINE_ONLY_SLUGS` in `providers.openweight_provider`
+records that decision for the guard tests to enforce.
+"""
 import os
 
 import pytest
 from unittest.mock import MagicMock, patch
 
+from providers.grok_provider import GrokProvider
 from providers.kimi_provider import CHINA_BASE, INTERNATIONAL_BASE, KimiProvider
-from providers.openmuse_provider import DEFAULT_BASE_URLS, OpenMuseProvider
 
 
 # ── Registration / config wiring ────────────────────────────────────────────
-def test_both_providers_are_registered():
-    from config.providers import FALLBACK_ORDER, PROVIDER_CONFIGS, instantiate_provider
+def test_providers_are_registered():
+    from config.providers import FALLBACK_ORDER, PROVIDER_CONFIGS
 
-    for name in ("kimi", "moonshot", "openmuse"):
+    for name in ("kimi", "moonshot", "grok", "groq"):
         assert name in PROVIDER_CONFIGS, f"{name} missing from PROVIDER_CONFIGS"
-    # Local/offline hops go last so a dead local server never blocks a real call.
-    assert FALLBACK_ORDER.index("kimi") > FALLBACK_ORDER.index("mistral")
-    assert FALLBACK_ORDER.index("openmuse") == len(FALLBACK_ORDER) - 1
-    assert PROVIDER_CONFIGS["openmuse"]["keyless"] is True
+    # `groq` is the natural spelling of the historical `grok` slug; both resolve
+    # to the Groq Cloud class (which hits api.groq.com).
+    assert PROVIDER_CONFIGS["groq"]["provider_name"] == PROVIDER_CONFIGS["grok"]["provider_name"]
     assert PROVIDER_CONFIGS["kimi"]["open_source"] is True
+    assert PROVIDER_CONFIGS["grok"]["open_source"] is True
+    # Open-weight hosts are preferred; the slowest-to-reach ones sit last.
+    assert FALLBACK_ORDER.index("kimi") > FALLBACK_ORDER.index("mistral")
+    assert FALLBACK_ORDER[-1] == "kimi"
 
 
 def test_instantiate_returns_real_provider_classes():
@@ -26,14 +39,15 @@ def test_instantiate_returns_real_provider_classes():
 
     assert isinstance(instantiate_provider("kimi"), KimiProvider)
     assert isinstance(instantiate_provider("moonshot"), KimiProvider)
-    assert isinstance(instantiate_provider("openmuse"), OpenMuseProvider)
+    assert isinstance(instantiate_provider("grok"), GrokProvider)
+    assert isinstance(instantiate_provider("groq"), GrokProvider)
 
 
 def test_placeholder_keys_are_rejected():
     from config.providers import validate_provider_key
 
-    # openmuse is keyless, kimi is not: a placeholder key must not count as configured.
-    assert validate_provider_key("openmuse", require_key=False) is True
+    # omniroute is keyless, kimi is not: a placeholder key must not count as configured.
+    assert validate_provider_key("omniroute", require_key=False) is True
     with patch("config.providers.PROVIDER_CONFIGS", {
         "kimi": {"provider_name": "kimi", "api_key": "your_kimi_api_key_here", "env_var_name": "KIMI_API_KEY"}
     }):
@@ -103,55 +117,19 @@ def test_kimi_list_models_survives_a_dead_endpoint():
         assert provider.list_models() == []
 
 
-# ── OpenMuse ────────────────────────────────────────────────────────────────
-def test_openmuse_is_keyless_and_omits_authorization():
-    provider = OpenMuseProvider(api_key="", model_name="qwen3-coder")
-    assert "Authorization" not in provider._headers()
-    response = MagicMock(status_code=200)
-    response.json.return_value = {"choices": [{"message": {"content": "def f(): ..."}}]}
-    with patch("providers.openmuse_provider.requests.post", return_value=response) as post:
-        assert provider.generate_code("task") == "def f(): ..."
-    assert "Authorization" not in post.call_args.kwargs["headers"]
-
-
-def test_openmuse_placeholder_key_is_not_sent():
-    provider = OpenMuseProvider(api_key="your_openmuse_api_key_here")
-    assert "Authorization" not in provider._headers()
-    provider = OpenMuseProvider(api_key="real-token")
-    assert provider._headers()["Authorization"] == "Bearer real-token"
-
-
-def test_openmuse_targets_a_local_openai_compatible_server():
-    provider = OpenMuseProvider()
-    assert provider.base_url == DEFAULT_BASE_URLS[0]
-    assert provider.base_url.startswith("http://127.0.0.1")
-    # The documented local runtimes must all be probed.
-    ports = {url.rsplit(":", 1)[-1] for url in DEFAULT_BASE_URLS}
-    assert ports == {"8080/v1", "11434/v1", "8000/v1", "1234/v1"}
-
-
-def test_openmuse_error_message_names_the_unreachable_endpoint():
-    provider = OpenMuseProvider(base_url="http://127.0.0.1:9/v1", model_name="qwen3-coder")
-    provider.timeout = 1
-    with patch("providers.openmuse_provider.requests.post", side_effect=OSError("connection refused")):
-        with pytest.raises(RuntimeError) as exc:
-            provider._raw_call("hi")
-    assert "127.0.0.1:9" in str(exc.value)
-
-
-def test_openmuse_lists_models_from_the_local_server():
-    provider = OpenMuseProvider(timeout=5)
-    response = MagicMock(status_code=200)
-    response.json.return_value = {"data": [{"id": "qwen3-coder"}, {"id": "llama3.1:8b"}]}
-    with patch("providers.openmuse_provider.requests.get", return_value=response):
-        assert provider.list_models() == ["llama3.1:8b", "qwen3-coder"]
+# ── Groq Cloud (slug `grok`, alias `groq`) ──────────────────────────────────
+def test_grok_targets_groq_cloud_not_xai():
+    """The historical slug is `grok`, but the class must hit Groq Cloud."""
+    provider = GrokProvider(api_key="gsk_test")
+    assert "groq.com" in provider.endpoint
+    assert "x.ai" not in provider.endpoint
 
 
 # ── Lazy import contract ────────────────────────────────────────────────────
-def test_providers_package_exports_new_classes():
+def test_providers_package_exports_provider_classes():
     import providers
 
     assert providers.KimiProvider is KimiProvider
-    assert providers.OpenMuseProvider is OpenMuseProvider
+    assert providers.GrokProvider is GrokProvider
     assert "KimiProvider" in dir(providers)
-    assert "OpenMuseProvider" in dir(providers)
+    assert "GrokProvider" in dir(providers)

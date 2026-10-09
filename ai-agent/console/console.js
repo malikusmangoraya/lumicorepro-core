@@ -4,7 +4,7 @@
    Layers:
      1. ambient   — aurora canvas, scroll reveal, pointer glow, clock
      2. telemetry — KPI gauges, tier ribbon, routing bars, sparkline
-     3. control   — pipeline launcher, providers, tiers, local models
+     3. control   — pipeline launcher, providers, tiers
      4. chrome    — command palette, toasts, theme
    Every number on screen comes from /api/console/overview. Nothing is invented. */
 (() => {
@@ -600,70 +600,6 @@
     return out;
   }
 
-  function renderLocal() {
-    const wrap = $('local-list');
-    const servers = (state.overview && state.overview.local_models) || [];
-    wrap.textContent = '';
-    if (!servers.length) {
-      wrap.innerHTML =
-        '<p class="empty">No local model server found. Start one with <code>ollama serve</code> (port 11434), ' +
-        'LM Studio (1234), vLLM (8000) or llama.cpp (8080) — no API key needed.</p>';
-      return;
-    }
-    servers.forEach((server) => {
-      const item = document.createElement('div');
-      item.className = 'local-item';
-      const title = document.createElement('h3');
-      title.textContent = server.label || `local:${server.port}`;
-      const url = document.createElement('p');
-      url.className = 'local-url';
-      url.textContent = server.base_url;
-
-      const models = document.createElement('div');
-      models.className = 'local-models';
-      (server.models || []).slice(0, 14).forEach((m) => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'local-model';
-        chip.textContent = m;
-        chip.title = `Use ${m} as the no-key model`;
-        chip.addEventListener('click', () => setLocalModel(server.base_url, m));
-        models.append(chip);
-      });
-
-      const use = document.createElement('button');
-      use.type = 'button';
-      use.className = 'btn ghost small';
-      use.textContent = 'Use first model';
-      use.disabled = !(server.models || []).length;
-      use.addEventListener('click', () => setLocalModel(server.base_url, server.models[0]));
-
-      const actions = document.createElement('div');
-      actions.className = 'pcard-actions';
-      actions.append(use, tag('oss', `${(server.models || []).length} models`));
-
-      item.append(title, url, models, actions);
-      wrap.append(item);
-    });
-  }
-
-  async function setLocalModel(baseUrl, model) {
-    try {
-      const res = await api('/api/console/local-model', {
-        method: 'POST',
-        body: JSON.stringify({ base_url: baseUrl, model }),
-      });
-      if (res.ok) {
-        log(`no-key model set: ${model} @ ${baseUrl} (written to ${res.env})`, 'ok', { toast: true });
-        log('restart the agent service for it to take effect', 'info');
-      } else {
-        log(`could not set local model: ${res.error}`, 'err', { toast: true });
-      }
-    } catch (err) {
-      log(`local model error: ${err.message}`, 'err', { toast: true });
-    }
-  }
-
   function renderStats() {
     const grid = $('stats-grid');
     const stats = reportStats();
@@ -683,7 +619,11 @@
         String((state.overview && state.overview.router && state.overview.router.parallelism) || 0),
         'parallel workers',
       ],
-      ['local servers', String(((state.overview && state.overview.local_models) || []).length), 'no-key models'],
+      [
+        'provider hops',
+        String(((state.overview && state.overview.fallback_order) || []).length),
+        'internet-only',
+      ],
     ];
     cards.forEach(([label, value, sub], index) => {
       const card = statCard(label, value, sub);
@@ -720,7 +660,6 @@
       renderHero();
       renderProviders();
       renderTiers();
-      renderLocal();
       renderStats();
       const footer = $('footer-agent');
       if (footer) footer.textContent = (state.overview.agent && state.overview.agent.url) || 'the agent API';
@@ -835,7 +774,7 @@
         stateEl.dataset.kind = 'ok';
         log(`provider test: ${working.length}/${total} live — ${working.join(', ')}`, 'ok', { toast: true });
       } else {
-        stateEl.textContent = `0/${total} answered. Check keys or start a local model.`;
+        stateEl.textContent = `0/${total} answered. Check the provider keys, then probe again.`;
         stateEl.dataset.kind = 'err';
         log('provider test: nothing answered', 'err', { toast: true });
       }
@@ -924,7 +863,6 @@
     { label: 'Activity log', group: 'section', run: () => jump('sec-log') },
     { label: 'AI providers', group: 'section', run: () => jump('sec-providers') },
     { label: 'Routing tiers', group: 'section', run: () => jump('sec-tiers') },
-    { label: 'No-key cloud', group: 'section', run: () => jump('sec-local') },
     { label: 'Routing report', group: 'section', run: () => jump('sec-stats') },
     { label: 'Refresh state now', group: 'action', run: () => loadOverview() },
     { label: 'Test all providers', group: 'action', run: () => $('probe-all-btn').click() },

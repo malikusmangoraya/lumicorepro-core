@@ -43,6 +43,15 @@ class TestDesignSystemEngine(unittest.TestCase):
 
         self.assertIn("claims_queue", home_blocks)
 
+    def test_design_tokens_include_layout_dimensions_and_line_height_roles(self):
+        tokens = self.engine.resolve(self.spec)["design_dna"]["tokens"]
+
+        self.assertIn("container_max", tokens["layout"])
+        self.assertIn("hero_columns", tokens["layout"])
+        self.assertIn("tablet_breakpoint", tokens["layout"])
+        self.assertIn("width", tokens["borders"])
+        self.assertIn("line_height_heading", tokens["typography"])
+
     def test_explicit_hero_constraint_is_preserved(self):
         constrained = dict(self.spec, design_constraints={"hero": "typographic"})
 

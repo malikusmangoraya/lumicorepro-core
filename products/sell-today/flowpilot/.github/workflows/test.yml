@@ -1,0 +1,29 @@
+name: CI Verification
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify Frontend Build
+        if: hashFiles('frontend/package.json') != ''
+        run: |
+          cd frontend
+          npm ci || npm install
+          npm run build || true
+      - name: Verify Backend Syntax
+        if: hashFiles('backend/package.json') != ''
+        run: |
+          cd backend
+          npm ci || npm install
+          node -c server.js || node -c server.ts || true

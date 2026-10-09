@@ -75,8 +75,57 @@ def git(*args: str) -> str:
         return ""
 
 
+def _expand_braces(pattern: str) -> list[str]:
+    """Expand top-level {a,b} alternations (pathlib has none)."""
+    start = pattern.find("{")
+    if start == -1:
+        return [pattern]
+    end = pattern.find("}", start)
+    if end == -1:
+        return [pattern]
+    out: list[str] = []
+    for alt in pattern[start + 1 : end].split(","):
+        out.extend(_expand_braces(pattern[:start] + alt + pattern[end + 1 :]))
+    return out
+
+
+def _glob_re(pattern: str) -> "re.Pattern[str]":
+    """Compile a glob to a regex anchored at both ends.
+
+    pathlib.Path.match() was the previous matcher and it silently matched zero
+    files: it has no brace expansion and its ``**`` does not cross directory
+    boundaries, so ``**/__tests__/**/*.{test,spec}.{js,jsx}`` and friends never
+    fired (the report showed 0 frontend / 0 backend / 0 pytest test files).
+    """
+    parts: list[str] = []
+    i = 0
+    while i < len(pattern):
+        char = pattern[i]
+        if char == "*":
+            if pattern[i : i + 3] == "**/":
+                parts.append("(?:[^/]+/)*")
+                i += 3
+                continue
+            if pattern[i : i + 2] == "**":
+                parts.append(".*")
+                i += 2
+                continue
+            parts.append("[^/]*")
+        elif char == "?":
+            parts.append("[^/]")
+        else:
+            parts.append(re.escape(char))
+        i += 1
+    return re.compile("^" + "".join(parts) + "$")
+
+
 def suite(name: str, root: Path, glob: str, pattern: str, command: str) -> dict:
-    files = [p for p in walk(root, (".js", ".jsx", ".ts", ".tsx", ".py")) if p.match(glob)]
+    regexes = [_glob_re(p) for p in _expand_braces(glob)]
+    files = []
+    for path in walk(root, (".js", ".jsx", ".ts", ".tsx", ".py")):
+        rel = path.relative_to(root).as_posix()
+        if any(rx.match(rel) for rx in regexes):
+            files.append(path)
     return {
         "name": name,
         "files": len(files),
@@ -207,6 +256,33 @@ def build_report() -> str:
     return "\n".join(lines)
 
 
+def _static_view(text: str) -> str:
+    """Drop the lines that cannot be identical between two runs/machines.
+
+    * ``Generated:`` — timestamp, differs every run.
+    * ``Commit:`` — a committed file can never contain the sha of the commit
+      that will carry it, and CI checks out a detached HEAD, so this line is
+      volatile by construction.
+    * the "Last measured results" section — derived from gitignored artifacts
+      (``coverage/``, ``delivery/``) that a fresh CI checkout does not have.
+
+    Everything else (versions, test inventory, code size, gate list) comes from
+    committed sources and must match exactly.
+    """
+    out: list[str] = []
+    skipping = False
+    for line in text.splitlines():
+        if line.startswith("## Last measured results"):
+            skipping = True
+            continue
+        if skipping and line.startswith("## "):
+            skipping = False
+        if skipping or line.startswith("Generated:") or line.startswith("Commit:"):
+            continue
+        out.append(line)
+    return "\n".join(out)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="fail if docs/STATUS.md is stale")
@@ -215,11 +291,7 @@ def main() -> int:
     report = build_report()
     if args.check:
         current = read_text(OUT)
-        # ignore the timestamp line when comparing freshness
-        strip = lambda text: "\n".join(  # noqa: E731
-            line for line in text.splitlines() if not line.startswith("Generated:")
-        )
-        if strip(current) != strip(report):
+        if _static_view(current) != _static_view(report):
             print("docs/STATUS.md is stale - run: python scripts/generate_status.py")
             return 1
         print("docs/STATUS.md is up to date")
