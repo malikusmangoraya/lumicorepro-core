@@ -1,24 +1,74 @@
 /**
- * theme.js - dark-canvas default (TRD #3 canvas archetypes).
- * Applies `.dark` on <html> by default, honoring a saved preference, then the
- * operating-system scheme. Runs on import.
+ * LUMI_THEME_CONTROLLER_V8
+ *
+ * Applies the resolved theme to <html> as BOTH the `.dark` class (Tailwind
+ * `dark:` variants) and `data-theme` (design-token and CSS selectors), so the
+ * two mechanisms cannot drift apart.
+ *
+ * Resolution order: `?theme=` in the URL > saved preference > brand default.
+ * These canvases are dark-first, which is why the fallback is `dark`.
  */
-(function applyTheme() {
+export const THEME_STORAGE_KEY = 'theme';
+export const THEMES = ['dark', 'light', 'auto'];
+
+export function getThemePreference() {
   try {
-    const root = document.documentElement;
-    const saved = localStorage.getItem('theme');
-    const pref = saved
-      ? saved === 'dark'
-      : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.classList.toggle('dark', pref === true || saved === 'dark');
-    if (!saved) root.classList.add('dark'); // dark default per design tokens
-  } catch (e) {
-    void e;
+    const fromUrl = new URLSearchParams(window.location.search).get('theme');
+    if (THEMES.includes(fromUrl)) return fromUrl;
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (THEMES.includes(saved)) return saved;
+  } catch (error) {
+    void error;
   }
-})();
+  return 'dark';
+}
+
+export function resolveTheme(preference = getThemePreference()) {
+  if (preference === 'dark' || preference === 'light') return preference;
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  } catch (error) {
+    void error;
+  }
+  return 'dark';
+}
+
+export function applyTheme(preference = getThemePreference()) {
+  const resolved = resolveTheme(preference);
+  const root = document.documentElement;
+  root.classList.toggle('dark', resolved === 'dark');
+  root.setAttribute('data-theme', resolved);
+  root.setAttribute('data-theme-preference', preference);
+  root.style.colorScheme = resolved;
+  return resolved;
+}
+
+export function setTheme(preference) {
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+  } catch (error) {
+    void error;
+  }
+  return applyTheme(preference);
+}
+
+export function toggleTheme() {
+  return setTheme(resolveTheme() === 'dark' ? 'light' : 'dark');
+}
 
 export default function theme() {
-  return document.documentElement.classList.contains('dark');
+  return document.documentElement.getAttribute('data-theme') !== 'light';
+}
+
+applyTheme();
+
+/* Follow the operating system only while the visitor has made no choice. */
+try {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (getThemePreference() === 'auto') applyTheme('auto');
+  });
+} catch (error) {
+  void error;
 }
 
 export const designTokens = `/* ===== APP_DESIGN_TOKENS_V7 ===== */

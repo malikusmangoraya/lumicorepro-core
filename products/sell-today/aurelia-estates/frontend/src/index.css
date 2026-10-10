@@ -387,4 +387,52 @@
   outline: 2px solid var(--t-primary);
   outline-offset: 2px;
 }
+
+/* Scroll reveal fallback for elements that never receive an IntersectionObserver
+   callback (e.g. above-the-fold content on slow first paints). The motion layer
+   already has its own loop; this rule only guards visibly-on-screen elements that
+   still carry the reveal class when the observer stays silent. */
+
+.lumi-reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--lumi-y, 28px), 0) scale(var(--lumi-s, 1));
+  transition:
+    opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--lumi-d, 0ms);
+}
+
+.lumi-reveal.lumi-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumi-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== LUMI_TOKENS_V8 ===== */
+/* Programmatic theming. src/lib/theme.js sets data-theme on <html> alongside
+   the .dark class, so a theme can be driven from a query param, a saved
+   preference, or a design-token build step — not just the .dark class. */
+[data-theme] {
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Keyboard-only focus ring (WCAG 2.4.7). Uses the brand token so every app
+   inherits its own colour, and never shows on a mouse click. */
+:where(a, area, button, input, select, summary, textarea, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--t-primary);
+  outline-offset: 2px;
+  border-radius: var(--t-radius-md, 0.5rem);
+}
+/* ===== end LUMI_TOKENS_V8 ===== */
 /* ===== end skip-link ===== */

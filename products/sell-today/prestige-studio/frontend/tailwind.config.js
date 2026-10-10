@@ -1,6 +1,6 @@
 export default {
   content: ['./index.html', './src/**/*{js,jsx}'],
-  darkMode: 'class',
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       ringColor: { DEFAULT: "#be502c", offset: "#be502c" },

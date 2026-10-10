@@ -25,6 +25,8 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "setup": "node scripts/setup.js",
+    "upgrade": "node scripts/upgrade/cli.mjs",
+    "upgrade:check": "node scripts/upgrade/cli.mjs --dry-run",
     "test:api": "node scripts/test-api.js",
     "agent": "venv\\Scripts\\python.exe ai-agent/main.py",
     "agent:server": "venv\\Scripts\\python.exe ai-agent/server.py",
