@@ -4,6 +4,41 @@ import { Link } from 'react-router-dom';
 import { Zap, TrendingUp, Users, Award, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Dumbbell, Clock, Heart } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import heroImage from '../assets/images/hero-gym.jpg';
+import heroBackdrop from '../assets/images/gym-workout.jpg';
+import shotCoaching from '../assets/images/personal-trainer.jpg';
+import shotStrength from '../assets/images/kettlebell.jpg';
+import shotConditioning from '../assets/images/hiit.jpg';
+import shotRecovery from '../assets/images/yoga-class.jpg';
+
+// The training floor, in four frames — shipped assets, imported so the bundler
+// fingerprints them and they resolve under the GitHub Pages project subpath.
+const trainingFloor = [
+  {
+    src: shotCoaching,
+    alt: 'A coach working with an athlete on the training floor',
+    title: 'Private coaching',
+    caption: 'One coach, one athlete, one plan — corrected rep by rep rather than supervised from across the room.',
+  },
+  {
+    src: shotStrength,
+    alt: 'Kettlebells lined up on the gym floor',
+    title: 'Strength systems',
+    caption: 'Load is prescribed from your own numbers, so progression is a decision rather than a habit.',
+  },
+  {
+    src: shotConditioning,
+    alt: 'Conditioning work during a coached session',
+    title: 'Conditioning',
+    caption: 'Engine work is scheduled around your recovery instead of stacked on top of it.',
+  },
+  {
+    src: shotRecovery,
+    alt: 'A guided mobility and recovery session',
+    title: 'Recovery lab',
+    caption: 'Mobility and recovery get the same coaching attention as the training floor.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -20,7 +55,13 @@ export default function Home() {
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--t-primary)_0%,transparent_60%)] opacity-20" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,var(--t-accent)_0%,transparent_60%)] opacity-20" />
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327255-205eec384c0b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat scale-110" style={{ filter: 'blur(2px) grayscale(20%) brightness(0.85)' }} />
+            <img
+              src={heroBackdrop}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover object-center scale-110"
+              style={{ filter: 'blur(2px) grayscale(20%) brightness(0.85)' }}
+            />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -74,9 +115,12 @@ export default function Home() {
             <div className="relative" data-reveal>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 dark:ring-white/5">
                 <img
-                  src="https://images.unsplash.com/photo-1534438327255-205eec384c0b?q=80&w=2070&auto=format&fit=crop"
-                  alt="Private training floor at Aurum Fitness"
+                  src={heroImage}
+                  alt="The training floor at Aurum Fitness"
                   loading="eager"
+                  decoding="async"
+                  width="1200"
+                  height="800"
                   className="w-full h-full object-cover"
                   style={{ maxHeight: '520px' }}
                 />
@@ -218,6 +262,49 @@ export default function Home() {
                     {feature.desc}
                   </p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== THE FLOOR, IN FOUR FRAMES: local imagery ===== */}
+        <section className="py-20 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-12">
+              <p className="section-eyebrow">{t('Home.the_floor', 'The floor')}</p>
+              <h2 className="section-heading" style={{ color: 'var(--t-heading)' }}>
+                {t('Home.what_a_session_looks_like', 'What a session looks like')}
+              </h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Four frames from the training floor — coaching, load, engine and recovery.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {trainingFloor.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-44 w-full object-cover"
+                  />
+                  <figcaption className="p-5">
+                    <p className="text-sm font-semibold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
               ))}
             </div>
           </div>
@@ -448,8 +535,8 @@ export default function Home() {
             <div className="relative data-[revealed=false]:opacity-0" data-reveal>
               <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-white/10 dark:ring-white/5">
                 <img
-                  src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2073&auto=format&fit=crop"
-                  alt="Athlete completing a coached session at Aurum Fitness"
+                  src={shotCoaching}
+                  alt="A coach working with an athlete on the training floor"
                   loading="lazy"
                   className="w-full h-full object-cover"
                   style={{ maxHeight: '400px' }}

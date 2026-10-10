@@ -4,6 +4,39 @@ import { Link } from 'react-router-dom';
 import { Layers, Sparkles, Zap, Award, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Rocket } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import shotMoodboards from '../assets/images/moodboard.jpg';
+import shotIdentity from '../assets/images/branding.jpg';
+import shotLookbook from '../assets/images/lookbook.jpg';
+import shotDigital from '../assets/images/design-desktop.jpg';
+
+// Shipped assets, imported so the bundler fingerprints them and they resolve
+// under the GitHub Pages project subpath.
+const studio = [
+  {
+    src: shotMoodboards,
+    alt: 'Reference imagery and material samples pinned up in a studio',
+    title: 'Moodboards',
+    caption: 'Direction is pinned to a wall before anything is drawn, so the reasoning is on record rather than in someone\'s head.',
+  },
+  {
+    src: shotIdentity,
+    alt: 'Brand identity material laid out on a surface',
+    title: 'Identity systems',
+    caption: 'Mark, type and colour are built as one system so they still hold after the launch deck is retired.',
+  },
+  {
+    src: shotLookbook,
+    alt: 'A printed lookbook showing a finished identity',
+    title: 'Lookbooks',
+    caption: 'Brands are documented in the formats the client team actually ships, print and screen alike.',
+  },
+  {
+    src: shotDigital,
+    alt: 'A designer working on interface screens at a desk',
+    title: 'Digital craft',
+    caption: 'Screens are drawn to the same fidelity as the identity, because that is where most audiences meet the brand first.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -125,6 +158,45 @@ export default function Home() {
                   Prestige Studio is an independent creative practice pairing strategy, identity and digital craft for founders who compete on taste.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-14">
+              <p className="section-eyebrow">{t('Home.in_the_studio', 'In the studio')}</p>
+              <h2 className="section-heading">The work behind the reveal</h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Four parts of the process a client sits inside with us, from first references to shipped screens.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {studio.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-44 w-full object-cover"
+                  />
+                  <figcaption className="p-6 flex-1">
+                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>

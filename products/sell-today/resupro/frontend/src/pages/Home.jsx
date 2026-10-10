@@ -4,6 +4,39 @@ import { Link } from 'react-router-dom';
 import { LayoutDashboard, Zap, ShieldCheck, TrendingUp, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Layers, Rocket, Briefcase } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import shotOutline from '../assets/images/workspace-desk.jpg';
+import shotLayouts from '../assets/images/designer-desk.jpg';
+import shotPreview from '../assets/images/laptop-setup.jpg';
+import shotComments from '../assets/images/team.jpg';
+
+// Shipped assets, imported so the bundler fingerprints them and they resolve under
+// the GitHub Pages project subpath.
+const workspace = [
+  {
+    src: shotOutline,
+    alt: 'A desk with notes being worked into an outline',
+    title: 'Outline first',
+    caption: 'Write the content in plain text; the layout follows your structure instead of fighting it.',
+  },
+  {
+    src: shotLayouts,
+    alt: 'A designer working on layout at a desk',
+    title: 'Smart layouts',
+    caption: 'Type, spacing and colour come from the system, so nothing you send out looks template-white.',
+  },
+  {
+    src: shotPreview,
+    alt: 'A laptop showing a document open in an editor',
+    title: 'Live preview',
+    caption: 'The finished page is on screen while you edit it, not after you export.',
+  },
+  {
+    src: shotComments,
+    alt: 'A small team reviewing work together',
+    title: 'Team comments',
+    caption: 'Feedback lands on the part it belongs to, instead of in a thread somewhere else.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -132,6 +165,45 @@ export default function Home() {
                   ResuPro turns outlines into investor-ready decks with smart layouts, brand systems and live analytics on every slide.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-14">
+              <p className="section-eyebrow">{t('Home.inside_the_tool', 'Inside the tool')}</p>
+              <h2 className="section-heading">Four steps from outline to something shareable</h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                The part of the process most document tools make you do by hand.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {workspace.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-44 w-full object-cover"
+                  />
+                  <figcaption className="p-6 flex-1">
+                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>

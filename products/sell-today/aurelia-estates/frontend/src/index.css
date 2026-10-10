@@ -60,9 +60,14 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
   }
+  /* CLS guard for inline media: reserves the box before the asset arrives.
+     Deliberately NOT `content-visibility: auto` — this class used to be applied to
+     the application shell, and skipping the element that contains the whole routed
+     app stops it rendering, pins the document height to the intrinsic estimate and
+     stops IntersectionObserver from firing, which blanked every page. */
   .cls-reserve {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 500px;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
   }
   .glass-md {
     backdrop-filter: blur(12px);
@@ -209,17 +214,11 @@
 }
 
 /* ===== lumi-motion (advanced animation layer) ===== */
-/* Both reveal APIs are kept: utils/lumi-motion.js toggles .lumi-in, while the shared
-   section components set data-reveal and toggle .revealed. */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-[data-reveal].revealed {
-  opacity: 1;
-  transform: none;
-}
+/* Hiding is owned by the motion layer: utils/lumi-motion.js adds .lumi-reveal to
+   exactly the elements it has promised to reveal on intersection. `data-reveal` is
+   opt-in metadata for that layer, not a style — hiding every [data-reveal] in CSS
+   also hid the elements the layer deliberately declines to animate (it skips a
+   wrapper that contains its own headings), leaving whole pages invisible. */
 .lumi-reveal {
   opacity: 0;
   transform: translate3d(0, var(--lumi-y, 28px), 0) scale(var(--lumi-s, 1));
@@ -387,6 +386,7 @@
   outline: 2px solid var(--t-primary);
   outline-offset: 2px;
 }
+/* ===== end skip-link ===== */
 
 /* Scroll reveal fallback for elements that never receive an IntersectionObserver
    callback (e.g. above-the-fold content on slow first paints). The motion layer
@@ -435,4 +435,3 @@
   border-radius: var(--t-radius-md, 0.5rem);
 }
 /* ===== end LUMI_TOKENS_V8 ===== */
-/* ===== end skip-link ===== */

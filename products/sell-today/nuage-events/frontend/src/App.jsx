@@ -40,7 +40,7 @@ export default function App() {
       <BrowserRouter basename={basename}>
         <MotionCanvas className="fixed inset-0 -z-10" />
         <CookieConsent />
-        <div className="cls-reserve">
+        <div>
           <Suspense fallback={<Loader />}>
             <Routes>
               <Route path="/events" element={<Events />} />

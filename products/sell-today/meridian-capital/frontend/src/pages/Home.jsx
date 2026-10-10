@@ -4,6 +4,34 @@ import { Link } from 'react-router-dom';
 import { BarChart3, ShieldCheck, TrendingUp, Lock, Quote, Star, ArrowRight, Check, Plus, Minus } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import heroImage from '../assets/images/analytics-screen.jpg';
+import heroBackdrop from '../assets/images/banking-app.jpg';
+import shotResearch from '../assets/images/money-app.jpg';
+import shotReporting from '../assets/images/card-wallet.jpg';
+import shotAllocation from '../assets/images/analytics-screen.jpg';
+
+// Shipped assets, imported so the bundler fingerprints them and they resolve
+// under the GitHub Pages project subpath.
+const desk = [
+  {
+    src: shotResearch,
+    alt: 'Research material reviewed on a desk',
+    title: 'In-house research',
+    caption: 'Screens and models are built here, not licensed from a platform — the reasoning behind a position is ours.',
+  },
+  {
+    src: shotAllocation,
+    alt: 'Analytics viewed across several screens',
+    title: 'Concentration',
+    caption: 'Fewer positions, held for years rather than quarters, each sized to matter to the whole portfolio.',
+  },
+  {
+    src: shotReporting,
+    alt: 'Client documents and reporting laid out together',
+    title: 'Quarterly reporting',
+    caption: 'Statements and capital calls issued on the quarter, naming what we own, why, and what changed.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -43,7 +71,13 @@ export default function Home() {
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--t-primary)_0%,transparent_70%)] opacity-20" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,var(--t-accent)_0%,transparent_70%)] opacity-20" />
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611974765275-40c4b0a2d4d2?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat scale-110" style={{ filter: 'blur(2px) grayscale(20%) brightness(0.7)' }} />
+            <img
+              src={heroBackdrop}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover object-center scale-110"
+              style={{ filter: 'blur(2px) grayscale(20%) brightness(0.7)' }}
+            />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -166,6 +200,49 @@ export default function Home() {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== THE DESK: local imagery ===== */}
+        <section className="py-20 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-12">
+              <p className="section-eyebrow">{t('Home.the_desk', 'The desk')}</p>
+              <h2 className="section-heading mb-4" style={{ color: 'var(--t-heading)' }}>
+                {t('Home.where_the_decisions_are_made', 'Where the decisions are made')}
+              </h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Research, sizing and reporting — the three parts of the process a client can actually see.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {desk.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-48 w-full object-cover"
+                  />
+                  <figcaption className="p-6">
+                    <p className="font-semibold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>
@@ -422,9 +499,12 @@ export default function Home() {
             <div className="relative data-[revealed=false]:opacity-0" data-reveal>
               <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-white/10 dark:ring-white/5">
                 <img
-                  src="https://images.unsplash.com/photo-1611974765275-40c4b0a2d4d2?q=80&w=2070&auto=format&fit=crop"
-                  alt="Founder reviewing portfolio with Meridian Capital"
+                  src={heroImage}
+                  alt="Portfolio analytics reviewed at the Meridian Capital desk"
                   loading="lazy"
+                  decoding="async"
+                  width="1200"
+                  height="800"
                   className="w-full h-full object-cover"
                   style={{ maxHeight: '400px' }}
                 />

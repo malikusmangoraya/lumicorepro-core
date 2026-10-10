@@ -5,6 +5,53 @@ import { MapPin, Star, Users, Sparkles, Quote, ArrowRight, CheckCircle2, Check, 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/media/HeroVideo';
+import shotHighRoutes from '../assets/images/hero-mountain.jpg';
+import shotCoast from '../assets/images/santorini.jpg';
+import shotLocal from '../assets/images/temple.jpg';
+import shotRoad from '../assets/images/roadtrip.jpg';
+import shotStays from '../assets/images/beach-resort.jpg';
+import shotViews from '../assets/images/peak.jpg';
+
+// Shipped travel assets, imported so the bundler fingerprints them and they resolve
+// under the GitHub Pages project subpath.
+const journeys = [
+  {
+    src: shotHighRoutes,
+    alt: 'A mountain ridge route above the treeline',
+    title: 'High routes',
+    caption: 'Days are paced for a group of twelve or fewer, with altitude gained slowly enough to enjoy.',
+  },
+  {
+    src: shotCoast,
+    alt: 'A coastal town at the water\'s edge',
+    title: 'Coast',
+    caption: 'Coastal legs are timed for the light, and for the towns before the day-trip coaches arrive.',
+  },
+  {
+    src: shotLocal,
+    alt: 'A temple visited on a guided itinerary',
+    title: 'Local story',
+    caption: 'Days are led by people who live there — the narrator is from the place, not from a script.',
+  },
+  {
+    src: shotRoad,
+    alt: 'An open road on a driving leg of a journey',
+    title: 'Road time',
+    caption: 'Drives stay short enough that the travelling is part of the trip rather than a tax on it.',
+  },
+  {
+    src: shotStays,
+    alt: 'A small resort property beside the water',
+    title: 'Stays',
+    caption: 'Small properties run by their owners, chosen for position and welcome rather than star count.',
+  },
+  {
+    src: shotViews,
+    alt: 'A summit view reached on foot',
+    title: 'Views earned',
+    caption: 'Every itinerary carries at least one walk worth the early start.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -114,6 +161,45 @@ export default function Home() {
                   Saffron Voyage curates small-group journeys through the stories, kitchens and landscapes of South Asia — led by local storytellers.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-14">
+              <p className="section-eyebrow">{t('Home.the_journeys', 'The journeys')}</p>
+              <h2 className="section-heading">Landscapes, kitchens and the people between</h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Six parts of a Saffron Voyage itinerary, from the first pass to the last evening.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {journeys.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-48 w-full object-cover"
+                  />
+                  <figcaption className="p-6 flex-1">
+                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>

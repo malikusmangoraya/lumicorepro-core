@@ -4,6 +4,41 @@ import { Link } from 'react-router-dom';
 import { MapPin, Building2, ShieldCheck, TrendingUp, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Search, Globe, Key, Sparkles, ChevronRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import heroImage from '../assets/images/hero.jpg';
+import heroBackdrop from '../assets/images/luxury-villa.jpg';
+import shotInteriors from '../assets/images/interior-lux.jpg';
+import shotCity from '../assets/images/modern-home.jpg';
+import shotViews from '../assets/images/condo-view.jpg';
+import shotClientDesk from '../assets/images/agent.jpg';
+
+// Shipped assets, imported so the bundler fingerprints them and they resolve under
+// the GitHub Pages project subpath.
+const gallery = [
+  {
+    src: shotInteriors,
+    alt: 'A furnished interior of a residence',
+    title: 'Interiors',
+    caption: 'Rooms are documented the way they will be lived in, rather than at the widest angle a lens allows.',
+  },
+  {
+    src: shotCity,
+    alt: 'A contemporary house photographed from outside',
+    title: 'City residences',
+    caption: 'Penthouses and townhouses are shown to the clients they suit — nothing reaches a portal first.',
+  },
+  {
+    src: shotViews,
+    alt: 'A view out over a city from an upper floor',
+    title: 'Outlook',
+    caption: 'Aspect, light and sightlines are recorded as part of the valuation, not left to the viewing.',
+  },
+  {
+    src: shotClientDesk,
+    alt: 'A private client advisor',
+    title: 'Private client desk',
+    caption: 'One named advisor for viewings, financing introductions and relocation.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -20,7 +55,13 @@ export default function Home() {
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--t-primary)_0%,transparent_65%)] opacity-15" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--t-accent)_0%,transparent_65%)] opacity-15" />
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat scale-110" style={{ filter: 'blur(2px) grayscale(15%) brightness(0.8)' }} />
+            <img
+              src={heroBackdrop}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover object-center scale-110"
+              style={{ filter: 'blur(2px) grayscale(15%) brightness(0.8)' }}
+            />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -74,8 +115,8 @@ export default function Home() {
             <div className="relative" data-reveal>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 dark:ring-white/5">
                 <img
-                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
-                  alt="Distinctive penthouse residence sourced by Aurelia Estates"
+                  src={heroImage}
+                  alt="A modern residence represented by Aurelia Estates"
                   loading="eager"
                   className="w-full h-full object-cover"
                   style={{ maxHeight: '520px' }}
@@ -441,14 +482,57 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ===== PORTFOLIO SNAPSHOT: real local imagery ===== */}
+        <section className="py-20 lg:py-24 border-b border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-12">
+              <p className="section-eyebrow">{t('Home.inside_the_portfolio', 'Inside the portfolio')}</p>
+              <h2 className="section-heading" style={{ color: 'var(--t-heading)' }}>
+                {t('Home.how_a_residence_is_represented', 'How a residence is represented')}
+              </h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Interiors, exterior, outlook and the advisor who handles the file — the four things a private buyer asks about first.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {gallery.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="500"
+                    className="h-44 w-full object-cover"
+                  />
+                  <figcaption className="p-5">
+                    <p className="text-sm font-semibold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ===== TESTIMONIAL SPLIT ===== */}
         <section className="py-20 lg:py-28">
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative data-[revealed=false]:opacity-0" data-reveal>
               <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-white/10 dark:ring-white/5">
                 <img
-                  src="https://images.unsplash.com/photo-1600596542815-ffad4c15dcb0?q=80&w=2070&auto=format&fit=crop"
-                  alt="Private viewing of a heritage residence managed by Aurelia Estates"
+                  src={heroBackdrop}
+                  alt="A villa represented by Aurelia Estates"
                   loading="lazy"
                   className="w-full h-full object-cover"
                   style={{ maxHeight: '400px' }}

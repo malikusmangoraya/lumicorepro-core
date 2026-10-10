@@ -145,7 +145,6 @@ export default function Footer() {
         <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-slate-400 sm:flex-row">
           <p>
             &copy; {new Date().getFullYear()} Aurum Fitness. {t('footer.all_rights', 'All rights reserved.')}
-            <span className="font-semibold text-white">Aurum Fitness</span>.
           </p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <Link to="/privacy" className="transition-colors hover:text-white">Privacy</Link>

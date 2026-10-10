@@ -15,11 +15,19 @@
   if (reduced.matches) return;
 
   var parallaxEls = [];
+  var watchArmed = false;
+  var pending = [];
   var progressEl = null;
   var ticking = false;
 
   function root() {
     return document.getElementById('root') || document.body;
+  }
+
+  function reveal(el) {
+    el.style.willChange = 'opacity, transform';
+    el.classList.add('lumi-in');
+    window.setTimeout(function () { el.style.willChange = ''; }, 900);
   }
 
   function onFrame() {
@@ -41,6 +49,25 @@
       // Offset from viewport centre, so the layer drifts as it passes through.
       var offset = (box.top + box.height / 2 - vh / 2) * -strength;
       el.style.transform = 'translate3d(0,' + offset.toFixed(2) + 'px,0)';
+    }
+
+    // Safety net for the reveal layer. The observer above is the fast path, but a
+    // callback is not guaranteed to arrive, and an armed element whose intersection
+    // is never reported stays invisible for the whole session. This loop already
+    // walks rects for parallax, so it also releases anything already on screen.
+    if (pending.length) {
+      for (var j = pending.length - 1; j >= 0; j--) {
+        var item = pending[j];
+        if (item.classList.contains('lumi-in') || !item.isConnected) {
+          pending.splice(j, 1);
+          continue;
+        }
+        var rect = item.getBoundingClientRect();
+        if (rect.top < vh - 24 && rect.bottom > 24) {
+          reveal(item);
+          pending.splice(j, 1);
+        }
+      }
     }
   }
 
@@ -70,13 +97,8 @@
       function (entries) {
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
-          var el = entry.target;
-          el.style.willChange = 'opacity, transform';
-          el.classList.add('lumi-in');
-          // Drop will-change once the transition is done, or the layer is
-          // promoted to its own compositor layer for the rest of the session.
-          window.setTimeout(function () { el.style.willChange = ''; }, 900);
-          obs.unobserve(el);
+          reveal(entry.target);
+          obs.unobserve(entry.target);
         });
       },
       { threshold: 0.12, rootMargin: '0px 0px -36px 0px' }
@@ -84,9 +106,13 @@
 
     targets.forEach(function (el, i) {
       if (el.classList.contains('lumi-in')) return;
+      // Already armed by an earlier pass: do not re-stagger it or observe it twice.
+      if (el.dataset.lumiArmed === '1') return;
+      el.dataset.lumiArmed = '1';
       el.classList.add('lumi-reveal');
       el.style.setProperty('--lumi-d', (i % 24) * 55 + 'ms');
       obs.observe(el);
+      pending.push(el);
     });
   }
 
@@ -180,6 +206,28 @@
 
   /* ------------------------------------------------------------------ init */
 
+  /* Pages mount lazily and route changes replace the whole tree, so the nodes
+     present when setup() ran are not the nodes that exist a moment later. Without
+     re-arming, a newly mounted [data-reveal] keeps whatever hidden state the motion
+     layer gave it and only appears after a reload. */
+  var authoredTimer = null;
+  function rearm() {
+    window.clearTimeout(authoredTimer);
+    authoredTimer = window.setTimeout(function () {
+      reveals();
+      counters();
+      magnetic();
+      tilt();
+      request();
+    }, 60);
+  }
+
+  function watch() {
+    if (typeof MutationObserver !== 'function') return;
+    var obs = new MutationObserver(rearm);
+    obs.observe(root(), { childList: true, subtree: true });
+  }
+
   function setup() {
     if (!progressEl) {
       progressEl = document.createElement('div');
@@ -198,6 +246,10 @@
     counters();
     magnetic();
     tilt();
+    if (!watchArmed) {
+      watchArmed = true;
+      watch();
+    }
     window.addEventListener('scroll', request, { passive: true });
     window.addEventListener('resize', request, { passive: true });
     request();

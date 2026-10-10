@@ -5,6 +5,39 @@ import { Sparkles, Users, Zap, Star, Quote, ArrowRight, CheckCircle2, Check, Plu
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/media/HeroVideo';
+import shotRoom from '../assets/images/interior-tables.jpg';
+import shotTable from '../assets/images/table-setup.jpg';
+import shotService from '../assets/images/fine-dining.jpg';
+import shotBar from '../assets/images/bar-tap.jpg';
+
+// Shipped venue and service assets, imported so the bundler fingerprints them and
+// they resolve under the GitHub Pages project subpath.
+const frontOfHouse = [
+  {
+    src: shotRoom,
+    alt: 'A dressed event room laid out with tables',
+    title: 'The room',
+    caption: 'Seating, sightlines and service lanes are drawn before anything is built on site.',
+  },
+  {
+    src: shotTable,
+    alt: 'A table set for a formal service',
+    title: 'The table',
+    caption: 'Settings, glassware and place cards are checked against the run of show, not improvised on the night.',
+  },
+  {
+    src: shotService,
+    alt: 'Plated food being served during a formal dinner',
+    title: 'Plated service',
+    caption: 'Catering is timed to the programme so the food arrives between moments rather than through them.',
+  },
+  {
+    src: shotBar,
+    alt: 'A bar set up for service during an event',
+    title: 'Bar flow',
+    caption: 'Bar capacity is sized to the room, because a queue is the fastest way to lose an audience.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -112,6 +145,45 @@ export default function Home() {
                   Nuage Events designs and produces live experiences — launches, festivals and galas — where every second is choreographed.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-14">
+              <p className="section-eyebrow">{t('Home.front_of_house', 'Front of house')}</p>
+              <h2 className="section-heading">The room, the table, the service</h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Hospitality-led programmes — launches, galas and dinners — where what the audience touches has to match the production behind it.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {frontOfHouse.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-44 w-full object-cover"
+                  />
+                  <figcaption className="p-6 flex-1">
+                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>

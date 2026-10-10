@@ -4,6 +4,53 @@ import { Link } from 'react-router-dom';
 import { Layers, Sparkles, Zap, Award, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Users } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import shotWilderness from '../assets/images/forest-rays.jpg';
+import shotAltitude from '../assets/images/peak.jpg';
+import shotArchitecture from '../assets/images/arch-modern.jpg';
+import shotInteriors from '../assets/images/interior-lux.jpg';
+import shotWeather from '../assets/images/fog-forest.jpg';
+import shotAfterDark from '../assets/images/night-mtn.jpg';
+
+// Shipped assets, imported so the bundler fingerprints them and they resolve under
+// the GitHub Pages project subpath.
+const selectedFrames = [
+  {
+    src: shotWilderness,
+    alt: 'Sunlight through trees in a forest',
+    title: 'Wilderness',
+    caption: 'Landscape work is shot on location and timed to the hour the light actually arrives.',
+  },
+  {
+    src: shotAltitude,
+    alt: 'A mountain summit above cloud',
+    title: 'Altitude',
+    caption: 'Mountain commissions are planned around weather windows rather than fixed shoot dates.',
+  },
+  {
+    src: shotArchitecture,
+    alt: 'A modern building photographed from the street',
+    title: 'Architecture',
+    caption: 'Buildings are photographed for the angle they were designed to be seen from, not the nearest pavement.',
+  },
+  {
+    src: shotInteriors,
+    alt: 'A light-filled interior room',
+    title: 'Interiors',
+    caption: 'Rooms are lit to show materials as they are, without flattening the surfaces that sell them.',
+  },
+  {
+    src: shotWeather,
+    alt: 'A forested valley under low cloud',
+    title: 'Weather',
+    caption: 'Fog and rain are treated as conditions to work with, not days to write off.',
+  },
+  {
+    src: shotAfterDark,
+    alt: 'Mountains photographed after dark',
+    title: 'After dark',
+    caption: 'Long exposures for the hours most commissions do not stay for.',
+  },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -119,6 +166,45 @@ export default function Home() {
                   Studio Lumen is a photographer's collective documenting architecture, people and wilderness in the warmest hour of the day.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-2xl mb-14">
+              <p className="section-eyebrow">{t('Home.selected_frames', 'Selected frames')}</p>
+              <h2 className="section-heading">Wilderness and architecture, at the hour that suits them</h2>
+              <p className="mt-3 text-slate-500 dark:text-slate-400">
+                Six frames from the three kinds of commission Studio Lumen takes on.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {selectedFrames.map((shot) => (
+                <figure
+                  key={shot.title}
+                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
+                  data-reveal
+                >
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width="900"
+                    height="600"
+                    className="h-48 w-full object-cover"
+                  />
+                  <figcaption className="p-6 flex-1">
+                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
+                      {shot.title}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {shot.caption}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>
