@@ -22,7 +22,7 @@
     "@elastic/elasticsearch": "^8.17.0",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@paypal/checkout-server-sdk": "^1.0.3",
-    "@sentry/node": "^8.47.0",
+    "@sentry/node": "^11.6.0",
     "awilix": "^13.0.5",
     "bcryptjs": "^3.0.2",
     "bullmq": "^6.3.4",
