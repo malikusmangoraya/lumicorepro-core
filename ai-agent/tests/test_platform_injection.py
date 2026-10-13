@@ -233,6 +233,8 @@ class PlatformInjectionTest(unittest.TestCase):
     # ── Engine integration ─────────────────────────────────────────────────
     def test_render_static_layout_injects_platform(self):
         spec = self._spec("portfolio")
+        # Explicit static opt-in: website type alone stays enterprise by design.
+        spec["buyer_type"] = "static"
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_static")
         _write(os.path.join(root, "frontend", "src", "services", ".keep"))

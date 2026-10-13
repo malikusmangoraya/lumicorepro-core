@@ -1,8 +1,11 @@
 import json
+import os
 import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 agent_dir = Path(__file__).resolve().parent.parent
 if str(agent_dir) not in sys.path:
@@ -14,12 +17,63 @@ from agent.rebuild_generated_projects import (
     classify_agent_result,
     discover_projects,
     project_context,
+    rebuild_projects,
     safe_project_slug,
+    free_provider_allowlist,
 )
 from config.settings import resolve_generated_projects_dir
 
 
+class _StubProvider:
+    """Stand-in for a configured provider instance."""
+
+    def __init__(self, name):
+        self.name = name
+        self.provider_name = name
+
+
+class _FakeOrchestrator:
+    """Records what the rebuild wired, without running the real pipeline."""
+
+    instances = []
+    output_dir = None
+
+    def __init__(self, provider_name=None):
+        type(self).instances.append(self)
+        self.provider_name = provider_name
+        self.ai_provider = None
+        self.ai_provider_name = ""
+        self.strict_allowlist_during_run = None
+        self.extra_spec = None
+
+    def set_provider(self, provider, name=""):
+        self.ai_provider = provider
+        self.ai_provider_name = name
+
+    def run(self, prompt, interactive=False, progress_callback=None, extra_spec=None):
+        from agent import ai_routing
+
+        self.strict_allowlist_during_run = frozenset(ai_routing.get_router()._strict_allowlist)
+        self.extra_spec = extra_spec
+        target = type(self).output_dir
+        (target / "frontend").mkdir(parents=True, exist_ok=True)
+        (target / "frontend" / "package.json").write_text("{}", encoding="utf-8")
+        return {
+            "status": "succeeded",
+            "generated_project_dir": str(target),
+            "quality_gates": {"overall_score": 90},
+            "phase_results": {"qa_release_gate": {"passed": True}},
+        }
+
+
 class TestAgentRebuildCommand(unittest.TestCase):
+    def test_free_provider_allowlist_rejects_keyless_gateways_and_paid_vendors(self):
+        self.assertEqual(free_provider_allowlist("openrouter"), {"openrouter"})
+        self.assertEqual(free_provider_allowlist("openrouter,gemini"), {"openrouter", "gemini"})
+        for names in ("grok", "opencode", "ninerouter", "omniroute", "freellmapi", "openai"):
+            with self.subTest(names=names), self.assertRaises(ValueError):
+                free_provider_allowlist(names)
+
     def test_safe_project_slug_is_input_safe(self):
         self.assertEqual(safe_project_slug("My Shop / Europe!"), "my-shop-europe")
 
@@ -112,6 +166,44 @@ class TestAgentRebuildCommand(unittest.TestCase):
                 "status": "generated",
             }])
         self.assertEqual(result[0]["status"], "review_required")
+
+    def test_free_only_rebuild_confines_and_restores_provider_routing(self):
+        from agent import ai_routing
+
+        ai_routing.reset_router()
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source = root / "site"
+                (source / "frontend").mkdir(parents=True)
+                (source / "frontend" / "package.json").write_text("{}", encoding="utf-8")
+                output = root / "out"
+                _FakeOrchestrator.instances = []
+                _FakeOrchestrator.output_dir = output / "rebuilt-site"
+                before_router = ai_routing.get_router()
+                env_keys = ("GENERATED_PROJECTS_DIR", "AI_PROVIDER", "REASONING_PROVIDER")
+                before_env = {key: os.environ.get(key) for key in env_keys}
+                fake_module = types.ModuleType("agent.orchestrator")
+                fake_module.AgentOrchestrator = _FakeOrchestrator
+                with mock.patch.dict(sys.modules, {"agent.orchestrator": fake_module}), mock.patch(
+                    "config.providers.instantiate_provider",
+                    lambda name: _StubProvider(name) if name == "gemini" else None,
+                ):
+                    report = rebuild_projects(root, output, free_only=True, provider="gemini")
+
+                orchestrator = _FakeOrchestrator.instances[-1]
+                self.assertEqual(report["generated"], 1)
+                self.assertEqual(report["provider"], "gemini")
+                self.assertEqual(orchestrator.ai_provider_name, "gemini")
+                # The lane must be closed to every other vendor for the whole run.
+                self.assertEqual(orchestrator.strict_allowlist_during_run, {"gemini"})
+                self.assertIs(orchestrator.extra_spec["free_provider_only"], True)
+                # Routing and environment must not leak into later work.
+                self.assertIs(ai_routing.get_router(), before_router)
+                self.assertEqual(ai_routing.get_router()._strict_allowlist, frozenset())
+                self.assertEqual({key: os.environ.get(key) for key in env_keys}, before_env)
+        finally:
+            ai_routing.reset_router()
 
 
 if __name__ == "__main__":

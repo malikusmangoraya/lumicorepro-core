@@ -1,702 +1,83 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Layers, Sparkles, Zap, Award, Quote, Star, ArrowRight, CheckCircle2, Check, Plus, Minus, Rocket } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import shotMoodboards from '../assets/images/moodboard.jpg';
-import shotIdentity from '../assets/images/branding.jpg';
-import shotLookbook from '../assets/images/lookbook.jpg';
-import shotDigital from '../assets/images/design-desktop.jpg';
 
-// Shipped assets, imported so the bundler fingerprints them and they resolve
-// under the GitHub Pages project subpath.
-const studio = [
-  {
-    src: shotMoodboards,
-    alt: 'Reference imagery and material samples pinned up in a studio',
-    title: 'Moodboards',
-    caption: 'Direction is pinned to a wall before anything is drawn, so the reasoning is on record rather than in someone\'s head.',
-  },
-  {
-    src: shotIdentity,
-    alt: 'Brand identity material laid out on a surface',
-    title: 'Identity systems',
-    caption: 'Mark, type and colour are built as one system so they still hold after the launch deck is retired.',
-  },
-  {
-    src: shotLookbook,
-    alt: 'A printed lookbook showing a finished identity',
-    title: 'Lookbooks',
-    caption: 'Brands are documented in the formats the client team actually ships, print and screen alike.',
-  },
-  {
-    src: shotDigital,
-    alt: 'A designer working on interface screens at a desk',
-    title: 'Digital craft',
-    caption: 'Screens are drawn to the same fidelity as the identity, because that is where most audiences meet the brand first.',
-  },
-];
-
+/** Home — LUMI_LAYOUT_V1 layout-engine generated for Prestige Studio. */
 export default function Home() {
-  const { t } = useTranslation();
-  const [openFaq, setOpenFaq] = useState(0);
-  const descs = ['Identity systems built on a truth about the business — not a trend to copy.', 'Digital products where brand and function are the same sentence.', 'Motion and 3D that connect the story across screens and stages.', 'Creative strategy that decides what not to make before making anything.'];
-  const features = [
-    { icon: Layers, title: 'Brand Identity', desc: descs[0] },
-    { icon: Sparkles, title: 'Digital Product', desc: descs[1] },
-    { icon: Zap, title: 'Motion & 3D', desc: descs[2] },
-    { icon: Award, title: 'Creative Strategy', desc: descs[3] },
-  ];
-  const stats = [
-    { value: '180+', label: 'Projects shipped' },
-    { value: '27', label: 'Industry awards' },
-    { value: '9.4', label: 'Avg. client rating' },
-    { value: '14', label: 'Countries' },
-  ];
-  const values = ['Strategy before pixels', 'Senior team on every account', 'Design that moves the P&L'];
-
+  const features = [{"title": "Brand systems", "detail": "Identities built to scale"}, {"title": "Product design", "detail": "Interfaces people love to use"}, {"title": "Motion & film", "detail": "Stories that move"}, {"title": "Strategy", "detail": "Clarity before craft"}];
+  const stats = [{"value": "99.99%", "label": "Uptime"}, {"value": "<2s", "label": "Load Time"}, {"value": "10K+", "label": "Users"}, {"value": "4.9/5", "label": "Rating"}];
+  const sections = ["Hero", "Portfolio", "Workflow", "Clients", "Awards", "Services", "Contact", "Social"];
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--t-canvas)', color: 'var(--t-text)' }}>
+      <a href="#main-content" className="skip-link">Skip to content</a>
       <Navbar />
       <main id="main-content">
-                <section className="relative overflow-hidden pt-16 lg:pt-24 pb-16 lg:pb-24">
-          <div className="absolute inset-0 -z-10 hero-aurora" />
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              <div className="lg:col-start-2 lg:col-span-7">
-                <span className="section-eyebrow">
-                  {t('Home.eyebrow', t('Home.eyebrow', 'CREATIVE STUDIO'))}
-                </span>
-                <h1 className="mt-5 text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.02]">
-                  <span style={{ color: 'var(--t-heading)' }}>We design brands</span>{' '}
-                  <span style={{ color: 'var(--t-primary)' }}>that refuse to blend in</span>
-                </h1>
-                <p className="mt-6 text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                  {t('Home.lead', t('Home.lead', 'Strategy, identity and digital craft for founders who compete on taste.'))}
-                </p>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  <Link to="/contact" className="btn-primary text-sm px-6 py-3">
-                    {t('Home.start_project', t('Home.start_project', 'Start a Project'))}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link to="/services" className="btn-outline text-sm px-6 py-3">
-                    {t('Home.see_work', t('Home.see_work', 'See the Work'))}
-                  </Link>
-                </div>
+        <section className="hero-aurora relative overflow-hidden">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12 lg:py-32">
+            <div className="lg:col-span-7">
+              <p className="section-eyebrow">IDEAS MADE TANGIBLE</p>
+              <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl" style={{ color: 'var(--t-heading)' }}>
+                Design with intent
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed" style={{ color: 'var(--t-muted)' }}>Prestige Studio turns strategy into brand, product and motion that actually perform.</p>
+              <div className="mt-9 flex flex-wrap gap-4">
+                <Link to="/pricing" className="btn-primary">Get started <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/contact" className="btn-outline">Talk to us</Link>
               </div>
-              <div className="lg:col-start-9 lg:col-span-4 lg:mt-24">
-                <ol className="space-y-5">
-                  {features.map((f, i) => (
-                    <li key={f.title} className="flex gap-4" data-reveal>
-                      <span
-                        className="text-xs font-bold tabular-nums pt-1"
-                        style={{ color: 'var(--t-primary)' }}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold" style={{ color: 'var(--t-heading)' }}>
-                          {f.title}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                          {f.desc}
-                        </p>
-                      </div>
+            </div>
+            <div className="lg:col-span-5">
+              <div className="card-panel p-6">
+                <p className="text-xs uppercase tracking-[.25em]" style={{ color: 'var(--t-primary)' }}>Prestige Studio</p>
+                <ul className="mt-4 space-y-3">
+                  {features.slice(0, 4).map((f) => (
+                    <li key={f.title} className="flex items-start gap-2 text-sm">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--t-primary)' }} />{f.title}
                     </li>
                   ))}
-                </ol>
-              </div>
-            </div>
-            <div className="mt-16 flex flex-wrap items-center gap-x-10 gap-y-4 border-t border-[var(--t-border)] pt-8">
-              {stats.map((s) => (
-                <div key={s.label} className="flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold" style={{ color: 'var(--t-primary)' }}>
-                    {s.value}
-                  </span>
-                  <span className="text-xs uppercase tracking-wider text-slate-500">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-y border-[var(--t-border)] bg-surface/60 py-10">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-sm font-semibold uppercase tracking-widest text-slate-400">
-              <span>{t('Home.as_seen_in', t('Home.as_seen_in', 'As seen in'))}</span>
-              <span className="opacity-80">{t('Home.forbes', t('Home.forbes', 'Forbes'))}</span>
-              <span className="opacity-80">{t('Home.bloomberg', t('Home.bloomberg', 'Bloomberg'))}</span>
-              <span className="opacity-80">{t('Home.the_times', t('Home.the_times', 'The Times'))}</span>
-              <span className="opacity-80">{t('Home.designweek', t('Home.designweek', 'DesignWeek'))}</span>
-              <span className="opacity-80">{t('Home.monocle', t('Home.monocle', 'Monocle'))}</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 lg:py-24">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="section-eyebrow">{t('Home.the_problem', t('Home.the_problem', 'The problem'))}</p>
-              <h2 className="section-heading mb-4">Every brand looks like the last rebrand</h2>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl">
-                Squarespace templates, shared palettes and agencies that reuse the same rubric — the market is producing recognisable work nobody remembers. Differentiation is now a discipline, not a style.
-              </p>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <div className="glass-md rounded-2xl p-8 card-lift max-w-sm w-full" data-reveal>
-                <span
-                  className="inline-flex h-14 w-14 items-center justify-center rounded-2xl text-white mb-5"
-                  style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                >
-                  <Layers className="h-7 w-7" />
-                </span>
-                <p className="font-bold text-lg" style={{ color: 'var(--t-heading)' }}>
-                  Prestige Studio fixes this
-                </p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Prestige Studio is an independent creative practice pairing strategy, identity and digital craft for founders who compete on taste.
-                </p>
+                </ul>
               </div>
             </div>
           </div>
         </section>
-
-        <section className="py-20 lg:py-24 border-t border-[var(--t-border)]">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="max-w-2xl mb-14">
-              <p className="section-eyebrow">{t('Home.in_the_studio', 'In the studio')}</p>
-              <h2 className="section-heading">The work behind the reveal</h2>
-              <p className="mt-3 text-slate-500 dark:text-slate-400">
-                Four parts of the process a client sits inside with us, from first references to shipped screens.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {studio.map((shot) => (
-                <figure
-                  key={shot.title}
-                  className="card-panel rounded-2xl overflow-hidden border border-[var(--t-border)] bg-surface/60 h-full flex flex-col card-lift"
-                  data-reveal
-                >
-                  <img
-                    src={shot.src}
-                    alt={shot.alt}
-                    loading="lazy"
-                    decoding="async"
-                    width="900"
-                    height="600"
-                    className="h-44 w-full object-cover"
-                  />
-                  <figcaption className="p-6 flex-1">
-                    <p className="font-bold" style={{ color: 'var(--t-heading)' }}>
-                      {shot.title}
-                    </p>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                      {shot.caption}
-                    </p>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+        <section className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+          <div className="mb-10 max-w-2xl">
+            <p className="section-eyebrow">What we build</p>
+            <h2 className="section-heading mt-2" style={{ color: 'var(--t-heading)' }}>Everything you need, in one place.</h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {features.map((f) => (
+              <article key={f.title} className="card-panel p-6">
+                <h3 className="text-lg font-bold" style={{ color: 'var(--t-heading)' }}>{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--t-muted)' }}>{f.detail}</p>
+              </article>
+            ))}
           </div>
         </section>
-
-        <section className="py-20 lg:py-28">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="max-w-2xl mb-14">
-              <p className="section-eyebrow">{t('Home.capabilities', t('Home.capabilities', 'Capabilities'))}</p>
-              <h2 className="section-heading">What working with Prestige Studio feels like</h2>
-              <p className="mt-3 text-slate-500 dark:text-slate-400">
-                Four disciplines, one standard: international, uncompromising, and completely yours.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, i) => (
-                <div key={i} className="card-panel p-7 h-full flex flex-col card-lift" data-reveal>
-                  <span
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-5"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))',
-                      boxShadow: '0 10px 24px rgba(0,0,0,0.18)',
-                    }}
-                  >
-                    <feature.icon className="h-6 w-6" />
-                  </span>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--t-heading)' }}>
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {feature.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-surface border-y border-[var(--t-border)]">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="max-w-2xl mb-14">
-              <p className="section-eyebrow">{t('Home.who_it_is_for', t('Home.who_it_is_for', 'Who it is for'))}</p>
-              <h2 className="section-heading">{t('Home.made_for_people_like_you', t('Home.made_for_people_like_you', 'Made for people like you'))}</h2>
-              <p className="mt-3 text-slate-500 dark:text-slate-400">
-                However you come to Prestige Studio, the standard is the same.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              <div key="0" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal>
-                  <span
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-5"
-                    style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                  >
-                    <Layers className="h-6 w-6" />
-                  </span>
-                  <h3 className="font-bold text-lg mb-2" style={{"color": "var(--t-heading)"}}>Founders</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Founders who know the product is good and the presentation is losing.</p>
-                </div>
-                <div key="1" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal>
-                  <span
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-5"
-                    style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                  >
-                    <Award className="h-6 w-6" />
-                  </span>
-                  <h3 className="font-bold text-lg mb-2" style={{"color": "var(--t-heading)"}}>Marketing Leads</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Leads taking a brand into a category fight with a me-too identity.</p>
-                </div>
-                <div key="2" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal>
-                  <span
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-5"
-                    style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                  >
-                    <Rocket className="h-6 w-6" />
-                  </span>
-                  <h3 className="font-bold text-lg mb-2" style={{"color": "var(--t-heading)"}}>Scale-ups</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Companies whose brand stopped matching the stage they reached.</p>
-                </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-surface border-y border-[var(--t-border)]">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <p className="section-eyebrow">{t('Home.by_the_numbers', t('Home.by_the_numbers', 'By the numbers'))}</p>
-              <h2 className="section-heading">{t('Home.results_you_can_put_in_a_report', t('Home.results_you_can_put_in_a_report', 'Results you can put in a report'))}</h2>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center card-lift" data-reveal>
-                  <p
-                    className="text-4xl lg:text-5xl font-black tracking-tight"
-                    style={{
-                      color: 'var(--t-primary)',
-                      background: 'linear-gradient(115deg, var(--t-primary), var(--t-accent))',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    {stat.value}
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 lg:py-24">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="max-w-2xl mb-14">
-              <p className="section-eyebrow">{t('Home.pricing', t('Home.pricing', 'Pricing'))}</p>
-              <h2 className="section-heading">{t('Home.clear_pricing_no_surprises', t('Home.clear_pricing_no_surprises', 'Clear pricing, no surprises'))}</h2>
-              <p className="mt-3 text-slate-500 dark:text-slate-400">
-                Start light, upgrade when the results justify it.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              <div key="0" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal style={{border: '1px solid var(--t-border)'}}>
-                  <h3 className="font-bold text-lg" style={{"color": "var(--t-heading)"}}>Identity</h3>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">The brand system that ends the template look.</p>
-                  <p className="mt-4 text-3xl font-black tracking-tight" style={{"color": "var(--t-primary)"}}>
-                    From 18k <span className="text-sm font-semibold text-slate-400">{t('Home.usd', t('Home.usd', '/ USD'))}</span>
-                  </p>
-                  <ul className="mt-6 flex-1 space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Strategy & positioning
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Full identity system
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Launch kit
-                    </li>
-                  </ul>
-                  <Link to="/pricing" className="btn-outline mt-6 text-sm w-full text-center">
-                    View plan
-                  </Link>
-                </div>
-                <div key="1" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal style={{border: '2px solid var(--t-primary)'}}>
-                    <span
-                      className="mb-4 self-start rounded-full px-3 py-1 text-[11px] font-bold text-white"
-                      style={{ background: 'var(--t-primary)' }}
-                    >
-                      Most popular
-                    </span>
-                  <h3 className="font-bold text-lg" style={{"color": "var(--t-heading)"}}>Product</h3>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Brand and experience, designed together.</p>
-                  <p className="mt-4 text-3xl font-black tracking-tight" style={{"color": "var(--t-primary)"}}>
-                    From 48k <span className="text-sm font-semibold text-slate-400">{t('Home.usd', t('Home.usd', '/ USD'))}</span>
-                  </p>
-                  <ul className="mt-6 flex-1 space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Everything in Identity
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Product & web design
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Motion language
-                    </li>
-                  </ul>
-                  <Link to="/pricing" className="btn-outline mt-6 text-sm w-full text-center">
-                    View plan
-                  </Link>
-                </div>
-                <div key="2" className="card-panel p-7 h-full flex flex-col card-lift" data-reveal style={{border: '1px solid var(--t-border)'}}>
-                  <h3 className="font-bold text-lg" style={{"color": "var(--t-heading)"}}>Partnership</h3>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">A design partner in the room.</p>
-                  <p className="mt-4 text-3xl font-black tracking-tight" style={{"color": "var(--t-primary)"}}>
-                    From 120k <span className="text-sm font-semibold text-slate-400">/ USD/year</span>
-                  </p>
-                  <ul className="mt-6 flex-1 space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Everything in Product
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Embedded senior team
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      Unlimited refinements
-                    </li>
-                  </ul>
-                  <Link to="/pricing" className="btn-outline mt-6 text-sm w-full text-center">
-                    View plan
-                  </Link>
-                </div>
-            </div>
-            <div className="mt-10 text-center">
-              <Link to="/pricing" className="btn-outline text-sm px-7 py-3">
-                Compare all plans <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-                <section className="py-20 bg-surface border-y border-[var(--t-border)]">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <p className="section-eyebrow">{t('Home.why_choose_us', t('Home.why_choose_us', 'Why choose us'))}</p>
-              <h2 className="section-heading">{t('Home.the_difference_side_by_side', t('Home.the_difference_side_by_side', 'The difference, side by side'))}</h2>
-            </div>
-            <div className="card-panel overflow-hidden" data-reveal>
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--t-border)]">
-                    <th className="px-5 py-4 font-semibold text-slate-500 dark:text-slate-400"></th>
-                    <th className="px-5 py-4 text-base font-bold" style={{"color": "var(--t-primary)"}}>Prestige Studio</th>
-                    <th className="px-5 py-4 font-semibold text-slate-500 dark:text-slate-400">Template-first studios</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-[var(--t-border)] last:border-0">
-                    <td className="px-5 py-4 font-medium" style={{"color": "var(--t-heading)"}}>Method</td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 font-medium text-slate-700 dark:text-slate-200">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        Strategy before pixels
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 text-slate-500 dark:text-slate-400">
-                        <Minus className="h-4 w-4 mt-0.5 shrink-0" />
-                        Layouts first, story after
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-[var(--t-border)] last:border-0">
-                    <td className="px-5 py-4 font-medium" style={{"color": "var(--t-heading)"}}>Development</td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 font-medium text-slate-700 dark:text-slate-200">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        In-house
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 text-slate-500 dark:text-slate-400">
-                        <Minus className="h-4 w-4 mt-0.5 shrink-0" />
-                        Handed off, diluted
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-[var(--t-border)] last:border-0">
-                    <td className="px-5 py-4 font-medium" style={{"color": "var(--t-heading)"}}>Motion</td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 font-medium text-slate-700 dark:text-slate-200">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        Brand-language native
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 text-slate-500 dark:text-slate-400">
-                        <Minus className="h-4 w-4 mt-0.5 shrink-0" />
-                        Stock overlay effects
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-[var(--t-border)] last:border-0">
-                    <td className="px-5 py-4 font-medium" style={{"color": "var(--t-heading)"}}>Account</td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 font-medium text-slate-700 dark:text-slate-200">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        Senior team throughout
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 text-slate-500 dark:text-slate-400">
-                        <Minus className="h-4 w-4 mt-0.5 shrink-0" />
-                        Junior juggling
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-[var(--t-border)] last:border-0">
-                    <td className="px-5 py-4 font-medium" style={{"color": "var(--t-heading)"}}>Work</td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 font-medium text-slate-700 dark:text-slate-200">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        Differentiation by design
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-start gap-2 text-slate-500 dark:text-slate-400">
-                        <Minus className="h-4 w-4 mt-0.5 shrink-0" />
-                        Trend replication
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 lg:py-28">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
-            <div className="relative">
-              <div
-                className="absolute inset-0 -z-10 rounded-3xl opacity-40"
-                style={{
-                  background:
-                    'radial-gradient(circle at 30% 30%, var(--t-primary), transparent 55%), radial-gradient(circle at 70% 70%, var(--t-accent), transparent 55%)',
-                }}
-              />
-              <div className="glass-md rounded-3xl p-10" data-reveal>
-                <span
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl text-white mb-6"
-                  style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                >
-                  <Quote className="h-6 w-6" />
-                </span>
-                <blockquote
-                  className="text-xl font-medium leading-relaxed mb-6"
-                  style={{ color: 'var(--t-heading)' }}
-                >
-                  We walked into a founder meeting and the room knew we had done the work. The identity survives contact with the category.
-                </blockquote>
-                <div className="flex items-center gap-4">
-                  <span
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white text-sm font-bold"
-                    style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                  >
-                    IF
-                  </span>
-                  <div>
-                    <p className="font-semibold text-sm">Ibrahim Farouk</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">CEO, D2C scale-up</p>
-                  </div>
-                  <span className="ml-auto flex items-center gap-0.5 text-amber-500">
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                    <Star className="h-4 w-4 fill-current" />
-                  </span>
-                </div>
+        <section className="py-16" style={{ backgroundColor: 'var(--t-surface)' }}>
+          <div className="mx-auto grid max-w-7xl gap-8 px-6 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-3xl font-black" style={{ color: 'var(--t-primary)' }}>{s.value}</div>
+                <div className="mt-1 text-sm" style={{ color: 'var(--t-muted)' }}>{s.label}</div>
               </div>
-            </div>
-            <div>
-              <p className="section-eyebrow">The Prestige Studio difference</p>
-              <h2 className="section-heading">{t('Home.crafted_for_the_people_you_serve', t('Home.crafted_for_the_people_you_serve', 'Crafted for the people you serve'))}</h2>
-              <ul className="mt-8 space-y-6">
-                {values.map((value, i) => (
-                  <li key={i} className="flex items-start gap-4 card-lift" data-reveal>
-                    <span
-                      className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
-                      style={{ background: 'linear-gradient(135deg, var(--t-primary), var(--t-accent))' }}
-                    >
-                      <Check className="h-4 w-4" />
-                    </span>
-                    <p className="text-base font-medium" style={{ color: 'var(--t-heading)' }}>
-                      {value}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            ))}
           </div>
         </section>
-
-        <section className="py-20 bg-surface border-y border-[var(--t-border)]">
-          <div className="max-w-3xl mx-auto px-6">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <p className="section-eyebrow">{t('Home.faq', t('Home.faq', 'FAQ'))}</p>
-              <h2 className="section-heading">{t('Home.questions_answered', t('Home.questions_answered', 'Questions, answered'))}</h2>
-            </div>
-            <div className="space-y-4">
-              
-              <div key="0" className="card-panel overflow-hidden" data-reveal>
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 0 ? -1 : 0)}
-                  aria-expanded={openFaq === 0}
-                  aria-controls="faq-panel-0"
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span className="font-semibold" style={{"color": "var(--t-heading)"}}>How is your work not just a style?</span>
-                  {openFaq === 0 ? (
-                    <Minus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  ) : (
-                    <Plus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  )}
-                </button>
-                {openFaq === 0 && (
-                  <p id="faq-panel-0" className="px-6 pb-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    We start from a truth about the business — the strategy decides the shape. The result is yours, not a template with your logo.
-                  </p>
-                )}
-              </div>
-              <div key="1" className="card-panel overflow-hidden" data-reveal>
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 1 ? -1 : 1)}
-                  aria-expanded={openFaq === 1}
-                  aria-controls="faq-panel-1"
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span className="font-semibold" style={{"color": "var(--t-heading)"}}>Do you do the development?</span>
-                  {openFaq === 1 ? (
-                    <Minus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  ) : (
-                    <Plus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  )}
-                </button>
-                {openFaq === 1 && (
-                  <p id="faq-panel-1" className="px-6 pb-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Yes — identity, design and build under one roof, so nothing is lost at handover.
-                  </p>
-                )}
-              </div>
-              <div key="2" className="card-panel overflow-hidden" data-reveal>
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 2 ? -1 : 2)}
-                  aria-expanded={openFaq === 2}
-                  aria-controls="faq-panel-2"
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span className="font-semibold" style={{"color": "var(--t-heading)"}}>What is a typical timeline?</span>
-                  {openFaq === 2 ? (
-                    <Minus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  ) : (
-                    <Plus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  )}
-                </button>
-                {openFaq === 2 && (
-                  <p id="faq-panel-2" className="px-6 pb-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Identity in six to ten weeks; full product engagements stretch three to five months with launch support.
-                  </p>
-                )}
-              </div>
-              <div key="3" className="card-panel overflow-hidden" data-reveal>
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === 3 ? -1 : 3)}
-                  aria-expanded={openFaq === 3}
-                  aria-controls="faq-panel-3"
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span className="font-semibold" style={{"color": "var(--t-heading)"}}>What does 'strategy before pixels' mean?</span>
-                  {openFaq === 3 ? (
-                    <Minus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  ) : (
-                    <Plus className="h-5 w-5 shrink-0" style={{"color": "var(--t-primary)"}} />
-                  )}
-                </button>
-                {openFaq === 3 && (
-                  <p id="faq-panel-3" className="px-6 pb-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    The insight comes first; pixels follow. Work shown before the deep thinking is declined.
-                  </p>
-                )}
-              </div>
-            </div>
+        <section className="mx-auto max-w-7xl px-6 py-20">
+          <p className="section-eyebrow">Platform</p>
+          <h2 className="section-heading mt-2 mb-8" style={{ color: 'var(--t-heading)' }}>Built as a complete system.</h2>
+          <div className="flex flex-wrap gap-3">
+            {sections.map((s) => (
+              <span key={s} className="rounded-full border px-4 py-2 text-sm" style={{ borderColor: 'var(--t-border)', color: 'var(--t-muted)' }}>{s}</span>
+            ))}
           </div>
         </section>
-
-        <section className="py-20">
-          <div className="max-w-5xl mx-auto px-6">
-            <div
-              className="rounded-3xl overflow-hidden text-center px-6 py-16 card-lift"
-              data-reveal
-              style={{
-                background: 'linear-gradient(125deg, var(--t-primary) 0%, var(--t-accent) 100%)',
-                boxShadow: '0 30px 60px rgba(0,0,0,0.25)',
-              }}
-            >
-              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-                Start the conversation
-              </h2>
-              <p className="text-white/85 max-w-xl mx-auto mb-8">
-                Tell us where you want to go — we will map the route, the milestones, and the
-                first step today.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ color: 'var(--t-primary)' }}
-                >
-                  Start a Project <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  to="/about"
-                  className="inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-bold text-white border border-white/40 transition-all duration-200 hover:bg-white/10"
-                >
-                  See the Work
-                </Link>
-              </div>
-            </div>
-          </div>
+        <section className="mx-auto max-w-5xl px-6 py-20 text-center">
+          <h2 className="section-heading" style={{ color: 'var(--t-heading)' }}>Ready to get started?</h2>
+          <p className="mx-auto mt-4 max-w-xl" style={{ color: 'var(--t-muted)' }}>Prestige Studio turns strategy into brand, product and motion that actually perform.</p>
+          <Link to="/pricing" className="btn-primary mt-7">Get started <ArrowRight className="h-4 w-4" /></Link>
         </section>
       </main>
       <Footer />

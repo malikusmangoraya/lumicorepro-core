@@ -160,7 +160,7 @@ class TestProjectModeEngine(unittest.TestCase):
             p.name for p in Path(self.project, "backend", "models").glob("*.js") if p.name != "index.js"
         )
         listed_models = set(re.findall(r"- `([A-Za-z]+)`(?=\n)", readme.split("## Data model")[1]))
-        self.assertIn(f"{len(model_files)} models", readme)
+        self.assertIn(f"{len(model_files)} generated models", readme)
         for model in model_files:
             self.assertIn(model[: -len(".js")], listed_models, f"{model} missing from readme model list")
         for name in ("auth", "order", "org", "product", "user"):

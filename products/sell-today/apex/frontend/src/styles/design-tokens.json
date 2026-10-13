@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "skeuomorphism",
-  "target_region": "default",
+  "style": "futuristic",
+  "name": "Futuristic Sci-Fi",
   "project_name": "apex",
+  "brand": "Apex",
   "palette": {
-    "primary": "#7c3aed",
-    "accent": "#ec4899",
-    "heading": "#2e1065",
-    "navBg": "#f7f3ea",
-    "footerBg": "#3f2e1e",
-    "text": "#26292f",
+    "primary": "#b75cf6",
+    "secondary": "#9f28d9",
+    "accent": "#e284fc",
+    "heading": "#e0f2fe",
+    "canvas": "#070913",
+    "surface": "#121b2f",
+    "text": "#e0f2fe",
     "muted": "#64748b",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "border": "#1e293b",
+    "navBg": "#070913",
+    "footerBg": "#020617"
+  },
+  "palette_rgb": {
+    "primary": "183 92 246",
+    "secondary": "159 40 217",
+    "accent": "226 132 252",
+    "heading": "224 242 254",
+    "canvas": "7 9 19",
+    "surface": "18 27 47",
+    "text": "224 242 254",
+    "muted": "100 116 139",
+    "border": "30 41 59",
+    "navBg": "7 9 19",
+    "footerBg": "2 6 23"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Syne",
+    "sans": "Inter",
+    "pairing": "Syne + Inter"
   },
-  "theme": "light"
+  "radius": {
+    "card": "8px",
+    "button": "4px"
+  },
+  "shadow": {
+    "card": "0 0 25px rgba(0,229,255,0.15)",
+    "button": "0 0 15px rgba(0,229,255,0.3)"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

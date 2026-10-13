@@ -1,0 +1,52 @@
+# lumicorepro-core architecture analysis config (enola).
+# enola builds a graph of modules, symbols, routes, storage and dependencies
+# from the source, entirely locally. Nothing leaves the machine.
+#
+# The repo root is a monorepo whose upper tier is directories this analysis is
+# NOT about: packaged product copies, delivery archives and generated output.
+# They are excluded so the graph, routes and hotspots describe the core
+# frontend/backend/ai-agent engine only.
+repo: "."
+ignore:
+  # Core exclusion set (mirrors enola defaults)
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/venv/**"
+  - "**/.venv/**"
+  - "**/site-packages/**"
+  - "**/__pycache__/**"
+  - ".enola/**"
+  - "**/.enola/**"
+  - "**/*.md"
+  - "**/*.mdx"
+  - "**/*.json"
+  - "**/*.yml"
+  - "**/*.yaml"
+  # Monorepo upper tier: packaged product copies / delivery deliverables
+  - "products/**"
+  - "backend-library/**"
+  - "delivery/**"
+  - "generated-projects/**"
+  - "archive/**"
+  - "release/**"
+  - "registry/**"
+  - "lumicorepro-core-legacy/**"
+  - ".backup/**"
+  - ".tmp_recover/**"
+  # Editor file-history backups contain duplicate snapshots of source
+  - ".history/**"
+  # Build / tooling output
+  - "dist/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/coverage/**"
+  - "**/test-results/**"
+  - "**/playwright-report/**"
+  - "pgdata/**"
+  - ".lighthouseci/**"
+  # VitePress docs build (source docs/ stays, built docs-src/ output excluded)
+  - "docs/.vitepress/**"
+# extractors/explainers/renderers deliberately absent: inherit the built-in set.
+output:
+  dir: ".enola"
+  max_context_tokens: 4000

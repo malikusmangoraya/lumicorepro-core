@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "glassmorphism",
-  "target_region": "default",
-  "project_name": "build",
+  "style": "glassmorphism",
+  "name": "Glassmorphism",
+  "project_name": "resupro",
+  "brand": "Resupro",
   "palette": {
-    "primary": "#be2c44",
-    "accent": "#059669",
-    "heading": "#be2c44",
-    "navBg": "#f8fafc",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be2c44",
-    "card": "#ffffff",
+    "primary": "#10b95f",
+    "secondary": "#05964c",
+    "accent": "#34d379",
+    "heading": "#f8fafc",
+    "canvas": "#0b1220",
     "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "text": "#f8fafc",
+    "muted": "#94a3b8",
+    "border": "#1e293b",
+    "navBg": "#0b1220",
+    "footerBg": "#020617"
+  },
+  "palette_rgb": {
+    "primary": "16 185 95",
+    "secondary": "5 150 76",
+    "accent": "52 211 121",
+    "heading": "248 250 252",
+    "canvas": "11 18 32",
+    "surface": "248 250 252",
+    "text": "248 250 252",
+    "muted": "148 163 184",
+    "border": "30 41 59",
+    "navBg": "11 18 32",
+    "footerBg": "2 6 23"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Clash Display",
+    "sans": "Outfit",
+    "pairing": "Clash Display + Outfit"
   },
-  "theme": "light"
+  "radius": {
+    "card": "20px",
+    "button": "12px"
+  },
+  "shadow": {
+    "card": "0 8px 32px rgba(0,0,0,0.35)",
+    "button": "0 4px 16px rgba(0,0,0,0.25)"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

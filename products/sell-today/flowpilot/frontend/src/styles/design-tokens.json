@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "skeuomorphism",
-  "target_region": "default",
+  "style": "flat_design",
+  "name": "Flat Design",
   "project_name": "flowpilot",
+  "brand": "Flowpilot",
   "palette": {
-    "primary": "#7c3aed",
-    "accent": "#ec4899",
-    "heading": "#2e1065",
-    "navBg": "#f7f3ea",
-    "footerBg": "#3f2e1e",
-    "text": "#26292f",
-    "muted": "#64748b",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "primary": "#f5630b",
+    "secondary": "#d94206",
+    "accent": "#fb8924",
+    "heading": "#111827",
+    "canvas": "#f9fafb",
+    "surface": "#eff6ff",
+    "text": "#111827",
+    "muted": "#6b7280",
+    "border": "#e5e7eb",
+    "navBg": "#f9fafb",
+    "footerBg": "#111827"
+  },
+  "palette_rgb": {
+    "primary": "245 99 11",
+    "secondary": "217 66 6",
+    "accent": "251 137 36",
+    "heading": "17 24 39",
+    "canvas": "249 250 251",
+    "surface": "239 246 255",
+    "text": "17 24 39",
+    "muted": "107 114 128",
+    "border": "229 231 235",
+    "navBg": "249 250 251",
+    "footerBg": "17 24 39"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Cabinet Grotesk",
+    "sans": "Supreme",
+    "pairing": "Cabinet Grotesk + Supreme"
   },
-  "theme": "light"
+  "radius": {
+    "card": "12px",
+    "button": "8px"
+  },
+  "shadow": {
+    "card": "0 1px 2px rgba(0,0,0,0.04)",
+    "button": "0 0 0 0"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

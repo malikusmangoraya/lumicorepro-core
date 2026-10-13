@@ -210,6 +210,42 @@
       "attributes": {
         "craft": 0.7, "typography": 0.6, "interaction_complexity": 0.6, "color_saturation": 0.45
       }
+    },
+    {
+      "slug": "screenshot-to-code",
+      "name": "Screenshot to Code",
+      "role": "reverse_engineering_tool",
+      "license": "MIT",
+      "stack": ["Python", "React", "Vite"],
+      "url": "https://github.com/abi/screenshot-to-code",
+      "repo": "https://github.com/abi/screenshot-to-code",
+      "description": "Reverse-engineers a screenshot or live-URL capture into clean HTML/Tailwind/React/Vue code. Used for reference structure extraction only; Lumicore never ships a copy.",
+      "keywords": ["screenshot to code", "reverse engineer website", "image to code", "url to code", "clone site"],
+      "attributes": {}
+    },
+    {
+      "slug": "firecrawl",
+      "name": "Firecrawl",
+      "role": "reverse_engineering_tool",
+      "license": "AGPL-3.0",
+      "stack": ["TypeScript", "Node"],
+      "url": "https://github.com/firecrawl/firecrawl",
+      "repo": "https://github.com/firecrawl/firecrawl",
+      "description": "Turns any reference website into LLM-ready structured data (crawl, scrape, structured extraction) for attribute decomposition.",
+      "keywords": ["firecrawl", "website to data", "scrape website", "crawl reference", "structured extraction"],
+      "attributes": {}
+    },
+    {
+      "slug": "single-file-cli",
+      "name": "SingleFile CLI",
+      "role": "reverse_engineering_tool",
+      "license": "AGPL-3.0",
+      "stack": ["Node", "Chrome"],
+      "url": "https://github.com/gildas-lormeau/single-file-cli",
+      "repo": "https://github.com/gildas-lormeau/single-file-cli",
+      "description": "Saves a faithful, self-contained copy of a complete web page into a single HTML file for offline structural analysis.",
+      "keywords": ["single-file", "save web page", "html snapshot", "faithful copy", "archive website"],
+      "attributes": {}
     }
   ]
 }

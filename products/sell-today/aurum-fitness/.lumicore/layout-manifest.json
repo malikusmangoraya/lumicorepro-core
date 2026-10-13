@@ -1,0 +1,143 @@
+{
+  "engine": "layout-engine",
+  "version": "1.0",
+  "marker": "LUMI_LAYOUT_V1",
+  "created_at": "20261013T102950Z",
+  "skin": "full",
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\aurum-fitness\\.lumicore\\layout\\20261013T102950Z",
+  "created": [
+    "DESIGN_PLAN.md",
+    "LAYOUT_REPORT.json"
+  ],
+  "replaced": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "plan": {
+    "engine": "layout-engine",
+    "version": "1.0",
+    "generated_at": "2026-10-13T10:29:50Z",
+    "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\aurum-fitness",
+    "frontend": "D:\\lumicorepro-core\\products\\sell-today\\aurum-fitness\\frontend",
+    "package_name": "aurum-fitness",
+    "slug": "aurum-fitness",
+    "brand": "Aurum Fitness",
+    "title": "Aurum",
+    "tagline": "Stronger every single session",
+    "eyebrow": "TRAIN WITH PURPOSE",
+    "hero_desc": "Aurum Fitness combines expert coaching, smart programming and real accountability.",
+    "features": [
+      [
+        "Personal coaching",
+        "Plans built around your goals"
+      ],
+      [
+        "Smart programming",
+        "Progressive sessions that adapt"
+      ],
+      [
+        "Track everything",
+        "Strength, stamina and progress in one place"
+      ],
+      [
+        "Community",
+        "Train alongside people who show up"
+      ]
+    ],
+    "stats": [
+      [
+        "99.99%",
+        "Uptime"
+      ],
+      [
+        "<2s",
+        "Load Time"
+      ],
+      [
+        "10K+",
+        "Users"
+      ],
+      [
+        "4.9/5",
+        "Rating"
+      ]
+    ],
+    "industry": "fitness",
+    "category": "fitness",
+    "sections": [
+      "Hero",
+      "Classes",
+      "Trainers",
+      "Pricing",
+      "BMI",
+      "Success",
+      "Contact",
+      "Shop"
+    ],
+    "style": "neo_brutalism",
+    "style_name": "Neo-Brutalism",
+    "region": "default",
+    "region_rationale": "Global neutral (region-agnostic)",
+    "palette": {
+      "primary": "#f59e0b",
+      "secondary": "#d97706",
+      "accent": "#fbbf24",
+      "heading": "#0f172a",
+      "canvas": "#fef3c7",
+      "surface": "#bfdbfe",
+      "text": "#0f172a",
+      "muted": "#475569",
+      "border": "#0f172a",
+      "navBg": "#fef3c7",
+      "footerBg": "#0f172a"
+    },
+    "fonts": {
+      "display": "Syne",
+      "sans": "Inter"
+    },
+    "typography_pairing": "Syne + Inter",
+    "logo_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" className=\"w-10 h-10 inline-block\">\n  <defs>\n    <linearGradient id=\"grad_7612\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" stopColor=\"#f59e0b\" />\n      <stop offset=\"100%\" stopColor=\"#fbbf24\" />\n    </linearGradient>\n  </defs>\n  \n              <ellipse cx=\"24\" cy=\"24\" rx=\"18\" ry=\"8\" transform=\"rotate(-30 24 24)\" fill=\"none\" stroke=\"url(#grad_7612)\" stroke-width=\"2.5\" />\n              <ellipse cx=\"24\" cy=\"24\" rx=\"18\" ry=\"8\" transform=\"rotate(30 24 24)\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"2\" opacity=\"0.8\" />\n              <circle cx=\"24\" cy=\"24\" r=\"4\" fill=\"url(#grad_7612)\" />\n            \n</svg>",
+    "radius": {
+      "card": "0px",
+      "button": "0px"
+    },
+    "shadow": {
+      "card": "6px 6px 0 #0f172a",
+      "button": "4px 4px 0 #0f172a"
+    },
+    "effects": {
+      "blur": "0px",
+      "glow": "none"
+    },
+    "motion_level": "medium",
+    "attribute_bias": {
+      "typography": 0.658,
+      "color_saturation": 0.44,
+      "interaction_complexity": 0.561,
+      "craft": 0.692,
+      "minimalism": 0.61,
+      "whitespace": 0.613,
+      "motion": 0.505,
+      "cta_focus": 0.614,
+      "visual_density": 0.533,
+      "content_density": 0.575,
+      "navigation": 0.583,
+      "futuristic": 0.625,
+      "cinematic": 0.5,
+      "dark_canvas": 0.525,
+      "bold": 0.7,
+      "warmth": 0.5
+    },
+    "vault_source": "",
+    "seed": 761816636,
+    "notes": []
+  }
+}

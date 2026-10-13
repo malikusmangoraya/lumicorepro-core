@@ -66,7 +66,7 @@ export default function CookieConsent() {
             {t('consent.description')}{' '}
             <a
               href="/privacy"
-              className="text-primary underline-offset-2 hover:underline"
+              className="text-primary underline hover:text-primary/80"
             >
               {t('consent.privacyPolicy')}
             </a>

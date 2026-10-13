@@ -18,10 +18,14 @@ import threading
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from config.settings import AI_AGENT_DIR
 from utils.logger import agent_logger
 
-_LOGS_DIR = (AI_AGENT_DIR / "logs").resolve()
+# Computed locally (the ai-agent/ root) instead of importing config.settings, so
+# utils carries no dependency on config. This breaks the
+# config -> providers -> utils -> config import cycle while resolving to the
+# exact same directory (config.settings.AI_AGENT_DIR is this same expression).
+_AI_AGENT_DIR = Path(__file__).resolve().parent.parent
+_LOGS_DIR = (_AI_AGENT_DIR / "logs").resolve()
 _TELEMETRY_FILE = _LOGS_DIR / "telemetry.jsonl"
 _MAX_BYTES = 5 * 1024 * 1024
 # Shared across instances: concurrent writers (threads + processes) must not

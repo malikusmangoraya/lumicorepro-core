@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "glassmorphism",
-  "target_region": "default",
+  "style": "maximalism",
+  "name": "Maximalism",
   "project_name": "prestige-studio",
+  "brand": "Prestige Studio",
   "palette": {
-    "primary": "#be502c",
-    "accent": "#be502c",
-    "heading": "#be502c",
-    "navBg": "#f8fafc",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be502c",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "primary": "#6c5cf6",
+    "secondary": "#4a28d9",
+    "accent": "#a884fc",
+    "heading": "#ffffff",
+    "canvas": "#1a0033",
+    "surface": "#3d0c63",
+    "text": "#ffffff",
+    "muted": "#ff77aa",
+    "border": "#1e293b",
+    "navBg": "#1a0033",
+    "footerBg": "#020617"
+  },
+  "palette_rgb": {
+    "primary": "108 92 246",
+    "secondary": "74 40 217",
+    "accent": "168 132 252",
+    "heading": "255 255 255",
+    "canvas": "26 0 51",
+    "surface": "61 12 99",
+    "text": "255 255 255",
+    "muted": "255 119 170",
+    "border": "30 41 59",
+    "navBg": "26 0 51",
+    "footerBg": "2 6 23"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Space Grotesk",
+    "sans": "Geist",
+    "pairing": "Space Grotesk + Geist"
   },
-  "theme": "light"
+  "radius": {
+    "card": "16px",
+    "button": "9999px"
+  },
+  "shadow": {
+    "card": "0 10px 30px rgba(255,0,85,0.35)",
+    "button": "0 4px 15px rgba(255,230,0,0.4)"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

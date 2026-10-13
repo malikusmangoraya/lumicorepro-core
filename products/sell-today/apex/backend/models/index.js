@@ -1,29 +1,46 @@
-const Address = require('./Address');
-const AnalyticsEvent = require('./AnalyticsEvent');
-const AuditLog = require('./AuditLog');
-const Booking = require('./Booking');
-const Cart = require('./Cart');
-const CartItem = require('./CartItem');
-const Category = require('./Category');
-const Coupon = require('./Coupon');
-const Doctor = require('./Doctor');
-const Membership = require('./Membership');
-const Notification = require('./Notification');
-const Order = require('./Order');
-const Organization = require('./Organization');
-const Payment = require('./Payment');
-const Permission = require('./Permission');
-const Plan = require('./Plan');
-const Product = require('./Product');
-const Review = require('./Review');
-const Role = require('./Role');
-const Service = require('./Service');
-const Subscription = require('./Subscription');
-const SystemConfig = require('./SystemConfig');
-const User = require('./User');
-const WebhookEvent = require('./WebhookEvent');
-const WebhookLog = require('./WebhookLog');
-const Wishlist = require('./Wishlist');
+/**
+ * Model registry + associations.
+ *
+ * Most model files are ES modules (`export default`) while this registry is
+ * CommonJS, so `require()` hands back the module namespace rather than the
+ * model class. Unwrapping `default` here is what lets the associations below
+ * receive real Sequelize models instead of plain namespace objects.
+ *
+ * The check is `typeof mod !== 'function'` on purpose: a Sequelize model class
+ * is a function that also carries a `.default` object property, so testing for
+ * `default` alone would replace the model with an unrelated value.
+ */
+const unwrap = (mod) =>
+  typeof mod === 'function' ? mod : mod && mod.default ? mod.default : mod;
+
+const Address = unwrap(require('./Address'));
+const AnalyticsEvent = unwrap(require('./AnalyticsEvent'));
+const AuditLog = unwrap(require('./AuditLog'));
+const Booking = unwrap(require('./Booking'));
+const Cart = unwrap(require('./Cart'));
+const CartItem = unwrap(require('./CartItem'));
+const Category = unwrap(require('./Category'));
+const Coupon = unwrap(require('./Coupon'));
+const Doctor = unwrap(require('./Doctor'));
+const Inquiry = unwrap(require('./Inquiry'));
+const Membership = unwrap(require('./Membership'));
+const Notification = unwrap(require('./Notification'));
+const Order = unwrap(require('./Order'));
+const Organization = unwrap(require('./Organization'));
+const Payment = unwrap(require('./Payment'));
+const Permission = unwrap(require('./Permission'));
+const Plan = unwrap(require('./Plan'));
+const Product = unwrap(require('./Product'));
+const Review = unwrap(require('./Review'));
+const Role = unwrap(require('./Role'));
+const Service = unwrap(require('./Service'));
+const Subscription = unwrap(require('./Subscription'));
+const SystemConfig = unwrap(require('./SystemConfig'));
+const User = unwrap(require('./User'));
+const Vehicle = unwrap(require('./Vehicle'));
+const WebhookEvent = unwrap(require('./WebhookEvent'));
+const WebhookLog = unwrap(require('./WebhookLog'));
+const Wishlist = unwrap(require('./Wishlist'));
 
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' });
 User.hasMany(Payment, { foreignKey: 'user_id', as: 'payments' });
@@ -82,6 +99,15 @@ Order.belongsTo(Organization, { foreignKey: 'org_id', as: 'organization' });
 Organization.hasMany(Product, { foreignKey: 'org_id', as: 'products' });
 Organization.hasMany(Order, { foreignKey: 'org_id', as: 'orders' });
 
+// ── Apex dealership inventory ───────────────────────────────────────────────
+// A vehicle is owned by the dealership, not by a user, so it has no owner
+// association. Reservation associations are added with that model.
+Vehicle.hasMany(Inquiry, { foreignKey: 'vehicle_id', as: 'inquiries' });
+Inquiry.belongsTo(Vehicle, { foreignKey: 'vehicle_id', as: 'vehicle' });
+// `user_id` is null for anonymous enquiries, so this is a nullable relation.
+User.hasMany(Inquiry, { foreignKey: 'user_id', as: 'inquiries' });
+Inquiry.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 module.exports = {
   Address,
   AnalyticsEvent,
@@ -92,6 +118,7 @@ module.exports = {
   Category,
   Coupon,
   Doctor,
+  Inquiry,
   Membership,
   Notification,
   Order,
@@ -106,6 +133,7 @@ module.exports = {
   Subscription,
   SystemConfig,
   User,
+  Vehicle,
   WebhookEvent,
   WebhookLog,
   Wishlist,

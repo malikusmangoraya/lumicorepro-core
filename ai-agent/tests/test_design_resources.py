@@ -43,7 +43,8 @@ class TestDesignResources(unittest.TestCase):
             self.assertTrue(item.get("role"))
             self.assertIn(item["role"],
                           {"design_tool", "design_system", "component_library",
-                           "component_gallery", "inspiration", "curated_list"})
+                           "component_gallery", "inspiration", "curated_list",
+                           "reverse_engineering_tool"})
             self.assertIsInstance(item.get("attributes") or {}, dict)
 
     def test_verify_catalog_is_clean(self):

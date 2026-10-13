@@ -18,6 +18,20 @@ AI_AGENT_DIR = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = AI_AGENT_DIR.parent
 
 
+FREE_PROVIDER_ALLOWLIST = frozenset({"openrouter", "gemini", "nvidia"})
+
+
+def free_provider_allowlist(value: str) -> set[str]:
+    """Validate explicit providers for the free-tier-only rebuild lane."""
+    names = {name.strip().lower() for name in value.split(",") if name.strip()}
+    if not names:
+        raise ValueError("At least one explicit free-tier provider is required")
+    rejected = names - FREE_PROVIDER_ALLOWLIST
+    if rejected:
+        raise ValueError(f"Providers are not permitted in the free-only rebuild lane: {', '.join(sorted(rejected))}")
+    return names
+
+
 def safe_project_slug(name: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
     return slug[:48].strip("-") or "generated-project"
@@ -165,20 +179,27 @@ def rebuild_projects(
     provider: Optional[str] = None,
     dry_run: bool = False,
     continue_on_review: bool = False,
+    free_only: bool = False,
+    max_projects: int = 0,
 ) -> Dict[str, Any]:
     sources = discover_projects(source_root)
     if limit > 0:
         sources = sources[:limit]
+    if max_projects > 0:
+        sources = sources[:max_projects]
     output_root = output_root.resolve()
     report_path = output_root / "REBUILD_AGENT_REPORT.json"
 
     if dry_run:
+        if free_only:
+            free_provider_allowlist(provider or "openrouter")
         return {
             "source_root": str(source_root.resolve()),
             "output_root": str(output_root),
             "requested": len(sources),
             "projects": [path.name for path in sources],
             "dry_run": True,
+            "free_only": free_only,
         }
     if output_root.exists() and not resume:
         raise FileExistsError(
@@ -199,100 +220,161 @@ def rebuild_projects(
         and Path(item.get("output_project") or "").is_dir()
     }
 
-    selected_provider = (
-        provider
-        or os.getenv("AI_PROVIDER")
-        or os.getenv("REASONING_PROVIDER")
-        or os.getenv("ACTIVE_AI_PROVIDER")
-        or "grok"
-    ).strip().lower()
+    if free_only:
+        allowed = free_provider_allowlist(provider or "openrouter")
+        selected_provider = sorted(allowed)[0]
+    else:
+        selected_provider = (
+            provider
+            or os.getenv("AI_PROVIDER")
+            or os.getenv("REASONING_PROVIDER")
+            or os.getenv("ACTIVE_AI_PROVIDER")
+            or "grok"
+        ).strip().lower()
+    old_env = {
+        key: os.environ.get(key)
+        for key in ("GENERATED_PROJECTS_DIR", "AI_PROVIDER", "REASONING_PROVIDER")
+    }
+    old_sys_path = list(sys.path)
     os.environ["GENERATED_PROJECTS_DIR"] = str(output_root)
     os.environ["AI_PROVIDER"] = selected_provider
     os.environ["REASONING_PROVIDER"] = selected_provider
-    sys.path.insert(0, str(AI_AGENT_DIR))
+    if str(AI_AGENT_DIR) not in sys.path:
+        sys.path.insert(0, str(AI_AGENT_DIR))
+    from agent import ai_routing
     from agent.orchestrator import AgentOrchestrator
 
     orchestrator = AgentOrchestrator(provider_name=selected_provider)
+    # The router singleton is process-global; snapshot it before free-only mode
+    # rewires it so later unrelated work cannot inherit strict routing.
+    original_router = ai_routing.get_router()
+    if free_only:
+        from config.providers import instantiate_provider
+
+        providers = {}
+        for name in sorted(allowed):
+            instance = instantiate_provider(name)
+            if instance is not None:
+                providers[name] = instance
+        if not providers:
+            raise RuntimeError("No explicitly allowed free-tier provider is configured")
+        # Rebuild-specific router prevents any pool/global fallback to paid vendors.
+        selected = selected_provider if selected_provider in providers else next(iter(providers))
+        class FreeOnlyPool:
+            _providers = providers
+            _cooldowns = {}
+
+            def get_active(self):
+                return None
+
+            def get_provider_name(self, instance):
+                return next((key for key, value in providers.items() if value is instance), "none")
+
+        orchestrator.set_provider(providers[selected], name=selected)
+        orchestrator._free_only_providers = set(providers)
+        ai_routing.configure_strict_router(FreeOnlyPool(), providers)
     orchestrator._auto_deploy_project = lambda *_args, **_kwargs: ""
     started_at = time.time()
 
-    for index, source in enumerate(sources, start=1):
-        if source.name in completed:
-            print(f"[{index}/{len(sources)}] {source.name}: already generated; keeping output")
-            continue
+    try:
+        for index, source in enumerate(sources, start=1):
+            if source.name in completed:
+                print(f"[{index}/{len(sources)}] {source.name}: already generated; keeping output")
+                continue
 
-        project_name = f"rebuilt-{safe_project_slug(source.name)}"
-        event_path = log_root / f"{safe_project_slug(source.name)}.jsonl"
-        print(f"[{index}/{len(sources)}] Agent rebuilding {source.name} -> {project_name}")
+            project_name = f"rebuilt-{safe_project_slug(source.name)}"
+            event_path = log_root / f"{safe_project_slug(source.name)}.jsonl"
+            print(f"[{index}/{len(sources)}] Agent rebuilding {source.name} -> {project_name}")
 
-        def record_progress(phase: str, event: str, _data: Dict[str, Any]) -> None:
-            if event not in {"phase_start", "phase_done", "phase_error"}:
-                return
-            entry = {"phase": phase, "event": event, "timestamp": time.time()}
-            with event_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(entry, ensure_ascii=True) + "\n")
-            if event != "phase_done":
-                print(f"    {event}: {phase}")
+            def record_progress(phase: str, event: str, _data: Dict[str, Any]) -> None:
+                if event not in {"phase_start", "phase_done", "phase_error"}:
+                    return
+                entry = {"phase": phase, "event": event, "timestamp": time.time()}
+                with event_path.open("a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(entry, ensure_ascii=True) + "\n")
+                if event != "phase_done":
+                    print(f"    {event}: {phase}")
 
-        try:
-            report = orchestrator.run(
-                prompt=build_rebuild_prompt(project_context(source), project_name),
-                interactive=False,
-                progress_callback=record_progress,
-                extra_spec={
-                    "project_name": project_name,
-                    "source_project_name": source.name,
-                    "rebuild_mode": "agent_full_pipeline",
-                },
-            )
-            output_project = Path(report.get("generated_project_dir") or "")
-            generated = output_project.is_dir() and (
-                (output_project / "frontend" / "package.json").is_file()
-            )
-            gate_report = (report.get("phase_results") or {}).get("qa_release_gate", {})
-            quality_score = float((report.get("quality_gates") or {}).get("overall_score", 0) or 0)
-            agent_status = report.get("status", "unknown")
-            result = {
-                "source_project": source.name,
-                "output_project": str(output_project) if generated else "",
-                "status": classify_agent_result(
-                    generated, agent_status, quality_score, gate_report
+            try:
+                report = orchestrator.run(
+                    prompt=build_rebuild_prompt(project_context(source), project_name),
+                    interactive=False,
+                    progress_callback=record_progress,
+                    extra_spec={
+                        "project_name": project_name,
+                        "source_project_name": source.name,
+                        "rebuild_mode": "agent_full_pipeline",
+                        "free_provider_only": free_only,
+                    },
+                )
+                output_project = Path(report.get("generated_project_dir") or "")
+                generated = output_project.is_dir() and (
+                    (output_project / "frontend" / "package.json").is_file()
+                )
+                gate_report = (report.get("phase_results") or {}).get("qa_release_gate", {})
+                quality_score = float((report.get("quality_gates") or {}).get("overall_score", 0) or 0)
+                agent_status = report.get("status", "unknown")
+                result = {
+                    "source_project": source.name,
+                    "output_project": str(output_project) if generated else "",
+                    "status": classify_agent_result(
+                        generated, agent_status, quality_score, gate_report
+                    ),
+                    "agent_status": agent_status,
+                    "quality_score": quality_score,
+                    "release_gate": gate_report,
+                    "live_deployment": "disabled_for_batch_rebuild",
+                    "zip_archive": report.get("zip_archive_path", ""),
+                }
+            except Exception as exc:
+                result = {
+                    "source_project": source.name,
+                    "output_project": "",
+                    "status": "failed",
+                    "agent_status": "exception",
+                    "error": str(exc),
+                    "live_deployment": "disabled_for_batch_rebuild",
+                }
+            except KeyboardInterrupt:
+                partial_outputs = sorted(
+                    output_root.glob(project_name + "*"), key=lambda path: path.stat().st_mtime
+                )
+                partial_output = partial_outputs[-1] if partial_outputs else None
+                has_project = bool(
+                    partial_output
+                    and (partial_output / "frontend" / "package.json").is_file()
+                )
+                result = {
+                    "source_project": source.name,
+                    "output_project": str(partial_output) if has_project else "",
+                    "status": "review_required" if has_project else "failed",
+                    "agent_status": "interrupted",
+                    "error": "Agent run interrupted; partial output preserved.",
+                    "live_deployment": "disabled_for_batch_rebuild",
+                }
+
+            results = [item for item in results if item.get("source_project") != source.name]
+            results.append(result)
+            payload = {
+                "source_root": str(source_root.resolve()),
+                "output_root": str(output_root),
+                "requested": len(sources),
+                "provider": selected_provider,
+                "processed": sum(1 for item in results if item.get("source_project") in selected_names),
+                "generated": sum(1 for item in results if item.get("status") == "generated"),
+                "failed": sum(1 for item in results if item.get("status") == "failed"),
+                "review_required": sum(
+                    1 for item in results if item.get("status") == "review_required"
                 ),
-                "agent_status": agent_status,
-                "quality_score": quality_score,
-                "release_gate": gate_report,
-                "live_deployment": "disabled_for_batch_rebuild",
-                "zip_archive": report.get("zip_archive_path", ""),
+                "elapsed_seconds": round(time.time() - started_at, 2),
+                "results": results,
             }
-        except Exception as exc:
-            result = {
-                "source_project": source.name,
-                "output_project": "",
-                "status": "failed",
-                "agent_status": "exception",
-                "error": str(exc),
-                "live_deployment": "disabled_for_batch_rebuild",
-            }
-        except KeyboardInterrupt:
-            partial_outputs = sorted(
-                output_root.glob(project_name + "*"), key=lambda path: path.stat().st_mtime
-            )
-            partial_output = partial_outputs[-1] if partial_outputs else None
-            has_project = bool(
-                partial_output
-                and (partial_output / "frontend" / "package.json").is_file()
-            )
-            result = {
-                "source_project": source.name,
-                "output_project": str(partial_output) if has_project else "",
-                "status": "review_required" if has_project else "failed",
-                "agent_status": "interrupted",
-                "error": "Agent run interrupted; partial output preserved.",
-                "live_deployment": "disabled_for_batch_rebuild",
-            }
+            _write_report(report_path, payload)
+            print(f"[{index}/{len(sources)}] {source.name}: {result['status']} ({result.get('agent_status')})")
+            if result["status"] != "generated" and not continue_on_review:
+                print("Stopping after the first blocked/partial agent result; fix QA/provider setup and resume.")
+                break
 
-        results = [item for item in results if item.get("source_project") != source.name]
-        results.append(result)
         payload = {
             "source_root": str(source_root.resolve()),
             "output_root": str(output_root),
@@ -308,32 +390,20 @@ def rebuild_projects(
             "results": results,
         }
         _write_report(report_path, payload)
-        print(f"[{index}/{len(sources)}] {source.name}: {result['status']} ({result.get('agent_status')})")
-        if result["status"] != "generated" and not continue_on_review:
-            print("Stopping after the first blocked/partial agent result; fix QA/provider setup and resume.")
-            break
-
-    payload = {
-        "source_root": str(source_root.resolve()),
-        "output_root": str(output_root),
-        "requested": len(sources),
-        "provider": selected_provider,
-        "processed": sum(1 for item in results if item.get("source_project") in selected_names),
-        "generated": sum(1 for item in results if item.get("status") == "generated"),
-        "failed": sum(1 for item in results if item.get("status") == "failed"),
-        "review_required": sum(
-            1 for item in results if item.get("status") == "review_required"
-        ),
-        "elapsed_seconds": round(time.time() - started_at, 2),
-        "results": results,
-    }
-    _write_report(report_path, payload)
-    print(
-        f"Agent rebuild complete: {payload['generated']}/{len(sources)} generated; "
-        f"{payload['failed']} failed"
-    )
-    print(f"Report: {report_path}")
-    return payload
+        print(
+            f"Agent rebuild complete: {payload['generated']}/{len(sources)} generated; "
+            f"{payload['failed']} failed"
+        )
+        print(f"Report: {report_path}")
+        return payload
+    finally:
+        ai_routing.restore_router(original_router)
+        sys.path[:] = old_sys_path
+        for key, value in old_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
 
 
 def main() -> int:
@@ -349,9 +419,16 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--continue-on-review", action="store_true")
     parser.add_argument("--provider", default=None)
+    parser.add_argument("--free-only", action="store_true", help="Use only explicitly allowed $0-tariff API providers; never fall through to paid tiers")
+    parser.add_argument("--max-projects", type=int, default=0, help="Hard upper bound for this invocation (0 means no additional bound)")
     args = parser.parse_args()
-    if args.limit < 0:
-        parser.error("--limit must be zero or greater")
+    if args.limit < 0 or args.max_projects < 0:
+        parser.error("--limit and --max-projects must be zero or greater")
+    if args.free_only:
+        try:
+            free_provider_allowlist(args.provider or "openrouter")
+        except ValueError as exc:
+            parser.error(str(exc))
     try:
         report = rebuild_projects(
             args.source_root.resolve(),
@@ -361,6 +438,8 @@ def main() -> int:
             provider=args.provider,
             dry_run=args.dry_run,
             continue_on_review=args.continue_on_review,
+            free_only=args.free_only,
+            max_projects=args.max_projects,
         )
     except (FileNotFoundError, FileExistsError, ValueError) as exc:
         print(json.dumps({"status": "blocked", "error": str(exc)}, indent=2))

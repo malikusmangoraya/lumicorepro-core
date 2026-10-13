@@ -20,6 +20,8 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Account = lazy(() => import('./pages/Account'));
 const Insights = lazy(() => import('./pages/Insights'));
+const Inventory = lazy(() => import('./pages/Inventory'));
+const VehicleDetail = lazy(() => import('./pages/VehicleDetail'));
 
 function Loader() {
   return (
@@ -44,6 +46,8 @@ export default function App() {
             <Routes>
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/inventory/:slug" element={<VehicleDetail />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />

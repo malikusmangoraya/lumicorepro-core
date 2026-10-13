@@ -1,0 +1,143 @@
+{
+  "engine": "layout-engine",
+  "version": "1.0",
+  "marker": "LUMI_LAYOUT_V1",
+  "created_at": "20261013T102950Z",
+  "skin": "full",
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\nuage-events\\.lumicore\\layout\\20261013T102950Z",
+  "created": [
+    "DESIGN_PLAN.md",
+    "LAYOUT_REPORT.json"
+  ],
+  "replaced": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "plan": {
+    "engine": "layout-engine",
+    "version": "1.0",
+    "generated_at": "2026-10-13T10:29:50Z",
+    "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\nuage-events",
+    "frontend": "D:\\lumicorepro-core\\products\\sell-today\\nuage-events\\frontend",
+    "package_name": "nuage-events",
+    "slug": "nuage-events",
+    "brand": "Nuage Events",
+    "title": "Nuage",
+    "tagline": "Epic events, effortlessly planned",
+    "eyebrow": "MOMENTS WORTH REMEMBERING",
+    "hero_desc": "Nuage Events handles discovery, booking and logistics so you can focus on the experience.",
+    "features": [
+      [
+        "Discover venues",
+        "Spaces for every occasion"
+      ],
+      [
+        "Instant booking",
+        "Availability and pricing up front"
+      ],
+      [
+        "Vendor marketplace",
+        "Catering, AV and d\u00e9cor in one place"
+      ],
+      [
+        "Guest management",
+        "Invites, RSVPs and seating, simplified"
+      ]
+    ],
+    "stats": [
+      [
+        "99.99%",
+        "Uptime"
+      ],
+      [
+        "<2s",
+        "Load Time"
+      ],
+      [
+        "10K+",
+        "Users"
+      ],
+      [
+        "4.9/5",
+        "Rating"
+      ]
+    ],
+    "industry": "event",
+    "category": "event",
+    "sections": [
+      "Hero",
+      "Countdown",
+      "Speakers",
+      "Schedule",
+      "Tickets",
+      "Sponsors",
+      "Venue",
+      "Contact"
+    ],
+    "style": "minimalism",
+    "style_name": "Minimalism",
+    "region": "default",
+    "region_rationale": "Global neutral (region-agnostic)",
+    "palette": {
+      "primary": "#0298c7",
+      "secondary": "#0379a1",
+      "accent": "#38d0f8",
+      "heading": "#0f172a",
+      "canvas": "#ffffff",
+      "surface": "#f1f5f9",
+      "text": "#0f172a",
+      "muted": "#64748b",
+      "border": "#e2e8f0",
+      "navBg": "#ffffff",
+      "footerBg": "#0f172a"
+    },
+    "fonts": {
+      "display": "Space Grotesk",
+      "sans": "Geist"
+    },
+    "typography_pairing": "Space Grotesk + Geist",
+    "logo_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" className=\"w-10 h-10 inline-block\">\n  <defs>\n    <linearGradient id=\"grad_4857\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" stopColor=\"#0284c7\" />\n      <stop offset=\"100%\" stopColor=\"#38bdf8\" />\n    </linearGradient>\n  </defs>\n  \n              <ellipse cx=\"24\" cy=\"24\" rx=\"18\" ry=\"8\" transform=\"rotate(-30 24 24)\" fill=\"none\" stroke=\"url(#grad_4857)\" stroke-width=\"2.5\" />\n              <ellipse cx=\"24\" cy=\"24\" rx=\"18\" ry=\"8\" transform=\"rotate(30 24 24)\" fill=\"none\" stroke=\"#38bdf8\" stroke-width=\"2\" opacity=\"0.8\" />\n              <circle cx=\"24\" cy=\"24\" r=\"4\" fill=\"url(#grad_4857)\" />\n            \n</svg>",
+    "radius": {
+      "card": "16px",
+      "button": "9999px"
+    },
+    "shadow": {
+      "card": "0 1px 3px rgba(15,23,42,0.08)",
+      "button": "0 1px 2px rgba(15,23,42,0.1)"
+    },
+    "effects": {
+      "blur": "0px",
+      "glow": "none"
+    },
+    "motion_level": "medium",
+    "attribute_bias": {
+      "typography": 0.658,
+      "color_saturation": 0.44,
+      "interaction_complexity": 0.561,
+      "craft": 0.692,
+      "minimalism": 0.61,
+      "whitespace": 0.613,
+      "motion": 0.505,
+      "cta_focus": 0.614,
+      "visual_density": 0.533,
+      "content_density": 0.575,
+      "navigation": 0.583,
+      "futuristic": 0.625,
+      "cinematic": 0.5,
+      "dark_canvas": 0.525,
+      "bold": 0.7,
+      "warmth": 0.5
+    },
+    "vault_source": "",
+    "seed": 1968407585,
+    "notes": []
+  }
+}

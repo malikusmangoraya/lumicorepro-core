@@ -191,6 +191,7 @@ class AgentOrchestrator:
         self.ai_model_calls_succeeded: int = 0
         self.ai_model_calls_failed: int = 0
         self.skipped_phases: List[Dict[str, str]] = []
+        self._free_only_providers: set[str] = set()
         self.ai_provider = self._init_provider(provider_name)
         self.memory_retriever = MemoryRetriever()
         self.phase_timings: Dict[str, float] = {}
@@ -323,6 +324,8 @@ class AgentOrchestrator:
         brand_name: Optional[str] = None,
         industry: str = "saas",
         primary_color: Optional[str] = None,
+        *,
+        generation_contract: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Generate clean, complete full-stack web application with React 19 frontend and Express backend."""
         return self.fullstack_engine.generate_project(
@@ -331,6 +334,7 @@ class AgentOrchestrator:
             brand_name=brand_name,
             industry=industry,
             primary_color=primary_color,
+            generation_contract=generation_contract,
         )
 
     def synthesize_benchmark_3d_site(
@@ -584,6 +588,26 @@ class AgentOrchestrator:
             )
         return None
 
+    def set_provider(self, provider, name: str = "") -> None:
+        """Point every provider-holding sub-engine at `provider`.
+
+        Sub-engines snapshot the provider at construction
+        (`RequirementAnalyzer`, `CodeModifier`, `AgentIterationEngine`), so
+        assigning `orch.ai_provider` alone leaves them on the old instance —
+        which once caused real network calls from runs that had swapped in an
+        offline fake. Centralize the swap here; rotation uses this too.
+        """
+        self.ai_provider = provider
+        if name:
+            self.ai_provider_name = name
+        self.analyzer.ai_provider = provider
+        self.code_modifier.ai_provider = provider
+        # Attribute name is `iteration_engine`; a silent miss here would leave the
+        # iteration engine on the previous provider and quietly reintroduce the
+        # leak this method exists to close, so failures are surfaced, not swallowed.
+        self.iteration_engine.provider = provider
+        self.iteration_engine.code_modifier = CodeModifier(provider)
+
     def _rotate_provider(self):
         """Move to the next routed provider and propagate it to all sub-engines.
 
@@ -603,15 +627,7 @@ class AgentOrchestrator:
             )
             return False
         agent_logger.info(f"[ORCH] Rotating provider: '{current}' -> '{name}' (tier={tier})")
-        self.ai_provider = inst
-        self.ai_provider_name = name
-        self.analyzer.ai_provider = inst
-        self.code_modifier.ai_provider = inst
-        try:
-            self.iterate_engine.provider = inst
-            self.iterate_engine.code_modifier = CodeModifier(inst)
-        except Exception:
-            pass
+        self.set_provider(inst, name=name)
         return True
 
     def _run_phase(self, phase_name: str, func, *args, **kwargs) -> Any:
@@ -1529,6 +1545,13 @@ class AgentOrchestrator:
     ) -> Dict[str, Any]:
         """Execute the 18-phase enterprise project generation pipeline with error isolation and callbacks."""
         self._reset_phase_tracking()
+        self._free_only_run = bool((extra_spec or {}).get("free_provider_only"))
+        if self._free_only_run and not self._free_only_providers:
+            raise RuntimeError("Free-only rebuild requires configured, explicitly allowed providers")
+        if self._free_only_run and (
+            not self.ai_provider or self.ai_provider_name.lower() not in self._free_only_providers
+        ):
+            raise RuntimeError("Free-only rebuild provider is outside the configured allowlist")
         self.progress_callback = progress_callback
         start_time = time.time()
         phase_log: Dict[str, Any] = {}
@@ -1712,6 +1735,24 @@ class AgentOrchestrator:
                 phase_log["phase_1_social_signals"] = live_signals
                 if live_signals.get("fragments") and market_analysis:
                     market_analysis = self.market_analyzer.analyze(prelim_spec, live_signals)
+                if not live_signals.get("fragments"):
+                    # Async deep-research fallback: query Agent Reach directly
+                    # when the sync sweep found nothing. Fully degraded on any
+                    # error — live signals are observational, never fatal.
+                    try:
+                        import asyncio
+                        deep_signals = asyncio.run(
+                            self.market_analyzer.research_social_signals(prelim_spec)
+                        )
+                        if isinstance(deep_signals, dict) and deep_signals.get("fragments"):
+                            live_signals = deep_signals
+                            phase_log["phase_1_social_signals"] = live_signals
+                            if market_analysis:
+                                market_analysis = self.market_analyzer.analyze(prelim_spec, live_signals)
+                    except PipelineCancelled:
+                        raise
+                    except Exception as deep_exc:
+                        agent_logger.warning(f"Phase 1b async social research skipped: {deep_exc}")
             except PipelineCancelled:
                 raise
             except Exception as exc:
@@ -1725,10 +1766,10 @@ class AgentOrchestrator:
 
 # ── Phase 2: Requirement Analysis ────────────────────────────────────
         try:
+            market_context = market_analysis if isinstance(market_analysis, dict) and market_analysis else None
             spec = self._run_phase_safe(
                 "Phase 2 - Requirement Analysis",
-                self.analyzer.analyze,
-                func_args=[prompt],
+                lambda: self.analyzer.analyze(prompt, market_context=market_context),
                 fallback={"is_ambiguous": False, "website_type": "ecommerce",
                           "industry": "general", "features": []}
             )
@@ -1776,8 +1817,7 @@ class AgentOrchestrator:
                         prompt = new_prompt
                         spec = self._run_phase_safe(
                             "Phase 2 - Requirement Analysis (retry)",
-                            self.analyzer.analyze,
-                            func_args=[prompt],
+                            lambda: self.analyzer.analyze(prompt, market_context=market_context),
                             fallback=spec
                         )
             # Apply design preferences
@@ -2305,11 +2345,14 @@ class AgentOrchestrator:
                         bespoke_spec["design_tokens"] = vision_tokens.get("palette", {})
                         if not bespoke_spec.get("design_style"):
                             bespoke_spec["design_style"] = "modern"
+                    bespoke_provider_name = str(os.getenv("REASONING_PROVIDER") or REASONING_PROVIDER or "")
+                    if self._free_only_run and bespoke_provider_name.lower() not in self._free_only_providers:
+                        bespoke_provider_name = sorted(self._free_only_providers)[0]
                     engine = BespokeUIDesignEngine(ai_provider=self.ai_provider)
                     bespoke_report = engine.run(
                         project_dir,
                         bespoke_spec,
-                        provider_name=str(os.getenv("REASONING_PROVIDER") or REASONING_PROVIDER or ""),
+                        provider_name=bespoke_provider_name,
                     )
                     agent_logger.info(
                         f"Phase 5.5 bespoke design: active={bespoke_report.get('active')} "
@@ -2900,7 +2943,12 @@ class AgentOrchestrator:
                     guardrails_report,
                 )
                 phase_log["qa_release_gate"] = qa_release_gate
-                if qa_release_gate["passed"]:
+                if self._free_only_run:
+                    phase_log["live_deployment"] = {
+                        "status": "disabled",
+                        "reason": "free-only rebuilds never deploy",
+                    }
+                elif qa_release_gate["passed"]:
                     live_url = self._auto_deploy_project(project_dir, spec)
                     if live_url:
                         phase_log["live_deployment"] = {"url": live_url, "status": "deployed"}

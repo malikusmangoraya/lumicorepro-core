@@ -1,0 +1,143 @@
+{
+  "engine": "layout-engine",
+  "version": "1.0",
+  "marker": "LUMI_LAYOUT_V1",
+  "created_at": "20261013T102950Z",
+  "skin": "full",
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\prestige-studio\\.lumicore\\layout\\20261013T102950Z",
+  "created": [
+    "DESIGN_PLAN.md",
+    "LAYOUT_REPORT.json"
+  ],
+  "replaced": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "plan": {
+    "engine": "layout-engine",
+    "version": "1.0",
+    "generated_at": "2026-10-13T10:29:50Z",
+    "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\prestige-studio",
+    "frontend": "D:\\lumicorepro-core\\products\\sell-today\\prestige-studio\\frontend",
+    "package_name": "prestige-studio",
+    "slug": "prestige-studio",
+    "brand": "Prestige Studio",
+    "title": "Prestige",
+    "tagline": "Design with intent",
+    "eyebrow": "IDEAS MADE TANGIBLE",
+    "hero_desc": "Prestige Studio turns strategy into brand, product and motion that actually perform.",
+    "features": [
+      [
+        "Brand systems",
+        "Identities built to scale"
+      ],
+      [
+        "Product design",
+        "Interfaces people love to use"
+      ],
+      [
+        "Motion & film",
+        "Stories that move"
+      ],
+      [
+        "Strategy",
+        "Clarity before craft"
+      ]
+    ],
+    "stats": [
+      [
+        "99.99%",
+        "Uptime"
+      ],
+      [
+        "<2s",
+        "Load Time"
+      ],
+      [
+        "10K+",
+        "Users"
+      ],
+      [
+        "4.9/5",
+        "Rating"
+      ]
+    ],
+    "industry": "creative",
+    "category": "creative",
+    "sections": [
+      "Hero",
+      "Portfolio",
+      "Workflow",
+      "Clients",
+      "Awards",
+      "Services",
+      "Contact",
+      "Social"
+    ],
+    "style": "maximalism",
+    "style_name": "Maximalism",
+    "region": "default",
+    "region_rationale": "Global neutral (region-agnostic)",
+    "palette": {
+      "primary": "#6c5cf6",
+      "secondary": "#4a28d9",
+      "accent": "#a884fc",
+      "heading": "#ffffff",
+      "canvas": "#1a0033",
+      "surface": "#3d0c63",
+      "text": "#ffffff",
+      "muted": "#ff77aa",
+      "border": "#1e293b",
+      "navBg": "#1a0033",
+      "footerBg": "#020617"
+    },
+    "fonts": {
+      "display": "Space Grotesk",
+      "sans": "Geist"
+    },
+    "typography_pairing": "Space Grotesk + Geist",
+    "logo_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" className=\"w-10 h-10 inline-block\">\n  <defs>\n    <linearGradient id=\"grad_1229\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" stopColor=\"#8b5cf6\" />\n      <stop offset=\"100%\" stopColor=\"#c084fc\" />\n    </linearGradient>\n  </defs>\n  \n              <polygon points=\"24,6 42,38 6,38\" fill=\"none\" stroke=\"url(#grad_1229)\" stroke-width=\"3\" />\n              <polygon points=\"24,18 34,35 14,35\" fill=\"#c084fc\" opacity=\"0.4\" />\n            \n</svg>",
+    "radius": {
+      "card": "16px",
+      "button": "9999px"
+    },
+    "shadow": {
+      "card": "0 10px 30px rgba(255,0,85,0.35)",
+      "button": "0 4px 15px rgba(255,230,0,0.4)"
+    },
+    "effects": {
+      "blur": "0px",
+      "glow": "0 0 30px rgba(255,0,85,0.4)"
+    },
+    "motion_level": "medium",
+    "attribute_bias": {
+      "typography": 0.658,
+      "color_saturation": 0.44,
+      "interaction_complexity": 0.561,
+      "craft": 0.692,
+      "minimalism": 0.61,
+      "whitespace": 0.613,
+      "motion": 0.505,
+      "cta_focus": 0.614,
+      "visual_density": 0.533,
+      "content_density": 0.575,
+      "navigation": 0.583,
+      "futuristic": 0.625,
+      "cinematic": 0.5,
+      "dark_canvas": 0.525,
+      "bold": 0.7,
+      "warmth": 0.5
+    },
+    "vault_source": "",
+    "seed": 3185753001,
+    "notes": []
+  }
+}

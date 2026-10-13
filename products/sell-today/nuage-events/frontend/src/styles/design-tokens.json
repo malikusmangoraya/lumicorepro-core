@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "glassmorphism",
-  "target_region": "gcc",
+  "style": "minimalism",
+  "name": "Minimalism",
   "project_name": "nuage-events",
+  "brand": "Nuage Events",
   "palette": {
-    "primary": "#b8860b",
-    "accent": "#0f766e",
-    "heading": "#5b3200",
-    "navBg": "#f8fafc",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be2c4e",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
+    "primary": "#0298c7",
+    "secondary": "#0379a1",
+    "accent": "#38d0f8",
+    "heading": "#0f172a",
+    "canvas": "#ffffff",
+    "surface": "#f1f5f9",
+    "text": "#0f172a",
+    "muted": "#64748b",
     "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "navBg": "#ffffff",
+    "footerBg": "#0f172a"
+  },
+  "palette_rgb": {
+    "primary": "2 152 199",
+    "secondary": "3 121 161",
+    "accent": "56 208 248",
+    "heading": "15 23 42",
+    "canvas": "255 255 255",
+    "surface": "241 245 249",
+    "text": "15 23 42",
+    "muted": "100 116 139",
+    "border": "226 232 240",
+    "navBg": "255 255 255",
+    "footerBg": "15 23 42"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Space Grotesk",
+    "sans": "Geist",
+    "pairing": "Space Grotesk + Geist"
   },
-  "theme": "light"
+  "radius": {
+    "card": "16px",
+    "button": "9999px"
+  },
+  "shadow": {
+    "card": "0 1px 3px rgba(15,23,42,0.08)",
+    "button": "0 1px 2px rgba(15,23,42,0.1)"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

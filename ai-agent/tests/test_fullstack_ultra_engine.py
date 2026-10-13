@@ -7,6 +7,7 @@ Tests:
   4. Integration with AgentOrchestrator
 """
 
+import json
 import os
 import sys
 import shutil
@@ -14,7 +15,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# Add ai-agent to sys.path
 AGENT_ROOT = Path(__file__).resolve().parent.parent
 if str(AGENT_ROOT) not in sys.path:
     sys.path.insert(0, str(AGENT_ROOT))
@@ -32,7 +32,6 @@ class TestFullStackUltraEngine(unittest.TestCase):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_fullstack_generation_and_speed(self):
-        """Test complete generation of clean full-stack application under 3 seconds."""
         engine = FullStackUltraEngine()
         res = engine.generate_project(
             destination_dir=self.temp_dir,
@@ -44,54 +43,38 @@ class TestFullStackUltraEngine(unittest.TestCase):
         self.assertTrue(res["success"])
         self.assertEqual(res["brand"], "FreightNexus")
         self.assertTrue(res["total_files"] >= 20)
-        # Verify sub-3 second execution
         self.assertLess(res["elapsed_ms"], 3500)
 
-        # ── Verify Frontend Structure ────────────────────────────────────
-        frontend_files = [
-            "frontend/package.json",
-            "frontend/vite.config.js",
-            "frontend/tailwind.config.js",
-            "frontend/index.html",
-            "frontend/src/main.jsx",
-            "frontend/src/App.jsx",
-            "frontend/src/index.css",
-            "frontend/src/components/common/GlassNavbar.jsx",
-            "frontend/src/components/common/ModernFooter.jsx",
-            "frontend/src/components/common/UniqueLogo.jsx",
-            "frontend/src/pages/Home.jsx",
-            "frontend/src/pages/Features.jsx",
-            "frontend/src/pages/Pricing.jsx",
-            "frontend/src/pages/Dashboard.jsx",
-        ]
-        for rel_p in frontend_files:
-            p = os.path.join(self.temp_dir, rel_p)
-            self.assertTrue(os.path.exists(p), f"Missing frontend file: {rel_p}")
+        for rel_p in [
+            "frontend/package.json", "frontend/vite.config.js", "frontend/tailwind.config.js",
+            "frontend/index.html", "frontend/src/main.jsx", "frontend/src/App.jsx",
+            "frontend/src/index.css", "frontend/src/components/common/GlassNavbar.jsx",
+            "frontend/src/components/common/ModernFooter.jsx", "frontend/src/components/common/UniqueLogo.jsx",
+            "frontend/src/pages/Home.jsx", "frontend/src/pages/Features.jsx",
+            "frontend/src/pages/Pricing.jsx", "frontend/src/pages/Dashboard.jsx",
+            "backend/package.json", "backend/server.js", "backend/models/index.js",
+            "backend/routes/auth.routes.js", "backend/routes/health.routes.js",
+            "backend/migrations/001_create_core_tables.js", "docker-compose.yml",
+            ".env.example", "README.md", "LICENSE.md",
+        ]:
+            self.assertTrue(os.path.exists(os.path.join(self.temp_dir, rel_p)), f"Missing: {rel_p}")
 
-        # ── Verify Backend Structure ─────────────────────────────────────
-        backend_files = [
-            "backend/package.json",
-            "backend/server.js",
-            "backend/models/index.js",
-            "backend/routes/auth.routes.js",
-            "backend/routes/health.routes.js",
-        ]
-        for rel_p in backend_files:
-            p = os.path.join(self.temp_dir, rel_p)
-            self.assertTrue(os.path.exists(p), f"Missing backend file: {rel_p}")
-
-        # ── Verify DevOps Structure ──────────────────────────────────────
-        devops_files = [
-            "docker-compose.yml",
-            ".env.example",
-            "README.md",
-        ]
-        for rel_p in devops_files:
-            p = os.path.join(self.temp_dir, rel_p)
-            self.assertTrue(os.path.exists(p), f"Missing devops file: {rel_p}")
+        backend_package = json.loads(Path(self.temp_dir, "backend/package.json").read_text())
+        self.assertIn("pg", backend_package["dependencies"])
+        self.assertNotIn("sqlite3", backend_package["dependencies"])
+        self.assertIn("postgres", Path(self.temp_dir, "backend/models/index.js").read_text())
+        self.assertIn("postgres:", Path(self.temp_dir, "docker-compose.yml").read_text())
+        env_example = Path(self.temp_dir, ".env.example").read_text()
+        self.assertIn("POSTGRES_PASSWORD=", env_example)
+        self.assertNotIn("VITE_", env_example)
+        migration = Path(self.temp_dir, "backend/migrations/001_create_core_tables.js").read_text()
+        self.assertIn("const { DataTypes }", migration)
+        self.assertNotIn(r"\n", migration)
+        license_text = Path(self.temp_dir, "LICENSE.md").read_text()
+        self.assertIn("\n\n", license_text)
+        self.assertNotIn(r"\n", license_text)
 
     def test_orchestrator_integration(self):
-        """Test full-stack generation through AgentOrchestrator helper method."""
         orchestrator = AgentOrchestrator(provider_name="gemini")
         self.assertTrue(hasattr(orchestrator, "fullstack_engine"))
 
@@ -105,6 +88,14 @@ class TestFullStackUltraEngine(unittest.TestCase):
         self.assertEqual(res["brand"], "AuraPay")
         self.assertTrue(os.path.exists(os.path.join(out_dir, "frontend", "src", "App.jsx")))
         self.assertTrue(os.path.exists(os.path.join(out_dir, "backend", "server.js")))
+        self.assertEqual(res["stack"]["database"], "PostgreSQL")
+
+    def test_explicit_static_mode_is_not_silently_generated_as_fullstack(self):
+        with self.assertRaisesRegex(ValueError, "supports enterprise full-stack delivery only"):
+            FullStackUltraEngine().generate_project(
+                destination_dir=self.temp_dir,
+                generation_contract={"layout_mode": "client-static"},
+            )
 
 
 if __name__ == "__main__":

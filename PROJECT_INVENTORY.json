@@ -1,0 +1,388 @@
+{
+  "generated_at": "2026-10-12T00:00:00Z",
+  "repository": "lumicorepro-core",
+  "total_projects": 112,
+  "summary": {
+    "templates": 100,
+    "sell_today_products": 11,
+    "backend_libraries": 7,
+    "core_platform": 1
+  },
+  "projects": [
+    {
+      "id": "core-platform",
+      "name": "LumicorePro Core Platform",
+      "path": ".",
+      "type": "platform",
+      "category": "core",
+      "stack": {
+        "frontend": "React 19 + Vite + Tailwind 3",
+        "backend": "Express + PostgreSQL + Redis",
+        "ai_agent": "Python FastAPI"
+      },
+      "status": "active",
+      "tests": {
+        "frontend": "54 tests passing",
+        "backend": "369 tests passing (49% coverage)",
+        "ai_agent": "1142 tests passing"
+      },
+      "build": "passing (bundle budgets satisfied)",
+      "lint": "not run (timeout)",
+      "deployment": "docker-compose ready",
+      "notes": "Main monorepo platform with 100 template components, 11 sell-today products, 7 backend libraries"
+    },
+    {
+      "id": "backend-shared",
+      "name": "Shared Backend Library",
+      "path": "backend-library/shared",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express utilities",
+      "status": "active",
+      "notes": "Shared utilities for all backend libraries"
+    },
+    {
+      "id": "backend-ecommerce-base",
+      "name": "Ecommerce Base Backend",
+      "path": "backend-library/ecommerce-base",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    },
+    {
+      "id": "backend-electronics",
+      "name": "Electronics Backend",
+      "path": "backend-library/electronics-backend",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    },
+    {
+      "id": "backend-fintech",
+      "name": "Fintech Backend",
+      "path": "backend-library/fintech-backend",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    },
+    {
+      "id": "backend-saas",
+      "name": "SaaS Backend",
+      "path": "backend-library/saas-backend",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    },
+    {
+      "id": "backend-master-express",
+      "name": "Master Express Backend",
+      "path": "backend-library/master-express-backend",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    },
+    {
+      "id": "backend-commerce-live",
+      "name": "Commerce Live Backend",
+      "path": "backend-library/commerce-live-backend",
+      "type": "library",
+      "category": "backend",
+      "stack": "Node.js/Express",
+      "status": "active"
+    }
+  ],
+  "template_categories": {
+    "agency": 5,
+    "ai": 5,
+    "automotive": 5,
+    "business": 5,
+    "creative": 5,
+    "dashboard": 5,
+    "ecommerce": 5,
+    "education": 5,
+    "fitness": 5,
+    "gym": 5,
+    "healthcare": 5,
+    "insurance": 5,
+    "marketplace": 5,
+    "newsletter": 5,
+    "podcast": 5,
+    "portfolio": 5,
+    "realestate": 5,
+    "restaurant": 5,
+    "travel": 5,
+    "wedding": 5
+  },
+  "sell_today_products": [
+    {
+      "id": "apex",
+      "name": "Apex Dealer Commerce",
+      "path": "products/sell-today/apex",
+      "category": "automotive",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express + SQLite"
+      },
+      "status": "in-development",
+      "features": ["vehicle inventory", "inquiries", "dealer management"]
+    },
+    {
+      "id": "aurelia-estates",
+      "name": "Aurelia Estates",
+      "path": "products/sell-today/aurelia-estates",
+      "category": "realestate",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "aurum-fitness",
+      "name": "Aurum Fitness",
+      "path": "products/sell-today/aurum-fitness",
+      "category": "fitness",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "claimflow-ai",
+      "name": "ClaimFlow AI",
+      "path": "products/sell-today/claimflow-ai",
+      "category": "insurance",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "flowpilot",
+      "name": "FlowPilot",
+      "path": "products/sell-today/flowpilot",
+      "category": "saas",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "meridian-capital",
+      "name": "Meridian Capital",
+      "path": "products/sell-today/meridian-capital",
+      "category": "fintech",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "nuage-events",
+      "name": "Nuage Events",
+      "path": "products/sell-today/nuage-events",
+      "category": "events",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "prestige-studio",
+      "name": "Prestige Studio",
+      "path": "products/sell-today/prestige-studio",
+      "category": "creative",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "resupro",
+      "name": "ResuPro",
+      "path": "products/sell-today/resupro",
+      "category": "portfolio",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "saffron-voyage",
+      "name": "Saffron Voyage",
+      "path": "products/sell-today/saffron-voyage",
+      "category": "travel",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    },
+    {
+      "id": "studio-lumen",
+      "name": "Studio Lumen",
+      "path": "products/sell-today/studio-lumen",
+      "category": "creative",
+      "stack": {
+        "frontend": "React + Vite",
+        "backend": "Express"
+      },
+      "status": "in-development"
+    }
+  ],
+  "template_details": {
+    "agency": [
+      "CreativePortfolio", "GetInTouch", "ProcessSteps", "ServicesList", "TeamCulture"
+    ],
+    "ai": [
+      "AIGenerator", "ChatInterface", "GenerationHistory", "ModelSelection", "UsageDashboard"
+    ],
+    "automotive": [
+      "AutomotiveHero", "FinanceCalculator", "ServiceSchedule", "VehicleCardGrid", "VehicleInventory"
+    ],
+    "business": [
+      "ContactPage", "LandingPage", "PortfolioPage", "PricingPage", "ServicesPage"
+    ],
+    "creative": [
+      "CreativeStudio", "GetInTouch", "ServicesList", "TeamCulture", "WorksGallery"
+    ],
+    "dashboard": [
+      "Analytics", "DashboardOverview", "Profile", "Settings", "UsersManagement"
+    ],
+    "ecommerce": [
+      "Checkout", "OrdersHistory", "ProductDetails", "ProductListing", "ShoppingCart"
+    ],
+    "education": [
+      "CareerResources", "CourseCatalog", "CourseDetails", "InstructorDirectory", "StudentDashboard"
+    ],
+    "fitness": [
+      "ClassSchedule", "GymLanding", "MembershipPlans", "NutritionPlans", "TrainerProfiles"
+    ],
+    "gym": [
+      "ClassSchedule", "GymHero", "MembershipPlans", "SuccessStories", "TrainerProfiles"
+    ],
+    "healthcare": [
+      "AppointmentBooking", "DoctorDirectory", "MedicalPortal", "PatientDashboard", "TelehealthRoom"
+    ],
+    "insurance": [
+      "AgentLocator", "ClaimsProcess", "CoverageDetails", "InsuranceHero", "InsurancePlans"
+    ],
+    "marketplace": [
+      "CategoryGrid", "FeaturedVendors", "MarketplaceHero", "TrustBadges", "VendorOnboarding"
+    ],
+    "newsletter": [
+      "FeaturedTopics", "IssueArchive", "NewsletterHero", "PreviousIssue", "SubscribeForm"
+    ],
+    "podcast": [
+      "AudioPlayer", "GuestProfiles", "LatestEpisodes", "PodcastHero", "ShowListings"
+    ],
+    "portfolio": [
+      "ContactMe", "PersonalPortfolio", "ProjectShowcase", "ResumeTimeline", "ServicesOffering"
+    ],
+    "realestate": [
+      "AgentDirectory", "CompareProperties", "MortgageCalculator", "PropertyDetails", "PropertyListing"
+    ],
+    "restaurant": [
+      "ChefMenu", "OnlineOrders", "ReservationSystem", "RestaurantEvents", "RestaurantMenu"
+    ],
+    "travel": [
+      "FlightSearch", "HotelBooking", "TourPackages", "TravelAgency", "TravelBlog"
+    ],
+    "wedding": [
+      "EventTimeline", "HeroCouple", "OurStory", "PhotoGallery", "RegistryGifts"
+    ]
+  },
+  "baseline_checks": {
+    "frontend_tests": "PASS - 54 tests",
+    "backend_tests": "PASS - 369 tests (49% coverage)",
+    "ai_agent_tests": "PASS - 1142 tests",
+    "build": "PASS - bundle budgets satisfied",
+    "lint": "NOT RUN - timeout",
+    "e2e_tests": "NOT RUN",
+    "typecheck": "NOT RUN",
+    "security_audit": "NOT RUN"
+  },
+  "gaps_identified": [
+    "CRITICAL: Real API keys committed in .env files (GEMINI, DEEPSEEK, OPENROUTER, GROK, OPENAI, GITHUB_TOKEN in ai-agent/.env, root .env, backend/.env)",
+    "CRITICAL: Real JWT secrets in backend/.env and root .env",
+    "Frontend test coverage very low (27 tests / 4 files, no coverage gate)",
+    "Backend test coverage at 49% (target 80%)",
+    "Lint command times out",
+    "Bundle size: 193KB initial JS (target 150KB, limit 200KB)",
+    "HeroCanvas chunk 227KB gzip (largest chunk)",
+    "Missing E2E tests for critical user journeys",
+    "AI agent Python environment not set up in CI",
+    "Several .env.example files need validation against actual .env",
+    "Accessibility audit not run",
+    "Performance budgets not fully met"
+  ],
+  "secrets_found": [
+    {
+      "file": "ai-agent/.env",
+      "variables": ["GEMINI_API_KEY", "DEEPSEEK_API_KEY", "OPENROUTER_API_KEY", "GROK_API_KEY", "OPENAI_API_KEY", "GITHUB_TOKEN"],
+      "risk": "CRITICAL - Real API keys committed"
+    },
+    {
+      "file": ".env",
+      "variables": ["GEMINI_API_KEY", "OPENROUTER_API_KEY", "GROK_API_KEY", "OPENAI_API_KEY", "GITHUB_TOKEN", "JWT_SECRET"],
+      "risk": "CRITICAL - Real API keys and JWT secret committed"
+    },
+    {
+      "file": "backend/.env",
+      "variables": ["JWT_SECRET", "JWT_REFRESH_SECRET", "LICENSE_SECRET"],
+      "risk": "HIGH - Real JWT secrets committed"
+    }
+  ],
+  "roadmap_priorities": {
+    "P0_blockers": [
+      "CRITICAL: Remove real API keys from .env files (ai-agent/.env, .env, backend/.env) - rotate all compromised keys immediately",
+      "CRITICAL: Remove real JWT secrets from backend/.env and root .env",
+      "Fix lint timeout",
+      "Set up Python venv for AI agent in CI",
+      "Validate all .env.example against actual usage"
+    ],
+    "P1_high_impact": [
+      "Increase backend test coverage to 80%",
+      "Add frontend test coverage gate",
+      "Reduce HeroCanvas chunk size (227KB gzip)",
+      "Run accessibility audit",
+      "Run security audit",
+      "Fix 4 cyclic dependencies (ai-agent/agent, ai-agent/config, scripts/upgrade, src/components)",
+      "Address 51+ dead code candidates",
+      "Address 25 god-class symbols with high fan-in",
+      "Address 51+ performance risks (call-in-loop, nested loops O(n³-O(n⁴))"
+    ],
+    "P2_improvements": [
+      "Add E2E tests for critical paths",
+      "Optimize bundle size further",
+      "Set up performance monitoring",
+      "Document deployment procedures",
+      "Clean up dead code (553+ orphans identified)",
+      "Refactor god-class utilities (FileManager, DesignStyleEngine, etc.)"
+    ],
+    "P3_optional": [
+      "Add more template variations",
+      "Improve AI agent provider routing",
+      "Add more backend libraries"
+    ]
+  },
+  "architecture_insights": {
+    "cyclic_dependencies": 4,
+    "dead_code_candidates": 51,
+    "god_class_symbols": 25,
+    "performance_risks": 51,
+    "unused_routes": "not_analyzed_requires_multi_repo_snapshot"
+  }
+}

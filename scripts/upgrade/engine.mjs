@@ -12,7 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadCache, saveCache, hashOf, statSignature } from './cache.mjs';
-import { appendBlock, insertBefore, readIfExists, writeFileEnsuringDir } from './util.mjs';
+import { appendBlock, insertBefore, readIfExists, writeFileEnsuringDir } from './lib/util.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 

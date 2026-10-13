@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Quote, Check, ChevronDown, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Quote, Check, ChevronDown, ArrowRight, ShieldCheck } from 'lucide-react';
 
 /**
- * Conversion sections for Apex Digital.
- *
- * Generated from the product's own brand entry, so the numbers and the feature
- * copy always match the rest of the identity. Every section is exported
- * separately and takes no props - drop them into any page, in any order.
+ * Optional conversion sections retained for routes that import them.
+ * Apex is a vehicle concierge, so its marketing sections avoid invented
+ * customer outcomes, pricing and performance guarantees.
  */
 
-const STATS = [{ value: '38%', label: 'More qualified pipeline', numeric: '38', prefix: '', suffix: '%' }, { value: '2.4x', label: 'Faster lead response', numeric: '2.4', prefix: '', suffix: 'x' }, { value: '11 days', label: 'Faster time to first value', numeric: '11', prefix: '', suffix: ' days' }, { value: '99.98%', label: 'Platform uptime', numeric: '99.98', prefix: '', suffix: '%' }];
+const STATS = [{ value: 'Every car', label: 'Reviewed individually', numeric: '', prefix: '', suffix: '' }, { value: 'Clear records', label: 'Shared where available', numeric: '', prefix: '', suffix: '' }, { value: 'One advisor', label: 'Personal guidance', numeric: '', prefix: '', suffix: '' }, { value: 'Your decision', label: 'No pressure to proceed', numeric: '', prefix: '', suffix: '' }];
 
-const FEATURES = [{ title: 'Account Intent Scoring', desc: 'Scored on the signals that actually close' }, { title: 'Sequence Automation', desc: 'Sequences that stop the moment a deal goes quiet' }, { title: 'Multi-Touch Attribution', desc: 'One attribution model everyone agrees on' }, { title: 'Revenue Forecasting', desc: 'Apex Digital turns scattered intent data into a forecast the whole revenue team trusts - account scoring, sequence automation and attribution in one workspace.' }];
+const FEATURES = [{ title: 'Curated collection', desc: 'A focused selection of performance, grand touring and collector vehicles.' }, { title: 'Condition explained', desc: 'Inspection findings and known vehicle details are discussed before you decide.' }, { title: 'History reviewed', desc: 'Available service and ownership documentation is organized for your review.' }, { title: 'Personal guidance', desc: 'An automotive advisor helps coordinate questions, viewings and next steps.' }];
 
-const USE_CASES = [{ title: 'Teams already doing the work by hand', desc: 'You have a process that works. It just runs on one person\'s memory and a spreadsheet nobody else can read.' }, { title: 'Buyers comparing three vendors', desc: 'When a decision takes weeks, the deal is usually lost to whoever answered first. Speed is the differentiator.' }, { title: 'Multi-market operations', desc: 'Different regions, currencies and rules. One workspace, one source of truth, no per-market spreadsheet.' }, { title: 'Anyone who needs the numbers to hold up', desc: 'Board packs, audits, client reporting - figures that survive being questioned, with the source one click away.' }];
+const USE_CASES = [{ title: 'Drivers seeking a special car', desc: 'Explore distinctive vehicles selected for their character, condition and specification.' }, { title: 'Collectors building thoughtfully', desc: 'Review provenance information and discuss the details that matter to your collection.' }, { title: 'Enthusiasts comparing options', desc: 'Get help understanding the differences between models, histories and ownership needs.' }, { title: 'Buyers who value a personal process', desc: 'Arrange a private viewing and speak directly with an advisor throughout your search.' }];
 
-const RESULTS = [{ title: 'Time to first value', desc: 'One working session, not one quarter. Import what you have and the first useful report builds itself.' }, { title: 'Hours returned per month', desc: 'The reconciliation, chasing and re-keying that used to eat the first week of every month.' }, { title: 'Confidence in the number', desc: 'One definition, agreed once and applied everywhere, so nobody argues about the figure again.' }];
+const RESULTS = [{ title: 'A clearer shortlist', desc: 'Compare the vehicles that fit your preferences, with details laid out for a considered decision.' }, { title: 'A more informed viewing', desc: 'Know which records and inspection details are available before you arrange to see a car.' }, { title: 'A confident handover', desc: 'Understand agreed preparation, collection and delivery arrangements before committing.' }];
 
-const TIERS = [{ name: 'Starter', blurb: 'For one team proving the workflow end to end.', price: '$29', points: ['1 workspace', 'Up to 3 seats', '1,000 records', 'Community support'] }, { name: 'Growth', blurb: 'For teams running the whole pipeline every day.', price: '$89', points: ['Everything in Starter', 'Up to 15 seats', 'Unlimited records', 'Automation workflows', 'Priority email support'] }, { name: 'Scale', blurb: 'For organisations with compliance and audit needs.', price: '$249', points: ['Everything in Growth', 'Unlimited seats', 'SSO & audit log', 'Custom data retention', 'Dedicated success manager'] }];
+const TIERS = [{ name: 'Collection enquiry', blurb: 'For a first conversation about a specific vehicle.', price: 'Ask', points: ['Vehicle availability', 'Specification details', 'Viewing options'] }, { name: 'Private viewing', blurb: 'For buyers ready to see a shortlisted vehicle.', price: 'By appointment', points: ['Advisor-led walkaround', 'Available records discussed', 'Test drive requirements explained'] }, { name: 'Ownership planning', blurb: 'For buyers coordinating the next steps.', price: 'Vehicle-specific', points: ['Preparation items agreed', 'Collection or delivery options', 'Written next steps'] }];
 
-const FAQS = [{ q: 'How long does setup take?', a: 'Most teams are live in a single afternoon. Connect the tools you already use, import what you have, and the first report builds itself.' }, { q: 'Do I need a credit card to start?', a: 'No. The free tier covers a real workload and never expires, so you can prove value before spending anything.' }, { q: 'Can I cancel at any time?', a: 'Yes. Cancel from billing settings and you keep access until the end of the period you paid for. No cancellation fee, no minimum term.' }, { q: 'Is my data portable?', a: 'Export everything to CSV or JSON whenever you want, including schema and history. No lock-in, no proprietary formats.' }, { q: 'What happens to my data if I leave?', a: 'It is yours. We export on request and delete it on a published schedule after your account closes - never silently, and never before the notice period you are entitled to.' }, { q: 'What support is included?', a: 'Every plan includes email support with a one-business-day target, plus the documentation and migration guides. Priority support is included from Growth upwards.' }];
+const FAQS = [{ q: 'Are all vehicles available to view?', a: 'Availability can change. Contact our team to confirm a vehicle’s status and arrange a suitable viewing.' }, { q: 'What does an inspection cover?', a: 'The inspection scope and findings are specific to each vehicle. Ask your advisor for the current report and any limitations before proceeding.' }, { q: 'Can I arrange a test drive?', a: 'Test drives may be available for eligible vehicles. Licensing, insurance and scheduling requirements are confirmed in advance.' }, { q: 'Are finance options provided?', a: 'We can discuss finance introductions where available, but eligibility, terms and approval depend on the provider and your circumstances.' }, { q: 'Can a vehicle be delivered?', a: 'Collection and delivery options vary by vehicle and destination. The cost, timing and coverage are confirmed before any booking.' }, { q: 'Is an enquiry a commitment to buy?', a: 'No. An enquiry or viewing request does not reserve a vehicle or create a purchase obligation. Any reservation terms are provided separately in writing.' }];
 
-const TESTIMONIALS = [{ quote: 'We replaced three tools with Apex Digital and cut our reporting time in half. The team actually enjoys using it.', name: 'Amara Osei', role: 'Head of Operations', company: 'Series B fintech' }, { quote: 'Onboarding took an afternoon. By Friday the leadership team had answers it had been waiting months for.', name: 'Daniel Reyes', role: 'Revenue Director', company: 'B2B software' }, { quote: 'The clearest product in this category. It does the job, it does not try to be everything to everyone.', name: 'Priya Raman', role: 'Product Lead', company: 'Professional services' }];
+const TESTIMONIALS = [];
 
 const SHELL = 'max-w-7xl mx-auto px-6';
 
@@ -62,10 +60,10 @@ export function Problem() {
     <section className="py-20 lg:py-24">
       <div className={SHELL}>
         <div className="max-w-3xl">
-          <p className="section-eyebrow">The problem</p>
-          <h2 className="section-heading">The tools are bought, the results never arrive</h2>
-          <p className="mt-4 text-slate-500 dark:text-slate-400 leading-relaxed">
-            Most teams buy a new platform, spend a quarter wiring it up, and go quietly back to the spreadsheet it was meant to replace. The gap between signing and first value is where the churn happens - and it is almost always a data problem, not a people problem.
+          <p className="section-eyebrow">Buying thoughtfully</p>
+          <h2 className="section-heading">A remarkable car deserves a closer look.</h2>
+          <p className="mt-4 leading-relaxed text-slate-500 dark:text-slate-400">
+            Photographs and specifications are only the beginning. We help you understand a vehicle’s condition, available history and ownership details, then make space for the questions that matter before you choose.
           </p>
         </div>
       </div>
@@ -79,7 +77,7 @@ export function Features() {
     <section className="py-20 lg:py-28" id="features">
       <div className={SHELL}>
         <p className="section-eyebrow">Capabilities</p>
-        <h2 className="section-heading">What working with Apex Digital looks like</h2>
+        <h2 className="section-heading">What the Apex experience includes</h2>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
           {FEATURES.map((f) => (
             <article
@@ -115,7 +113,7 @@ export function UseCases() {
       <div className={SHELL}>
         <div className="max-w-2xl mb-14">
           <p className="section-eyebrow">Who it is for</p>
-          <h2 className="section-heading">Made for teams like yours</h2>
+          <h2 className="section-heading">Made for drivers who care about the details</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {USE_CASES.map((u) => (
@@ -145,8 +143,8 @@ export function Results() {
     <section className="py-20 bg-surface border-y border-[var(--t-border)]" id="results">
       <div className={SHELL}>
         <div className="max-w-2xl mb-14">
-          <p className="section-eyebrow">By the numbers</p>
-          <h2 className="section-heading">Results you can put in a report</h2>
+          <p className="section-eyebrow">The process</p>
+          <h2 className="section-heading">Thoughtful from first question to handover</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {RESULTS.map((r) => (
@@ -175,43 +173,20 @@ export function Results() {
 
 /** Named social proof - quotes and a visible rating. */
 export function Testimonials() {
+  if (!TESTIMONIALS.length) return null;
   return (
     <section className="py-20 lg:py-24" id="customers">
       <div className={SHELL}>
         <div className="text-center max-w-2xl mx-auto">
           <p className="section-eyebrow">Customer stories</p>
-          <h2 className="section-heading">Teams ship faster with Apex Digital</h2>
-          <div
-            className="mt-4 flex items-center justify-center gap-1"
-            aria-label="Rated 4.9 out of 5"
-          >
-            {[0, 1, 2, 3, 4].map((i) => (
-              <Star key={i} className="h-5 w-5 fill-current text-amber-400" aria-hidden="true" />
-            ))}
-            <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">
-              4.9 / 5 average
-            </span>
-          </div>
+          <h2 className="section-heading">Experiences from Apex owners</h2>
         </div>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           {TESTIMONIALS.map((q) => (
-            <figure
-              key={q.name}
-              className="card-panel p-6 h-full flex flex-col"
-              style={{ border: '1px solid var(--t-border)' }}
-            >
+            <figure key={q.name} className="card-panel p-6 h-full flex flex-col" style={{ border: '1px solid var(--t-border)' }}>
               <Quote className="h-6 w-6 mb-4 text-slate-400" aria-hidden="true" />
-              <blockquote className="flex-1 leading-relaxed text-slate-500 dark:text-slate-300">
-                &ldquo;{q.quote}&rdquo;
-              </blockquote>
-              <figcaption className="mt-5 text-sm">
-                <span className="font-semibold" style={{ color: 'var(--t-heading)' }}>
-                  {q.name}
-                </span>
-                <span className="block text-slate-500 dark:text-slate-400">
-                  {q.role}, {q.company}
-                </span>
-              </figcaption>
+              <blockquote className="flex-1 leading-relaxed text-slate-500 dark:text-slate-300">&ldquo;{q.quote}&rdquo;</blockquote>
+              <figcaption className="mt-5 text-sm"><span className="font-semibold" style={{ color: 'var(--t-heading)' }}>{q.name}</span><span className="block text-slate-500 dark:text-slate-400">{q.role}, {q.company}</span></figcaption>
             </figure>
           ))}
         </div>
@@ -226,11 +201,10 @@ export function Pricing() {
     <section className="py-20 lg:py-24" id="pricing">
       <div className={SHELL}>
         <div className="max-w-2xl mb-14">
-          <p className="section-eyebrow">Pricing</p>
-          <h2 className="section-heading">Clear pricing, no surprises</h2>
+          <p className="section-eyebrow">Next steps</p>
+          <h2 className="section-heading">A clear process for every vehicle.</h2>
           <p className="mt-3 text-slate-500 dark:text-slate-400">
-            Start light, upgrade when the results justify it. Every plan is monthly,
-            per seat, and cancellable from inside the product.
+            Pricing and terms are specific to each vehicle and are shared by an advisor before you make a decision.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -254,10 +228,7 @@ export function Pricing() {
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.blurb}</p>
               <p className="mt-4 text-3xl font-black tracking-tight" style={{ color: 'var(--t-primary)' }}>
                 {t.price}
-                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-                  {' '}
-                  / seat / month
-                </span>
+                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{' '}{t.name === 'Collection enquiry' ? 'only' : ''}</span>
               </p>
               <ul className="mt-6 flex-1 space-y-2 text-sm text-slate-500 dark:text-slate-400">
                 {t.points.map((p) => (
@@ -268,17 +239,17 @@ export function Pricing() {
                 ))}
               </ul>
               <Link
-                to="/register"
+                to="/contact"
                 className={i === 1 ? 'btn-primary mt-6 text-sm w-full text-center' : 'btn-outline mt-6 text-sm w-full text-center'}
               >
-                {i === 1 ? 'Start free trial' : 'View plan'}
+                {i === 0 ? 'Make an enquiry' : i === 1 ? 'Arrange a viewing' : 'Discuss next steps'}
               </Link>
             </div>
           ))}
         </div>
         <p className="mt-8 flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-          30-day money-back guarantee on every paid plan
+          Vehicle-specific terms are provided in writing before any reservation
         </p>
       </div>
     </section>
@@ -329,19 +300,16 @@ export function Cta() {
           className="text-3xl sm:text-4xl font-black tracking-tight"
           style={{ color: 'var(--t-heading)' }}
         >
-          Start free. Upgrade when it pays for itself.
+          Find the car that stays with you.
         </h2>
         <p className="mt-4 text-slate-500 dark:text-slate-400">
-          No card required, no minimum term, cancel from inside the product whenever
-          you like.
+          Tell us what you are looking for and we will help you explore the collection, one considered step at a time.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/register" className="btn-primary">
-            Create a free account <ArrowRight className="h-4 w-4" />
+          <Link to="/contact" className="btn-primary">
+            Enquire about a vehicle <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link to="/pricing" className="btn-outline">
-            Compare plans
-          </Link>
+          <Link to="/services" className="btn-outline">Explore ownership services</Link>
         </div>
       </div>
     </section>

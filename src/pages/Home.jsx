@@ -418,7 +418,7 @@ export default function Home() {
                       >
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="text-sm font-semibold group-hover:text-primary transition-colors">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                         {c.label}
                       </span>
                       <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
@@ -443,7 +443,7 @@ export default function Home() {
                     <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
                       {s.icon}
                     </span>
-                    <span className="text-sm font-semibold group-hover:text-primary transition-colors">
+                    <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                       {t(s.label)}
                     </span>
                   </Button>

@@ -85,7 +85,7 @@ class TestDesignSignature(unittest.TestCase):
 
     def test_portfolio_root_scan_error_is_not_reported_as_empty(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            with patch.object(Path, "rglob", side_effect=PermissionError("scan denied")):
+            with patch("os.scandir", side_effect=PermissionError("scan denied")):
                 with self.assertRaises(PermissionError):
                     load_portfolio_signatures(Path(temp_dir))
 

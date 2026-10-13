@@ -81,6 +81,69 @@ def _clean_router():
     reset_router()
 
 
+def test_strict_router_fails_closed_instead_of_using_unlisted_active_provider():
+    allowed = StubProvider("openrouter")
+    paid_fallback = StubProvider("grok")
+    pool = FakePool({"openrouter": allowed, "grok": paid_fallback})
+    ai_routing.configure_strict_router(pool, {"openrouter"})
+
+    provider, name = get_router().provider_for("balanced", pool_fallback=True)
+
+    assert provider is allowed
+    assert name == "openrouter"
+    assert paid_fallback.calls == 0
+    assert get_router().provider_for("missing-tier", pool_fallback=True) == (allowed, "openrouter")
+
+
+def test_strict_router_reaches_allowed_providers_despite_other_tiers():
+    """A strict lane stays usable when env tiers omit its provider entirely."""
+    allowed = StubProvider("openrouter")
+    ai_routing.configure_strict_router(FakePool({"openrouter": allowed}), ["openrouter"])
+
+    provider, name = get_router().provider_for("reasoning", pool_fallback=False)
+
+    assert provider is allowed and name == "openrouter"
+
+
+def test_strict_router_blocks_an_unlisted_pin(monkeypatch):
+    ai_routing.configure_strict_router(
+        FakePool({"openrouter": StubProvider("openrouter")}), ["openrouter"]
+    )
+    inst, name, tier = prefer("design", "prompt")
+    assert inst is not None and name == "openrouter" and tier == "reasoning"
+
+    # `grok` is a real provider name, but it is not in this lane.
+    monkeypatch.setenv("AI_PROVIDER", "grok")
+    assert prefer("design", "prompt") == (None, "blocked", "strict_allowlist")
+
+
+def test_strict_rotate_fails_closed_without_an_allowed_alternative():
+    allowed = StubProvider("openrouter")
+    ai_routing.configure_strict_router(FakePool({"openrouter": allowed}), ["openrouter"])
+
+    # The only allowed provider is the one that just failed: no alternative exists.
+    inst, name, _tier = ai_routing.rotate("repair", "openrouter", "prompt")
+    assert inst is None and name == "none"
+
+    # A provider outside the lane is never rotated back in.
+    assert ai_routing.rotate("repair", "grok", "prompt") == (None, "blocked", "strict_allowlist")
+
+
+def test_restore_router_undoes_strict_mode():
+    original = get_router()
+    ai_routing.configure_strict_router(
+        FakePool({"openrouter": StubProvider("openrouter")}), ["openrouter"]
+    )
+    strict = get_router()
+    assert strict is not original
+    assert strict._strict_allowlist == frozenset({"openrouter"})
+
+    ai_routing.restore_router(original)
+
+    assert get_router() is original
+    assert not get_router()._strict_allowlist
+
+
 def _router_with(providers, **kwargs):
     r = AIRouter(pool=FakePool(providers), **kwargs)
     return r

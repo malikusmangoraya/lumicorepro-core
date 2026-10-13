@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Set, Optional
 from config.settings import PROJECT_ROOT, GENERATED_PROJECTS_DIR
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
+from .generation_contract import resolve_generation_contract
 
 class ProjectBuilder:
     """Assembles template, components, assets, backend, and database schema into a generated project with NPM auto-fixing & design system injection."""
@@ -134,6 +135,11 @@ class ProjectBuilder:
 
     def build_project(self, plan: Dict[str, Any]) -> str:
         """Execute assembly plan and return path of generated project."""
+        spec = plan.get("spec") or {}
+        contract = plan.get("generation_contract") or resolve_generation_contract(spec)
+        plan["generation_contract"] = contract
+        plan["layout_mode"] = contract["layout_mode"]
+        plan["features"] = contract["features"]
         project_name = self._safe_project_name(plan.get("project_name", "generated-app"))
 
         # Idempotent regeneration: never overwrite an existing project dir.

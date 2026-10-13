@@ -77,6 +77,10 @@ class AgentIterationEngine:
                 pass
 
         manifest = self._load_manifest(project_dir)
+        design_context = self._load_existing_design_context(project_dir)
+        from agent.intelligence.design_system_engine import resolve_design_intent
+
+        design_intent = resolve_design_intent({"instruction": instruction}, operation="update")
         version = int(manifest.get("version", 0)) + 1
         instruction = (instruction or "").strip()
         if len(instruction) < 3:
@@ -100,7 +104,13 @@ class AgentIterationEngine:
                 failures.append(f"{self._rel(project_dir, file_path)}: unreadable")
                 continue
 
-            updated, used_ai = self._patch_file(file_path, instruction)
+            patch_instruction = instruction
+            if design_intent == "preserve_existing":
+                patch_instruction = (
+                    f"{instruction}\nPreserve the existing layout and design system. "
+                    f"Existing design context: {json.dumps(design_context, sort_keys=True)[:12000]}"
+                )
+            updated, used_ai = self._patch_file(file_path, patch_instruction)
             if updated is None or updated == original:
                 failures.append(f"{self._rel(project_dir, file_path)}: no change applied")
                 continue
@@ -193,6 +203,11 @@ class AgentIterationEngine:
 
         return {
             "success": True,
+            "design_update": {
+                "intent": design_intent,
+                "source": design_context["source"],
+                "preserved": design_intent == "preserve_existing",
+            },
             "version": version,
             "instruction": instruction,
             "provider": self.provider.__class__.__name__ if self.provider else "offline-deterministic",
@@ -512,6 +527,49 @@ class AgentIterationEngine:
             agent_logger.warning(f"IterateEngine: could not write ITERATIONS.md: {e}")
 
     # ── Manifest / spec helpers ────────────────────────────────────────────
+    def _load_existing_design_context(self, project_dir: str) -> Dict[str, Any]:
+        """Load design memory without mutating it; infer preservation from source if absent."""
+        root = os.path.abspath(project_dir)
+        manifest_path = os.path.join(root, "design-manifest.json")
+        artifact_path = os.path.join(root, ".artifacts", "07-design.json")
+        for path, source in ((manifest_path, "design_manifest"), (artifact_path, "design_artifact")):
+            try:
+                with open(path, "r", encoding="utf-8") as design_file:
+                    payload = json.load(design_file)
+                if isinstance(payload, dict) and payload:
+                    return {
+                        "found": True,
+                        "source": source,
+                        "design_dna": payload.get("design_dna") or payload,
+                        "design_manifest": payload,
+                        "preservation": "manifest",
+                    }
+            except (OSError, ValueError, TypeError):
+                continue
+
+        candidates = []
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [name for name in dirs if name not in {"node_modules", ".git", "dist", "build"}]
+            for name in files:
+                if name.lower() in {"home.jsx", "home.tsx", "landing.jsx", "index.jsx", "design-system.css", "globals.css", "index.css"}:
+                    candidates.append(os.path.join(base, name))
+        excerpts = []
+        for path in candidates[:12]:
+            try:
+                with open(path, "r", encoding="utf-8") as source_file:
+                    excerpt = source_file.read(12000)
+                excerpts.append({"path": os.path.relpath(path, root).replace("\\", "/"), "source": excerpt})
+            except OSError:
+                continue
+        return {
+            "found": bool(excerpts),
+            "source": "source_inferred" if excerpts else "source_unavailable",
+            "design_dna": {},
+            "design_manifest": {},
+            "preservation": "source_inferred" if excerpts else "source_unavailable",
+            "source_excerpt": excerpts,
+        }
+
     def _load_manifest(self, project_dir: str) -> Dict[str, Any]:
         path = os.path.join(project_dir, self.MANIFEST_PATH)
         try:

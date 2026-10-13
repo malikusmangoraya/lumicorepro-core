@@ -1,140 +1,53 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
-import BrandLogo from './BrandLogo';
+import BrandLockup from './brand/BrandLockup';
+import { BRAND } from './brand/BRAND';
 
+/** Footer — layout-engine generated (multi-column, live status). */
 export default function Footer() {
-  const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [sub, setSub] = useState(false);
+  const sections = ["Hero", "Plans", "Coverage", "Quote", "Claims", "Partners"];
   return (
-    <footer className="text-white" style={{ backgroundColor: 'var(--t-footer)' }}>
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
-          <div className="space-y-4">
-            <BrandLogo dark />
-            <p className="text-sm text-slate-300 leading-relaxed max-w-xs">
-              Building exceptional digital products with performance, security, and design
-              excellence.
-            </p>
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              99.99% Operational
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Product</h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-              <li>
-                <Link to="/services" className="hover:text-white transition-colors">
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-white transition-colors">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-white transition-colors">
-                  Case Studies
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-white transition-colors">
-                  Enterprise
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Company</h4>
-            <ul className="space-y-2 text-sm text-slate-300">
-              <li>
-                <Link to="/about" className="hover:text-white transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-white transition-colors">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-white transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-white transition-colors">
-                  {t('common.privacy_policy', 'Privacy Policy')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Stay Updated</h4>
-            <p className="text-xs text-slate-300 mb-3">Weekly product updates and insights.</p>
-            {sub ? (
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
-                <CheckCircle2 className="h-4 w-4" /> {t('forms.form_success', 'Subscribed!')}
-              </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (email) setSub(true);
-                }}
-                className="space-y-2"
-              >
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs text-white placeholder-slate-400 focus:border-white/40 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors"
-                  style={{ backgroundColor: '#374151' }}
-                >
-                  {t('footer.subscribe', 'Subscribe')}
-                </button>
-              </form>
-            )}
+    <footer className="text-white" style={{ backgroundColor: 'var(--t-footerBg)' }}>
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-4">
+          <BrandLockup size={30} dark />
+          <p className="max-w-xs text-sm leading-relaxed text-white/70">Coverage you can actually understand</p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />99.99% Operational
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>
-            &copy; {new Date().getFullYear()} Claimflow. {t('footer.all_rights', 'All rights reserved.')}
-            <span className="font-semibold text-white">ClaimFlow</span>.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link to="/contact" className="hover:text-white">
-              Twitter
-            </Link>
-            <Link to="/contact" className="hover:text-white">
-              LinkedIn
-            </Link>
-            <Link to="/contact" className="hover:text-white">
-              GitHub
-            </Link>
-          </div>
+        <div>
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider">Product</h4>
+          <ul className="space-y-2 text-sm text-white/70">
+            {sections.slice(0, 4).map((s) => (<li key={s}><Link to="/" className="hover:text-white">{s}</Link></li>))}
+          </ul>
         </div>
-        <p className="mt-6 text-center text-[11px] text-slate-500">
-          Designed &amp; built by{' '}
-          <a
-            href="https://github.com/malikusmangoraya"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-slate-400 underline underline-offset-2 hover:text-white"
-          >
-            Lumicore
-          </a>
-        </p>
+        <div>
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider">Company</h4>
+          <ul className="space-y-2 text-sm text-white/70">
+            <li><Link to="/about" className="hover:text-white">About</Link></li>
+            <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
+            <li><Link to="/privacy" className="hover:text-white">Privacy</Link></li>
+            <li><Link to="/terms" className="hover:text-white">Terms</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider">Stay updated</h4>
+          <p className="mb-3 text-xs text-white/60">Product news and insights.</p>
+          <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+            <input type="email" required placeholder="Email address" aria-label="Email address"
+              className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs text-white placeholder-white/50 focus:outline-none" />
+            <button type="submit" className="rounded-lg bg-white/15 px-3 py-2 text-xs font-semibold text-white">Join</button>
+          </form>
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-emerald-300"><CheckCircle2 className="h-4 w-4" /> GDPR-ready</div>
+        </div>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-6 py-4 text-xs text-white/60">
+          <span>© 2026 Claimflow Ai 002 — Coverage you can actually understand</span>
+          <span>React 19 · Vite · Tailwind</span>
+        </div>
       </div>
     </footer>
   );

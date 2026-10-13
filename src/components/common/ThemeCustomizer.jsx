@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Palette, X, Sun, Moon, Check, Sparkles } from 'lucide-react';
+import { Palette, X, Sun, Moon, Check, Sparkles, LayoutGrid, LayoutDashboard, LayoutList, Minimize2, Maximize2, PenTool, Grid, Columns, Layers } from 'lucide-react';
+import { useDesignSystem } from '../../context/DesignSystemContext';
 
 const COLOR_THEMES = [
   {
@@ -39,10 +40,26 @@ const COLOR_THEMES = [
   },
 ];
 
+const DESIGN_STYLE_ICONS = {
+  minimalism: Minimize2,
+  maximalism: Maximize2,
+  balanced: LayoutGrid,
+  editorial: PenTool,
+};
+
+const LAYOUT_ICONS = {
+  standard: LayoutGrid,
+  narrow: LayoutList,
+  wide: LayoutDashboard,
+  split: Columns,
+  masonry: Grid,
+  bento: Layers,
+};
+
 export default function ThemeCustomizer() {
+  const { designStyle, setDesignStyle, layoutType, setLayoutType, autoMode, toggleAutoMode, isDark, toggleDarkMode, availableStyles, availableLayouts } = useDesignSystem();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTheme, setActiveTheme] = useState('cyan');
-  const [isDark, setIsDark] = useState(true);
   const triggerRef = useRef(null);
   const closeButtonRef = useRef(null);
 
@@ -82,16 +99,6 @@ export default function ThemeCustomizer() {
     localStorage.setItem('site_theme', themeId);
     document.documentElement.style.setProperty('--color-primary', theme.primary);
     document.documentElement.style.setProperty('--color-accent', theme.accent);
-  };
-
-  const toggleDarkMode = () => {
-    const next = !isDark;
-    setIsDark(next);
-    if (next) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   };
 
   return (

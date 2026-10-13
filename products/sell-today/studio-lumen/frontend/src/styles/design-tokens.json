@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "minimalist",
-  "target_region": "south-asia",
+  "style": "swiss",
+  "name": "Swiss / International Typographic",
   "project_name": "studio-lumen",
+  "brand": "Studio Lumen",
   "palette": {
-    "primary": "#ea580c",
-    "accent": "#16a34a",
-    "heading": "#451a03",
+    "primary": "#10b96a",
+    "secondary": "#059656",
+    "accent": "#34d384",
+    "heading": "#000000",
+    "canvas": "#ffffff",
+    "surface": "#f3f4f6",
+    "text": "#000000",
+    "muted": "#4b5563",
+    "border": "#d1d5db",
     "navBg": "#ffffff",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be692c",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "footerBg": "#000000"
+  },
+  "palette_rgb": {
+    "primary": "16 185 106",
+    "secondary": "5 150 86",
+    "accent": "52 211 132",
+    "heading": "0 0 0",
+    "canvas": "255 255 255",
+    "surface": "243 244 246",
+    "text": "0 0 0",
+    "muted": "75 85 99",
+    "border": "209 213 219",
+    "navBg": "255 255 255",
+    "footerBg": "0 0 0"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Cabinet Grotesk",
+    "sans": "Supreme",
+    "pairing": "Cabinet Grotesk + Supreme"
   },
-  "theme": "light"
+  "radius": {
+    "card": "0px",
+    "button": "0px"
+  },
+  "shadow": {
+    "card": "0 0 0 0",
+    "button": "0 0 0 0"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

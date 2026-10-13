@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "status": 200,
+  "message": "layout applied (full) to frontend",
+  "dry_run": false,
+  "skin": "full",
+  "written": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "DESIGN_PLAN.md",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "backup": "D:\\lumicorepro-core\\products\\sell-today\\nuage-events\\.lumicore\\layout\\20261013T102950Z",
+  "manifest": "D:\\lumicorepro-core\\products\\sell-today\\nuage-events\\.lumicore\\layout-manifest.json",
+  "style": "minimalism",
+  "region": "default",
+  "palette": {
+    "primary": "#0298c7",
+    "secondary": "#0379a1",
+    "accent": "#38d0f8",
+    "heading": "#0f172a",
+    "canvas": "#ffffff",
+    "surface": "#f1f5f9",
+    "text": "#0f172a",
+    "muted": "#64748b",
+    "border": "#e2e8f0",
+    "navBg": "#ffffff",
+    "footerBg": "#0f172a"
+  }
+}

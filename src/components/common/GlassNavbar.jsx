@@ -29,7 +29,7 @@ import { useTheme } from './ThemeProvider';
 import BrandLogo from './BrandLogo';
 import Language from './Language';
 import NotificationBell from './NotificationBell';
-import { CurrencySelector } from '../CurrencySelector';
+import { CurrencySelector } from './CurrencySelector';
 import { cn } from '../../utils';
 import IconButton from '../ui/IconButton';
 import Button from '../ui/Button';
@@ -137,27 +137,27 @@ export default function GlassNavbar() {
         </Button>
       );
     }
-    return (
-      <div className="relative transition-transform duration-150 hover:scale-105">
-        <Link
-          to={item.path}
-          onClick={onNavigate}
-          className={cn(
-            'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-            active
-              ? 'bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          )}
-          aria-current={active ? 'page' : undefined}
-        >
-          <Icon className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
-          <span>{item.label}</span>
-        </Link>
-        {active && (
-          <div className="absolute -bottom-1 left-3 right-3 h-0.5 rounded-full bg-primary" />
-        )}
-      </div>
-    );
+return (
+          <div className="relative transition-transform duration-150 hover:scale-105">
+            <Link
+              to={item.path}
+              onClick={onNavigate}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                active
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-foreground hover:text-primary hover:bg-muted/70'
+              )}
+              aria-current={active ? 'page' : undefined}
+            >
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+              <span>{item.label}</span>
+            </Link>
+            {active && (
+              <div className="absolute -bottom-1 left-3 right-3 h-0.5 rounded-full bg-primary" />
+            )}
+          </div>
+        );
   };
 
   const accountTrigger = (
@@ -352,7 +352,7 @@ export default function GlassNavbar() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:text-primary hover:bg-muted rounded-lg transition-colors"
                     >
                       {item.label}
                     </Link>

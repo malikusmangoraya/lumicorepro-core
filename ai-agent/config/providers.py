@@ -18,6 +18,10 @@ from .settings import (
     NINEROUTER_MODEL,
 )
 
+FREELLMAPI_API_KEY = os.getenv("FREELLMAPI_API_KEY", "")
+FREELLMAPI_MODEL = os.getenv("FREELLMAPI_MODEL", "auto")
+FREELLMAPI_BASE_URL = os.getenv("FREELLMAPI_BASE_URL", "http://127.0.0.1:3001/v1")
+
 # ── New provider keys (read from env at import time) ──────────────────────
 MISTRAL_API_KEY    = os.getenv("MISTRAL_API_KEY", "")
 MISTRAL_MODEL      = os.getenv("MISTRAL_MODEL",     "mistral-large-latest")
@@ -33,6 +37,17 @@ DEEPSEEK_MODEL     = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 # NVIDIA NIM Free Tier — free cloud API, no credit card required
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 NVIDIA_MODEL   = os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4.1-flash")
+
+# ── $0-tariff vendors ─────────────────────────────────────────────────────
+#: Vendors whose API can serve this agent without spend, with the reason it is
+#: free. A batch lane that must not incur cost (the free-only rebuild) validates
+#: against this table instead of re-declaring the set, so "which vendors are
+#: free" has exactly one owner: this file.
+FREE_TIER_PROVIDERS: Dict[str, str] = {
+    "openrouter": "rotation across OpenRouter ':free' models",
+    "gemini": "Google AI Studio free tier",
+    "nvidia": "NVIDIA NIM free developer credits",
+}
 
 # Moonshot AI (Kimi) — OpenAI-compatible. KIMI_API_KEY, or MOONSHOT_API_KEY.
 KIMI_API_KEY  = os.getenv("KIMI_API_KEY", "") or os.getenv("MOONSHOT_API_KEY", "")
@@ -75,6 +90,17 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "env_var_name": "NINEROUTER_API_KEY",
         "class_path": "providers.ninerouter_provider.NinerouterProvider",
         "keyless": True,  # local gateway; requires connected provider + DSL key to reply
+    },
+    "freellmapi": {
+        "provider_name": "freellmapi",
+        "api_key": FREELLMAPI_API_KEY,
+        "model": FREELLMAPI_MODEL,
+        "base_url": FREELLMAPI_BASE_URL,
+        "env_var_name": "FREELLMAPI_API_KEY",
+        "class_path": "providers.freellmapi_provider.FreeLLMAPIProvider",
+        "keyless": True,  # local router API key is optional; upstream provider keys may still be required
+        "open_source": True,
+        "dynamic_env": True,
     },
     "opencode": {
         "provider_name": "opencode",
@@ -297,7 +323,11 @@ def instantiate_provider(provider_name: str):
     `None` (never a silent `None` from a swallowed import error only).
     """
     try:
-        cfg = get_active_provider_config(provider_name)
+        cfg = dict(get_active_provider_config(provider_name))
+        if cfg.get("dynamic_env"):
+            cfg["api_key"] = os.getenv(cfg["env_var_name"], cfg.get("api_key", ""))
+            cfg["model"] = os.getenv("FREELLMAPI_MODEL", cfg.get("model", "auto"))
+            cfg["base_url"] = os.getenv("FREELLMAPI_BASE_URL", cfg.get("base_url", ""))
     except ValueError:
         agent_logger.warning("instantiate_provider: unknown provider '%s'", provider_name)
         return None
@@ -355,6 +385,13 @@ def _build_ninerouter(cfg: Dict[str, Any]):
     return NinerouterProvider(cfg["api_key"], cfg["model"])
 
 
+def _build_freellmapi(cfg: Dict[str, Any]):
+    from providers.freellmapi_provider import FreeLLMAPIProvider
+    return FreeLLMAPIProvider(
+        api_key=cfg["api_key"], model_name=cfg["model"], base_url=cfg["base_url"]
+    )
+
+
 def _build_opencode(cfg: Dict[str, Any]):
     from providers.opencode_provider import OpenCodeProvider
     return OpenCodeProvider(cfg.get("api_key", ""), cfg.get("model", ""))
@@ -404,6 +441,7 @@ _PROVIDER_BUILDERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
     "mistral": _build_mistral,
     "omniroute": _build_omniroute,
     "ninerouter": _build_ninerouter,
+    "freellmapi": lambda cfg: _build_freellmapi(cfg),
     "opencode": _build_opencode,
     "kimi": _build_kimi,
     "nvidia": _build_nvidia,

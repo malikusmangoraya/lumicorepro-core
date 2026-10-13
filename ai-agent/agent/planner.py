@@ -6,6 +6,7 @@ from config.master_prompt import (
     WEBSITE_GENERATION_RUNTIME_RULES,
 )
 from .prompt_registry import get_prompt_registry
+from .generation_contract import resolve_generation_contract
 from .project_mode_engine import ProjectModeEngine
 
 class GenerationPlanner:
@@ -53,8 +54,12 @@ class GenerationPlanner:
         """Construct structured generation plan with style configuration."""
         agent_logger.info("Constructing assembly & generation plan aligned with Master Prompt...")
 
+        from agent.intelligence.design_system_engine import resolve_design_intent
+
+        spec["design_intent"] = resolve_design_intent(spec, operation="generation")
+        contract = resolve_generation_contract(spec)
         project_name = spec.get("project_name", "generated-website")
-        layout_mode = ProjectModeEngine().select_mode(spec)
+        layout_mode = contract["layout_mode"]
         requested_features = spec.get("features") or []
         if isinstance(requested_features, str):
             requested_features = [requested_features]
@@ -69,6 +74,7 @@ class GenerationPlanner:
             ]
         ))
         spec["features"] = normalized_features
+        contract = resolve_generation_contract({**spec, "features": normalized_features})
 
         # Versioned prompt resolution: which exact prompt text (sha256) built
         # this run is recorded in the plan for provenance / A/B analysis.
@@ -87,6 +93,8 @@ class GenerationPlanner:
             "project_name": project_name,
             "destination": f"generated-projects/{project_name}",
             "layout_mode": layout_mode,
+            "generation_contract": contract,
+            "design_intent": spec["design_intent"],
             "features": normalized_features,
             "master_prompt": master_prompt,
             "prompt_provenance": ([
@@ -137,6 +145,18 @@ class GenerationPlanner:
                     f"Address live {source_label} signal in generated copy/UX: {complaint}"
                 )
 
+        # Market trends (Phase 1 → spec via requirement analysis) → assembly plan
+        market_trends = [str(t).strip() for t in (spec.get("market_trends") or []) if str(t).strip()][:8]
+        if market_trends:
+            plan["market_trends"] = market_trends
+            for trend in market_trends[:2]:
+                plan["ai_tasks_required"].append(
+                    f"Reflect market trend in generated UX/copy: {trend}"
+                )
+        trending_features = spec.get("trending_features") or []
+        if trending_features:
+            plan["trending_features"] = list(trending_features)
+
         # Check missing features to queue for AI generation
         req_features = set(spec.get("features", []))
         provided_features = set(selected_template.get("features", [])) if selected_template else set()
@@ -148,6 +168,18 @@ class GenerationPlanner:
         if missing:
             for m in missing:
                 plan["ai_tasks_required"].append(f"Synthesize custom logic/component for missing feature: {m}")
+
+        # Design DNA (layout + tokens): resolved deterministically so the
+        # builder composes data-driven pages via compose_project_pages and
+        # persists design-dna.json for later iteration. Observational — a
+        # resolution failure leaves the build on its current path.
+        try:
+            from agent.intelligence.design_system_engine import DesignSystemEngine
+            design_dna = DesignSystemEngine().resolve(spec)["design_dna"]
+            plan["design_dna"] = design_dna
+            spec["design_dna"] = design_dna
+        except Exception as dna_exc:  # noqa: BLE001
+            agent_logger.warning(f"Design DNA resolution skipped: {dna_exc}")
 
         agent_logger.info(f"Plan created with {len(plan['assembly_steps'])} steps and {len(plan['ai_tasks_required'])} AI tasks.")
         return plan

@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "minimalist",
-  "target_region": "default",
+  "style": "neo_brutalism",
+  "name": "Neo-Brutalism",
   "project_name": "aurum-fitness",
+  "brand": "Aurum Fitness",
   "palette": {
-    "primary": "#be882c",
-    "accent": "#ec4899",
-    "heading": "#be882c",
-    "navBg": "#ffffff",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be882c",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "primary": "#f59e0b",
+    "secondary": "#d97706",
+    "accent": "#fbbf24",
+    "heading": "#0f172a",
+    "canvas": "#fef3c7",
+    "surface": "#bfdbfe",
+    "text": "#0f172a",
+    "muted": "#475569",
+    "border": "#0f172a",
+    "navBg": "#fef3c7",
+    "footerBg": "#0f172a"
+  },
+  "palette_rgb": {
+    "primary": "245 158 11",
+    "secondary": "217 119 6",
+    "accent": "251 191 36",
+    "heading": "15 23 42",
+    "canvas": "254 243 199",
+    "surface": "191 219 254",
+    "text": "15 23 42",
+    "muted": "71 85 105",
+    "border": "15 23 42",
+    "navBg": "254 243 199",
+    "footerBg": "15 23 42"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Syne",
+    "sans": "Inter",
+    "pairing": "Syne + Inter"
   },
-  "theme": "light"
+  "radius": {
+    "card": "0px",
+    "button": "0px"
+  },
+  "shadow": {
+    "card": "6px 6px 0 #0f172a",
+    "button": "4px 4px 0 #0f172a"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

@@ -46,6 +46,7 @@ const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy'));
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfService'));
 const RefundPolicyPage = lazy(() => import('../pages/RefundPolicy'));
 const MarketingLandingPage = lazy(() => import('../pages/MarketingLanding'));
+const UiShowcasePage = lazy(() => import('../pages/ui-showcase/UiShowcase'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPassword'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPassword'));
 const VerifyEmailPage = lazy(() => import('../pages/VerifyEmail'));
@@ -269,6 +270,7 @@ export const router = createBrowserRouter([
         ),
       },
       { path: 'templates', element: <L component={TemplatesHub} /> },
+      { path: 'ui-showcase', element: <L component={UiShowcasePage} /> },
       { path: 'generate', element: <L component={GeneratePage} /> },
       {
         path: 'workspace',

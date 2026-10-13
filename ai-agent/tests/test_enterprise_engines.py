@@ -257,7 +257,10 @@ class TestEnterpriseEngines(unittest.TestCase):
         fake = FakeOfflineProvider()
 
         orch = AgentOrchestrator()
-        orch.ai_provider = fake
+        # set_provider (not plain attribute assignment): sub-engines snapshot
+        # the provider at construction, so only the centralized swap keeps
+        # code_modifier/analyzer/iteration_engine offline too.
+        orch.set_provider(fake, name="fake-offline")
 
         import unittest.mock as mock
         from agent.quality_gate import DevOpsQualityGate, CommandResult

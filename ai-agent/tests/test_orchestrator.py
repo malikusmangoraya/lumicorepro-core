@@ -29,6 +29,24 @@ class TestOrchestratorInit(unittest.TestCase):
         self.assertIsNotNone(orch.backend_selector)
         self.assertIsNotNone(orch.database_selector)
 
+    def test_set_provider_reaches_every_provider_holding_subengine(self):
+        """Sub-engines snapshot their provider, so the swap must reach all of them.
+
+        The iteration engine lives at `iteration_engine`; a wrong attribute name
+        here silently no-ops and leaves that engine on the previous provider.
+        """
+        orch = AgentOrchestrator()
+        fake = object()
+
+        orch.set_provider(fake, name="fake-offline")
+
+        self.assertIs(orch.ai_provider, fake)
+        self.assertEqual(orch.ai_provider_name, "fake-offline")
+        self.assertIs(orch.analyzer.ai_provider, fake)
+        self.assertIs(orch.code_modifier.ai_provider, fake)
+        self.assertIs(orch.iteration_engine.provider, fake)
+        self.assertIs(orch.iteration_engine.code_modifier.ai_provider, fake)
+
     def test_orchestrator_phases_defined(self):
         """Orchestrator should define every enterprise phase, including the
         pre-coding design planner and the post-build browser QA phase."""

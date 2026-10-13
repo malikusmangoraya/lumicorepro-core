@@ -2,10 +2,10 @@
 Theme Matrix Engine — LumicorePro AI Agent
 ==========================================
 Turns the template library into a **Template × Design-Style = Theme Variant**
-matrix, so every template has 15 ready "looks" without hand-designing each
+matrix, so every template has 35 ready "looks" without hand-designing each
 combination — a token-driven theming engine builds them on demand.
 
-  Template (27) × Design Style (15) = 405 theme variants
+  Template × Design Style (35) = full theme-variant coverage
   ── layout/structure stays identical per template; only design-tokens.json
      (colors, radius, shadows, typography) swap → a distinct brand feel,
      e.g. "Neo-Brutalism Restaurant Landing" vs its "Minimalism" twin.
@@ -83,26 +83,31 @@ _CATEGORY_SECTIONS = {
 # Which styles each of the 10 non-intl template categories is validated against.
 # "international" templates are style-flexible by nature → allow all styles.
 _BASE_STYLE_GROUPS = {
-    "business": ["minimalism", "glassmorphism", "corporate_memphis", "editorial", "flat_design"],
-    "ecommerce": ["minimalism", "glassmorphism", "neo_brutalism", "flat_design", "retro_futurism"],
-    "realestate": ["minimalism", "glassmorphism", "editorial", "flat_design", "organic"],
-    "restaurant": ["minimalism", "organic", "editorial", "claymorphism", "flat_design"],
-    "portfolio": ["minimalism", "editorial", "swiss", "neo_brutalism", "organic"],
-    "education": ["minimalism", "glassmorphism", "flat_design", "bento_grid", "corporate_memphis"],
-    "healthcare": ["minimalism", "glassmorphism", "flat_design", "aurora", "organic"],
-    "fitness": ["neo_brutalism", "flat_design", "claymorphism", "organic", "retro_futurism"],
-    "travel": ["minimalism", "aurora", "organic", "editorial", "flat_design"],
-    "creative": ["neo_brutalism", "swiss", "editorial", "cyberpunk", "bento_grid"],
-    "saas": ["glassmorphism", "bento_grid", "minimalism", "aurora", "flat_design"],
+    "business": ["minimalism", "glassmorphism", "corporate", "corporate_memphis", "editorial", "flat_design"],
+    "ecommerce": ["minimalism", "glassmorphism", "neo_brutalism", "flat_design", "retro_futurism", "luxury", "playful"],
+    "realestate": ["minimalism", "glassmorphism", "editorial", "flat_design", "organic", "luxury", "corporate"],
+    "restaurant": ["minimalism", "organic", "editorial", "claymorphism", "flat_design", "playful"],
+    "portfolio": ["minimalism", "editorial", "swiss", "neo_brutalism", "organic", "luxury", "bold"],
+    "education": ["minimalism", "glassmorphism", "flat_design", "bento_grid", "corporate_memphis", "playful", "corporate"],
+    "healthcare": ["minimalism", "glassmorphism", "flat_design", "aurora", "organic", "corporate"],
+    "fitness": ["neo_brutalism", "flat_design", "claymorphism", "organic", "retro_futurism", "bold"],
+    "travel": ["minimalism", "aurora", "organic", "editorial", "flat_design", "luxury"],
+    "creative": ["neo_brutalism", "swiss", "editorial", "cyberpunk", "bento_grid", "playful", "bold", "maximalism"],
+    "saas": ["glassmorphism", "bento_grid", "minimalism", "aurora", "flat_design", "corporate"],
     # new categories (Part 3)
-    "agency": ["neo_brutalism", "swiss", "editorial", "cyberpunk", "bento_grid"],
-    "gym": ["neo_brutalism", "flat_design", "claymorphism", "organic", "retro_futurism"],
-    "podcast": ["minimalism", "glassmorphism", "aurora", "neo_brutalism", "bento_grid"],
-    "newsletter": ["minimalism", "editorial", "swiss", "flat_design"],
-    "marketplace": ["minimalism", "glassmorphism", "neo_brutalism", "flat_design", "retro_futurism"],
-    "insurance": ["minimalism", "glassmorphism", "corporate_memphis", "flat_design"],
-    "automotive": ["neo_brutalism", "retro_futurism", "flat_design", "minimalism"],
-    "wedding": ["organic", "claymorphism", "editorial", "flat_design", "retro_futurism"],
+    "agency": ["neo_brutalism", "swiss", "editorial", "cyberpunk", "bento_grid", "bold", "corporate"],
+    "gym": ["neo_brutalism", "flat_design", "claymorphism", "organic", "retro_futurism", "bold"],
+    "podcast": ["minimalism", "glassmorphism", "aurora", "neo_brutalism", "bento_grid", "playful"],
+    "newsletter": ["minimalism", "editorial", "swiss", "flat_design", "corporate"],
+    "marketplace": ["minimalism", "glassmorphism", "neo_brutalism", "flat_design", "retro_futurism", "playful"],
+    "insurance": ["minimalism", "glassmorphism", "corporate", "corporate_memphis", "flat_design"],
+    "automotive": ["neo_brutalism", "retro_futurism", "flat_design", "minimalism", "bold", "futuristic"],
+    "wedding": ["organic", "claymorphism", "editorial", "flat_design", "retro_futurism", "luxury"],
+    "hospitality": ["minimalism", "organic", "editorial", "luxury", "flat_design"],
+    "nonprofit": ["minimalism", "editorial", "organic", "flat_design", "corporate"],
+    "events": ["minimalism", "bold", "maximalism", "editorial", "flat_design", "playful"],
+    "legal": ["corporate", "minimalism", "editorial", "flat_design"],
+    "fintech": ["glassmorphism", "corporate", "minimalism", "aurora", "flat_design"],
 }
 
 # Default "full" style set used when a template is style-flexible (e.g.
@@ -111,6 +116,10 @@ _ALL_STYLES: List[str] = [
     "minimalism", "glassmorphism", "neo_brutalism", "bento_grid", "neumorphism",
     "flat_design", "claymorphism", "skeuomorphism", "cyberpunk", "corporate_memphis",
     "editorial", "swiss", "aurora", "organic", "retro_futurism",
+    "maximalism", "retro", "collage", "vector", "futuristic",
+    "handwritten", "bohemian", "graffiti", "victorian", "pixel_art",
+    "pop_art", "surreal", "luxury", "corporate", "playful",
+    "bold", "brutalism", "animaster", "skipper", "vengeance",
 ]
 
 

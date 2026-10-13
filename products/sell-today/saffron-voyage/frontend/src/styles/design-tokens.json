@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "glassmorphism",
-  "target_region": "default",
+  "style": "aurora",
+  "name": "Gradient Mesh / Aurora",
   "project_name": "saffron-voyage",
+  "brand": "Saffron Voyage",
   "palette": {
-    "primary": "#be702c",
-    "accent": "#f59e0b",
-    "heading": "#be702c",
-    "navBg": "#f8fafc",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be702c",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "primary": "#10b9a3",
+    "secondary": "#059686",
+    "accent": "#34d3b9",
+    "heading": "#f5f3ff",
+    "canvas": "#0d0a1f",
+    "surface": "#1d1742",
+    "text": "#f5f3ff",
+    "muted": "#a5b4fc",
+    "border": "#1e293b",
+    "navBg": "#0d0a1f",
+    "footerBg": "#020617"
+  },
+  "palette_rgb": {
+    "primary": "16 185 163",
+    "secondary": "5 150 134",
+    "accent": "52 211 185",
+    "heading": "245 243 255",
+    "canvas": "13 10 31",
+    "surface": "29 23 66",
+    "text": "245 243 255",
+    "muted": "165 180 252",
+    "border": "30 41 59",
+    "navBg": "13 10 31",
+    "footerBg": "2 6 23"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Cabinet Grotesk",
+    "sans": "Supreme",
+    "pairing": "Cabinet Grotesk + Supreme"
   },
-  "theme": "light"
+  "radius": {
+    "card": "22px",
+    "button": "9999px"
+  },
+  "shadow": {
+    "card": "0 20px 50px rgba(139,92,246,0.22)",
+    "button": "0 8px 24px rgba(236,72,153,0.3)"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

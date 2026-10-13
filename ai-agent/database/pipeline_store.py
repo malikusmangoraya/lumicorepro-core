@@ -15,7 +15,7 @@ Interface contract (implement this to move to Redis):
     set_status(run_id, status, **fields) -> None
     append_events(run_id, events) -> None
     get_run(run_id) -> dict | None
-    list_runs(limit=20, status=None) -> list[dict]
+    list_runs(limit=20, status=None, owner_id=None) -> list[dict]
     mark_interrupted(started_before_ts) -> list[str]
     prune(keep=500) -> int
 """
@@ -46,7 +46,9 @@ class PipelineStore:
     def _connect(self) -> sqlite3.Connection:
         if self._conn is not None:
             return self._conn
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        directory = os.path.dirname(self.db_path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         conn = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("PRAGMA busy_timeout=5000;")
@@ -73,9 +75,17 @@ class PipelineStore:
                 error        TEXT,
                 result_json  TEXT,
                 events_json  TEXT,
+                owner_id     TEXT,
                 updated_at   TEXT DEFAULT CURRENT_TIMESTAMP
             );
             """
+        )
+        columns = {row["name"] for row in self._conn.execute("PRAGMA table_info(pipeline_runs)")}
+        if "owner_id" not in columns:
+            self._conn.execute("ALTER TABLE pipeline_runs ADD COLUMN owner_id TEXT")
+        self._conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pipeline_runs_owner_created "
+            "ON pipeline_runs(owner_id, created_at)"
         )
         self._conn.commit()
 
@@ -117,13 +127,13 @@ class PipelineStore:
             columns = {
                 "status", "prompt", "provider", "language", "region", "buyer_type",
                 "design_style", "created_at", "started_at", "finished_at", "error",
-                "result_json", "events_json",
+                "result_json", "events_json", "owner_id",
             }
             updates = {k: self._serialize(v) for k, v in fields.items() if k in columns}
-            if not updates:
-                return
             if "events_json" in updates and not updates.get("events_json"):
                 updates.pop("events_json")
+            if not updates:
+                return
             assign = ", ".join(f"{k} = ?" for k in updates)
             self._connect().execute(
                 f"UPDATE pipeline_runs SET {assign} WHERE run_id = ?",
@@ -135,7 +145,7 @@ class PipelineStore:
         columns = {
             "status", "prompt", "provider", "language", "region", "buyer_type",
             "design_style", "created_at", "started_at", "finished_at", "error",
-            "result_json", "events_json",
+            "result_json", "events_json", "owner_id",
         }
         insert = {k: self._serialize(v) for k, v in fields.items() if k in columns}
         insert.setdefault("status", "queued")
@@ -183,19 +193,26 @@ class PipelineStore:
             ).fetchone()
             return self._row_to_dict(row) if row is not None else None
 
-    def list_runs(self, limit: int = 20, status: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_runs(
+        self, limit: int = 20, status: Optional[str] = None,
+        owner_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         with self._lock:
             limit = max(1, min(int(limit), 100))
+            filters = []
+            values = []
             if status:
-                rows = self._connect().execute(
-                    "SELECT * FROM pipeline_runs WHERE status = ? ORDER BY created_at DESC LIMIT ?",
-                    (status, limit),
-                ).fetchall()
-            else:
-                rows = self._connect().execute(
-                    "SELECT * FROM pipeline_runs ORDER BY created_at DESC LIMIT ?", (limit,)
-                ).fetchall()
-            return [self._row_to_dict(r) for r in rows]
+                filters.append("status = ?")
+                values.append(status)
+            if owner_id is not None:
+                filters.append("owner_id = ?")
+                values.append(owner_id)
+            where = f" WHERE {' AND '.join(filters)}" if filters else ""
+            rows = self._connect().execute(
+                f"SELECT * FROM pipeline_runs{where} ORDER BY created_at DESC LIMIT ?",
+                (*values, limit),
+            ).fetchall()
+            return [self._row_to_dict(row) for row in rows]
 
     def mark_interrupted(self, started_before_ts: float) -> List[str]:
         with self._lock:

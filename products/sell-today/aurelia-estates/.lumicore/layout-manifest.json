@@ -1,0 +1,143 @@
+{
+  "engine": "layout-engine",
+  "version": "1.0",
+  "marker": "LUMI_LAYOUT_V1",
+  "created_at": "20261013T102949Z",
+  "skin": "full",
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\aurelia-estates\\.lumicore\\layout\\20261013T102949Z",
+  "created": [
+    "DESIGN_PLAN.md",
+    "LAYOUT_REPORT.json"
+  ],
+  "replaced": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "plan": {
+    "engine": "layout-engine",
+    "version": "1.0",
+    "generated_at": "2026-10-13T10:29:49Z",
+    "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\aurelia-estates",
+    "frontend": "D:\\lumicorepro-core\\products\\sell-today\\aurelia-estates\\frontend",
+    "package_name": "aurelia-estates",
+    "slug": "aurelia-estates",
+    "brand": "Aurelia Estates",
+    "title": "Aurelia",
+    "tagline": "Homes that match your life",
+    "eyebrow": "FIND YOUR NEXT ADDRESS",
+    "hero_desc": "Aurelia Estates pairs local expertise with data-driven search to find the right property, faster.",
+    "features": [
+      [
+        "Verified listings",
+        "Every home vetted before it reaches you"
+      ],
+      [
+        "Neighbourhood data",
+        "Schools, commute and growth at a glance"
+      ],
+      [
+        "Expert agents",
+        "Local specialists who know the block"
+      ],
+      [
+        "Seamless viewings",
+        "Book, tour and offer in one place"
+      ]
+    ],
+    "stats": [
+      [
+        "99.99%",
+        "Uptime"
+      ],
+      [
+        "<2s",
+        "Load Time"
+      ],
+      [
+        "10K+",
+        "Users"
+      ],
+      [
+        "4.9/5",
+        "Rating"
+      ]
+    ],
+    "industry": "realestate",
+    "category": "realestate",
+    "sections": [
+      "Hero",
+      "PropertySearch",
+      "ListingGrid",
+      "PropertyCard",
+      "Favorites",
+      "AgentProfiles",
+      "Contact",
+      "Testimonials"
+    ],
+    "style": "flat_design",
+    "style_name": "Flat Design",
+    "region": "default",
+    "region_rationale": "Global neutral (region-agnostic)",
+    "palette": {
+      "primary": "#02a5c7",
+      "secondary": "#0383a1",
+      "accent": "#38ddf8",
+      "heading": "#111827",
+      "canvas": "#f9fafb",
+      "surface": "#eff6ff",
+      "text": "#111827",
+      "muted": "#6b7280",
+      "border": "#e5e7eb",
+      "navBg": "#f9fafb",
+      "footerBg": "#111827"
+    },
+    "fonts": {
+      "display": "Space Grotesk",
+      "sans": "Geist"
+    },
+    "typography_pairing": "Space Grotesk + Geist",
+    "logo_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" className=\"w-10 h-10 inline-block\">\n  <defs>\n    <linearGradient id=\"grad_9606\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" stopColor=\"#0284c7\" />\n      <stop offset=\"100%\" stopColor=\"#38bdf8\" />\n    </linearGradient>\n  </defs>\n  \n              <polygon points=\"24,6 42,16 24,26 6,16\" fill=\"url(#grad_9606)\" opacity=\"0.9\" />\n              <polygon points=\"6,16 24,26 24,42 6,32\" fill=\"#0284c7\" opacity=\"0.75\" />\n              <polygon points=\"24,26 42,16 42,32 24,42\" fill=\"#38bdf8\" opacity=\"0.6\" />\n            \n</svg>",
+    "radius": {
+      "card": "12px",
+      "button": "8px"
+    },
+    "shadow": {
+      "card": "0 1px 2px rgba(0,0,0,0.04)",
+      "button": "0 0 0 0"
+    },
+    "effects": {
+      "blur": "0px",
+      "glow": "none"
+    },
+    "motion_level": "medium",
+    "attribute_bias": {
+      "typography": 0.658,
+      "color_saturation": 0.44,
+      "interaction_complexity": 0.561,
+      "craft": 0.692,
+      "minimalism": 0.61,
+      "whitespace": 0.613,
+      "motion": 0.505,
+      "cta_focus": 0.614,
+      "visual_density": 0.533,
+      "content_density": 0.575,
+      "navigation": 0.583,
+      "futuristic": 0.625,
+      "cinematic": 0.5,
+      "dark_canvas": 0.525,
+      "bold": 0.7,
+      "warmth": 0.5
+    },
+    "vault_source": "",
+    "seed": 1449670286,
+    "notes": []
+  }
+}

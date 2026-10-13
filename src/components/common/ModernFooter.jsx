@@ -7,7 +7,7 @@ import api from '@/services/api';
 import BrandLogo from './BrandLogo';
 import FooterNewsletter from './FooterNewsletter';
 import { SocialIcons } from './socialIcons';
-import { CurrencySelector } from '../CurrencySelector';
+import { CurrencySelector } from './CurrencySelector';
 import Language from './Language';
 
 /**
@@ -188,13 +188,17 @@ export function ModernFooter({
           </div>
 
           {/* Links Columns (4 Columns on Desktop) */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-4">
-            {activeColumns.map((col) => (
-              <div key={col.title} className="space-y-4">
-                <h4 className="font-display text-sm font-semibold tracking-wider text-foreground uppercase">
-                  {col.title}
-                </h4>
-                <ul className="space-y-2.5" role="list">
+          <section aria-labelledby="footer-sections-heading" className="lg:col-span-4">
+            <h2 id="footer-sections-heading" className="sr-only">
+              Footer navigation
+            </h2>
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+              {activeColumns.map((col) => (
+                <div key={col.title} className="space-y-4">
+                  <h3 className="font-display text-sm font-semibold tracking-wider text-foreground uppercase">
+                    {col.title}
+                  </h3>
+                  <ul className="space-y-2.5" role="list">
                   {col.links.map((link) => (
                     <li key={link.label}>
                       {link.action === 'cookiePreferences' ? (
@@ -224,9 +228,10 @@ export function ModernFooter({
               </div>
             ))}
           </div>
-        </div>
+        </section>
+      </div>
 
-        {/* Newsletter Banner */}
+      {/* Newsletter Banner */}
         {showNewsletter && (
           <div className="mt-14 rounded-2xl border border-border/70 bg-muted/30 p-6 md:p-8 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

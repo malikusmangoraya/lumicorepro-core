@@ -55,6 +55,21 @@ SECTION_BLOCKS: List[Dict[str, Any]] = [
     {"id": "contact_cta", "niches": ["*"]},
 ]
 
+# Page-level scaffolds: the overall page skeleton (container width, section
+# rhythm, grid behaviour). Orthogonal to hero/nav — a scaffold never changes
+# which blocks render, only how the page frames them.
+PAGE_SCAFFOLDS: List[Dict[str, Any]] = [
+    {"id": "standard_sections", "niches": ["*"]},
+    {"id": "masonry_flow", "niches": ["portfolio", "creative", "fashion", "travel", "food", "events"]},
+    {"id": "bento_showcase", "niches": ["saas", "technology", "finance", "education", "electronics"]},
+    {"id": "magazine_spread", "niches": ["editorial", "food", "fashion", "travel", "nonprofit"]},
+    {"id": "dashboard_app", "niches": ["saas", "finance", "insurance", "healthcare", "dashboard"]},
+    {"id": "split_screen", "niches": ["saas", "technology", "finance", "education", "real_estate"]},
+    {"id": "narrow_single", "niches": ["editorial", "education", "nonprofit", "healthcare", "legal"]},
+    {"id": "wide_immersive", "niches": ["events", "entertainment", "automotive", "travel", "hospitality", "fitness"]},
+    {"id": "overlapping_layers", "niches": ["creative", "portfolio", "events", "fashion", "wedding"]},
+]
+
 _NICHE_ALIASES = {
     "claims": "insurance",
     "insurance claims": "insurance",
@@ -102,12 +117,36 @@ _NICHE_RECIPES = {
 }
 
 
+def resolve_design_intent(spec: Dict[str, Any], *, operation: str) -> str:
+    """Resolve explicit layout intent, preferring preservation over redesign."""
+    if operation not in {"generation", "update"}:
+        raise ValueError(f"Unsupported design-intent operation: {operation}")
+    default = "international_default" if operation == "generation" else "preserve_existing"
+    spec = spec if isinstance(spec, dict) else {}
+
+    explicit = str(spec.get("design_intent") or "").strip().lower()
+    preserve = spec.get("preserve_layout") is True or spec.get("keep_current_layout") is True
+    redesign = spec.get("redesign_requested") is True or spec.get("redesign") is True
+    wording = " ".join(str(spec.get(key) or "") for key in ("prompt", "original_prompt", "instruction")).lower()
+    preserve_phrases = ("keep the current layout", "keep current layout", "preserve the layout", "do not redesign", "don't redesign", "only update content")
+    redesign_phrases = ("redesign", "revamp the layout", "new layout", "rework the layout")
+
+    if explicit == "preserve_existing" or preserve or any(phrase in wording for phrase in preserve_phrases):
+        return "preserve_existing"
+    if explicit == "redesign_requested" or redesign or any(phrase in wording for phrase in redesign_phrases):
+        return "redesign_requested" if operation == "update" else "international_default"
+    if explicit == "international_default" and operation == "generation":
+        return explicit
+    return default
+
+
 def get_design_catalog() -> Dict[str, List[Dict[str, Any]]]:
     """Return the declarative layout catalog without exposing mutable globals."""
     return {
         "heroes": [dict(item, niches=list(item["niches"])) for item in HERO_ARCHETYPES],
         "navigation": [dict(item, niches=list(item["niches"])) for item in NAVIGATION_PATTERNS],
         "sections": [dict(item, niches=list(item["niches"])) for item in SECTION_BLOCKS],
+        "scaffolds": [dict(item, niches=list(item["niches"])) for item in PAGE_SCAFFOLDS],
     }
 
 
@@ -222,12 +261,15 @@ class DesignSystemEngine:
             "hero": constraints.get("hero") or constraints.get("hero_archetype"),
             "navigation": constraints.get("navigation") or constraints.get("navigation_pattern") or constraints.get("nav_pattern"),
             "home_sections": constraints.get("home_sections"),
+            "scaffold": constraints.get("page_scaffold") or constraints.get("scaffold"),
         }
         explicit = {key: value for key, value in explicit.items() if value is not None}
         if explicit.get("hero") and explicit["hero"] not in {item["id"] for item in HERO_ARCHETYPES}:
             raise ValueError(f"Unknown hero archetype: {explicit['hero']}")
         if explicit.get("navigation") and explicit["navigation"] not in {item["id"] for item in NAVIGATION_PATTERNS}:
             raise ValueError(f"Unknown navigation pattern: {explicit['navigation']}")
+        if explicit.get("scaffold") and explicit["scaffold"] not in {item["id"] for item in PAGE_SCAFFOLDS}:
+            raise ValueError(f"Unknown page scaffold: {explicit['scaffold']}")
 
         prior_dimensions = [
             item.get("dimensions", {}) for item in (prior or [])
@@ -238,6 +280,7 @@ class DesignSystemEngine:
         best_matches = 4
         selected_heroes: List[str] = []
         selected_navigation: List[str] = []
+        selected_scaffolds: List[str] = []
         for attempt_index in range(self.MAX_ATTEMPTS):
             attempt_seed = f"{seed}:{attempt_index}"
             hero = explicit.get("hero") or _weighted_choice(
@@ -256,6 +299,14 @@ class DesignSystemEngine:
             )
             selected_heroes.append(hero)
             selected_navigation.append(navigation)
+            scaffold = explicit.get("scaffold") or _weighted_choice(
+                PAGE_SCAFFOLDS,
+                niche,
+                attempt_seed,
+                "scaffold",
+                excluded=selected_scaffolds,
+            )
+            selected_scaffolds.append(scaffold)
             section_order = list(explicit.get("home_sections") or _NICHE_RECIPES.get(
                 niche, ["product_features", "faq_answers", "contact_cta"]
             ))
@@ -266,6 +317,10 @@ class DesignSystemEngine:
                 "navigation": navigation,
                 "home_sections": ["hero", *section_order],
             }
+            # An explicitly pinned scaffold joins the collision dimensions;
+            # an auto-picked one varies freely without forcing extra attempts.
+            if explicit.get("scaffold"):
+                dimensions["scaffold"] = scaffold
             matches = max((
                 sum(dimensions[key] == previous.get(key) for key in dimensions)
                 for previous in prior_dimensions
@@ -278,7 +333,7 @@ class DesignSystemEngine:
                 "collision": collided,
             }
             attempts.append(attempt_record)
-            dna = self._make_dna(spec, project, seed, niche, hero, navigation, section_order, attempt_record)
+            dna = self._make_dna(spec, project, seed, niche, hero, navigation, scaffold, section_order, attempt_record)
             if matches < best_matches:
                 best_dna, best_matches = dna, matches
             if not collided:
@@ -310,6 +365,7 @@ class DesignSystemEngine:
         niche: str,
         hero: str,
         navigation: str,
+        scaffold: str,
         section_order: Iterable[str],
         attempt: Dict[str, Any],
     ) -> Dict[str, Any]:
@@ -329,16 +385,36 @@ class DesignSystemEngine:
         }
         grid_system = "asymmetric_12_column" if _stable_int(seed, "grid") % 2 else "editorial_2_column"
         density = "compact" if _stable_int(seed, "density") % 2 else "spacious"
+        card_style = "bordered" if _stable_int(seed, "cards") % 2 else "open_surface"
+        footer_type = "sitemap_columns" if _stable_int(seed, "footer") % 2 else "editorial_contact"
+        container_max = "72rem" if grid_system == "editorial_2_column" else "80rem"
+        hero_columns = (
+            "minmax(0, 1fr) minmax(0, 0.82fr)"
+            if grid_system == "editorial_2_column"
+            else "repeat(12, minmax(0, 1fr))"
+        )
+        sidebar_width = "18rem" if density == "compact" else "20rem"
+        # ── Scaffold overrides: the page skeleton frames the grid ──────────
+        if scaffold == "narrow_single":
+            container_max, hero_columns = "44rem", "minmax(0, 1fr)"
+            footer_type = "editorial_contact"
+        elif scaffold == "wide_immersive":
+            container_max = "100rem"
+        elif scaffold == "masonry_flow":
+            container_max, card_style = "88rem", "open_surface"
+        elif scaffold == "magazine_spread":
+            grid_system, container_max = "editorial_2_column", "72rem"
+            hero_columns, footer_type = "minmax(0, 1fr) minmax(0, 0.82fr)", "editorial_contact"
+        elif scaffold == "dashboard_app":
+            density, sidebar_width, container_max = "compact", "20rem", "90rem"
+        elif scaffold == "split_screen":
+            hero_columns = "minmax(0, 1fr) minmax(0, 1fr)"
         tokens = _build_tokens(spec, niche)
         tokens["layout"] = {
-            "container_max": "72rem" if grid_system == "editorial_2_column" else "80rem",
-            "hero_columns": (
-                "minmax(0, 1fr) minmax(0, 0.82fr)"
-                if grid_system == "editorial_2_column"
-                else "repeat(12, minmax(0, 1fr))"
-            ),
+            "container_max": container_max,
+            "hero_columns": hero_columns,
             "tablet_breakpoint": "48rem",
-            "sidebar_width": "18rem" if density == "compact" else "20rem",
+            "sidebar_width": sidebar_width,
             "card_min_width": "18rem",
             "heading_measure": "14ch",
             "body_measure": "62ch",
@@ -346,6 +422,7 @@ class DesignSystemEngine:
             "hero_copy_span": 7 if grid_system == "asymmetric_12_column" else 1,
             "hero_visual_span": 5 if grid_system == "asymmetric_12_column" else 1,
             "page_min_height": "100vh",
+            "page_scaffold": scaffold,
         }
         tokens["borders"] = {"width": "1px"}
         tokens["typography"]["line_height_heading"] = "1.05"
@@ -363,10 +440,11 @@ class DesignSystemEngine:
             "layout": {
                 "navigation_pattern": navigation,
                 "hero_archetype": hero,
+                "page_scaffold": scaffold,
                 "pages": pages,
                 "grid_system": grid_system,
-                "card_style": "bordered" if _stable_int(seed, "cards") % 2 else "open_surface",
-                "footer_type": "sitemap_columns" if _stable_int(seed, "footer") % 2 else "editorial_contact",
+                "card_style": card_style,
+                "footer_type": footer_type,
                 "density": density,
             },
             "content_sources": {

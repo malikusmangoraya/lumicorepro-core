@@ -101,6 +101,10 @@ app.use(cookieParser());
  * the failure is reported clearly instead of taking the process down.
  */
 async function mountRoutes() {
+  // Load the model registry before route modules. Associations are declared
+  // there, and routes that import individual models rely on those aliases.
+  require('./models');
+
   const routesDir = path.join(__dirname, 'routes');
   if (!fs.existsSync(routesDir)) {
     console.warn(`[server] no routes directory at ${routesDir}`);

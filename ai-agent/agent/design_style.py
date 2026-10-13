@@ -557,6 +557,86 @@ _STYLE_CATALOG: Dict[str, Dict[str, Any]] = {
         'effects': {'blur': '30px', 'glow': '0 0 35px rgba(192,132,252,0.35)'},
         'composition': 'aurora', 'weight': 'medium',
     },
+    'luxury': {
+        'id': 'luxury', 'name': 'Luxury / Premium',
+        'dna': 'Champagne gold on deep charcoal, hairline rules, generous whitespace, serif display.',
+        'best_for': ['luxury', 'jewelry', 'hotel', 'fashion', 'real estate', 'concierge', 'private banking', 'premium'],
+        'color': {
+            'primary': '#c9a227', 'secondary': '#0f172a', 'accent': '#e8c874',
+            'bg': '#faf8f3', 'card': '#ffffff', 'surface': '#f3eee3',
+            'text': '#1a1611', 'muted': '#8a7f6a', 'border': '#e3d9c2',
+        },
+        'fonts': {'display': 'Playfair Display', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '6px', 'button': '2px'},
+        'shadow': {'card': '0 20px 50px rgba(120,90,20,0.12)', 'button': '0 2px 8px rgba(120,90,20,0.15)'},
+        'border': {'card': '1px solid #e3d9c2', 'button': '1px solid #c9a227'},
+        'effects': {'blur': '0px', 'glow': '0 0 24px rgba(201,162,39,0.25)'},
+        'composition': 'lux', 'weight': 'medium',
+    },
+    'corporate': {
+        'id': 'corporate', 'name': 'Corporate / Enterprise',
+        'dna': 'Trust blue, data-driven cards, crisp grid, restrained professional hierarchy.',
+        'best_for': ['corporate', 'b2b', 'enterprise', 'consulting', 'finance', 'legal', 'insurance', 'company'],
+        'color': {
+            'primary': '#1e40af', 'secondary': '#0ea5e9', 'accent': '#10b981',
+            'bg': '#ffffff', 'card': '#f8fafc', 'surface': '#eff6ff',
+            'text': '#0f172a', 'muted': '#64748b', 'border': '#dbe3ee',
+        },
+        'fonts': {'display': 'Inter', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '8px', 'button': '6px'},
+        'shadow': {'card': '0 4px 16px rgba(30,64,175,0.10)', 'button': '0 2px 6px rgba(30,64,175,0.15)'},
+        'border': {'card': '1px solid #dbe3ee', 'button': '0'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'corp', 'weight': 'medium',
+    },
+    'playful': {
+        'id': 'playful', 'name': 'Playful / Friendly',
+        'dna': 'Candy colors, sticker borders, chunky rounded shapes, confetti energy.',
+        'best_for': ['playful', 'kids', 'games', 'edtech', 'toys', 'entertainment', 'party', 'learning', 'fun'],
+        'color': {
+            'primary': '#ff5da2', 'secondary': '#ffb020', 'accent': '#22d3ee',
+            'bg': '#fff9f0', 'card': '#ffffff', 'surface': '#ffeef5',
+            'text': '#3b2b3b', 'muted': '#a08aa0', 'border': '#ffd9e8',
+        },
+        'fonts': {'display': 'Baloo 2', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '28px', 'button': '9999px'},
+        'shadow': {'card': '0 14px 30px rgba(255,93,162,0.22)', 'button': '4px 4px 0 #3b2b3b'},
+        'border': {'card': '2px solid #3b2b3b', 'button': '2px solid #3b2b3b'},
+        'effects': {'blur': '0px', 'glow': '0 0 26px rgba(255,93,162,0.35)'},
+        'composition': 'play', 'weight': 'bold',
+    },
+    'bold': {
+        'id': 'bold', 'name': 'Bold Statement',
+        'dna': 'Oversized type bars, hot accent slash, black-on-bone high contrast.',
+        'best_for': ['bold', 'statement', 'agency', 'sports', 'automotive', 'streetwear', 'campaign'],
+        'color': {
+            'primary': '#161616', 'secondary': '#ff4d00', 'accent': '#ff4d00',
+            'bg': '#f4f1ea', 'card': '#ffffff', 'surface': '#161616',
+            'text': '#161616', 'muted': '#6b6560', 'border': '#161616',
+        },
+        'fonts': {'display': 'Archivo Black', 'sans': 'Inter', 'mono': 'JetBrains Mono'},
+        'radius': {'card': '0px', 'button': '0px'},
+        'shadow': {'card': '8px 8px 0 #161616', 'button': '5px 5px 0 #161616'},
+        'border': {'card': '2px solid #161616', 'button': '2px solid #161616'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'bold', 'weight': 'bold',
+    },
+    'brutalism': {
+        'id': 'brutalism', 'name': 'Raw Brutalism',
+        'dna': 'Raw concrete gray, monospace type, hairline black rules, zero decoration.',
+        'best_for': ['brutalism', 'brutalist', 'raw', 'archive', 'developer docs', 'punk', 'underground', 'experimental'],
+        'color': {
+            'primary': '#2b2b2b', 'secondary': '#6b6b6b', 'accent': '#2b2b2b',
+            'bg': '#e8e6e1', 'card': '#f4f2ed', 'surface': '#dcd9d2',
+            'text': '#1c1c1c', 'muted': '#6e6a63', 'border': '#1c1c1c',
+        },
+        'fonts': {'display': 'Space Mono', 'sans': 'Inter', 'mono': 'Space Mono'},
+        'radius': {'card': '0px', 'button': '0px'},
+        'shadow': {'card': 'none', 'button': 'none'},
+        'border': {'card': '1px solid #1c1c1c', 'button': '1px solid #1c1c1c'},
+        'effects': {'blur': '0px', 'glow': 'none'},
+        'composition': 'raw', 'weight': 'medium',
+    },
 }
 
 STYLE_ALIASES = {
@@ -577,11 +657,14 @@ STYLE_ALIASES = {
     'dreamscape': 'surreal',
     'scifi': 'futuristic',
     'sci-fi': 'futuristic',
-    'luxury': 'victorian',
     'craft': 'handwritten',
     'sketch': 'handwritten',
     'earthy': 'bohemian',
     'botanical': 'bohemian',
+    'brutalist': 'brutalism',
+    'brutal': 'brutalism',
+    'enterprise': 'corporate',
+    'statement': 'bold',
 }
 
 # Industry / website type → auto-suggested style (Lovable-style defaults)
@@ -597,13 +680,18 @@ _INDUSTRY_STYLE_MAP: List[Tuple[str, str]] = [
     ('wellness', 'organic'), ('eco', 'organic'), ('sustainability', 'organic'), ('yoga', 'bohemian'),
     ('health', 'organic'), ('fitness', 'organic'),
     ('design agency', 'swiss'), ('architecture', 'swiss'), ('agency', 'swiss'),
-    ('blog', 'editorial'), ('news', 'editorial'), ('media', 'editorial'), ('journalism', 'editorial'),
+    ('blog', 'editorial'), ('news', 'editorial'), ('journalism', 'editorial'),
     ('portfolio', 'minimalism'), ('personal', 'minimalism'), ('resume', 'minimalism'), ('product', 'minimalism'),
     ('startup', 'corporate_memphis'), ('onboarding', 'corporate_memphis'), ('community', 'corporate_memphis'),
     ('audio', 'skeuomorphism'), ('daw', 'skeuomorphism'), ('music', 'retro'), ('vintage', 'retro'),
     ('smart home', 'neumorphism'), ('iot', 'neumorphism'), ('control', 'neumorphism'),
     ('productivity', 'flat_design'), ('tool', 'flat_design'), ('utility', 'flat_design'),
-    ('luxury', 'victorian'), ('jewelry', 'victorian'), ('hotel', 'victorian'),
+    ('luxury', 'luxury'), ('jewelry', 'victorian'), ('hotel', 'victorian'),
+    ('premium', 'luxury'), ('concierge', 'luxury'),
+    ('corporate', 'corporate'), ('b2b', 'corporate'), ('enterprise', 'corporate'), ('company', 'corporate'),
+    ('playful', 'playful'), ('kids', 'playful'),
+    ('statement', 'bold'),
+    ('brutalist', 'brutalism'),
     ('arcade', 'pixel_art'), ('indie game', 'pixel_art'),
     ('aerospace', 'futuristic'), ('robotics', 'futuristic'),
     ('comic', 'pop_art'), ('festival', 'maximalism'), ('art', 'collage'),
@@ -872,6 +960,26 @@ class DesignStyleEngine:
                 '.glass-panel { border-radius: 32px; border: none; '
                 'box-shadow: 0 12px 32px rgba(16,185,129,0.16); }'
             ),
+            'luxury': (
+                '.glass-panel { background: #ffffff; border: 1px solid #e3d9c2; '
+                'box-shadow: 0 20px 50px rgba(120,90,20,0.12); border-radius: 6px; }'
+            ),
+            'corporate': (
+                '.glass-panel { background: #f8fafc; border: 1px solid #dbe3ee; '
+                'box-shadow: 0 4px 16px rgba(30,64,175,0.10); border-radius: 8px; }'
+            ),
+            'playful': (
+                '.glass-panel { background: #ffffff; border: 2px solid #3b2b3b; '
+                'box-shadow: 0 14px 30px rgba(255,93,162,0.22); border-radius: 28px; }'
+            ),
+            'bold': (
+                '.glass-panel { background: #ffffff; border: 2px solid #161616; '
+                'box-shadow: 8px 8px 0 #161616; border-radius: 0; }'
+            ),
+            'brutalism': (
+                '.glass-panel { background: #f4f2ed; border: 1px solid #1c1c1c; '
+                'box-shadow: none; border-radius: 0; }'
+            ),
         }
         additions = '\n'.join(vars_block)
         for key, rule in utility_css.items():
@@ -1021,6 +1129,16 @@ class DesignStyleEngine:
             return self._hero_blob(style, p, pid, W, H, bg)
         if comp == 'chrome':
             return self._hero_chrome(style, p, pid, W, H, bg)
+        if comp == 'lux':
+            return self._hero_lux(style, p, pid, W, H, bg)
+        if comp == 'corp':
+            return self._hero_corp(style, p, pid, W, H, bg)
+        if comp == 'play':
+            return self._hero_play(style, p, pid, W, H, bg)
+        if comp == 'bold':
+            return self._hero_bold(style, p, pid, W, H, bg)
+        if comp == 'raw':
+            return self._hero_raw(style, p, pid, W, H, bg)
         return self._hero_blocks(style, p, pid, W, H, bg)
 
     def _hero_blocks(self, style, p, pid, W, H, bg):
@@ -1062,6 +1180,64 @@ class DesignStyleEngine:
         return self._svg(W, H, self._defs() + bg + ''.join(
             self._rect(*g) for g in grid
         ) + self._circle(1480, 180, 40, p['accent']))
+
+    def _hero_lux(self, style, p, pid, W, H, bg):
+        rule1 = self._rect(120, 300, 560, 2, p['primary'])
+        rule2 = self._rect(120, 312, 560, 1, p['border'])
+        diamond = self._path('M 1050 250 L 1150 450 L 1050 650 L 950 450 Z', fill='none', stroke=p['primary'], sw='3')
+        inner = self._path('M 1050 300 L 1110 450 L 1050 600 L 990 450 Z', fill=p['surface'], stroke=p['primary'], sw='1')
+        bar = self._rect(1250, 250, 120, 400, p['secondary'], 4)
+        seal = self._circle(1310, 700, 44, p['primary'])
+        return self._svg(W, H, self._defs() + bg + rule1 + rule2 + diamond + inner + bar + seal)
+
+    def _hero_corp(self, style, p, pid, W, H, bg):
+        grid_lines = ''.join(
+            self._path(f'M 120 {y} L 1480 {y}', stroke=p['border'], sw='1', extra='opacity="0.6"')
+            for y in range(180, 760, 96)
+        )
+        bars = ''.join(
+            self._rect(x, 700 - h, 90, h, p['primary'] if i % 2 == 0 else p['secondary'], 6)
+            for i, (x, h) in enumerate([(200, 220), (330, 340), (460, 280), (590, 440), (720, 380)])
+        )
+        kpi1 = self._rect(900, 220, 280, 180, p['card'], 8, f'stroke="{p["border"]}" stroke-width="1"')
+        kpi2 = self._rect(1210, 220, 270, 180, p['card'], 8, f'stroke="{p["border"]}" stroke-width="1"')
+        chip = self._rect(900, 440, 200, 56, p['accent'], 8)
+        return self._svg(W, H, self._defs() + bg + grid_lines + bars + kpi1 + kpi2 + chip)
+
+    def _hero_play(self, style, p, pid, W, H, bg):
+        g = self._linear(f'{pid}pg', [('0%', p['primary']), ('100%', p['secondary'])])
+        blob = self._circle(800, 430, 300, f'url(#{pid}pg)', 'opacity="0.9"')
+        b1 = self._circle(300, 300, 120, p['accent'])
+        b2 = self._circle(1300, 620, 150, p['secondary'], 'opacity="0.85"')
+        b3 = self._circle(1250, 220, 60, p['primary'])
+        wave = self._path('M 80 700 C 300 620 480 760 700 690 C 920 620 1120 740 1340 680 L 1340 780 L 80 780 Z', fill=p['surface'], extra='opacity="0.9"')
+        dots = ''.join(
+            self._circle(x, y, 14, p['accent'] if (x + y) % 3 == 0 else p['primary'])
+            for x in range(180, 1420, 180) for y in (140, 190)
+        )
+        return self._svg(W, H, self._defs(g) + bg + blob + b1 + b2 + b3 + wave + dots)
+
+    def _hero_bold(self, style, p, pid, W, H, bg):
+        bar1 = self._rect(120, 220, 900, 120, p['primary'])
+        bar2 = self._rect(120, 370, 640, 120, p['primary'])
+        slash = self._path('M 1080 140 L 1230 760 L 1130 760 L 980 140 Z', fill=p['secondary'])
+        disc = self._circle(1400, 300, 110, p['accent'])
+        base = self._rect(120, 560, 1360, 10, p['primary'])
+        card = self._rect(120, 620, 420, 140, p['card'], 0, f'stroke="{p["border"]}" stroke-width="4"')
+        return self._svg(W, H, self._defs() + bg + bar1 + bar2 + slash + disc + base + card)
+
+    def _hero_raw(self, style, p, pid, W, H, bg):
+        frame = self._rect(100, 140, 1400, 620, 'none', 0, f'stroke="{p["border"]}" stroke-width="2"')
+        col1 = self._rect(140, 200, 640, 500, p['card'], 0, f'stroke="{p["border"]}" stroke-width="1"')
+        lines = ''.join(
+            self._rect(180, y, 560 - (i % 3) * 120, 18, p['muted'])
+            for i, y in enumerate(range(260, 560, 48))
+        )
+        stamp = self._rect(840, 240, 220, 110, 'none', 0, f'stroke="{p["text"]}" stroke-width="3"')
+        stamp_bar = self._rect(860, 300, 180, 14, p['text'])
+        side = self._rect(1120, 240, 340, 220, p['surface'], 0, f'stroke="{p["border"]}" stroke-width="1"')
+        foot = self._path('M 100 700 L 1500 700', stroke=p['border'], sw='2')
+        return self._svg(W, H, self._defs() + bg + frame + col1 + lines + stamp + stamp_bar + side + foot)
 
     def _hero_neumorph(self, style, p, pid, W, H, bg):
         base = self._rect(0, 0, W, H, p['bg'])
@@ -1177,7 +1353,7 @@ class DesignStyleEngine:
             glow_nodes = self._path(d, stroke=glyph_col, sw=sw, extra=f'filter="url(#{pid}glow)" opacity="0.7"')
         glyph = self._path(d, stroke=glyph_col, sw=sw, extra='stroke-linecap="round" stroke-linejoin="round"')
         inner = (
-            self._rect(30, 30, 340, 340, chip_fill, 24 if style.get('composition') != 'neo' else 0)
+            self._rect(30, 30, 340, 340, chip_fill, 24 if style.get('composition') not in ('neo', 'raw', 'bold') else 0)
             + self._circle(345, 55, 10, p['accent'])
             + glow_nodes
             + glyph
@@ -1253,7 +1429,7 @@ class DesignStyleEngine:
         W, H = 900, 600
         frame_col = p.get('card', '#ffffff')
         comp = style.get('composition', 'blocks')
-        radius = 0 if comp in ('neo', 'grid', 'editorial') else 16
+        radius = 0 if comp in ('neo', 'grid', 'editorial', 'raw', 'bold') else 16
         frame = self._rect(70, 70, 760, 460, frame_col, radius)
         chrome = self._rect(70, 70, 760, 56, p['surface'], radius)
         dots = (self._circle(110, 98, 9, p['accent']) + self._circle(135, 98, 9, p['muted'])

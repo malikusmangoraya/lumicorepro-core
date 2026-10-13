@@ -89,6 +89,17 @@ export const licenseLimiter = buildLimiter({
   message: 'Too many license checks. Please try again later.',
 });
 
+/**
+ * Public lead form: a real buyer may re-submit a few times, a script should not
+ * be able to fill the staff queue. Tighter than `apiLimiter` for that reason.
+ */
+export const inquiryLimiter = buildLimiter({
+  name: 'inquiry',
+  windowMs: 60 * 60 * 1000,
+  max: Number(process.env.INQUIRY_RATE_LIMIT_MAX) || 60,
+  message: 'Too many enquiries from this address. Please try again later.',
+});
+
 export default {
   authLimiter,
   paymentLimiter,
@@ -97,4 +108,5 @@ export default {
   aiLimiter,
   aiWriteLimiter,
   licenseLimiter,
+  inquiryLimiter,
 };

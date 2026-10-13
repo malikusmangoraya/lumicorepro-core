@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "status": 200,
+  "message": "layout applied (full) to frontend",
+  "dry_run": false,
+  "skin": "full",
+  "written": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "DESIGN_PLAN.md",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "backup": "D:\\lumicorepro-core\\products\\sell-today\\claimflow-ai\\.lumicore\\layout\\20261013T102950Z",
+  "manifest": "D:\\lumicorepro-core\\products\\sell-today\\claimflow-ai\\.lumicore\\layout-manifest.json",
+  "style": "glassmorphism",
+  "region": "default",
+  "palette": {
+    "primary": "#10b970",
+    "secondary": "#05965b",
+    "accent": "#34d389",
+    "heading": "#f8fafc",
+    "canvas": "#0b1220",
+    "surface": "#f8fafc",
+    "text": "#f8fafc",
+    "muted": "#94a3b8",
+    "border": "#1e293b",
+    "navBg": "#0b1220",
+    "footerBg": "#020617"
+  }
+}

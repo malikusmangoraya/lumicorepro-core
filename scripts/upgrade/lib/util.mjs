@@ -1,6 +1,11 @@
 /**
  * util.mjs — file helpers for the upgrade engine.
  *
+ * Lives in `lib/` as a dependency-free leaf so both the engine
+ * (`scripts/upgrade/*`) and the rules (`scripts/upgrade/rules/*`) import it
+ * downward. Keeping it out of either module breaks the
+ * `scripts/upgrade <-> scripts/upgrade/rules` import cycle.
+ *
  * Every writer preserves the dominant line ending of the target file, so a
  * generated block never turns into a whole-file CRLF/LF diff.
  */

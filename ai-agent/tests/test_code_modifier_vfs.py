@@ -55,7 +55,7 @@ class TestCodeModifierVFS(unittest.TestCase):
         self.assertIn("make it red", prompt)
         self.assertIn("PROJECT TREE:", prompt)
         self.assertIn("diff --git", prompt)
-        self.assertIn("Do not add a backend, database", prompt)
+        self.assertIn("Only an explicit static-only request opts out", prompt)
 
     def test_full_page_prompt_includes_website_delivery_contract(self):
         prompt = CodeModifier()._build_page_generation_prompt(
@@ -63,7 +63,7 @@ class TestCodeModifierVFS(unittest.TestCase):
             {},
             [],
         )
-        self.assertIn("Do not add a backend, database", prompt)
+        self.assertIn("Only an explicit static-only request opts out", prompt)
         self.assertIn("Distinguish generated, verified,", prompt)
         self.assertIn("release-ready, and deployed", prompt)
 

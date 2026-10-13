@@ -5,8 +5,69 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
+import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, Iterator, List, Optional, Sequence
+
+
+#: Directories that never hold a project manifest — skipped during scans so a
+#: heavy checkout (node_modules, build output) cannot stall generation.
+_SKIP_SCAN_DIRS = frozenset({
+    "node_modules", ".git", "dist", "build", "coverage", ".bench",
+    "bench-out", "__pycache__", ".venv", "venv", ".hg", ".svn",
+})
+
+#: Hard bounds for manifest discovery (production + tests share this path).
+_SCAN_MAX_DEPTH = 4
+_SCAN_MAX_MANIFESTS = 500
+_SCAN_TIME_BUDGET_SECS = 15.0
+
+
+def _iter_manifest_paths(root: Path) -> Iterator[Path]:
+    """Yield `design-manifest.json` paths under `root` with hard bounds.
+
+    A manual `os.scandir` walk (instead of `Path.rglob`) so heavyweight
+    directories are pruned before descent and the scan can never exceed its
+    depth, file-count, or time budget — an unbounded walk stalled full
+    orchestrator runs on large checkouts.
+    """
+    deadline = time.monotonic() + _SCAN_TIME_BUDGET_SECS
+    seen = 0
+    root_str = str(root)
+    stack = [(root_str, 0)]
+    while stack:
+        if time.monotonic() > deadline or seen >= _SCAN_MAX_MANIFESTS:
+            return
+        current, depth = stack.pop()
+        try:
+            with os.scandir(current) as entries:
+                children = list(entries)
+        except OSError:
+            # A dead root must fail loud (callers distinguish "no prior
+            # projects" from "could not read the portfolio"); deeper entries
+            # just get skipped.
+            if current == root_str:
+                raise
+            continue
+        for entry in children:
+            try:
+                if entry.is_symlink():
+                    continue
+                if entry.is_file(follow_symlinks=False):
+                    if entry.name == "design-manifest.json":
+                        seen += 1
+                        yield Path(entry.path)
+                        if seen >= _SCAN_MAX_MANIFESTS:
+                            return
+                elif entry.is_dir(follow_symlinks=False):
+                    if entry.name in _SKIP_SCAN_DIRS or entry.name.startswith("."):
+                        if entry.name not in (".artifacts",):
+                            continue
+                    if depth < _SCAN_MAX_DEPTH:
+                        stack.append((entry.path, depth + 1))
+            except OSError:
+                continue
 
 
 _VARIANTS = {
@@ -138,7 +199,7 @@ def load_portfolio_signatures(
     excluded = Path(exclude_project).expanduser().resolve() if exclude_project else None
     signatures: List[Dict[str, Any]] = []
     try:
-        manifest_paths = root.rglob("design-manifest.json")
+        manifest_paths = _iter_manifest_paths(root)
         for path in manifest_paths:
             try:
                 if excluded is not None and path.parent.resolve() == excluded:

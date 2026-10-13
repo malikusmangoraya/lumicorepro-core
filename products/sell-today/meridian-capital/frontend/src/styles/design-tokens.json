@@ -1,26 +1,48 @@
 {
-  "style": "consulting_pro",
-  "name": "Consulting Professional",
-  "ui_style": "glassmorphism",
-  "target_region": "default",
+  "style": "editorial",
+  "name": "Editorial / Magazine",
   "project_name": "meridian-capital",
+  "brand": "Meridian Capital",
   "palette": {
-    "primary": "#be2c92",
-    "accent": "#be2c92",
-    "heading": "#be2c92",
-    "navBg": "#f8fafc",
-    "footerBg": "#0e1116",
-    "text": "#26292f",
-    "muted": "#be2c92",
-    "card": "#ffffff",
-    "surface": "#f8fafc",
-    "border": "#e2e8f0",
-    "bg": "#ffffff"
+    "primary": "#6c5cf6",
+    "secondary": "#4a28d9",
+    "accent": "#a884fc",
+    "heading": "#1c1917",
+    "canvas": "#fafaf8",
+    "surface": "#f4f1ea",
+    "text": "#1c1917",
+    "muted": "#78716c",
+    "border": "#e7e5e4",
+    "navBg": "#fafaf8",
+    "footerBg": "#1c1917"
+  },
+  "palette_rgb": {
+    "primary": "108 92 246",
+    "secondary": "74 40 217",
+    "accent": "168 132 252",
+    "heading": "28 25 23",
+    "canvas": "250 250 248",
+    "surface": "244 241 234",
+    "text": "28 25 23",
+    "muted": "120 113 108",
+    "border": "231 229 228",
+    "navBg": "250 250 248",
+    "footerBg": "28 25 23"
   },
   "typography": {
-    "display": "Poppins",
-    "sans": "Roboto",
-    "mono": "JetBrains Mono"
+    "display": "Playfair Display",
+    "sans": "Plus Jakarta Sans",
+    "pairing": "Playfair + Plus Jakarta Sans"
   },
-  "theme": "light"
+  "radius": {
+    "card": "4px",
+    "button": "4px"
+  },
+  "shadow": {
+    "card": "0 1px 2px rgba(0,0,0,0.05)",
+    "button": "0 0 0 0"
+  },
+  "region": "default",
+  "generated_by": "layout-engine",
+  "marker": "LUMI_LAYOUT_V1"
 }

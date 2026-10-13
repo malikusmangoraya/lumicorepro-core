@@ -369,6 +369,22 @@ def _authenticate_user(x_api_key: Optional[str]) -> Optional[Dict[str, Any]]:
         return None
 
 
+def _run_is_accessible(run_id: str, user: Optional[Dict[str, Any]]) -> bool:
+    """Enforce account ownership for account-key requests; master/dev access stays compatible."""
+    if user is None:
+        return True
+    run = _runs.get(run_id) or _pipeline_store.get_run(run_id)
+    return bool(run and run.get("owner_id") == user.get("id"))
+
+
+def _require_run_access(run_id: str, x_api_key: Optional[str]) -> Optional[Dict[str, Any]]:
+    """Return the account owner, hiding foreign and legacy ownerless runs as not found."""
+    user = _authenticate_user(x_api_key)
+    if not _run_is_accessible(run_id, user):
+        raise HTTPException(status_code=404, detail="Run not found")
+    return user
+
+
 def _api_key_status(provided_key: Optional[str]) -> Optional[str]:
     """Return None when the request may proceed, else a client-safe refusal reason.
 
@@ -718,10 +734,23 @@ class GenerateRequest(BaseModel):
     language: Optional[str] = Field("en", description="UI language code: en, ar, ur, fr, de, es, zh, ...")
     region: Optional[str] = Field(None, description="Target region: NA, EU, SA, MENA, APAC, AF, LATAM")
     buyer_type: Optional[str] = Field(None, description="Targeted buyer type: 'static' (client-only showcase, zero server hosting) or 'enterprise' (full-stack hydration). Overrides website-type detection.")
-    design_style: Optional[str] = Field(None, description="20 Master Prompt Design Styles: minimalism, maximalism, glassmorphism, cyberpunk, swiss, retro_futurism (y2k), editorial, retro, collage, vector, futuristic, handwritten, bohemian, graffiti, aurora, victorian, pixel_art, claymorphism (clay_style), pop_art, surreal")
+    design_style: Optional[str] = Field(None, description="35 Master Prompt Design Styles: minimalism, maximalism, glassmorphism, cyberpunk, swiss, retro_futurism (y2k), editorial, retro, collage, vector, futuristic, handwritten, bohemian, graffiti, aurora, victorian, pixel_art, claymorphism (clay_style), pop_art, surreal, luxury, corporate, playful, bold, brutalism (+ animaster, skipper, vengeance, bento_grid, neo_brutalism, neumorphism, flat_design, skeuomorphism, organic, retro, corporate_memphis)")
     animation_intensity: Optional[str] = Field(None, description="Premium motion level injected post-build: high | medium | low | none. Defaults to 'high' (scroll-reveal + stagger + hover micro-motion).")
     image: Optional[str] = Field(None, description=_VISION_SOURCE_DOC + " Runs vision layout extraction (Phase 0) before generation.")
     files: Optional[List[FileAttachment]] = Field(default_factory=list, description="Extra attached files: images (screenshots) + documents (PDF/DOCX/XLSX/TXT/code) whose text is injected into the plan.")
+
+
+class AutoRequest(BaseModel):
+    prompt: str = Field(..., min_length=5, max_length=2000, description="Natural language website description")
+    provider: Optional[str] = Field("grok", description="AI provider: grok | gemini | openai | mistral | openrouter")
+    design_style: Optional[str] = Field(None, description="Named design style override (see GenerateRequest)")
+    page_scaffold: Optional[str] = Field(None, description="Page scaffold override: standard_sections | masonry_flow | bento_showcase | magazine_spread | dashboard_app | split_screen | narrow_single | wide_immersive | overlapping_layers")
+    buyer_type: Optional[str] = Field(None, description="Targeted buyer type: 'static' or 'enterprise'. Overrides website-type detection.")
+    language: Optional[str] = Field("en", description="UI language code: en, ar, ur, fr, de, es, zh, ...")
+    region: Optional[str] = Field(None, description="Target region: NA, EU, SA, MENA, APAC, AF, LATAM")
+    animation_intensity: Optional[str] = Field(None, description="Premium motion level injected post-build: high | medium | low | none.")
+    timeout_secs: int = Field(1800, ge=60, le=7200, description="Total wall-clock budget for the auto run (60-7200s).")
+    run_autopilot: bool = Field(False, description="Attach a post-run autopilot audit (guardrails + self-heal + quality).")
 
 
 class DryRunRequest(BaseModel):
@@ -1372,10 +1401,13 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
     idempotency_key = request.headers.get("Idempotency-Key", "").strip()
     if len(idempotency_key) > 128:
         raise HTTPException(status_code=400, detail="Idempotency-Key is too long.")
+    user = _authenticate_user(x_api_key)
     if idempotency_key:
         existing = _idempotency_store.get(idempotency_key)
         if existing and existing[0] in _runs:
             existing_run = _runs[existing[0]]
+            if user and existing_run.get("owner_id") != user["id"]:
+                raise HTTPException(status_code=404, detail="Run not found")
             return {
                 "run_id": existing[0],
                 "status": existing_run["status"],
@@ -1392,6 +1424,7 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         "language": req.language or "en",
         "region": req.region,
         "created_at": datetime.utcnow().isoformat(),
+        "owner_id": user["id"] if user else None,
     }
     _cleanup_run_state()
     if idempotency_key:
@@ -1433,9 +1466,9 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         region=req.region,
         buyer_type=req.buyer_type,
         design_style=req.design_style,
+        owner_id=user["id"] if user else None,
     )
     # Reserved credits for this run (authenticated users pay per generation).
-    user = _authenticate_user(x_api_key)
     credits_reserved = 0.0
     if user is not None:
         if not _accounts.spend(user["id"], _CREDITS_PER_RUN, run_id=run_id, reason="generation"):
@@ -1462,6 +1495,295 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
     }
 
 
+# ── Auto Mode: zero-prompt, budget-enforced generation ─────────────────
+async def _run_auto_pipeline(run_id: str, prompt: str, provider: Optional[str],
+                             design_style: Optional[str] = None, page_scaffold: Optional[str] = None,
+                             buyer_type: Optional[str] = None, animation_intensity: Optional[str] = None,
+                             timeout_secs: int = 1800, run_autopilot: bool = False):
+    """Execute agent.auto_mode.run_auto in a thread and stream events."""
+    run = _runs[run_id]
+    async with _run_semaphore:
+        if run.get("cancel_requested"):
+            run["status"] = "cancelled"
+            run["finished_at"] = time.time()
+            run["error"] = "Auto run cancelled by the client."
+            _pipeline_store.set_status(run_id, "cancelled", error=run["error"], finished_at=run["finished_at"])
+            _refund_credits(run_id, run)
+            return
+
+        run["status"] = "running"
+        run["started_at"] = time.time()
+        _pipeline_store.set_status(run_id, "running", started_at=run["started_at"])
+        _telemetry.record(run_id, "auto_run_start", provider=provider, prompt_len=len(prompt))
+
+        _pending_events: List[Dict[str, Any]] = []
+
+        def _flush_events():
+            if _pending_events:
+                try:
+                    _pipeline_store.append_events(run_id, _pending_events)
+                except Exception:
+                    agent_logger.warning("Failed to persist pipeline events", exc_info=True)
+                _pending_events.clear()
+
+        def _emit(event_type: str, data: dict):
+            event = {"run_id": run_id, "type": event_type, "ts": time.time(), **data}
+            run["events"].append(event)
+            del run["events"][:-_MAX_EVENTS]
+            _pending_events.append(event)
+            if len(_pending_events) >= 5:
+                _flush_events()
+
+        try:
+            from agent.auto_mode import run_auto, AutoModeTimeout, AutoModeInputBlocked
+            from agent.orchestrator import AgentOrchestrator
+
+            loop = asyncio.get_event_loop()
+
+            def _sync_run():
+                # Cooperative cancellation inside quality-gate subprocess steps.
+                def _gate_checkpoint():
+                    if run.get("cancel_requested"):
+                        raise PipelineCancelled("Cancellation requested by client")
+
+                for idx, phase in enumerate(AgentOrchestrator.PHASES):
+                    _emit("phase_pending", {"phase": phase, "index": idx})
+
+                def _on_progress(phase_name: str, event_type: str, data: dict):
+                    if run.get("cancel_requested"):
+                        raise PipelineCancelled("Cancellation requested by client")
+                    _telemetry.record(run_id, event_type, phase=phase_name)
+                    _emit(event_type, {"phase": phase_name, **data})
+
+                extra_spec = {}
+                if buyer_type:
+                    extra_spec["buyer_type"] = buyer_type
+                extra_spec["animation_intensity"] = animation_intensity or "high"
+                return run_auto(
+                    prompt,
+                    design_style=design_style,
+                    page_scaffold=page_scaffold,
+                    provider=provider,
+                    timeout_secs=timeout_secs,
+                    run_autopilot=run_autopilot,
+                    progress_callback=_on_progress,
+                    cancel_check=_gate_checkpoint,
+                    extra_spec=extra_spec or None,
+                )
+
+            report = await loop.run_in_executor(None, _sync_run)
+            if run.get("cancel_requested"):
+                raise PipelineCancelled("Cancellation requested by client")
+
+            # Fail loud: a report without a usable project dir, a critical
+            # failure, or an exhausted auto failure budget is NOT "done".
+            report_status = (report or {}).get("status")
+            project_dir = (report or {}).get("generated_project_dir")
+            if not report or not project_dir or not os.path.isdir(str(project_dir)):
+                raise RuntimeError(
+                    "Auto run did not produce a usable project directory. "
+                    f"Report status: {report_status or 'missing'}"
+                )
+            if report_status == "failed":
+                auto_block = (report or {}).get("auto_mode") or {}
+                if auto_block.get("failure_budget_exceeded"):
+                    raise RuntimeError(
+                        "Auto run failed: non-critical failure budget exceeded "
+                        f"({auto_block.get('failure_count')}/{auto_block.get('failure_limit')}). "
+                        "No usable website was produced."
+                    )
+                raise RuntimeError(
+                    "Auto run failed during a critical phase. "
+                    "No usable website was produced."
+                )
+
+            run["result"] = report
+            run["status"] = "done"
+            run["finished_at"] = time.time()
+            _emit("complete", {
+                "project_name": report.get("project_name"),
+                "quality_score": report.get("quality_gates", {}).get("overall_score"),
+                "status": report_status,
+                "zip": report.get("zip_archive_path"),
+                "auto_mode": report.get("auto_mode"),
+                "result": _client_completion_result(report),
+            })
+            _telemetry.record(
+                run_id, "auto_run_done", status=report_status,
+                duration_secs=round(run["finished_at"] - run["started_at"], 3),
+                quality_score=report.get("quality_gates", {}).get("overall_score"),
+                project_name=report.get("project_name"),
+            )
+            _flush_events()
+            _pipeline_store.set_status(run_id, "done", result_json=report, finished_at=run["finished_at"])
+
+            try:
+                from agent.semantic_cache import get_semantic_cache
+                from agent.quality_trends import get_quality_tracker
+                _qscore = (report.get("quality_gates", {}) or {}).get("overall_score")
+                if report_status in ("succeeded", "succeeded_with_skips"):
+                    get_semantic_cache().store(prompt, report, quality_score=_qscore)
+                get_quality_tracker().record(
+                    _qscore,
+                    project=report.get("project_name", ""),
+                    status=report_status or "unknown",
+                    provider=(report.get("ai_evidence", {}) or {}).get("provider_resolved") or provider or "",
+                    run_id=run_id,
+                )
+            except Exception:  # noqa: BLE001
+                agent_logger.warning("Post-run cache/trend recording skipped", exc_info=True)
+
+            _persist_history(prompt, provider, report)
+
+        except PipelineCancelled:
+            run["status"] = "cancelled"
+            run["finished_at"] = time.time()
+            run["error"] = "Auto run cancelled by the client."
+            _emit("cancelled", {"message": run["error"]})
+            _telemetry.record(run_id, "auto_run_cancelled", status="cancelled",
+                              duration_secs=round(run["finished_at"] - run["started_at"], 3))
+            _flush_events()
+            _pipeline_store.set_status(run_id, "cancelled", error=run["error"], finished_at=run["finished_at"])
+            _refund_credits(run_id, run)
+        except asyncio.CancelledError:
+            run["status"] = "cancelled"
+            run["finished_at"] = time.time()
+            run["error"] = "Auto run cancelled by the client."
+            _emit("cancelled", {"message": run["error"]})
+            _telemetry.record(run_id, "auto_run_cancelled", status="cancelled",
+                              duration_secs=round(run["finished_at"] - run["started_at"], 3))
+            _flush_events()
+            _pipeline_store.set_status(run_id, "cancelled", error=run["error"], finished_at=run["finished_at"])
+            _refund_credits(run_id, run)
+        except (AutoModeTimeout, AutoModeInputBlocked) as exc:
+            agent_logger.error(f"Auto run {run_id} contract violation: {exc}")
+            run["status"] = "error"
+            run["finished_at"] = time.time()
+            run["error"] = str(exc)[:300]
+            _emit("error", {"message": run["error"]})
+            _telemetry.record(run_id, "auto_run_error", status="error", error=str(exc),
+                              duration_secs=round(run["finished_at"] - run["started_at"], 3))
+            _flush_events()
+            _pipeline_store.set_status(run_id, "error", error=run["error"], finished_at=run["finished_at"])
+            _refund_credits(run_id, run)
+        except Exception as exc:
+            agent_logger.error(f"Auto pipeline run {run_id} failed: {exc}", exc_info=True)
+            run["status"] = "error"
+            run["finished_at"] = time.time()
+            run["error"] = "Auto run failed. Check the run report for details."
+            _emit("error", {"message": run["error"]})
+            _telemetry.record(run_id, "auto_run_error", status="error", error=str(exc),
+                              duration_secs=round(run["finished_at"] - run["started_at"], 3))
+            _flush_events()
+            _pipeline_store.set_status(run_id, "error", error=run["error"], finished_at=run["finished_at"])
+            _refund_credits(run_id, run)
+
+
+@app.post("/api/auto", tags=["Generation"])
+async def generate_auto(req: AutoRequest, request: Request, _auth: bool = Depends(_verify_api_key),
+                       x_api_key: Optional[str] = Header(default=None)):
+    """Start a fully autonomous run: zero prompts, wall-clock + failure budgets enforced.
+
+    Returns run_id immediately; connect to /ws/generate/{run_id} for streaming.
+    The finished report carries an `auto_mode` block with budget accounting.
+    """
+    client_ip = _get_client_ip(request)
+    if not _check_rate_limit(client_ip):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Max 30 requests/minute per IP.")
+
+    idempotency_key = request.headers.get("Idempotency-Key", "").strip()
+    if len(idempotency_key) > 128:
+        raise HTTPException(status_code=400, detail="Idempotency-Key is too long.")
+    user = _authenticate_user(x_api_key)
+    if idempotency_key:
+        existing = _idempotency_store.get(idempotency_key)
+        if existing and existing[0] in _runs:
+            existing_run = _runs[existing[0]]
+            if user and existing_run.get("owner_id") != user["id"]:
+                raise HTTPException(status_code=404, detail="Run not found")
+            return {
+                "run_id": existing[0],
+                "status": existing_run["status"],
+                "mode": "auto",
+                "ws_url": f"/ws/generate/{existing[0]}",
+                "language": existing_run.get("language", "en"),
+                "region": existing_run.get("region"),
+                "idempotent_replay": True,
+            }
+
+    try:
+        from agent.auto_mode import describe_auto_mode
+        auto_contract = describe_auto_mode()
+    except Exception:  # noqa: BLE001
+        auto_contract = {"mode": "auto"}
+
+    run_id = str(uuid.uuid4())
+    _runs[run_id] = {
+        "status": "queued", "events": [], "result": None, "error": None,
+        "task": None, "cancel_requested": False,
+        "language": req.language or "en",
+        "region": req.region,
+        "mode": "auto",
+        "created_at": datetime.utcnow().isoformat(),
+        "owner_id": user["id"] if user else None,
+    }
+    _cleanup_run_state()
+    if idempotency_key:
+        _idempotency_store[idempotency_key] = (run_id, time.time())
+
+    try:
+        from agent.guardrails import scrub_prompt_injection
+        scrubbed = scrub_prompt_injection(req.prompt)
+        effective_prompt = scrubbed["text"]
+        if scrubbed["flags"]:
+            _runs[run_id]["prompt_flags"] = scrubbed["flags"]
+            agent_logger.warning("Prompt injection scrubbed for auto run %s: %s", run_id, scrubbed["flags"])
+    except Exception:  # noqa: BLE001
+        agent_logger.warning("Prompt scrubber unavailable — passing prompt through", exc_info=True)
+        effective_prompt = req.prompt
+
+    _pipeline_store.create_run(
+        run_id,
+        status="queued",
+        prompt=effective_prompt,
+        provider=req.provider or "gemini",
+        language=req.language or "en",
+        region=req.region,
+        buyer_type=req.buyer_type,
+        design_style=req.design_style,
+        owner_id=user["id"] if user else None,
+    )
+    credits_reserved = 0.0
+    if user is not None:
+        if not _accounts.spend(user["id"], _CREDITS_PER_RUN, run_id=run_id, reason="auto-generation"):
+            _runs.pop(run_id, None)
+            _pipeline_store.set_status(run_id, "cancelled", error="Insufficient credits", finished_at=time.time())
+            raise HTTPException(
+                status_code=402,
+                detail="Insufficient credits. Balance is 0. Add credits via POST /api/accounts/credits/topup.",
+            )
+        credits_reserved = _CREDITS_PER_RUN
+        _runs[run_id]["user_id"] = user["id"]
+        _runs[run_id]["credits_reserved"] = credits_reserved
+
+    task = asyncio.create_task(_run_auto_pipeline(
+        run_id, effective_prompt, req.provider, req.design_style, req.page_scaffold,
+        req.buyer_type, req.animation_intensity, req.timeout_secs, req.run_autopilot,
+    ))
+    _runs[run_id]["task"] = task
+    return {
+        "run_id": run_id,
+        "status": "queued",
+        "mode": "auto",
+        "ws_url": f"/ws/generate/{run_id}",
+        "language": req.language,
+        "region": req.region,
+        "timeout_secs": req.timeout_secs,
+        "failure_budget": auto_contract.get("guarantees", [])[2] if len(auto_contract.get("guarantees", [])) > 2 else None,
+        "credits_reserved": credits_reserved,
+    }
+
+
 # ── Stream Pipeline: Fast TTFR + SSE fallback ─────────────────────────
 @app.post("/api/generate/stream", tags=["Generation"])
 async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = Depends(_verify_api_key),
@@ -1475,11 +1797,13 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
         raise HTTPException(status_code=429, detail="Rate limit exceeded.")
 
     run_id = str(uuid.uuid4())
+    user = _authenticate_user(x_api_key)
     _runs[run_id] = {
         "status": "queued", "events": [], "result": None, "error": None,
         "task": None, "cancel_requested": False,
         "language": req.language or "en", "region": req.region,
         "created_at": datetime.utcnow().isoformat(), "pipeline_mode": "stream",
+        "owner_id": user["id"] if user else None,
     }
     _cleanup_run_state()
 
@@ -1500,9 +1824,9 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
     _pipeline_store.create_run(run_id, status="queued", prompt=effective_prompt,
                                provider=req.provider or "gemini", language=req.language or "en",
                                region=req.region, buyer_type=req.buyer_type,
-                               design_style=req.design_style)
+                               design_style=req.design_style,
+                               owner_id=user["id"] if user else None)
 
-    user = _authenticate_user(x_api_key)
     credits_reserved = 0.0
     if user is not None:
         if not _accounts.spend(user["id"], _CREDITS_PER_RUN, run_id=run_id, reason="generation_stream"):
@@ -1529,10 +1853,12 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
 
 
 @app.get("/api/generate/{run_id}/events", tags=["Generation"])
-async def generate_sse(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def generate_sse(run_id: str, _auth: bool = Depends(_verify_api_key),
+                       x_api_key: Optional[str] = Header(default=None)):
     """Server-Sent Events fallback for environments that block WebSockets."""
     from starlette.responses import StreamingResponse
 
+    _require_run_access(run_id, x_api_key)
     run = _runs.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
@@ -1556,8 +1882,10 @@ async def generate_sse(run_id: str, _auth: bool = Depends(_verify_api_key)):
 
 
 @app.post("/api/cancel/{run_id}", tags=["Generation"])
-async def cancel_run(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def cancel_run(run_id: str, _auth: bool = Depends(_verify_api_key),
+                     x_api_key: Optional[str] = Header(default=None)):
     """Request cooperative cancellation for a queued or running generation."""
+    _require_run_access(run_id, x_api_key)
     if _request_cancel(run_id):
         return {"run_id": run_id, "status": "cancelling", "message": "Cancellation requested."}
     run = _runs.get(run_id)
@@ -1574,8 +1902,10 @@ class RevisionRequest(BaseModel):
 
 
 @app.post("/api/runs/{run_id}/revise", tags=["Generation"])
-async def request_revision(run_id: str, req: RevisionRequest, _auth: bool = Depends(_verify_api_key)):
+async def request_revision(run_id: str, req: RevisionRequest, _auth: bool = Depends(_verify_api_key),
+                           x_api_key: Optional[str] = Header(default=None)):
     """Submit a client revision request for a completed generation run."""
+    _require_run_access(run_id, x_api_key)
     run = _runs.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
@@ -1616,8 +1946,10 @@ async def request_revision(run_id: str, req: RevisionRequest, _auth: bool = Depe
 
 
 @app.get("/api/runs/{run_id}/revisions", tags=["Generation"])
-async def get_revisions(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def get_revisions(run_id: str, _auth: bool = Depends(_verify_api_key),
+                         x_api_key: Optional[str] = Header(default=None)):
     """List all revision requests for a generation run."""
+    _require_run_access(run_id, x_api_key)
     run = _runs.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
@@ -1630,8 +1962,10 @@ class ApplyRevisionRequest(BaseModel):
 
 
 @app.post("/api/runs/{run_id}/revise/apply", tags=["Generation"])
-async def apply_revision(run_id: str, req: ApplyRevisionRequest, _auth: bool = Depends(_verify_api_key)):
+async def apply_revision(run_id: str, req: ApplyRevisionRequest, _auth: bool = Depends(_verify_api_key),
+                         x_api_key: Optional[str] = Header(default=None)):
     """Apply a revision request to the generated project using AI code modification."""
+    _require_run_access(run_id, x_api_key)
     run = _runs.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
@@ -1736,12 +2070,14 @@ async def dry_run(req: DryRunRequest, _auth: bool = Depends(_verify_api_key)):
 
 
 @app.get("/api/runs/{run_id}", tags=["Generation"])
-async def get_run(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def get_run(run_id: str, _auth: bool = Depends(_verify_api_key),
+                  x_api_key: Optional[str] = Header(default=None)):
+    user = _authenticate_user(x_api_key)
     run = _runs.get(run_id)
     if not run:
         # Fall back to the durable store (run may predate a server restart).
         stored = _pipeline_store.get_run(run_id)
-        if stored:
+        if stored and _run_is_accessible(run_id, user):
             return {
                 "run_id": run_id,
                 "status": stored.get("status"),
@@ -1752,13 +2088,20 @@ async def get_run(run_id: str, _auth: bool = Depends(_verify_api_key)):
                 "created_at": stored.get("created_at"),
             }
         raise HTTPException(status_code=404, detail="Run not found")
+    if not _run_is_accessible(run_id, user):
+        raise HTTPException(status_code=404, detail="Run not found")
+    if not _run_is_accessible(run_id, user):
+        raise HTTPException(status_code=404, detail="Run not found")
     return {"run_id": run_id, "status": run["status"], "events_count": len(run["events"]), "result": run.get("result"), "error": run.get("error")}
 
 
 @app.get("/api/runs", tags=["Generation"])
-async def list_runs(limit: int = 20, status: Optional[str] = None, _auth: bool = Depends(_verify_api_key)):
-    """List recent pipeline runs (durable, survives restarts)."""
-    runs = _pipeline_store.list_runs(limit=limit, status=status)
+async def list_runs(limit: int = 20, status: Optional[str] = None, _auth: bool = Depends(_verify_api_key),
+                    x_api_key: Optional[str] = Header(default=None)):
+    """List recent runs, scoped to the authenticated account API key."""
+    user = _authenticate_user(x_api_key)
+    runs = _pipeline_store.list_runs(limit=limit, status=status,
+                                    owner_id=user["id"] if user else None)
     return {"runs": runs, "count": len(runs)}
 
 
@@ -1906,6 +2249,7 @@ def _persist_preview(slug: str, project_dir: str, user_id: str = "", run_id: str
 async def create_preview(req: PreviewRequest, _auth: bool = Depends(_verify_api_key),
                          x_api_key: Optional[str] = Header(default=None)):
     """Register a finished run's project for live preview; returns a preview URL."""
+    user = _require_run_access(req.run_id, x_api_key)
     run = _runs.get(req.run_id)
     if not run:
         stored = _pipeline_store.get_run(req.run_id)
@@ -1965,7 +2309,6 @@ async def create_preview(req: PreviewRequest, _auth: bool = Depends(_verify_api_
     slug = _make_preview_slug(result.get("project_name") or os.path.basename(str(project_dir)))
     _previews[slug] = str(Path(project_dir).resolve())
 
-    user = _authenticate_user(x_api_key)
     persisted = _persist_preview(slug, str(project_dir), user["id"] if user else "", req.run_id)
 
     base = _PREVIEW_BASE_URL or ""
@@ -2033,8 +2376,12 @@ async def preview_file(slug: str, file_path: str):
 
 
 @app.get("/api/sandbox/{run_id}", tags=["Sandbox"])
-async def get_sandbox(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def get_sandbox(run_id: str, _auth: bool = Depends(_verify_api_key),
+                      x_api_key: Optional[str] = Header(default=None)):
     """Return project files as WebContainer-mountable tree for live execution."""
+    user = _authenticate_user(x_api_key)
+    if not _run_is_accessible(run_id, user):
+        raise HTTPException(status_code=404, detail="Run not found")
     run = _runs.get(run_id)
     if not run:
         stored = _pipeline_store.get_run(run_id)
@@ -2276,6 +2623,7 @@ async def deploy_run(req: DeployRunRequest, request: Request, _auth: bool = Depe
     if not _check_rate_limit(_get_client_ip(request)):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
     user = _authenticate_user(x_api_key)
+    _require_run_access(req.run_id, x_api_key)
 
     run = _runs.get(req.run_id)
     if not run:
@@ -2617,8 +2965,12 @@ async def list_variant(variant_id: str, _auth: bool = Depends(_verify_api_key)):
 
 
 @app.get("/api/download/{run_id}", tags=["Generation"])
-async def download_run_zip(run_id: str, _auth: bool = Depends(_verify_api_key)):
+async def download_run_zip(run_id: str, _auth: bool = Depends(_verify_api_key),
+                           x_api_key: Optional[str] = Header(default=None)):
     """Download the generated project ZIP file for a given run_id."""
+    user = _authenticate_user(x_api_key)
+    if not _run_is_accessible(run_id, user):
+        raise HTTPException(status_code=404, detail="Run not found")
     run = _runs.get(run_id)
     if not run:
         stored = _pipeline_store.get_run(run_id)
@@ -2655,9 +3007,18 @@ async def download_run_zip(run_id: str, _auth: bool = Depends(_verify_api_key)):
 
 
 @app.get("/api/history", tags=["Generation"])
-async def history(limit: int = 20, _auth: bool = Depends(_verify_api_key)):
+async def history(limit: int = 20, _auth: bool = Depends(_verify_api_key),
+                  x_api_key: Optional[str] = Header(default=None)):
     """Return last N generation records."""
     limit = max(1, min(limit, 100))
+    user = _authenticate_user(x_api_key)
+    if user:
+        runs = _pipeline_store.list_runs(limit=limit, owner_id=user["id"])
+        return {"history": [{"id": run["run_id"],
+                              "project_name": (run.get("result_json") or {}).get("project_name", ""),
+                              "prompt": (run.get("prompt") or "")[:80],
+                              "status": run.get("status"),
+                              "created_at": run.get("created_at")} for run in runs]}
     if not os.path.exists(AGENT_DB_PATH):
         return {"history": []}
     try:
@@ -3003,8 +3364,13 @@ async def ws_generate(websocket: WebSocket, run_id: str):
     Stream phase events for a given run_id.
     Client receives JSON messages: {"type": "phase_start"|"phase_done"|"complete"|"error", ...}
     """
-    if _api_key_status(websocket.headers.get("x-api-key")) is not None:
+    provided_key = websocket.headers.get("x-api-key")
+    if _api_key_status(provided_key) is not None:
         await websocket.close(code=1008, reason="Invalid or missing API key")
+        return
+    user = _authenticate_user(provided_key)
+    if not _run_is_accessible(run_id, user):
+        await websocket.close(code=1008, reason="Run not found")
         return
 
     await websocket.accept()

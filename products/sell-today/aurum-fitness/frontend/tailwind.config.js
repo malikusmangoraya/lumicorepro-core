@@ -1,24 +1,22 @@
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*{js,jsx}'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
-      ringColor: { DEFAULT: "#be882c", offset: "#be882c" },
       colors: {
-        brand: 'var(--t-brand)',
-        canvas: 'var(--t-canvas)',
-        surface: 'var(--t-surface)',
-        heading: 'var(--t-heading)',
-        muted: 'var(--t-muted)',
-        footer: 'var(--t-footer)',
-        primary: { '50': '#fcf8f2', '100': '#f8f0e2', '150': '#f2e3c9', '200': '#e9d0a4', '250': '#deb672', '300': '#d39f45', '350': '#be882c', '400': '#9c7024', '450': '#7b591d', '500': '#5a4115' },
-        accent: { '50': '#fafbf3', '100': '#f4f6e3', '150': '#ebf0cb', '200': '#dde5a8', '250': '#cbd778', '300': '#bacb4d', '350': '#ec4899', '400': '#87962b', '450': '#6b7622', '500': '#4e5619' },
-        blue: { '50': '#fcf8f2', '100': '#f8f0e2', '150': '#f2e3c9', '200': '#e9d0a4', '250': '#deb672', '300': '#d39f45', '350': '#be882c', '400': '#9c7024', '450': '#7b591d', '500': '#5a4115' },
-        indigo: { '50': '#fcf8f2', '100': '#f8f0e2', '150': '#f2e3c9', '200': '#e9d0a4', '250': '#deb672', '300': '#d39f45', '350': '#be882c', '400': '#9c7024', '450': '#7b591d', '500': '#5a4115' },
-        cyan: { '50': '#fafbf3', '100': '#f4f6e3', '150': '#ebf0cb', '200': '#dde5a8', '250': '#cbd778', '300': '#bacb4d', '350': '#a4b534', '400': '#87962b', '450': '#6b7622', '500': '#4e5619' },
-        teal: { '50': '#fafbf3', '100': '#f4f6e3', '150': '#ebf0cb', '200': '#dde5a8', '250': '#cbd778', '300': '#bacb4d', '350': '#a4b534', '400': '#87962b', '450': '#6b7622', '500': '#4e5619' },
-        sky: { '50': '#fcf8f2', '100': '#f8f0e2', '150': '#f2e3c9', '200': '#e9d0a4', '250': '#deb672', '300': '#d39f45', '350': '#be882c', '400': '#9c7024', '450': '#7b591d', '500': '#5a4115' },
+        primary: 'rgb(var(--t-primary-rgb, 37 99 235) / <alpha-value>)',
+        accent: 'rgb(var(--t-accent-rgb, 124 58 237) / <alpha-value>)',
+        heading: 'rgb(var(--t-heading-rgb, 15 23 42) / <alpha-value>)',
+        canvas: 'rgb(var(--t-canvas-rgb, 255 255 255) / <alpha-value>)',
+        surface: 'rgb(var(--t-surface-rgb, 248 250 252) / <alpha-value>)',
+        text: 'rgb(var(--t-text-rgb, 31 41 55) / <alpha-value>)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Syne', 'system-ui', 'sans-serif'],
       },
     },
   },
-}
+  plugins: [],
+};

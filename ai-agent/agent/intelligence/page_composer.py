@@ -148,6 +148,21 @@ def _render_css(design_dna: Dict[str, Any]) -> str:
 .ds-sidebar { position: sticky; top: 0; grid-column: 1; grid-row: 1 / span 3; align-self: start; min-height: 100vh; padding: var(--ds-space-5); border-right: var(--ds-border-width) solid var(--ds-color-border); background: var(--ds-color-surface); }
 .ds-sidebar .ds-nav-links { align-items: stretch; flex-direction: column; margin-block: var(--ds-space-5); }
 .ds-site[data-navigation="workspace_sidebar"] > main, .ds-site[data-navigation="workspace_sidebar"] > .ds-footer { grid-column: 2; }
+.ds-site[data-scaffold="masonry_flow"] .ds-block-grid { display: block; columns: 22rem; column-gap: var(--ds-space-4); }
+.ds-site[data-scaffold="masonry_flow"] .ds-block { break-inside: avoid; margin-bottom: var(--ds-space-4); }
+.ds-site[data-scaffold="bento_showcase"] .ds-block-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ds-site[data-scaffold="bento_showcase"] .ds-block:first-child { grid-column: span 2; grid-row: span 2; }
+.ds-site[data-scaffold="magazine_spread"] .ds-section-heading { font-size: var(--ds-type-8); letter-spacing: -0.01em; }
+.ds-site[data-scaffold="magazine_spread"] .ds-hero h1 { font-size: var(--ds-type-9); }
+.ds-site[data-scaffold="dashboard_app"] .ds-section { padding-block: var(--ds-space-5); }
+.ds-site[data-scaffold="dashboard_app"] .ds-block-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ds-site[data-scaffold="dashboard_app"] .ds-header { position: sticky; top: 0; z-index: 20; }
+.ds-site[data-scaffold="split_screen"] .ds-hero { min-height: 70vh; align-content: center; }
+.ds-site[data-scaffold="narrow_single"] .ds-hero-copy { max-width: 40rem; }
+.ds-site[data-scaffold="wide_immersive"] .ds-hero { min-height: 88vh; align-content: center; }
+.ds-site[data-scaffold="overlapping_layers"] .ds-hero { padding-bottom: 0; }
+.ds-site[data-scaffold="overlapping_layers"] .ds-hero-visual { transform: translateY(var(--ds-space-7)); box-shadow: var(--ds-shadow-card); }
+.ds-site[data-scaffold="overlapping_layers"] .ds-section:first-of-type { padding-top: var(--ds-space-8); }
 .ds-brand { color: var(--ds-color-text); font-family: var(--ds-font-display), serif; font-size: var(--ds-type-5); font-weight: 700; text-decoration: none; }
 .ds-nav-links { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-4); }
 .ds-nav a, .ds-footer a { color: inherit; text-decoration: none; }
@@ -178,6 +193,9 @@ def _render_css(design_dna: Dict[str, Any]) -> str:
     .ds-hero-copy, .ds-hero-visual { grid-column: auto; }
     .ds-site[data-navigation="workspace_sidebar"] { grid-template-columns: 1fr; }
     .ds-site[data-navigation="workspace_sidebar"] > main, .ds-site[data-navigation="workspace_sidebar"] > .ds-footer { grid-column: 1; }
+    .ds-site[data-scaffold="bento_showcase"] .ds-block-grid, .ds-site[data-scaffold="dashboard_app"] .ds-block-grid { grid-template-columns: 1fr; }
+    .ds-site[data-scaffold="bento_showcase"] .ds-block:first-child { grid-column: auto; grid-row: auto; }
+    .ds-site[data-scaffold="overlapping_layers"] .ds-hero-visual { transform: none; }
     .ds-sidebar { position: relative; grid-row: auto; min-height: 0; border-right: 0; border-bottom: var(--ds-border-width) solid var(--ds-color-border); }
   .ds-hero h1 { font-size: var(--ds-type-7); }
   .ds-footer[data-footer="editorial_contact"] .ds-footer-content { grid-template-columns: 1fr; }
@@ -317,7 +335,7 @@ def _render_niche_page(page: Dict[str, Any], design_dna: Dict[str, Any], brand: 
     description = _text(page["description"])
     return (
         "import React from 'react';\nimport '../design-system.css';\n"
-        f"export default function {page['name']}() {{ return (<div className=\"ds-site\" data-grid=\"{_text(design_dna['layout'].get('grid_system', 'editorial_2_column'))}\" data-navigation=\"{_text(design_dna['layout']['navigation_pattern'])}\">"
+        f"export default function {page['name']}() {{ return (<div className=\"ds-site\" data-grid=\"{_text(design_dna['layout'].get('grid_system', 'editorial_2_column'))}\" data-navigation=\"{_text(design_dna['layout']['navigation_pattern'])}\" data-scaffold=\"{_text(design_dna['layout'].get('page_scaffold', 'standard_sections'))}\">"
         f"<header className=\"ds-header\"><nav className=\"ds-container ds-nav\" aria-label=\"Main\"><a className=\"ds-brand\" href=\"/\">{_text(brand)}</a></nav></header>"
         f"<main><section className=\"ds-container ds-section\"><span className=\"ds-eyebrow\">{_text(design_dna['niche'].replace('_', ' '))}</span><h1>{heading}</h1><p className=\"ds-lede\">{description}</p></section>{blocks}</main>"
         f"{_render_footer(design_dna, brand)}</div>); }}\n"
@@ -338,11 +356,14 @@ def compose_project_pages(project_dir: Path, design_dna: Dict[str, Any], spec: D
         section_order = section_order[1:]
     hero = layout.get("hero_archetype") or "typographic"
     navigation = layout.get("navigation_pattern") or "minimal_top"
+    scaffold = layout.get("page_scaffold") or "standard_sections"
     catalog = get_design_catalog()
     if hero not in {item["id"] for item in catalog["heroes"]}:
         raise ValueError(f"Unknown hero archetype in design DNA: {hero}")
     if navigation not in {item["id"] for item in catalog["navigation"]}:
         raise ValueError(f"Unknown navigation pattern in design DNA: {navigation}")
+    if scaffold not in {item["id"] for item in catalog["scaffolds"]}:
+        raise ValueError(f"Unknown page scaffold in design DNA: {scaffold}")
     valid_sections = {item["id"] for item in catalog["sections"]}
     unknown_sections = set(section_order) - valid_sections
     if unknown_sections:
@@ -358,7 +379,7 @@ def compose_project_pages(project_dir: Path, design_dna: Dict[str, Any], spec: D
     footer = _render_footer(normalized_dna, brand)
     home_source = (
         "import React from 'react';\nimport '../design-system.css';\n"
-        f"export default function Home() {{ return (<div className=\"ds-site\" data-grid=\"{_text(layout.get('grid_system', 'editorial_2_column'))}\" data-navigation=\"{_text(navigation)}\">{nav}<main id=\"main-content\">{hero_markup}{section_markup}</main>{footer}</div>); }}\n"
+        f"export default function Home() {{ return (<div className=\"ds-site\" data-grid=\"{_text(layout.get('grid_system', 'editorial_2_column'))}\" data-navigation=\"{_text(navigation)}\" data-scaffold=\"{_text(scaffold)}\">{nav}<main id=\"main-content\">{hero_markup}{section_markup}</main>{footer}</div>); }}\n"
     )
     home_path = pages_dir / "Home.jsx"
     home_path.write_text(home_source, encoding="utf-8")
@@ -380,6 +401,7 @@ def compose_project_pages(project_dir: Path, design_dna: Dict[str, Any], spec: D
             "niche": niche,
             "hero": hero,
             "navigation": navigation,
+            "scaffold": scaffold,
             "home_sections": all_sections,
             "niche_page": niche_page["name"] if niche_page else None,
             "niche_route_mounted": route_mounted,

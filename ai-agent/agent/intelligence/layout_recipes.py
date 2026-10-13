@@ -90,13 +90,6 @@ _NICHE_PAGES = {
         "heading": "Explore the available vehicles",
         "description": "Review vehicle details and arrange a conversation or viewing.",
     },
-    "travel": {
-        "name": "Itineraries",
-        "path": "/itineraries",
-        "blocks": ["travel_itinerary", "product_catalog"],
-        "heading": "A journey with room to discover",
-        "description": "Review the itinerary, places, and practical details before you go.",
-    },
     "finance": {
         "name": "Services",
         "path": "/services",

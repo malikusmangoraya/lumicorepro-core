@@ -1,0 +1,4550 @@
+{
+  "generated_at": "2026-10-12T05:36:39.105Z",
+  "note": "Read-only scan. Markers are filesystem presence checks, not quality or test results.",
+  "scanned_roots": [
+    "delivery",
+    "products/sell-today",
+    "generated-projects",
+    "backend-library",
+    "src/templates"
+  ],
+  "units_scanned": 263,
+  "by_kind": {
+    "delivery": {
+      "count": 95,
+      "withPackageJson": 95,
+      "withReadme": 95,
+      "withLicense": 95,
+      "withEnvExample": 95,
+      "withEnvFile": 0,
+      "withGitignore": 95,
+      "withTests": 4,
+      "withI18n": 95,
+      "bothFrontendAndBackend": 4
+    },
+    "sell-today": {
+      "count": 11,
+      "withPackageJson": 11,
+      "withReadme": 11,
+      "withLicense": 11,
+      "withEnvExample": 11,
+      "withEnvFile": 0,
+      "withGitignore": 11,
+      "withTests": 11,
+      "withI18n": 11,
+      "bothFrontendAndBackend": 11
+    },
+    "generated": {
+      "count": 129,
+      "withPackageJson": 129,
+      "withReadme": 125,
+      "withLicense": 124,
+      "withEnvExample": 128,
+      "withEnvFile": 0,
+      "withGitignore": 122,
+      "withTests": 0,
+      "withI18n": 129,
+      "bothFrontendAndBackend": 84
+    },
+    "backend-library": {
+      "count": 7,
+      "withPackageJson": 6,
+      "withReadme": 1,
+      "withLicense": 0,
+      "withEnvExample": 2,
+      "withEnvFile": 1,
+      "withGitignore": 0,
+      "withTests": 0,
+      "withI18n": 0,
+      "bothFrontendAndBackend": 0
+    },
+    "template-category": {
+      "count": 21,
+      "withPackageJson": 0,
+      "withReadme": 0,
+      "withLicense": 0,
+      "withEnvExample": 0,
+      "withEnvFile": 0,
+      "withGitignore": 0,
+      "withTests": 0,
+      "withI18n": 0,
+      "bothFrontendAndBackend": 0
+    }
+  },
+  "units_with_env_file": [
+    "backend-library/master-express-backend"
+  ],
+  "rows": [
+    {
+      "kind": "delivery",
+      "name": "adjusterly",
+      "path": "delivery/adjusterly",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "apex-commerce",
+      "path": "delivery/apex-commerce",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "apex-digital",
+      "path": "delivery/apex-digital",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "appointly",
+      "path": "delivery/appointly",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "atlas-mobility",
+      "path": "delivery/atlas-mobility",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "aurelia-estates",
+      "path": "delivery/aurelia-estates",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "aurora-cloud",
+      "path": "delivery/aurora-cloud",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "aurum-fitness",
+      "path": "delivery/aurum-fitness",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "beacon-dental",
+      "path": "delivery/beacon-dental",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "bellweather",
+      "path": "delivery/bellweather",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "blume-botanics",
+      "path": "delivery/blume-botanics",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "brass-basil",
+      "path": "delivery/brass-basil",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "bristle-co",
+      "path": "delivery/bristle-co",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "capstone-advisors",
+      "path": "delivery/capstone-advisors",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "cartwheel",
+      "path": "delivery/cartwheel",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "cascade-hq",
+      "path": "delivery/cascade-hq",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "cinder-steel",
+      "path": "delivery/cinder-steel",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "cirrus-travel",
+      "path": "delivery/cirrus-travel",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "claimflow",
+      "path": "delivery/claimflow",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "clausecheck",
+      "path": "delivery/clausecheck",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "clover-dental",
+      "path": "delivery/clover-dental",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "copperline",
+      "path": "delivery/copperline",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "create-studio",
+      "path": "delivery/create-studio",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "deckflow",
+      "path": "delivery/deckflow",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "deploydock",
+      "path": "delivery/deploydock",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ember-salt",
+      "path": "delivery/ember-salt",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "fitly-academy",
+      "path": "delivery/fitly-academy",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "fleetwood-events",
+      "path": "delivery/fleetwood-events",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "forgekit",
+      "path": "delivery/forgekit",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "foxglove-care",
+      "path": "delivery/foxglove-care",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "groundswell",
+      "path": "delivery/groundswell",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "halo-retail",
+      "path": "delivery/halo-retail",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "harbor-insurance",
+      "path": "delivery/harbor-insurance",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "harborline",
+      "path": "delivery/harborline",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "heritage-trails",
+      "path": "delivery/heritage-trails",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "insightpipe",
+      "path": "delivery/insightpipe",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ironwood-realty",
+      "path": "delivery/ironwood-realty",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "juniper-goods",
+      "path": "delivery/juniper-goods",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "kestrel-fleet",
+      "path": "delivery/kestrel-fleet",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "kinetiq-health",
+      "path": "delivery/kinetiq-health",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "launchbay",
+      "path": "delivery/launchbay",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "leadscout-ai",
+      "path": "delivery/leadscout-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ledgerai",
+      "path": "delivery/ledgerai",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ledgerline",
+      "path": "delivery/ledgerline",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ledgerpoint",
+      "path": "delivery/ledgerpoint",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "linguagrid",
+      "path": "delivery/linguagrid",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "lumen-studio",
+      "path": "delivery/lumen-studio",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "lumina-academy",
+      "path": "delivery/lumina-academy",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "luxemart",
+      "path": "delivery/luxemart",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "maison-noir",
+      "path": "delivery/maison-noir",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "marble-run-hotels",
+      "path": "delivery/marble-run-hotels",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "marlow-fitness",
+      "path": "delivery/marlow-fitness",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "meridian-capital",
+      "path": "delivery/meridian-capital",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "metrica-pulse",
+      "path": "delivery/metrica-pulse",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "mirage-beauty",
+      "path": "delivery/mirage-beauty",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "noir-frames",
+      "path": "delivery/noir-frames",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "noora-khan",
+      "path": "delivery/noora-khan",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "northbeam",
+      "path": "delivery/northbeam",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "northpeak-outfitters",
+      "path": "delivery/northpeak-outfitters",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "nova-forge",
+      "path": "delivery/nova-forge",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "nuage-events",
+      "path": "delivery/nuage-events",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "onboarder",
+      "path": "delivery/onboarder",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "orbit-studios",
+      "path": "delivery/orbit-studios",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "orbitboard",
+      "path": "delivery/orbitboard",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "orchard-grid",
+      "path": "delivery/orchard-grid",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "petrichor",
+      "path": "delivery/petrichor",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "pinnacle-events",
+      "path": "delivery/pinnacle-events",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "pinnacle-fitness",
+      "path": "delivery/pinnacle-fitness",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "prestige-studio",
+      "path": "delivery/prestige-studio",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "pulselabs",
+      "path": "delivery/pulselabs",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "quarry-learning",
+      "path": "delivery/quarry-learning",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "recruitiq",
+      "path": "delivery/recruitiq",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "resupro",
+      "path": "delivery/resupro",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "roark-analytics",
+      "path": "delivery/roark-analytics",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "sable-fit",
+      "path": "delivery/sable-fit",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "saffron-voyage",
+      "path": "delivery/saffron-voyage",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "sheetstack",
+      "path": "delivery/sheetstack",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "signalbase",
+      "path": "delivery/signalbase",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "solstice-energy",
+      "path": "delivery/solstice-energy",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "stacksail",
+      "path": "delivery/stacksail",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "stonemark-realty",
+      "path": "delivery/stonemark-realty",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "studio-lumen",
+      "path": "delivery/studio-lumen",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "sundial-media",
+      "path": "delivery/sundial-media",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "supportdesk-ai",
+      "path": "delivery/supportdesk-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "tablehost-ai",
+      "path": "delivery/tablehost-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "ternion-instruments",
+      "path": "delivery/ternion-instruments",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "terravista",
+      "path": "delivery/terravista",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "tidewater-travel",
+      "path": "delivery/tidewater-travel",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "vantage-3d-estates",
+      "path": "delivery/vantage-3d-estates",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "vantage-hr",
+      "path": "delivery/vantage-hr",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "vaultline",
+      "path": "delivery/vaultline",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "veridian-e-catalog",
+      "path": "delivery/veridian-e-catalog",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "vine-vale",
+      "path": "delivery/vine-vale",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "voltus-atelier",
+      "path": "delivery/voltus-atelier",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "delivery",
+      "name": "zephyr-way",
+      "path": "delivery/zephyr-way",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "apex",
+      "path": "products/sell-today/apex",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "aurelia-estates",
+      "path": "products/sell-today/aurelia-estates",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "aurum-fitness",
+      "path": "products/sell-today/aurum-fitness",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "claimflow-ai",
+      "path": "products/sell-today/claimflow-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "flowpilot",
+      "path": "products/sell-today/flowpilot",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "meridian-capital",
+      "path": "products/sell-today/meridian-capital",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "nuage-events",
+      "path": "products/sell-today/nuage-events",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "prestige-studio",
+      "path": "products/sell-today/prestige-studio",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "resupro",
+      "path": "products/sell-today/resupro",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "saffron-voyage",
+      "path": "products/sell-today/saffron-voyage",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "sell-today",
+      "name": "studio-lumen",
+      "path": "products/sell-today/studio-lumen",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": true,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "3d-luxury-realestate",
+      "path": "generated-projects/3d-luxury-realestate",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "apex-002",
+      "path": "generated-projects/apex-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "appointly-ai",
+      "path": "generated-projects/appointly-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "auto-deploy-test",
+      "path": "generated-projects/auto-deploy-test",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build",
+      "path": "generated-projects/build",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-002",
+      "path": "generated-projects/build-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-003",
+      "path": "generated-projects/build-003",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-004",
+      "path": "generated-projects/build-004",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-005",
+      "path": "generated-projects/build-005",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-006",
+      "path": "generated-projects/build-006",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-007",
+      "path": "generated-projects/build-007",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-008",
+      "path": "generated-projects/build-008",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-009",
+      "path": "generated-projects/build-009",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-010",
+      "path": "generated-projects/build-010",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-011",
+      "path": "generated-projects/build-011",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-012",
+      "path": "generated-projects/build-012",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-013",
+      "path": "generated-projects/build-013",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-014",
+      "path": "generated-projects/build-014",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-015",
+      "path": "generated-projects/build-015",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-016",
+      "path": "generated-projects/build-016",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-017",
+      "path": "generated-projects/build-017",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-018",
+      "path": "generated-projects/build-018",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-019",
+      "path": "generated-projects/build-019",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-020",
+      "path": "generated-projects/build-020",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-021",
+      "path": "generated-projects/build-021",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-022",
+      "path": "generated-projects/build-022",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-023",
+      "path": "generated-projects/build-023",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-024",
+      "path": "generated-projects/build-024",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-025",
+      "path": "generated-projects/build-025",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-026",
+      "path": "generated-projects/build-026",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-027",
+      "path": "generated-projects/build-027",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-028",
+      "path": "generated-projects/build-028",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-029",
+      "path": "generated-projects/build-029",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-030",
+      "path": "generated-projects/build-030",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-031",
+      "path": "generated-projects/build-031",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-032",
+      "path": "generated-projects/build-032",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-033",
+      "path": "generated-projects/build-033",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-034",
+      "path": "generated-projects/build-034",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-035",
+      "path": "generated-projects/build-035",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-036",
+      "path": "generated-projects/build-036",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-037",
+      "path": "generated-projects/build-037",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-038",
+      "path": "generated-projects/build-038",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-039",
+      "path": "generated-projects/build-039",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-040",
+      "path": "generated-projects/build-040",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-041",
+      "path": "generated-projects/build-041",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-042",
+      "path": "generated-projects/build-042",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-043",
+      "path": "generated-projects/build-043",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-044",
+      "path": "generated-projects/build-044",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-045",
+      "path": "generated-projects/build-045",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-046",
+      "path": "generated-projects/build-046",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-047",
+      "path": "generated-projects/build-047",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-048",
+      "path": "generated-projects/build-048",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-049",
+      "path": "generated-projects/build-049",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-050",
+      "path": "generated-projects/build-050",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-051",
+      "path": "generated-projects/build-051",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-052",
+      "path": "generated-projects/build-052",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-053",
+      "path": "generated-projects/build-053",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-054",
+      "path": "generated-projects/build-054",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-055",
+      "path": "generated-projects/build-055",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-056",
+      "path": "generated-projects/build-056",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-057",
+      "path": "generated-projects/build-057",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-058",
+      "path": "generated-projects/build-058",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-059",
+      "path": "generated-projects/build-059",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-060",
+      "path": "generated-projects/build-060",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-061",
+      "path": "generated-projects/build-061",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-062",
+      "path": "generated-projects/build-062",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-063",
+      "path": "generated-projects/build-063",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-064",
+      "path": "generated-projects/build-064",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-065",
+      "path": "generated-projects/build-065",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-066",
+      "path": "generated-projects/build-066",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-067",
+      "path": "generated-projects/build-067",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-068",
+      "path": "generated-projects/build-068",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-069",
+      "path": "generated-projects/build-069",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-070",
+      "path": "generated-projects/build-070",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-071",
+      "path": "generated-projects/build-071",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-072",
+      "path": "generated-projects/build-072",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-073",
+      "path": "generated-projects/build-073",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-074",
+      "path": "generated-projects/build-074",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-075",
+      "path": "generated-projects/build-075",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-076",
+      "path": "generated-projects/build-076",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-077",
+      "path": "generated-projects/build-077",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-078",
+      "path": "generated-projects/build-078",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-079",
+      "path": "generated-projects/build-079",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-080",
+      "path": "generated-projects/build-080",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-081",
+      "path": "generated-projects/build-081",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-082",
+      "path": "generated-projects/build-082",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-083",
+      "path": "generated-projects/build-083",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-084",
+      "path": "generated-projects/build-084",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "build-085",
+      "path": "generated-projects/build-085",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "claimflow-ai",
+      "path": "generated-projects/claimflow-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "clausecheck-ai",
+      "path": "generated-projects/clausecheck-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "create",
+      "path": "generated-projects/create",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": false,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "edtech-fitness-001",
+      "path": "generated-projects/edtech-fitness-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "electronics-portfolio-001",
+      "path": "generated-projects/electronics-portfolio-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "electronics-portfolio-001-002",
+      "path": "generated-projects/electronics-portfolio-001-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "ember-salt",
+      "path": "generated-projects/ember-salt",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "food-restaurant-001",
+      "path": "generated-projects/food-restaurant-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website",
+      "path": "generated-projects/generated-website",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-002",
+      "path": "generated-projects/generated-website-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-003",
+      "path": "generated-projects/generated-website-003",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-004",
+      "path": "generated-projects/generated-website-004",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-005",
+      "path": "generated-projects/generated-website-005",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-006",
+      "path": "generated-projects/generated-website-006",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-007",
+      "path": "generated-projects/generated-website-007",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-008",
+      "path": "generated-projects/generated-website-008",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "generated-website-009",
+      "path": "generated-projects/generated-website-009",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "insightpipe-ai",
+      "path": "generated-projects/insightpipe-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "leadscout-ai",
+      "path": "generated-projects/leadscout-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "ledgerai",
+      "path": "generated-projects/ledgerai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "luxemart",
+      "path": "generated-projects/luxemart",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "maison-noir",
+      "path": "generated-projects/maison-noir",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "onboarder-ai",
+      "path": "generated-projects/onboarder-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "personal-creative-001",
+      "path": "generated-projects/personal-creative-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "personal-portfolio-001",
+      "path": "generated-projects/personal-portfolio-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "realestate-realestate-001",
+      "path": "generated-projects/realestate-realestate-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "recruitiq-ai",
+      "path": "generated-projects/recruitiq-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "rest",
+      "path": "generated-projects/rest",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "resupro",
+      "path": "generated-projects/resupro",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": false,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "saas-saas-001",
+      "path": "generated-projects/saas-saas-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "saas-saas-001-002",
+      "path": "generated-projects/saas-saas-001-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": false,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "saas-saas-001-003",
+      "path": "generated-projects/saas-saas-001-003",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "saas-saas-001-004",
+      "path": "generated-projects/saas-saas-001-004",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "supportdesk-ai",
+      "path": "generated-projects/supportdesk-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "tablehost-ai",
+      "path": "generated-projects/tablehost-ai",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "test-i18n",
+      "path": "generated-projects/test-i18n",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": false,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "tourism-travel-001",
+      "path": "generated-projects/tourism-travel-001",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "tourism-travel-001-002",
+      "path": "generated-projects/tourism-travel-001-002",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "ui-style-wheel",
+      "path": "generated-projects/ui-style-wheel",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": false,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "generated",
+      "name": "voltus-atelier",
+      "path": "generated-projects/voltus-atelier",
+      "markers": {
+        "packageJson": true,
+        "frontend": true,
+        "backend": true,
+        "readme": true,
+        "license": true,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": true,
+        "tests": false,
+        "i18n": true
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "commerce-live-backend",
+      "path": "backend-library/commerce-live-backend",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "ecommerce-base",
+      "path": "backend-library/ecommerce-base",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "electronics-backend",
+      "path": "backend-library/electronics-backend",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "fintech-backend",
+      "path": "backend-library/fintech-backend",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "master-express-backend",
+      "path": "backend-library/master-express-backend",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": true,
+        "license": false,
+        "envExample": true,
+        "envFilePresent": true,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "saas-backend",
+      "path": "backend-library/saas-backend",
+      "markers": {
+        "packageJson": true,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "backend-library",
+      "name": "shared",
+      "path": "backend-library/shared",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "_shared",
+      "path": "src/templates/_shared",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "agency",
+      "path": "src/templates/agency",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "ai",
+      "path": "src/templates/ai",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "automotive",
+      "path": "src/templates/automotive",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "business",
+      "path": "src/templates/business",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "creative",
+      "path": "src/templates/creative",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "dashboard",
+      "path": "src/templates/dashboard",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "ecommerce",
+      "path": "src/templates/ecommerce",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "education",
+      "path": "src/templates/education",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "fitness",
+      "path": "src/templates/fitness",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "gym",
+      "path": "src/templates/gym",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "healthcare",
+      "path": "src/templates/healthcare",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "insurance",
+      "path": "src/templates/insurance",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "marketplace",
+      "path": "src/templates/marketplace",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "newsletter",
+      "path": "src/templates/newsletter",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "podcast",
+      "path": "src/templates/podcast",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "portfolio",
+      "path": "src/templates/portfolio",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "realestate",
+      "path": "src/templates/realestate",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "restaurant",
+      "path": "src/templates/restaurant",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "travel",
+      "path": "src/templates/travel",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    },
+    {
+      "kind": "template-category",
+      "name": "wedding",
+      "path": "src/templates/wedding",
+      "markers": {
+        "packageJson": false,
+        "frontend": false,
+        "backend": false,
+        "readme": false,
+        "license": false,
+        "envExample": false,
+        "envFilePresent": false,
+        "gitignore": false,
+        "tests": false,
+        "i18n": false
+      }
+    }
+  ]
+}

@@ -1,120 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "9router": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "9Router",
-      "options": {
-        "baseURL": "http://127.0.0.1:20128/v1",
-        "apiKey": "{env:NINEROUTER_API_KEY}"
-      },
-      "models": {
-        "kr/claude-sonnet-4.5": {
-          "name": "Kiro AI Claude Sonnet 4.5"
-        },
-        "kr/claude-opus-4": {
-          "name": "Kiro AI Claude Opus 4"
-        },
-        "ocf/qwen3-coder-next": {
-          "name": "OpenCode Free Qwen3 Coder"
-        }
-      }
-    }
-  },
-  "permission": {
-    "edit": "allow",
-    "write": "allow",
-    "read": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "task": "allow",
-    "todowrite": "allow",
-    "question": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "lsp": "allow",
-    "doom_loop": "allow",
-    "skill": "allow",
-    "external_directory": {
-      "*": "allow"
-    },
-    "bash": {
-      "*": "allow"
-    }
-  },
-  "mcp": {
-    "github": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "enabled": true,
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
-      }
-    },
-    "memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true,
-      "environment": {
-        "MEMORY_FILE_PATH": "C:\\Users\\AZAM COMPUTERS\\.lumi-memory\\memory.json"
-      }
-    }
-  },
   "agent": {
-    "planner": {
-      "description": "Expert planning specialist for complex features and refactoring. Use for implementation planning, architectural changes, or complex refactoring.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/planner.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": false,
-        "edit": false
-      }
-    },
     "architect": {
       "description": "Software architecture specialist for system design, scalability, and technical decision-making.",
       "mode": "subagent",
       "prompt": "{file:.opencode/prompts/agents/architect.txt}",
       "tools": {
-        "read": true,
         "bash": true,
-        "write": false,
-        "edit": false
-      }
-    },
-    "code-reviewer": {
-      "description": "Expert code review specialist. Reviews code for quality, security, and maintainability. Use immediately after writing or modifying code.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/code-reviewer.txt}",
-      "tools": {
+        "edit": false,
         "read": true,
-        "bash": true,
-        "write": false,
-        "edit": false
-      }
-    },
-    "security-reviewer": {
-      "description": "Security vulnerability detection and remediation specialist. Use after writing code that handles user input, authentication, API endpoints, or sensitive data.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/security-reviewer.txt}",
-      "tools": {
-        "read": true,
-        "bash": true,
-        "write": true,
-        "edit": true
-      }
-    },
-    "tdd-guide": {
-      "description": "Test-Driven Development specialist enforcing write-tests-first methodology. Use when writing new features, fixing bugs, or refactoring code. Ensures 80%+ test coverage.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/tdd-guide.txt}",
-      "tools": {
-        "read": true,
-        "write": true,
-        "edit": true,
-        "bash": true
+        "write": false
       }
     },
     "build-error-resolver": {
@@ -122,43 +17,21 @@
       "mode": "subagent",
       "prompt": "{file:.opencode/prompts/agents/build-error-resolver.txt}",
       "tools": {
-        "read": true,
-        "write": true,
+        "bash": true,
         "edit": true,
-        "bash": true
+        "read": true,
+        "write": true
       }
     },
-    "e2e-runner": {
-      "description": "End-to-end testing specialist using Playwright. Generates, maintains, and runs E2E tests for critical user flows.",
+    "code-reviewer": {
+      "description": "Expert code review specialist. Reviews code for quality, security, and maintainability. Use immediately after writing or modifying code.",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/e2e-runner.txt}",
+      "prompt": "{file:.opencode/prompts/agents/code-reviewer.txt}",
       "tools": {
+        "bash": true,
+        "edit": false,
         "read": true,
-        "write": true,
-        "edit": true,
-        "bash": true
-      }
-    },
-    "doc-updater": {
-      "description": "Documentation and codemap specialist. Use for updating codemaps and documentation.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/doc-updater.txt}",
-      "tools": {
-        "read": true,
-        "write": true,
-        "edit": true,
-        "bash": true
-      }
-    },
-    "refactor-cleaner": {
-      "description": "Dead code cleanup and consolidation specialist. Use for removing unused code, duplicates, and refactoring.",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/refactor-cleaner.txt}",
-      "tools": {
-        "read": true,
-        "write": true,
-        "edit": true,
-        "bash": true
+        "write": false
       }
     },
     "database-reviewer": {
@@ -166,21 +39,21 @@
       "mode": "subagent",
       "prompt": "{file:.opencode/prompts/agents/database-reviewer.txt}",
       "tools": {
-        "read": true,
-        "write": true,
+        "bash": true,
         "edit": true,
-        "bash": true
+        "read": true,
+        "write": true
       }
     },
-    "python-reviewer": {
-      "description": "Expert Python code reviewer specializing in PEP 8 compliance, Pythonic idioms, type hints, security, and performance.",
+    "doc-updater": {
+      "description": "Documentation and codemap specialist. Use for updating codemaps and documentation.",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/agents/python-reviewer.txt}",
+      "prompt": "{file:.opencode/prompts/agents/doc-updater.txt}",
       "tools": {
-        "read": true,
         "bash": true,
-        "write": false,
-        "edit": false
+        "edit": true,
+        "read": true,
+        "write": true
       }
     },
     "docs-lookup": {
@@ -188,10 +61,155 @@
       "mode": "subagent",
       "prompt": "{file:.opencode/prompts/agents/docs-lookup.txt}",
       "tools": {
-        "read": true,
         "bash": true,
-        "write": false,
-        "edit": false
+        "edit": false,
+        "read": true,
+        "write": false
+      }
+    },
+    "e2e-runner": {
+      "description": "End-to-end testing specialist using Playwright. Generates, maintains, and runs E2E tests for critical user flows.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/e2e-runner.txt}",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "read": true,
+        "write": true
+      }
+    },
+    "planner": {
+      "description": "Expert planning specialist for complex features and refactoring. Use for implementation planning, architectural changes, or complex refactoring.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/planner.txt}",
+      "tools": {
+        "bash": true,
+        "edit": false,
+        "read": true,
+        "write": false
+      }
+    },
+    "python-reviewer": {
+      "description": "Expert Python code reviewer specializing in PEP 8 compliance, Pythonic idioms, type hints, security, and performance.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/python-reviewer.txt}",
+      "tools": {
+        "bash": true,
+        "edit": false,
+        "read": true,
+        "write": false
+      }
+    },
+    "refactor-cleaner": {
+      "description": "Dead code cleanup and consolidation specialist. Use for removing unused code, duplicates, and refactoring.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/refactor-cleaner.txt}",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "read": true,
+        "write": true
+      }
+    },
+    "security-reviewer": {
+      "description": "Security vulnerability detection and remediation specialist. Use after writing code that handles user input, authentication, API endpoints, or sensitive data.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/security-reviewer.txt}",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "read": true,
+        "write": true
+      }
+    },
+    "tdd-guide": {
+      "description": "Test-Driven Development specialist enforcing write-tests-first methodology. Use when writing new features, fixing bugs, or refactoring code. Ensures 80%+ test coverage.",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/prompts/agents/tdd-guide.txt}",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "read": true,
+        "write": true
+      }
+    }
+  },
+  "instructions": [
+    ".opencode/enola.md"
+  ],
+  "mcp": {
+    "enola": {
+      "command": [
+        "C:\\Users\\AZAM COMPUTERS\\.local\\bin\\enola.exe"
+      ],
+      "enabled": true,
+      "type": "local"
+    },
+    "github": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "enabled": true,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
+      },
+      "type": "local"
+    },
+    "memory": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "enabled": true,
+      "environment": {
+        "MEMORY_FILE_PATH": "C:\\Users\\AZAM COMPUTERS\\.lumi-memory\\memory.json"
+      },
+      "type": "local"
+    }
+  },
+  "permission": {
+    "bash": {
+      "*": "allow"
+    },
+    "doom_loop": "allow",
+    "edit": "allow",
+    "external_directory": {
+      "*": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "question": "allow",
+    "read": "allow",
+    "skill": "allow",
+    "task": "allow",
+    "todowrite": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "write": "allow"
+  },
+  "provider": {
+    "9router": {
+      "models": {
+        "kr/claude-opus-4": {
+          "name": "Kiro AI Claude Opus 4"
+        },
+        "kr/claude-sonnet-4.5": {
+          "name": "Kiro AI Claude Sonnet 4.5"
+        },
+        "ocf/qwen3-coder-next": {
+          "name": "OpenCode Free Qwen3 Coder"
+        }
+      },
+      "name": "9Router",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "{env:NINEROUTER_API_KEY}",
+        "baseURL": "http://127.0.0.1:20128/v1"
       }
     }
   }

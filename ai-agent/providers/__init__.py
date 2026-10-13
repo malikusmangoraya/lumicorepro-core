@@ -18,6 +18,7 @@ _PROVIDER_MODULES = {
     "NinerouterProvider": "providers.ninerouter_provider",
     "OpenCodeProvider": "providers.opencode_provider",
     "NvidiaProvider": "providers.nvidia_provider",
+    "FreeLLMAPIProvider": "providers.freellmapi_provider",
     "ClaudeProvider": "providers.claude_provider",
     "DeepSeekProvider": "providers.deepseek_provider",
     "KimiProvider": "providers.kimi_provider",

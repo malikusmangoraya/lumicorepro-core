@@ -23,6 +23,7 @@ try:  # package-relative import (normal runtime)
     from .reference_intelligence import extract_reference_intelligence
     from .design_decision_engine import PlaybookLoader, detect_industry, detect_brand
     from .design_resources import resource_contribution
+    from .reference_cloner import clone_reference
 except Exception:  # pragma: no cover - flat import fallback
     from agent.intelligence.reference_intelligence import extract_reference_intelligence
     from agent.intelligence.design_decision_engine import (
@@ -31,6 +32,22 @@ except Exception:  # pragma: no cover - flat import fallback
         detect_brand,
     )
     from agent.intelligence.design_resources import resource_contribution
+    from agent.intelligence.reference_cloner import clone_reference
+
+
+def _reference_urls(spec: Dict[str, Any]) -> List[str]:
+    """Collect live reference URLs a spec explicitly opted into."""
+    urls: List[str] = []
+    single = spec.get("reference_url")
+    if isinstance(single, str) and single.startswith(("http://", "https://")):
+        urls.append(single)
+    many = spec.get("reference_urls")
+    if isinstance(many, (list, tuple)):
+        urls.extend(
+            str(u) for u in many
+            if isinstance(u, str) and u.startswith(("http://", "https://"))
+        )
+    return urls[:3]
 
 
 # ---------------------------------------------------------------------------
@@ -231,11 +248,40 @@ def run_benchmark_first(spec: Dict[str, Any],
             + [str(m.get("slug")) for m in resource_spec.get("matched") or []]
         ))
 
+    # Live reference reverse-engineering (opt-in via reference_url/reference_urls).
+    # Non-blocking: an unreadable page yields status=unavailable, never a crash.
+    clone_report: Dict[str, Any] = {"status": "not_requested", "clones": []}
+    ref_urls = _reference_urls(spec)
+    if ref_urls:
+        clones: List[Dict[str, Any]] = []
+        for ref in ref_urls:
+            try:
+                clones.append(clone_reference(ref))
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning("Reference clone failed for %s: %s", ref, exc)
+                clones.append({"url": ref, "status": "unavailable", "attributes": {}})
+        readable = [c for c in clones if c.get("status") in ("measured", "heuristic")]
+        clone_report = {
+            "status": "measured" if readable else "unavailable",
+            "clones": clones,
+        }
+        for clone in readable:
+            base_traits = dict(reference.get("traits") or {})
+            base_traits.update(clone.get("attributes") or {})
+            reference["traits"] = {k: round(float(v), 2) for k, v in base_traits.items()}
+            reference["hints"] = sorted(set(
+                list(reference.get("hints") or [])
+                + [f"ref:{clone.get('host') or clone.get('url')}"]
+            ))
+        if readable:
+            source = f"{source}+reference_clone"
+
     reference_spec = {
         "reference_intelligence": reference,
         "industry_playbook": industry_playbook,
         "brand_playbook": brand_playbook,
         "design_resources": resource_spec,
+        "reference_clone": clone_report,
         "source": source,
     }
     spec.setdefault("reference_spec", {})
@@ -250,6 +296,7 @@ def run_benchmark_first(spec: Dict[str, Any],
         "benchmark_peers": _benchmark_peers(industry),
         "research_query": query,
         "reference_spec": reference_spec,
+        "reference_clone": clone_report,
     }
     logger.info(
         "Benchmark-First: source=%s industry=%s playbook=%s peers=%d",

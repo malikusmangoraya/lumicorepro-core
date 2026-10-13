@@ -18,7 +18,7 @@ export default function LandingLayout({ children }) {
       <a href="#main-content" className="skip-link">
         {t('common.skip_to_content', 'Skip to content')}
       </a>
-    <header className="sticky top-0 z-40 backdrop-blur" style={{ backgroundColor: 'color-mix(in srgb, var(--t-canvas) 88%, transparent)', color: nav === 'bold-band' || nav === 'overlay-ticker' ? '#fff' : 'var(--t-text)' }}>
+    <header className="sticky top-0 z-40 backdrop-blur" style={{ backgroundColor: 'color-mix(in srgb, var(--t-canvas) 88%, transparent)', color: 'var(--t-text)' }}>
       <div className="px-6 py-5" style={{ backgroundColor: 'var(--t-primary)' }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
           <BrandLockup size={30} dark />

@@ -178,6 +178,8 @@ class GenerationMatrixTest(unittest.TestCase):
     # ── Engine integration ─────────────────────────────────────────────────
     def test_render_static_layout_applies_matrix(self):
         spec = self._spec("portfolio")  # static showcase website type
+        # Explicit static opt-in: website type alone stays enterprise by design.
+        spec["buyer_type"] = "static"
         engine = ProjectModeEngine()
         root = os.path.join(self.tmp, "render_static")
         # minimal frontend tree the static layout expects

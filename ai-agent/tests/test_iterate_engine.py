@@ -132,7 +132,41 @@ class TestIterateEngine(unittest.TestCase):
         )
 
         self.assertTrue(result["success"], result.get("reason"))
+        self.assertEqual(result["design_update"]["intent"], "preserve_existing")
+        self.assertEqual(result["design_update"]["source"], "design_manifest")
         with open(design_manifest, "rb") as manifest_file:
+            self.assertEqual(manifest_file.read(), original)
+
+    def test_update_without_manifest_records_source_inferred_preservation(self):
+        stylesheet = os.path.join(self.project_dir, "frontend", "src", "design-system.css")
+        with open(stylesheet, "w", encoding="utf-8") as css_file:
+            css_file.write('.ds-site[data-scaffold="wide_immersive"] { --hero: 88vh; }')
+
+        orch = self._orch()
+        result = orch.iterate(self.project_dir, "change the hero heading text")
+
+        self.assertTrue(result["success"], result.get("reason"))
+        self.assertEqual(result["design_update"]["intent"], "preserve_existing")
+        self.assertEqual(result["design_update"]["source"], "source_inferred")
+        with open(stylesheet, "r", encoding="utf-8") as css_file:
+            self.assertIn('data-scaffold="wide_immersive"', css_file.read())
+
+    def test_explicit_redesign_is_classified_but_explicit_keep_layout_wins(self):
+        from agent.intelligence.design_system_engine import resolve_design_intent
+
+        self.assertEqual(resolve_design_intent({"instruction": "Redesign the layout"}, operation="update"), "redesign_requested")
+        self.assertEqual(resolve_design_intent({"instruction": "Redesign but keep the current layout"}, operation="update"), "preserve_existing")
+
+    def test_malformed_design_manifest_is_not_overwritten(self):
+        path = os.path.join(self.project_dir, "design-manifest.json")
+        original = b'{invalid json\n'
+        with open(path, "wb") as manifest_file:
+            manifest_file.write(original)
+
+        context = self._orch().iteration_engine._load_existing_design_context(self.project_dir)
+
+        self.assertEqual(context["preservation"], "source_inferred")
+        with open(path, "rb") as manifest_file:
             self.assertEqual(manifest_file.read(), original)
 
     def test_iterate_reruns_verification_and_writes_security_evidence(self):

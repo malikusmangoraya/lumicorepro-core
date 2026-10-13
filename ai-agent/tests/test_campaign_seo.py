@@ -251,5 +251,11 @@ def test_every_campaign_has_a_pages_url():
 def test_campaign_list_matches_generator():
     """The repair tool and the generator must not drift apart on scope."""
     generated = {p.name for p in ipg.PROJECTS.glob("*") if p.is_dir()}
+    sell_today = ROOT / "products" / "sell-today"
+    if sell_today.is_dir():
+        generated |= {p.name for p in sell_today.glob("*") if p.is_dir()}
     missing = set(fcs.CAMPAIGNS) - generated
     assert not missing, f"campaigns with no generated project: {sorted(missing)}"
+    # Every campaign must resolve through the repair tool itself.
+    unresolvable = [s for s in fcs.CAMPAIGNS if fcs.resolve_project_dir(s) is None]
+    assert not unresolvable, f"campaigns the repair tool cannot resolve: {unresolvable}"

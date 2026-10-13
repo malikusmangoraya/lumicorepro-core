@@ -115,6 +115,39 @@ def test_env_example_documents_every_fallback_provider():
         assert name in options
 
 
+def test_freellmapi_provider_wiring_is_optional_and_does_not_change_defaults(monkeypatch):
+    """FreeLLMAPI is opt-in; existing provider priority and default remain unchanged."""
+    assert "freellmapi" not in FALLBACK_ORDER
+    assert provider_module.AI_PROVIDER != "freellmapi"
+    monkeypatch.setenv("FREELLMAPI_BASE_URL", "http://127.0.0.1:4300/v1")
+    monkeypatch.setenv("FREELLMAPI_MODEL", "auto")
+    monkeypatch.setenv("FREELLMAPI_API_KEY", "")
+
+    provider = instantiate_provider("freellmapi")
+
+    assert provider is not None
+    assert provider.model_name == "auto"
+    assert provider.base_url == "http://127.0.0.1:4300/v1"
+    assert provider.api_key == ""
+    assert provider_module.validate_provider_key("freellmapi") is True
+
+
+def test_freellmapi_uses_openai_compatible_chat_endpoint(monkeypatch):
+    from providers.freellmapi_provider import FreeLLMAPIProvider
+
+    monkeypatch.setenv("FREELLMAPI_BASE_URL", "http://127.0.0.1:4300/v1")
+    provider = FreeLLMAPIProvider(api_key="", model_name="auto")
+    response = MagicMock(status_code=200)
+    response.json.return_value = _valid_nvidia_payload("connected")
+
+    with patch("providers.freellmapi_provider.requests.post", return_value=response) as post:
+        assert provider._raw_call("hello") == "connected"
+
+    assert post.call_args.args[0] == "http://127.0.0.1:4300/v1/chat/completions"
+    assert "Authorization" not in post.call_args.kwargs["headers"]
+    assert post.call_args.kwargs["json"]["model"] == "auto"
+
+
 def test_nvidia_provider_is_concrete_and_instantiable():
     """The former abstract NVIDIA hop must resolve to a usable provider object."""
     provider = instantiate_provider("nvidia")

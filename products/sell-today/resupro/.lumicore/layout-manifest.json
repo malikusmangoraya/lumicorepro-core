@@ -1,0 +1,143 @@
+{
+  "engine": "layout-engine",
+  "version": "1.0",
+  "marker": "LUMI_LAYOUT_V1",
+  "created_at": "20261013T102950Z",
+  "skin": "full",
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\resupro\\.lumicore\\layout\\20261013T102950Z",
+  "created": [
+    "DESIGN_PLAN.md",
+    "LAYOUT_REPORT.json"
+  ],
+  "replaced": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "plan": {
+    "engine": "layout-engine",
+    "version": "1.0",
+    "generated_at": "2026-10-13T10:29:50Z",
+    "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\resupro",
+    "frontend": "D:\\lumicorepro-core\\products\\sell-today\\resupro\\frontend",
+    "package_name": "resupro",
+    "slug": "resupro",
+    "brand": "Resupro",
+    "title": "ResuPro",
+    "tagline": "Software that scales with you",
+    "eyebrow": "MODERN SAAS PLATFORM",
+    "hero_desc": "Resupro helps teams ship faster with a fast, accessible, secure platform.",
+    "features": [
+      [
+        "Fast by default",
+        "Optimised for speed and Core Web Vitals"
+      ],
+      [
+        "Secure by design",
+        "Auth, encryption and audit logging"
+      ],
+      [
+        "Integrations",
+        "Connect the tools your team already uses"
+      ],
+      [
+        "Built to scale",
+        "From prototype to production"
+      ]
+    ],
+    "stats": [
+      [
+        "500K+",
+        "Resumes Built"
+      ],
+      [
+        "4.9/5",
+        "User Rating"
+      ],
+      [
+        "200+",
+        "Templates"
+      ],
+      [
+        "2.3x",
+        "More Interviews"
+      ]
+    ],
+    "industry": "saas",
+    "category": "saas",
+    "sections": [
+      "Hero",
+      "Features",
+      "Pricing",
+      "Comparison",
+      "Dashboard",
+      "Integrations",
+      "Testimonials",
+      "Contact"
+    ],
+    "style": "glassmorphism",
+    "style_name": "Glassmorphism",
+    "region": "default",
+    "region_rationale": "Global neutral (region-agnostic)",
+    "palette": {
+      "primary": "#10b95f",
+      "secondary": "#05964c",
+      "accent": "#34d379",
+      "heading": "#f8fafc",
+      "canvas": "#0b1220",
+      "surface": "#f8fafc",
+      "text": "#f8fafc",
+      "muted": "#94a3b8",
+      "border": "#1e293b",
+      "navBg": "#0b1220",
+      "footerBg": "#020617"
+    },
+    "fonts": {
+      "display": "Clash Display",
+      "sans": "Outfit"
+    },
+    "typography_pairing": "Clash Display + Outfit",
+    "logo_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\" className=\"w-10 h-10 inline-block\">\n  <defs>\n    <linearGradient id=\"grad_1788\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">\n      <stop offset=\"0%\" stopColor=\"#10b981\" />\n      <stop offset=\"100%\" stopColor=\"#34d399\" />\n    </linearGradient>\n  </defs>\n  \n              <path d=\"M14 18 C 8 18, 8 30, 14 30 C 20 30, 28 18, 34 18 C 40 18, 40 30, 34 30 C 28 30, 20 18, 14 18 Z\" fill=\"none\" stroke=\"url(#grad_1788)\" stroke-width=\"3\" stroke-linecap=\"round\" />\n            \n</svg>",
+    "radius": {
+      "card": "20px",
+      "button": "12px"
+    },
+    "shadow": {
+      "card": "0 8px 32px rgba(0,0,0,0.35)",
+      "button": "0 4px 16px rgba(0,0,0,0.25)"
+    },
+    "effects": {
+      "blur": "24px",
+      "glow": "0 0 24px rgba(34,211,238,0.25)"
+    },
+    "motion_level": "medium",
+    "attribute_bias": {
+      "typography": 0.658,
+      "color_saturation": 0.44,
+      "interaction_complexity": 0.561,
+      "craft": 0.692,
+      "minimalism": 0.61,
+      "whitespace": 0.613,
+      "motion": 0.505,
+      "cta_focus": 0.614,
+      "visual_density": 0.533,
+      "content_density": 0.575,
+      "navigation": 0.583,
+      "futuristic": 0.625,
+      "cinematic": 0.5,
+      "dark_canvas": 0.525,
+      "bold": 0.7,
+      "warmth": 0.5
+    },
+    "vault_source": "",
+    "seed": 1579542779,
+    "notes": []
+  }
+}

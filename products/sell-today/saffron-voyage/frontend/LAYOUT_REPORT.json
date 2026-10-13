@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "status": 200,
+  "message": "layout applied (full) to frontend",
+  "dry_run": false,
+  "skin": "full",
+  "written": [
+    "src/index.css",
+    "tailwind.config.js",
+    "src/styles/design-tokens.json",
+    "src/components/Navbar.jsx",
+    "src/components/Footer.jsx",
+    "src/components/common/UniqueLogo.jsx",
+    "src/pages/Home.jsx",
+    "DESIGN_PLAN.md",
+    "src/components/brand/BRAND.js",
+    "src/components/brand/BrandLockup.jsx",
+    "src/components/navigation/GlassNavbar.jsx"
+  ],
+  "backup": "D:\\lumicorepro-core\\products\\sell-today\\saffron-voyage\\.lumicore\\layout\\20261013T102950Z",
+  "manifest": "D:\\lumicorepro-core\\products\\sell-today\\saffron-voyage\\.lumicore\\layout-manifest.json",
+  "style": "aurora",
+  "region": "default",
+  "palette": {
+    "primary": "#10b9a3",
+    "secondary": "#059686",
+    "accent": "#34d3b9",
+    "heading": "#f5f3ff",
+    "canvas": "#0d0a1f",
+    "surface": "#1d1742",
+    "text": "#f5f3ff",
+    "muted": "#a5b4fc",
+    "border": "#1e293b",
+    "navBg": "#0d0a1f",
+    "footerBg": "#020617"
+  }
+}

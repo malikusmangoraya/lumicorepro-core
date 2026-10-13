@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 from utils.logger import agent_logger
 from utils.helpers import extract_keywords, safe_json_parse, slugify
 
@@ -182,8 +182,13 @@ class RequirementAnalyzer:
     def __init__(self, ai_provider=None):
         self.ai_provider = ai_provider
 
-    def analyze(self, prompt: str) -> Dict[str, Any]:
-        """Analyze prompt (any language) → structured requirements dict."""
+    def analyze(self, prompt: str, market_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Analyze prompt (any language) → structured requirements dict.
+
+        `market_context` (Phase 1 market analysis, optional) folds live market
+        trends into the spec as `market_trends` + `market_feature_hints` so the
+        planner and trending injector build from the same evidence base.
+        """
         agent_logger.info("Analyzing requirements (multilingual NLP engine v2)...")
 
         # Pre-process: translate Urdu/Roman-Urdu/Arabic tokens
@@ -230,7 +235,27 @@ class RequirementAnalyzer:
         # Always resolve a human brand name for the repo/project (ResuPro → resupro).
         if not spec.get("project_name") or "001" in str(spec.get("project_name", "")):
             spec["project_name"] = self._generate_project_name(spec, prompt)
+        if market_context:
+            self._apply_market_context(spec, market_context)
         return spec
+
+    @staticmethod
+    def _apply_market_context(spec: Dict[str, Any], market_context: Dict[str, Any]) -> None:
+        """Fold Phase 1 market trends into the spec (observational, never fatal)."""
+        try:
+            trends = [
+                str(t).strip()
+                for t in (market_context.get("market_trends") or [])
+                if str(t).strip()
+            ]
+            if trends:
+                existing = [str(t) for t in (spec.get("market_trends") or [])]
+                merged = list(dict.fromkeys(existing + trends))[:8]
+                spec["market_trends"] = merged
+                spec["market_feature_hints"] = merged[:6]
+                agent_logger.info(f"Market context applied: {len(merged)} trend(s) folded into spec.")
+        except Exception as exc:  # noqa: BLE001 — market data must never break analysis
+            agent_logger.warning(f"Market context skipped: {exc}")
 
     def _normalize_multilingual(self, prompt: str) -> str:
         """Translate Urdu/Roman-Urdu/Arabic keywords to English equivalents."""

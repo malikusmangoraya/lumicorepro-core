@@ -6,7 +6,7 @@
  * keyboard-only focus ring that reads the brand token instead of a hardcoded
  * colour. Both additions are marker-delimited and appended once.
  */
-import { appendBlock } from '../util.mjs';
+import { appendBlock } from '../lib/util.mjs';
 
 const MARK = '/* ===== LUMI_TOKENS_V8 ===== */';
 const END = '/* ===== end LUMI_TOKENS_V8 ===== */';

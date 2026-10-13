@@ -6,10 +6,41 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from agent.intelligence.design_system_engine import DesignSystemEngine, get_design_catalog
+from agent.intelligence.design_system_engine import (
+    DesignSystemEngine,
+    get_design_catalog,
+    resolve_design_intent,
+)
 
 
 class TestDesignSystemEngine(unittest.TestCase):
+    def test_generation_defaults_to_international_layout_intent(self):
+        self.assertEqual(resolve_design_intent({}, operation="generation"), "international_default")
+
+    def test_update_defaults_to_preserve_existing_intent(self):
+        self.assertEqual(resolve_design_intent({}, operation="update"), "preserve_existing")
+
+    def test_explicit_preserve_overrides_redesign_request(self):
+        self.assertEqual(
+            resolve_design_intent(
+                {"prompt": "Redesign this website, but keep the current layout"},
+                operation="update",
+            ),
+            "preserve_existing",
+        )
+        self.assertEqual(
+            resolve_design_intent({"prompt": "Redesign the website"}, operation="update"),
+            "redesign_requested",
+        )
+
+    def test_selection_is_deterministic_with_international_default(self):
+        engine = DesignSystemEngine()
+        spec = {"project_name": "dealer", "industry": "automotive", "design_seed": "stable"}
+        first = engine.resolve(spec)["design_dna"]
+        second = engine.resolve(spec)["design_dna"]
+        self.assertEqual(first, second)
+        self.assertIn(first["layout"]["hero_archetype"], {item["id"] for item in get_design_catalog()["heroes"]})
+
     def setUp(self):
         self.engine = DesignSystemEngine()
         self.spec = {

@@ -62,8 +62,8 @@
   --card: 0 0% 100%;
   --card-foreground: 220 25% 9%;
 
-  /* Primary: Signature teal — premium, global */
-  --primary: 173 80% 36%;
+  /* Primary: Signature teal — premium, global (darkened for WCAG AA contrast) */
+  --primary: 173 80% 25%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 215 20% 94%;

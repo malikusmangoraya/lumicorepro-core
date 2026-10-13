@@ -15,6 +15,7 @@ from typing import Dict, Any, List, Optional, Tuple
 from utils.logger import agent_logger
 from agent.hyper_unique_site_engine import HyperUniqueSiteEngine
 from agent.omni_repair_engine import OmniRepairEngine
+from agent.generation_contract import resolve_generation_contract
 
 
 class FullStackUltraEngine:
@@ -31,9 +32,14 @@ class FullStackUltraEngine:
         brand_name: Optional[str] = None,
         industry: str = "saas",
         primary_color: Optional[str] = None,
+        *,
+        generation_contract: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Generates a complete full-stack project in destination_dir concurrently."""
         start_time = time.perf_counter()
+        contract = generation_contract or resolve_generation_contract({})
+        if contract.get("layout_mode") != "enterprise":
+            raise ValueError("FullStackUltraEngine currently supports enterprise full-stack delivery only")
         brand = brand_name or prompt.split()[0].capitalize()
         blueprint = self.unique_engine.synthesize_hyper_unique_blueprint(prompt, brand)
         color = primary_color or blueprint["palette"]["primary"]
@@ -51,9 +57,13 @@ class FullStackUltraEngine:
 
         # ── 2. Backend Files ──────────────────────────────────────────────
         self._build_backend_files(files_map, brand)
+        self._configure_postgresql_backend(files_map, brand)
 
         # ── 3. DevOps & Documentation Files ───────────────────────────────
         self._build_devops_files(files_map, brand, prompt)
+        files_map["backend/migrations/001_create_core_tables.js"] = self._postgres_migration()
+        files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
+        files_map["LICENSE.md"] = self._generated_license(brand)
 
         # ── Concurrent Parallel File Writing ──────────────────────────────
         write_errors = []
@@ -91,10 +101,75 @@ class FullStackUltraEngine:
             "stack": {
                 "frontend": "React 19 + Vite + Tailwind CSS + Lucide Icons + Framer Motion",
                 "backend": "Express.js + Sequelize + JWT + bcrypt + Helmet + CORS",
-                "database": "PostgreSQL / MySQL / SQLite Dialect",
+                "database": "PostgreSQL",
                 "devops": "Docker + docker-compose + Nginx reverse proxy",
             },
         }
+
+    @staticmethod
+    def _fullstack_backend_package(package_text: str) -> str:
+        package = json.loads(package_text)
+        package.setdefault("scripts", {}).update({"db:migrate": "node migrations/run.js", "test": "node --test"})
+        dependencies = package.setdefault("dependencies", {})
+        dependencies.pop("sqlite3", None)
+        dependencies["pg"] = "^8.13.1"
+        dependencies["pg-hstore"] = "^2.3.4"
+        return json.dumps(package, indent=2)
+
+    @staticmethod
+    def _configure_postgresql_backend(files_map: Dict[str, str], brand: str) -> None:
+        files_map["backend/models/index.js"] = """const { Sequelize, DataTypes } = require('sequelize');
+
+const sequelize = new Sequelize({
+  dialect: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 5432),
+  database: process.env.DB_NAME || 'lumicore_app',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
+  logging: false,
+});
+
+const User = sequelize.define('User', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  name: { type: DataTypes.STRING, allowNull: false },
+  email: { type: DataTypes.STRING, unique: true, allowNull: false },
+  password: { type: DataTypes.STRING, allowNull: false },
+  role: { type: DataTypes.STRING, defaultValue: 'user' },
+});
+
+module.exports = { sequelize, User };
+"""
+
+    @staticmethod
+    def _postgres_migration() -> str:
+        return """const { DataTypes } = require('sequelize');
+
+module.exports = {
+  async up({ context: queryInterface }) {
+    await queryInterface.createTable('users', {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      name: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: false, unique: true },
+      password: { type: DataTypes.STRING, allowNull: false },
+      role: { type: DataTypes.STRING, allowNull: false, defaultValue: 'user' },
+      created_at: { type: DataTypes.DATE, allowNull: false },
+      updated_at: { type: DataTypes.DATE, allowNull: false },
+    });
+  },
+  async down({ context: queryInterface }) {
+    await queryInterface.dropTable('users');
+  },
+};
+"""
+
+    @staticmethod
+    def _generated_license(brand: str) -> str:
+        return (
+            f"# {brand} License\n\n"
+            "Commercial use and modification are permitted for the purchaser and their clients. "
+            "Redistribution as a competing template is not permitted.\n"
+        )
 
     def _build_frontend_files(self, fmap: Dict[str, str], brand: str, color: str, accent: str, palette: Dict[str, str], industry: str):
         # package.json
@@ -618,7 +693,9 @@ export default function Dashboard() {{
             "main": "server.js",
             "scripts": {
                 "start": "node server.js",
-                "dev": "nodemon server.js"
+                "dev": "nodemon server.js",
+                "db:migrate": "node migrations/run.js",
+                "test": "node --test"
             },
             "dependencies": {
                 "express": "^4.21.2",
@@ -628,7 +705,8 @@ export default function Dashboard() {{
                 "jsonwebtoken": "^9.0.2",
                 "bcryptjs": "^2.4.3",
                 "sequelize": "^6.37.5",
-                "sqlite3": "^5.1.7",
+                "pg": "^8.13.1",
+                "pg-hstore": "^2.3.4",
                 "express-rate-limit": "^7.5.0",
                 "compression": "^1.7.5"
             }
@@ -678,8 +756,12 @@ module.exports = app;
         fmap["backend/models/index.js"] = """const { Sequelize, DataTypes } = require('sequelize');
 
 const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: process.env.DB_STORAGE || './database.sqlite',
+  dialect: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 5432),
+  database: process.env.DB_NAME || 'lumicore_app',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
   logging: false,
 });
 
@@ -820,6 +902,20 @@ module.exports = router;
         fmap["docker-compose.yml"] = f"""version: '3.8'
 
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: lumicore_app
+      POSTGRES_USER: ${{POSTGRES_USER:-postgres}}
+      POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${{POSTGRES_USER:-postgres}}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build:
       context: ./frontend
@@ -833,28 +929,88 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5000:5000"
     environment:
       - PORT=5000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=lumicore_app
+      - DB_USER=${{POSTGRES_USER:-postgres}}
+      - DB_PASSWORD=${{POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}}
       - JWT_SECRET=${{JWT_SECRET:?JWT_SECRET is required - see backend/.env.example}}
+
+volumes:
+  postgres_data:
+"""
+
+        fmap["backend/migrations/run.js"] = """const { Umzug, SequelizeStorage } = require('umzug');
+const { sequelize } = require('../models');
+
+const umzug = new Umzug({
+  migrations: { glob: 'migrations/00*.js' },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize }),
+  logger: console,
+});
+
+module.exports = umzug;
+if (require.main === module) {
+  umzug.up().then(() => sequelize.close()).catch((error) => {
+    console.error('Migration failed:', error.message);
+    process.exitCode = 1;
+  });
+}
+"""
+        fmap["backend/package.json"] = json.dumps({
+            **json.loads(fmap["backend/package.json"]),
+            "dependencies": {**json.loads(fmap["backend/package.json"])["dependencies"], "umzug": "^3.8.2"},
+        }, indent=2)
+        fmap["backend/migrations/001_create_core_tables.js"] = """const { DataTypes } = require('sequelize');
+
+module.exports = {
+  async up({ context: queryInterface }) {
+    await queryInterface.createTable('users', {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      name: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: false, unique: true },
+      password: { type: DataTypes.STRING, allowNull: false },
+      role: { type: DataTypes.STRING, allowNull: false, defaultValue: 'user' },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
+    });
+  },
+  async down({ context: queryInterface }) {
+    await queryInterface.dropTable('users');
+  },
+};
 """
 
         fmap[".env.example"] = f"""PORT=5000
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=lumicore_app
+DB_USER=postgres
+POSTGRES_PASSWORD=
+DB_PASSWORD=
 # REQUIRED, minimum 32 chars. Generate one with:
 #   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 #   # or: openssl rand -hex 32
 # The backend refuses to start if this is missing, short, or a known placeholder.
 JWT_SECRET=
 NODE_ENV=production
-VITE_API_URL=http://localhost:5000/api/v1
 """
+        fmap["frontend/.env.example"] = "VITE_API_URL=http://localhost:5000/api/v1\n"
 
         fmap["README.md"] = f"""# {brand} — Full-Stack Application
 
 Generated autonomously by **LumicorePro AI Agent**.
 
 ## Features
+- **Database**: PostgreSQL with versioned Sequelize migrations.
 - **Frontend**: React 19, Tailwind CSS, Lucide Icons, GlassNavbar, BentoGrid, ModernFooter.
 - **Backend**: Express.js REST API, Sequelize ORM, JWT Authentication, Helmet security headers.
 - **Infrastructure**: Docker containerization & production reverse-proxy support.
@@ -877,6 +1033,7 @@ npm run dev
 
 ### 3. Docker Deploy
 ```bash
-docker-compose up --build
+cp .env.example .env  # set POSTGRES_PASSWORD and JWT_SECRET first
+docker compose up --build
 ```
 """

@@ -395,10 +395,31 @@ class AIRouter:
     _instance: Optional["AIRouter"] = None
     _instance_lock = threading.Lock()
 
-    def __init__(self, pool: Any = None, tiers: Optional[Dict[str, List[str]]] = None):
+    def __init__(
+        self,
+        pool: Any = None,
+        tiers: Optional[Dict[str, List[str]]] = None,
+        *,
+        strict_allowlist: Optional[Sequence[str]] = None,
+    ):
         self._lock = threading.Lock()
         self._pool = pool
         self._tiers = tiers or self._tiers_from_env()
+        self._strict_allowlist = frozenset(
+            str(name).strip().lower() for name in (strict_allowlist or ()) if str(name).strip()
+        )
+        if self._strict_allowlist:
+            self._tiers = {
+                tier: [name for name in names if name in self._strict_allowlist]
+                for tier, names in self._tiers.items()
+            }
+            # The strict batch lane must still reach its allowed providers even
+            # when user tier overrides omit them or list only paid vendors.
+            for tier in TIERS:
+                self._tiers.setdefault(tier, [])
+                for name in sorted(self._strict_allowlist):
+                    if name not in self._tiers[tier]:
+                        self._tiers[tier].append(name)
         self._instances: Dict[str, Any] = {}
         self._cache: Dict[str, str] = {}
         self._cache_lock = threading.Lock()
@@ -498,7 +519,7 @@ class AIRouter:
             self._instances[name] = inst
             return inst, name
 
-        if not pool_fallback:
+        if not pool_fallback or self._strict_allowlist:
             return None, "none"
 
         # Everything in the tier is unavailable: hand back the pool's live choice
@@ -704,6 +725,33 @@ def get_router() -> AIRouter:
         return _router
 
 
+def configure_strict_router(pool: Any, allowed: Sequence[str]) -> AIRouter:
+    """Install an allowlisted router; exhausted tiers fail closed, never use pool active."""
+    global _router
+    names = frozenset(str(name).strip().lower() for name in allowed if str(name).strip())
+    if not names:
+        raise ValueError("A strict router requires at least one provider")
+    with _router_lock:
+        _router = AIRouter(
+            pool=pool,
+            tiers={tier: sorted(names) for tier in TIERS},
+            strict_allowlist=names,
+        )
+        return _router
+
+
+def restore_router(router: Optional[AIRouter]) -> None:
+    """Put a previously captured router back, undoing a strict-mode swap.
+
+    Batch lanes (free-only rebuilds) install an allowlisted router for the
+    duration of one run. Restoring under the same lock as `configure_strict_router`
+    keeps the singleton consistent for any work that follows in this process.
+    """
+    global _router
+    with _router_lock:
+        _router = router
+
+
 def reset_router() -> None:
     global _router
     with _router_lock:
@@ -838,6 +886,25 @@ def prefer(
     Returns `(provider, provider_name, tier)`.
     """
     pinned = _pinned(pin)
+    strict = get_router()._strict_allowlist
+    if strict:
+        if pinned and pinned not in strict:
+            return None, "blocked", "strict_allowlist"
+        if explicit is not None:
+            explicit_name = str(
+                getattr(explicit, "provider_name", "") or getattr(explicit, "name", "")
+            ).strip().lower()
+            if not explicit_name or explicit_name not in strict:
+                return None, "blocked", "strict_allowlist"
+            return explicit, explicit_name, "pinned"
+        if pinned and _pin_is_usable(pinned):
+            from config.providers import instantiate_provider
+            inst = instantiate_provider(pinned)
+            if inst is not None:
+                return inst, pinned, "pinned"
+        inst, name, tier = route(task_kind, prompt, is_repair=is_repair)
+        return inst, name, tier
+
     if pinned:
         if _pin_is_usable(pinned):
             from config.providers import instantiate_provider
@@ -896,6 +963,20 @@ def rotate(
     """
     if offline():
         return None, "offline", "offline"
+    router = get_router()
+    if router._strict_allowlist:
+        if not current:
+            return None, "none", "strict_allowlist"
+        if _pinned() and _pinned() not in router._strict_allowlist:
+            return None, "blocked", "strict_allowlist"
+        if current and current not in router._strict_allowlist:
+            return None, "blocked", "strict_allowlist"
+        primary = classify_task(task_kind or "repair", prompt, is_repair=True)
+        for tier in (primary,) + tuple(t for t in TIERS if t != primary):
+            inst, name = router.provider_for(tier, exclude=(current,), pool_fallback=False)
+            if inst is not None:
+                return inst, name, tier
+        return None, "none", primary
     if _pinned():
         # An explicit pin cannot be rotated away from without overriding the user.
         return None, "pinned", "pinned"

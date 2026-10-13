@@ -198,5 +198,137 @@
     "components": ["TestimonialCarousel"],
     "roi_score": 83,
     "priority": "high"
+  },
+  {
+    "id": "bento_grids",
+    "name": "Bento Grid Showcases",
+    "category": "design",
+    "tags": ["general", "saas", "portfolio", "technology", "fintech"],
+    "description": "2026-standard bento-box feature grid with varied card sizes. Raises feature discovery and looks premium on every screen.",
+    "components": ["BentoGrid", "FeatureCard"],
+    "roi_score": 88,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "micro_interactions",
+    "name": "Micro-Interactions & Motion Feedback",
+    "category": "engagement",
+    "tags": ["general", "saas", "ecommerce", "fintech"],
+    "description": "Button ripples, hover lifts, animated counters, and scroll reveals. Small motion lifts perceived quality and conversion.",
+    "components": ["AnimatedNumber", "ScrollReveal", "MagneticButton"],
+    "roi_score": 86,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "voice_checkout",
+    "name": "Voice Search & Voice Checkout",
+    "category": "discovery",
+    "tags": ["ecommerce", "electronics", "food", "restaurant"],
+    "description": "Voice-driven product search and reorder flow. Voice commerce keeps growing on mobile across US, EU, and MENA markets.",
+    "components": ["SearchBar", "VoiceInput"],
+    "roi_score": 82,
+    "priority": "medium",
+    "trend_year": 2026
+  },
+  {
+    "id": "passkeys_passwordless",
+    "name": "Passkeys & Passwordless Login",
+    "category": "trust",
+    "tags": ["general", "saas", "fintech", "ecommerce", "healthcare"],
+    "description": "WebAuthn passkeys with OTP fallback. Cuts signup drop-off and phishing risk; expected by users in 2026.",
+    "components": ["PasskeyLogin", "OTPInput"],
+    "roi_score": 90,
+    "priority": "critical",
+    "trend_year": 2026
+  },
+  {
+    "id": "webgpu_3d_viewer",
+    "name": "3D / AR Product Viewer",
+    "category": "conversion",
+    "tags": ["ecommerce", "automotive", "realestate", "electronics", "fashion"],
+    "description": "Interactive 3D model viewer with AR preview on mobile. Lowers returns and lifts buyer confidence for high-ticket items.",
+    "components": ["ModelViewer", "ARPreview"],
+    "roi_score": 84,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "live_shopping",
+    "name": "Live Shopping Events",
+    "category": "conversion",
+    "tags": ["ecommerce", "fashion", "fitness", "food"],
+    "description": "Scheduled livestream sales with real-time chat and one-tap buy. Proven in APAC and expanding into MENA and Western markets.",
+    "components": ["LiveStream", "LiveChat", "CountdownTimer"],
+    "roi_score": 87,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "shoppable_video",
+    "name": "Shoppable Short Video",
+    "category": "viral",
+    "tags": ["ecommerce", "fashion", "creative", "food"],
+    "description": "Vertical short-video feed with tagged products and instant checkout. Short video drives discovery for under-35 buyers.",
+    "components": ["VideoFeed", "ProductCard"],
+    "roi_score": 85,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "super_app_modules",
+    "name": "Super-App Service Hub",
+    "category": "engagement",
+    "tags": ["fintech", "saas", "general", "travel"],
+    "description": "Mini-app hub bundling payments, bookings, loyalty, and support in one account. The super-app pattern dominates APAC and MENA.",
+    "components": ["ServiceHub", "WalletCard"],
+    "roi_score": 80,
+    "priority": "medium",
+    "trend_year": 2026
+  },
+  {
+    "id": "a11y_trust_badges",
+    "name": "Accessibility & Trust Badges",
+    "category": "trust",
+    "tags": ["general", "healthcare", "education", "saas", "fintech"],
+    "description": "Visible WCAG conformance, readability controls, and certified-secure badges. Required for EU public-sector and enterprise buyers.",
+    "components": ["A11yToolbar", "TrustBadges"],
+    "roi_score": 88,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "bnpl_gateway",
+    "name": "Buy-Now-Pay-Later Checkout",
+    "category": "conversion",
+    "tags": ["ecommerce", "fashion", "electronics", "travel", "fitness"],
+    "description": "Installment payment options (Tabby, Tamara, Klarna, Afterpay) at checkout. Lifts average order value, especially in MENA and GCC.",
+    "components": ["BNPLWidget", "CheckoutForm"],
+    "roi_score": 89,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "rtl_layout_pack",
+    "name": "RTL Layout & Locale Pack",
+    "category": "international",
+    "tags": ["general", "ecommerce", "saas", "business", "healthcare"],
+    "description": "Full right-to-left layout mirroring with Arabic/Urdu fonts and locale currency formatting for MENA and South Asian markets.",
+    "components": ["RTLProvider", "CurrencySelector"],
+    "roi_score": 86,
+    "priority": "high",
+    "trend_year": 2026
+  },
+  {
+    "id": "ai_search_answers",
+    "name": "AI Answer Search",
+    "category": "discovery",
+    "tags": ["general", "ecommerce", "education", "healthcare", "saas"],
+    "description": "Conversational search that answers in plain language with cited sources. Users increasingly expect answers, not link lists.",
+    "components": ["AISearchBar", "AnswerCard"],
+    "roi_score": 91,
+    "priority": "critical",
+    "trend_year": 2026
   }
 ]

@@ -84,6 +84,10 @@ def main():
     parser.add_argument("--provider", type=str, choices=sorted(PROVIDER_CONFIGS), help="Override active AI provider")
     parser.add_argument("--dry-run", action="store_true", help="Simulate generation plan without writing files to disk")
     parser.add_argument("--headless", action="store_true", help="Run without interactive prompts (for automation/testing)")
+    parser.add_argument("--auto", action="store_true", help="Full auto mode: zero prompts, wall-clock + failure budgets enforced, input() raises instead of hanging")
+    parser.add_argument("--scaffold", type=str, default=None, help="Page scaffold override (auto mode): standard_sections | masonry_flow | bento_showcase | magazine_spread | dashboard_app | split_screen | narrow_single | wide_immersive | overlapping_layers")
+    parser.add_argument("--timeout", type=int, default=1800, help="Auto-mode total wall-clock budget in seconds (default 1800)")
+    parser.add_argument("--autopilot", action="store_true", help="Attach post-run autopilot audit (auto mode)")
     parser.add_argument("--verbose", action="store_true", help="Enable detailed debug logging")
     parser.add_argument("--inspect-site", type=str, help="Inspect international website or domain to replicate (e.g. stripe.com, apple.com, linear.app)")
     parser.add_argument("--generate-3d", action="store_true", help="Generate modern Three.js 3D interactive scene")
@@ -97,7 +101,7 @@ def main():
     parser.add_argument("--fullstack-pro", action="store_true", help="Generate complete, high-speed, clean international full-stack web application")
     parser.add_argument("--benchmark-3d", action="store_true", help="Benchmark international websites and synthesize complete 3D interactive application")
     parser.add_argument("--dest", type=str, default="generated-projects/fullstack-demo", help="Target output folder for full-stack generation")
-    parser.add_argument("--style", type=str, help="Design style: minimalism, maximalism, glassmorphism, cyberpunk, swiss, y2k, editorial, retro, collage, vector, futuristic, handwritten, bohemian, graffiti, aurora, victorian, pixel_art, claymorphism, pop_art, surreal")
+    parser.add_argument("--style", type=str, help="Design style (35 available): minimalism, maximalism, glassmorphism, cyberpunk, swiss, y2k, editorial, luxury, corporate, playful, bold, brutalism, bento_grid, + 22 more")
     args = parser.parse_args()
     if args.provider:
         os.environ["ACTIVE_AI_PROVIDER"] = args.provider
@@ -287,7 +291,24 @@ def main():
         print("=========================================================\n")
         return
 
-    report = orchestrator.run(prompt, interactive=not args.headless, design_style=args.style)
+    report = None
+    if args.auto:
+        from agent.auto_mode import run_auto, AUTO_RUN_TIMEOUT_SECS
+        agent_logger.info("Executing AUTO MODE run (zero prompts, budgets enforced)...")
+        report = run_auto(
+            prompt,
+            design_style=args.style,
+            page_scaffold=args.scaffold,
+            provider=args.provider,
+            timeout_secs=args.timeout or AUTO_RUN_TIMEOUT_SECS,
+            run_autopilot=args.autopilot,
+        )
+        auto_block = report.get("auto_mode") or {}
+        print("\n---------------- AUTO MODE REPORT ----------------")
+        print(f"Elapsed         : {auto_block.get('elapsed_secs')}s / {auto_block.get('timeout_secs')}s budget")
+        print(f"Failures        : {auto_block.get('failure_count')}/{auto_block.get('failure_limit')} budget")
+    else:
+        report = orchestrator.run(prompt, interactive=not args.headless, design_style=args.style)
 
     print("\n---------------- GENERATION REPORT ----------------")
     print(f"Pipeline        : 18-Phase Enterprise v3.6")

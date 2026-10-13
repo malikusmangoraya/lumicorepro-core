@@ -26,6 +26,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -35,6 +36,18 @@ from international_pass1_global import rewrite_seo_html  # noqa: E402
 OWNER = "malikusmangoraya"
 ROOT = Path(__file__).resolve().parent.parent
 PROJECTS = ROOT / "generated-projects"
+# Campaigns moved here when the sell-today storefronts became first-class
+# products; the repair tool resolves both homes so scope never drifts.
+SELL_TODAY = ROOT / "products" / "sell-today"
+
+
+def resolve_project_dir(slug: str) -> Optional[Path]:
+    """Project home for a campaign slug: generated-projects/ or sell-today/."""
+    for base in (PROJECTS, SELL_TODAY):
+        candidate = base / slug
+        if candidate.is_dir():
+            return candidate
+    return None
 
 CAMPAIGNS = [
     "aurelia-estates",
@@ -82,8 +95,9 @@ def existing_langs(text: str) -> list[str]:
 
 
 def locale_langs(slug: str) -> list[str]:
-    loc = PROJECTS / slug / "frontend" / "src" / "i18n" / "locales"
-    if loc.is_dir():
+    project = resolve_project_dir(slug)
+    loc = project / "frontend" / "src" / "i18n" / "locales" if project else None
+    if loc is not None and loc.is_dir():
         langs = sorted(p.stem for p in loc.glob("*.json"))
         if langs:
             return langs
@@ -183,8 +197,8 @@ def main() -> int:
     missing_assets_total = 0
 
     for slug in targets:
-        project = PROJECTS / slug
-        if not project.is_dir():
+        project = resolve_project_dir(slug)
+        if project is None:
             missing_projects.append(slug)
             print(f"[SKIP] {slug}: not present locally")
             continue

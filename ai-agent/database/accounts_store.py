@@ -118,6 +118,13 @@ class AccountStore:
         conn.row_factory = sqlite3.Row
         return conn
 
+    def close(self) -> None:
+        """Release store resources (symmetry with PipelineStore.close).
+
+        Connections are opened per operation, so there is nothing persistent
+        to shut down; the method exists so fixtures can tear down uniformly.
+        """
+
     # ── Users ────────────────────────────────────────────────────────────
     def create_user(self, email: str, display_name: str = "") -> Dict[str, Any]:
         """Create a user, returning the issued raw API key exactly once."""

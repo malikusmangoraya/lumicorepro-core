@@ -1,20 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
-  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        primary: 'rgb(var(--t-primary-rgb, 8 145 178) / <alpha-value>)',
-        accent: 'rgb(var(--t-accent-rgb, 124 77 255) / <alpha-value>)',
-        heading: 'rgb(var(--t-heading-rgb, 11 27 51) / <alpha-value>)',
-        canvas: 'rgb(var(--t-canvas-rgb, 244 248 255) / <alpha-value>)',
-        surface: 'rgb(var(--t-surface-rgb, 255 255 255) / <alpha-value>)',
+        primary: 'rgb(var(--t-primary-rgb, 37 99 235) / <alpha-value>)',
+        accent: 'rgb(var(--t-accent-rgb, 124 58 237) / <alpha-value>)',
+        heading: 'rgb(var(--t-heading-rgb, 15 23 42) / <alpha-value>)',
+        canvas: 'rgb(var(--t-canvas-rgb, 255 255 255) / <alpha-value>)',
+        surface: 'rgb(var(--t-surface-rgb, 248 250 252) / <alpha-value>)',
         text: 'rgb(var(--t-text-rgb, 31 41 55) / <alpha-value>)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Orbitron', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Syne', 'system-ui', 'sans-serif'],
       },
     },
   },
