@@ -87,10 +87,20 @@ const GlassButton = React.forwardRef(
             </svg>
           </motion.div>
         ) : (
-          LeftIcon && <LeftIcon className="h-4 w-4" aria-hidden="true" />
+          LeftIcon &&
+          (typeof LeftIcon === 'function' || LeftIcon?.prototype?.isReactComponent ? (
+            <LeftIcon className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            LeftIcon
+          ))
         )}
         {children}
-        {!loading && RightIcon && <RightIcon className="h-4 w-4" aria-hidden="true" />}
+        {!loading && RightIcon &&
+          (typeof RightIcon === 'function' || RightIcon?.prototype?.isReactComponent ? (
+            <RightIcon className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            RightIcon
+          ))}
       </motion.button>
     );
   }
