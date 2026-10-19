@@ -11,7 +11,7 @@ import User from '../models/User.js';
 import Membership from '../models/Membership.js';
 import Role from '../models/Role.js';
 import Permission from '../models/Permission.js';
-import { seedPermissions, seedOrgRoles } from '../services/rbac.service.js';
+import { seedPermissions, seedOrgRoles, permissionCodes } from '../services/rbac.service.js';
 import { requireOrg, requirePermission, isOrgManager } from '../middleware/rbac.js';
 import { protect } from '../middleware/auth.js';
 import { recordAudit } from '../middleware/audit.js';
@@ -225,15 +225,53 @@ router.get('/', async (req, res, next) => {
 
 /**
  * GET /api/orgs/current  — active org + my role + my permission codes.
+ * Auto-provisions a personal workspace org (with owner membership) when the
+ * user has no active org yet, so first-login users don't hit a 403.
  */
-router.get('/current', requireOrg, (req, res) => {
-  const { org, membership, permissions } = req.orgCtx;
-  res.json({
-    success: true,
-    org,
-    role: membership.role ? membership.role.name : null,
-    permissions,
-  });
+router.get('/current', async (req, res, next) => {
+  try {
+    if (!req.headers['x-org-id'] && !req.user?.current_org_id) {
+      await seedPermissions();
+      const firstName = (req.user?.name || req.user?.email || 'workspace').split('@')[0].trim();
+      const baseSlug = slugify(firstName || 'workspace');
+      const slug = `${baseSlug || 'workspace'}-${req.user.id}`;
+      const existing = await Organization.findOne({ where: { slug } });
+      const org = existing || (await Organization.create({
+        name: `${firstName || 'My'}'s Workspace`.slice(0, 255),
+        slug,
+        owner_id: req.user.id,
+        settings: {},
+      }));
+      const roles = await seedOrgRoles(org.id);
+      const [membership] = await Membership.findOrCreate({
+        where: { org_id: org.id, user_id: req.user.id },
+        defaults: { org_id: org.id, user_id: req.user.id, role_id: roles.owner?.id || null, status: 'active' },
+      });
+      await setActiveOrg(req.user.id, org.id);
+      req.user.current_org_id = org.id;
+      req.orgCtx = { org, membership, permissions: permissionCodes(membership) };
+      return res.json({
+        success: true,
+        org,
+        role: 'owner',
+        permissions: req.orgCtx.permissions,
+        provisioned: !existing,
+      });
+    }
+
+    requireOrg(req, res, (err) => {
+      if (err) return next(err);
+      const { org, membership, permissions } = req.orgCtx;
+      return res.json({
+        success: true,
+        org,
+        role: membership.role ? membership.role.name : null,
+        permissions,
+      });
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**

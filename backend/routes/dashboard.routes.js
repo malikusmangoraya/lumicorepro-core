@@ -292,7 +292,9 @@ router.get('/me', async (req, res, next) => {
         include: [{
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'creditsGrant', 'price', 'features'],
+        // Plan exposes `amount` (not `price`); requesting `price` caused a
+        // 500 on /api/dashboard/me ("column plans.price does not exist").
+        attributes: ['id', 'name', 'creditsGrant', 'amount', 'features'],
           required: false,
         }],
         order: [['createdAt', 'DESC']],

@@ -120,7 +120,7 @@ export function isRedisAvailable() {
  * (the in-memory fallback is used instead). Safe to call multiple times.
  */
 export async function connectRedis(url = process.env.REDIS_URL || 'redis://localhost:6379') {
-  if (client || fallback) return isRedisAvailable();
+  if (client) return isRedisAvailable();
   if (connecting) return isRedisAvailable();
   connecting = true;
   try {

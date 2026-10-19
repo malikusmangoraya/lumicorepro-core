@@ -40,7 +40,7 @@
       "license": "MIT",
       "stack": ["React", "Base UI", "Motion", "Tailwind v4"],
       "url": "https://appica.dev",
-      "repo": "https://github.com/AppicaDev/appica",
+      "repo": "https://github.com/appica-dev/appica-ui",
       "description": "Free open-source React UI component library (60+ components) built on Base UI + Motion + Tailwind CSS v4.",
       "keywords": ["appica", "component library", "base ui", "tailwind v4 components", "free react ui"],
       "attributes": {
@@ -101,7 +101,7 @@
       "license": "MIT",
       "stack": ["React", "Framer Motion", "Tailwind CSS"],
       "url": "https://cult-ui.com",
-      "repo": "https://github.com/Zaeem20/cult-ui",
+      "repo": "https://github.com/nolly-studio/cult-ui",
       "description": "Animated React component library with Framer Motion + Tailwind; prebuilt shadcn-style components with view-transition polish.",
       "keywords": ["cult ui", "cult-ui", "animated components", "motion blocks"],
       "attributes": {
@@ -131,7 +131,7 @@
       "license": "Mixed/Open",
       "stack": ["HTML", "CSS", "Tailwind CSS"],
       "url": "https://uiverse.io",
-      "repo": "https://github.com/uiverse-io/uiverse",
+      "repo": "https://github.com/uiverse-io/galaxy",
       "description": "Community-built open-source UI elements library — thousands of CSS/Tailwind buttons, loaders, toggles and cards.",
       "keywords": ["uiverse", "css components", "community ui", "buttons", "loaders"],
       "attributes": {

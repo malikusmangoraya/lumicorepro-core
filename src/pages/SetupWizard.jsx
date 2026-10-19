@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Rocket, Check, ArrowRight, ArrowLeft, Shield, Building2, CreditCard } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Alert } from '../components/ui';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Button, Alert } from '../components/ui';
 import { Input, Switch, Select } from '../components/forms';
 import settingsApi from '../services/settingsApi';
 import { useAppContext } from '../context/AppContext';

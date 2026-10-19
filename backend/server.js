@@ -17,6 +17,10 @@ import { apiLimiter } from './middleware/rateLimit.js';
 import { verifyAccessToken } from './middleware/auth.js';
 import { assertValidConfig, validateConfig } from './config/env.js';
 import connectDB from './config/database.js';
+// Side-effect import: registers every Sequelize model association (models/
+// index.js). Route files import model files directly, so without this the
+// eager-loading includes (`as: 'organization'`, `as: 'product'`, ...) fail.
+import './models/index.js';
 import { connectRedis } from './services/cache/redis.client.js';
 import passport from 'passport';
 import configureOAuth from './services/oauth.service.js';

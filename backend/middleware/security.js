@@ -47,8 +47,18 @@ export const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key', 'X-Org-Id', 'X-Tenant', 'Accept'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'X-API-Key',
+    'X-Org-Id',
+    'X-Tenant',
+    'Accept',
+    // W3C distributed-tracing header sent by the frontend axios interceptor.
+    'Traceparent',
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range', 'X-Trace-Id'],
   maxAge: 86400, // 24 hours preflight cache
 };
 

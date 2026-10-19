@@ -1765,6 +1765,16 @@ before relying on them.
             raise RuntimeError("Design DNA page composition failed")
           plan["design_composition"] = composition
 
+        # 9. Layout Variation sweep — anti-sameness (accent/surface/section order).
+        from .layout_variation import apply_layout_variation
+        try:
+            plan["layout_variation"] = apply_layout_variation(
+                str(frontend_dir / "src"),
+                project_name,
+            )
+        except Exception as exc:  # never block the build on cosmetics
+            agent_logger.warning(f"Layout variation skipped: {exc}")
+
         agent_logger.info(f"Successfully assembled project '{project_name}'!")
         return str(target_dir)
 

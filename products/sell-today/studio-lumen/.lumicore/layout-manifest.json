@@ -2,13 +2,10 @@
   "engine": "layout-engine",
   "version": "1.0",
   "marker": "LUMI_LAYOUT_V1",
-  "created_at": "20261013T102950Z",
+  "created_at": "20261013T164724Z",
   "skin": "full",
-  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\studio-lumen\\.lumicore\\layout\\20261013T102950Z",
-  "created": [
-    "DESIGN_PLAN.md",
-    "LAYOUT_REPORT.json"
-  ],
+  "backup_dir": "D:\\lumicorepro-core\\products\\sell-today\\studio-lumen\\.lumicore\\layout\\20261013T164724Z",
+  "created": [],
   "replaced": [
     "src/index.css",
     "tailwind.config.js",
@@ -17,14 +14,16 @@
     "src/components/Footer.jsx",
     "src/components/common/UniqueLogo.jsx",
     "src/pages/Home.jsx",
+    "DESIGN_PLAN.md",
     "src/components/brand/BRAND.js",
     "src/components/brand/BrandLockup.jsx",
-    "src/components/navigation/GlassNavbar.jsx"
+    "src/components/navigation/GlassNavbar.jsx",
+    "LAYOUT_REPORT.json"
   ],
   "plan": {
     "engine": "layout-engine",
     "version": "1.0",
-    "generated_at": "2026-10-13T10:29:50Z",
+    "generated_at": "2026-10-13T16:47:24Z",
     "project_dir": "D:\\lumicorepro-core\\products\\sell-today\\studio-lumen",
     "frontend": "D:\\lumicorepro-core\\products\\sell-today\\studio-lumen\\frontend",
     "package_name": "studio-lumen",
