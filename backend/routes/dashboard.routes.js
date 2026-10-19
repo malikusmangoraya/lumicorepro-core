@@ -369,8 +369,9 @@ router.get('/me/charts', async (req, res, next) => {
       d.setUTCMonth(d.getUTCMonth() + i);
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
       const match = rows.find((r) => {
-        const m = typeof r.month === 'string' ? r.month.slice(0, 7) : '';
-        return m === key;
+        const d = r.month instanceof Date ? r.month : new Date(r.month);
+        if (Number.isNaN(d.getTime())) return false;
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}` === key;
       });
       filled.push({
         month: key,
