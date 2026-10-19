@@ -24,6 +24,7 @@ import Card from '@/components/ui/Card';
 import Reveal from '@/components/motion/Reveal';
 import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerGroup';
 import SEO, { schemas, hreflangFor } from '@/components/common/SEO';
+import CommandCenter from '@/components/common/CommandCenter';
 import { cn } from '@/utils';
 
 const Hero3DScene = React.lazy(() => import('@/components/motion/HeroCanvas'));
@@ -347,6 +348,11 @@ export default function Home() {
                 )
               )}
             </div>
+          </Reveal>
+
+          {/* Command console — chat-style prompt into the AI agent */}
+          <Reveal delay={0.5} direction="up" className="mt-10 max-w-3xl mx-auto">
+            <CommandCenter />
           </Reveal>
         </div>
       </section>

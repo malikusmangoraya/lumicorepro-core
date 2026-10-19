@@ -342,6 +342,20 @@
     "trustNoCard": "کریڈٹ کارڈ کی ضرورت نہیں",
     "trustOffline": "آف لائن موڈ شامل",
     "trustModels": "Gemini · DeepSeek · OpenRouter",
+    "command": {
+      "title": "کمانڈ کنسول",
+      "online": "ایجنٹ آن لائن",
+      "offline": "ایجنٹ آف لائن",
+      "placeholder": "بتائیں کیا بنانا ہے — مثلاً 'الیکٹرانکس اسٹور چیک آؤٹ کے ساتھ' — پھر Enter دبائیں",
+      "send": "بھیجیں",
+      "enterHint": "Ctrl+K فوکس · Enter بھیجنے کے لیے",
+      "suggest": {
+        "store": "ای کامرس اسٹور",
+        "landing": "SaaS لینڈنگ پیج",
+        "portfolio": "فوٹوگرافر پورٹ فولیو",
+        "dashboard": "ایڈمن ڈیش بورڈ"
+      }
+    },
     "stats": {
       "templates": "پروڈکشن ٹیمپلیٹس",
       "verticals": "صنعتی شعبے",

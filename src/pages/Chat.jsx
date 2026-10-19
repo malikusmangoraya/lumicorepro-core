@@ -122,6 +122,7 @@ export default function Chat() {
   const [copied, setCopied] = useState(false);
   const endRef = useRef(null);
   const fileRef = useRef(null);
+  const autoSentRef = useRef(false);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -198,8 +199,8 @@ export default function Chat() {
     setVisionInfo(null);
   };
 
-  const send = useCallback(async () => {
-    const message = text.trim();
+  const send = useCallback(async (overrideText) => {
+    const message = (overrideText ?? text).trim();
     if ((!message && attachments.length === 0) || sending) return;
 
     const payloadFiles = attachments.map((a) => ({
@@ -270,6 +271,25 @@ export default function Chat() {
       setSending(false);
     }
   }, [text, attachments, sending, provider]);
+
+  // Latest send() via ref, so the ?go=1 one-shot effect can pass the prompt.
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  }, [send]);
+
+  useEffect(() => {
+    const prompt = searchParams.get('prompt');
+    if (!prompt) return;
+    if (autoSentRef.current) return;
+    autoSentRef.current = true;
+    setText(prompt);
+    // Deliberately not cleared in cleanup: StrictMode's dev double-run would
+    // otherwise cancel the one-shot auto-send before it fires.
+    if (searchParams.get('go') === '1') {
+      setTimeout(() => sendRef.current(prompt), 250);
+    }
+  }, []);
 
   const buildFromFiles = useCallback(async () => {
     if (!sentSnapshot || !sentSnapshot.files.length || buildInfo?.loading) return;

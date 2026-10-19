@@ -349,6 +349,20 @@
     "trustNoCard": "No credit card required",
     "trustOffline": "Offline mode included",
     "trustModels": "Gemini · DeepSeek · OpenRouter",
+    "command": {
+      "title": "Command Console",
+      "online": "Agent online",
+      "offline": "Agent offline",
+      "placeholder": "Describe what to build — e.g. “Build an electronics store with checkout” — then press Enter",
+      "send": "Send",
+      "enterHint": "Ctrl+K to focus · Enter to send",
+      "suggest": {
+        "store": "E-commerce store",
+        "landing": "SaaS landing page",
+        "portfolio": "Photographer portfolio",
+        "dashboard": "Admin dashboard"
+      }
+    },
     "stats": {
       "templates": "Production Templates",
       "verticals": "Industry Verticals",
