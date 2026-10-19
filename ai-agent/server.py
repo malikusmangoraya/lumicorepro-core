@@ -2685,6 +2685,36 @@ async def deploy_domain(req: DeployDomainRequest, request: Request, _auth: bool 
     return {"success": True, "data": outcome}
 
 
+class WebAuditRequest(BaseModel):
+    url: str = Field("", description="Live URL to audit (PageSpeed + reachability)")
+    html: str = Field("", description="Raw HTML to validate with the W3C checker (when no url)")
+    strategy: str = Field("mobile", description="pagespeed strategy: mobile | desktop")
+    npm_packages: List[str] = Field(default_factory=list, description="Packages to version-check")
+
+
+@app.post("/api/web/audit", tags=["Extensions"])
+async def web_audit(req: WebAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Free keyless internet audits: Google PageSpeed, W3C HTML checker,
+    npm registry pin-check, reachability. Advisory output for the QA gate."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent import free_web_tools as fwt
+
+    data: Dict[str, Any] = {}
+    if req.url:
+        data["reachability"] = fwt.http_reachable(req.url)
+        data["pagespeed"] = fwt.pagespeed_audit(req.url, strategy=req.strategy)
+        if req.html:
+            data["w3c"] = fwt.w3c_validate(url=req.url)
+    elif req.html:
+        data["w3c"] = fwt.w3c_validate(content=req.html)
+    if req.npm_packages:
+        data["npm"] = fwt.npm_latest(req.npm_packages)
+    if not data:
+        raise HTTPException(status_code=422, detail="Provide url, html or npm_packages")
+    return {"success": True, "data": data}
+
+
 @app.post("/api/marketing-kit", tags=["Extensions"])
 async def marketing_kit(req: MarketingKitRequest, _auth: bool = Depends(_verify_api_key)):
     """Auto-generate the project's brand kit (logo, favicon, OG, seller zip)."""

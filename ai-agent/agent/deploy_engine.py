@@ -177,27 +177,94 @@ def _read_file(path: Optional[str], default: str = "") -> str:
         return default
 
 
+def _vercel_inline_files(project_dir: str) -> List[Dict[str, str]]:
+    """Collect a flat static subset of ``project_dir`` for the v13 inline API."""
+    files: List[Dict[str, str]] = []
+    base = Path(project_dir)
+    limit, max_bytes = 40, 3 * 1024 * 1024
+    for path in sorted(base.rglob("*")):
+        if len(files) >= limit:
+            break
+        if not path.is_file() or path.stat().st_size > max_bytes // limit:
+            continue
+        if any(part in {".git", "node_modules", "__pycache__", ".venv"} for part in path.parts):
+            continue
+        rel = path.relative_to(base).as_posix()
+        try:
+            files.append({"file": rel, "data": path.read_text(encoding="utf-8")})
+        except (UnicodeDecodeError, OSError):
+            continue
+    return files
+
+
+def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]:
+    """Deploy with the real Vercel CLI when available (handles any framework)."""
+    cli = shutil.which("vercel")
+    cmd = None
+    if cli:
+        cmd = [cli, "--prod", "--yes", f"--token={token}"]
+    elif _which_git() or shutil.which("npx"):  # npx covers vercel on demand
+        npx = shutil.which("npx")
+        if npx:
+            cmd = [npx, "-y", "vercel@latest", "--prod", "--yes", f"--token={token}"]
+    if not cmd:
+        return None
+    env = {**os.environ, "VERCEL_ORG_ID": os.getenv("VERCEL_ORG_ID", ""), "VERCEL_PROJECT_ID": os.getenv("VERCEL_PROJECT_ID", "")}
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            timeout=420,
+            env=env,
+        )
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"status": "failed", "message": f"vercel CLI failed: {exc}"}
+    if proc.returncode != 0:
+        return {"status": "failed", "message": (proc.stderr or proc.stdout or "").strip()[-400:]}
+    url = ""
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("https://") and ".vercel.app" in line:
+            url = line.split()[0]
+    return {"status": "live", "platform": "vercel", "url": url, "deployment_id": ""}
+
+
 def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
+    """Deploy ``project_dir`` to Vercel.
+
+    Order: CLI (real upload, any framework) -> v13 inline-files API (static
+    fallback) -> guide mode. Ensures a *deployed* site, never an empty one.
+    """
     token = os.getenv("VERCEL_TOKEN", "").strip()
     if not token or token.startswith("your_"):
         return {"status": "guide", "message": "VERCEL_TOKEN not set — guide mode"}
+    via_cli = _vercel_cli_deploy(project_dir, token)
+    if via_cli is not None:
+        return via_cli
     try:
+        files = _vercel_inline_files(project_dir)
+        if not files:
+            return {"status": "failed", "message": "Vercel: no deployable files found in project"}
+        name = Path(project_dir).name
         req = urllib.request.Request(
             "https://api.vercel.com/v13/deployments",
             method="POST",
-            data=json.dumps({"name": Path(project_dir).name, "project": Path(project_dir).name}),
+            data=json.dumps({"name": name, "target": "production", "files": files}),
             headers={
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
             },
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=60) as resp:
             payload = json.loads(resp.read().decode())
+        url = payload.get("url") or ""
         return {
-            "status": "live",
+            "status": "live" if url else "failed",
             "platform": "vercel",
-            "url": payload.get("url") or payload.get("readyState", ""),
-            "deployment_id": payload.get("id") or payload.get("uid"),
+            "url": f"https://{url}" if url and not url.startswith("http") else url,
+            "deployment_id": payload.get("id") or payload.get("uid", ""),
         }
     except Exception as exc:
         agent_logger.warning(f"Vercel deploy failed: {exc}")
@@ -460,4 +527,24 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
     if result["status"] == "guide":
         result = {**_guide(str(project_dir), platform), **result}
     result["project_dir"] = str(project_dir)
+
+    if result["status"] == "live" and result.get("url"):
+        result["live_audit"] = _live_audit(result["url"])
     return result
+
+
+def _live_audit(url: str) -> Dict[str, Any]:
+    """Post-deploy verification with the free keyless tools (PSI + reachability).
+
+    Advisory only — a failed audit never flips ``status`` to failed, but the
+    scores travel with the deployment so the QA gate can report honestly.
+    """
+    try:
+        from agent.free_web_tools import http_reachable, pagespeed_audit
+    except ImportError:  # direct-script execution
+        from free_web_tools import http_reachable, pagespeed_audit
+    audit = {"reachability": http_reachable(url)}
+    psi = pagespeed_audit(url)
+    if psi.get("status") == "ok":
+        audit["pagespeed"] = psi
+    return audit
