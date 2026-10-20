@@ -113,3 +113,5 @@ release/
 # SQLite WAL sidecars (runtime artifacts)
 ai-agent/database/agent.db-shm
 ai-agent/database/agent.db-wal
+# Crawl4AI reference-mining cache (7-day local cache)
+ai-agent/database/reference_cache/
