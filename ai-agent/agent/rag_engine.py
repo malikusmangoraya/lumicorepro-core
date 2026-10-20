@@ -20,11 +20,19 @@ import hashlib
 try:
     import chromadb
     from chromadb.config import Settings
-    from sentence_transformers import SentenceTransformer
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
-    print("[WARNING] ChromaDB not available. Install with: pip install chromadb sentence-transformers")
+    print("[WARNING] ChromaDB not available. Install with: pip install chromadb")
+try:
+    # Optional quality upgrade — chroma's built-in ONNX MiniLM is used instead
+    # when sentence-transformers/torch is not installed. All add()/query()
+    # paths below rely on the collection's default embedding function, so the
+    # agent's RAG works with just `pip install chromadb`.
+    from sentence_transformers import SentenceTransformer
+    _SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    _SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 from utils.logger import agent_logger
 
@@ -66,8 +74,13 @@ class RAGEngine:
                 metadata={"description": "Complete project examples and templates"}
             )
             
-            # Initialize embedding model (lightweight, fast)
-            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            # Initialize embedding model only when sentence-transformers is
+            # present; otherwise Chroma's built-in ONNX MiniLM default keeps
+            # the same pipeline torch-free.
+            if _SENTENCE_TRANSFORMERS_AVAILABLE:
+                self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            else:
+                self.embedding_model = None
             
             agent_logger.info(f"RAG engine initialized with {self._get_stats()}")
             

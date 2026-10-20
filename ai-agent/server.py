@@ -2710,6 +2710,33 @@ async def reference_crawl(req: ReferenceCrawlRequest, request: Request, _auth: b
     return {"success": True, "data": {"mined": ok, "total": len(results), "references": results}}
 
 
+class BuiltWithRequest(BaseModel):
+    run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
+    project_dir: Optional[str] = Field(None, description="Direct project directory path")
+    live_url: Optional[str] = Field(None, description="Set to point the badge link at the deployment")
+
+
+@app.post("/api/built-with", tags=["Extensions"])
+async def built_with(req: BuiltWithRequest, _auth: bool = Depends(_verify_api_key)):
+    """Inject (or re-point) the Built-with-LumicorePro proof badge — project
+    image + name + live link rendered on every generated page."""
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir:
+        raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
+    if not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=404, detail="Generated project directory not found")
+    from agent.extensions.built_with_badge import inject_built_with, update_live_link
+    if req.live_url:
+        outcome = update_live_link(str(project_dir), req.live_url)
+        if outcome.get("status") == "no-op":
+            outcome = inject_built_with(str(project_dir), live_url=req.live_url)
+    else:
+        outcome = inject_built_with(str(project_dir))
+    if outcome.get("status") == "failed":
+        raise HTTPException(status_code=422, detail=outcome.get("message", "Badge injection failed"))
+    return {"success": True, "data": outcome}
+
+
 @app.post("/api/web/audit", tags=["Extensions"])
 async def web_audit(req: WebAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
     """Free keyless internet audits: Google PageSpeed, W3C HTML checker,

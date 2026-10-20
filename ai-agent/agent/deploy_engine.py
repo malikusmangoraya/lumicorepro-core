@@ -9,6 +9,7 @@ Every deployment is persisted to platform.db.deployments via AccountStore.
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -197,54 +198,145 @@ def _vercel_inline_files(project_dir: str) -> List[Dict[str, str]]:
     return files
 
 
+def _vercel_deploy_root(project_dir: str) -> Path:
+    """Best deployable directory for a generated project on Vercel.
+
+    Priority: built frontend/dist (static, fastest) -> frontend (zero-config
+    Vite build) -> raw project root.
+    """
+    base = Path(project_dir)
+    if (base / "frontend" / "dist" / "index.html").is_file():
+        return base / "frontend" / "dist"
+    if (base / "frontend" / "package.json").is_file():
+        return base / "frontend"
+    return base
+
+
+def _vercel_project_name(project_dir: str) -> str:
+    """Stable Vercel project name derived from the generated project name."""
+    raw = Path(project_dir).name.lower()
+    name = re.sub(r"[^a-z0-9-]+", "-", raw).strip("-")
+    return (name or "lumicorepro-site")[:52]
+
+
+def _vercel_probe(url: str, require_marker: bool = False) -> bool:
+    """True when ``url`` answers 200 publicly (never a vercel.com/login wall).
+
+    ``require_marker`` additionally demands the Built-with badge id in the
+    first rendered bytes — used to reject stale/global-conflict content on
+    shared canonical domains.
+    """
+    try:
+        req = urllib.request.Request(
+            url,
+            method="GET",
+            headers={"User-Agent": "lumicorepro-agent/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            if resp.status != 200 or "vercel.com/login" in resp.geturl():
+                return False
+            if require_marker:
+                body = resp.read(65536).decode("utf-8", "replace")
+                return "built-with-lumicorepro" in body
+            return True
+    except Exception:
+        return False
+
+
 def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]:
-    """Deploy with the real Vercel CLI when available (handles any framework)."""
+    """Deploy with the real Vercel CLI when available (handles any framework).
+
+    Works token-free when the local CLI is already logged in (`vercel whoami`),
+    which is the operator's preferred path; a VERCEL_TOKEN adds only the
+    explicit scope. Project name follows the generated project's brand slug so
+    the customer-facing URL stays predictable.
+    """
+    name = _vercel_project_name(project_dir)
+    deploy_root = _vercel_deploy_root(project_dir)
+    cmd: Optional[List[str]] = None
     cli = shutil.which("vercel")
-    cmd = None
     if cli:
-        cmd = [cli, "--prod", "--yes", f"--token={token}"]
-    elif _which_git() or shutil.which("npx"):  # npx covers vercel on demand
+        cmd = [cli, "deploy", ".", "--prod", "-y", "--project", name, "--create-if-missing"]
+    else:
         npx = shutil.which("npx")
         if npx:
-            cmd = [npx, "-y", "vercel@latest", "--prod", "--yes", f"--token={token}"]
+            cmd = [npx, "-y", "vercel@latest", "deploy", ".", "--prod", "-y",
+                   "--project", name, "--create-if-missing"]
     if not cmd:
         return None
-    env = {**os.environ, "VERCEL_ORG_ID": os.getenv("VERCEL_ORG_ID", ""), "VERCEL_PROJECT_ID": os.getenv("VERCEL_PROJECT_ID", "")}
+    if token:
+        cmd.extend(["--token", token])
     try:
         proc = subprocess.run(
             cmd,
-            cwd=project_dir,
+            cwd=str(deploy_root),
             capture_output=True,
             text=True,
             timeout=420,
-            env=env,
+            encoding="utf-8",
+            errors="replace",
         )
     except (subprocess.TimeoutExpired, OSError) as exc:
         return {"status": "failed", "message": f"vercel CLI failed: {exc}"}
     if proc.returncode != 0:
-        return {"status": "failed", "message": (proc.stderr or proc.stdout or "").strip()[-400:]}
+        tail = (proc.stderr or proc.stdout or "").strip()[-400:]
+        if "credentials" in tail.lower() or "not logged in" in tail.lower():
+            return None  # fall through to other paths
+        return {"status": "failed", "message": tail}
+    urls = re.findall(r"https://[^\s\"']+\.vercel\.app", (proc.stdout or "") + "\n" + (proc.stderr or ""))
+    urls = [u.rstrip(",;.)") for u in dict.fromkeys(urls)]
+    # Rank CLI-echoed URLs: the stable auto-project alias `<name>-<teamslug>`
+    # first (follows production), then free-named aliases; the `<hash>-<team>`
+    # deploy-scoped hostname comes last because SSO protection may gate it.
+    team_slug = os.getenv("VERCEL_TEAM_SLUG", "lumicorepro").strip() or "lumicorepro"
+    scoped = re.compile(r"-\w+-" + re.escape(team_slug) + r"\.vercel\.app$")
+    aliases = [u for u in urls if not scoped.search(u) and f"-{team_slug}.vercel.app" not in u]
+    auto_team = [u for u in aliases if u.startswith(f"https://{name}-{team_slug}.vercel.app")]
+    free = [u for u in aliases if not auto_team or u not in auto_team]
     url = ""
-    for line in proc.stdout.splitlines():
-        line = line.strip()
-        if line.startswith("https://") and ".vercel.app" in line:
-            url = line.split()[0]
-    return {"status": "live", "platform": "vercel", "url": url, "deployment_id": ""}
+    for candidate in (auto_team or list(dict.fromkeys(auto_team + free))):
+        try:
+            if _vercel_probe(candidate):
+                url = candidate
+                break
+        except Exception:
+            continue
+    # Canonical domain only when it really serves this deployment — a shared
+    # global vercel.app namespace can hold unrelated/stale content under the
+    # same name (403 on domain lookup, cached body from an earlier project).
+    canonical = f"https://{name}.vercel.app"
+    if not url and _vercel_probe(canonical, require_marker=True):
+        url = canonical
+    if not url and urls:
+        url = urls[0]
+    return {
+        "status": "live",
+        "platform": "vercel",
+        "url": url,
+        "project_name": name,
+        "deployment_id": "",
+    }
 
 
 def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
     """Deploy ``project_dir`` to Vercel.
 
-    Order: CLI (real upload, any framework) -> v13 inline-files API (static
-    fallback) -> guide mode. Ensures a *deployed* site, never an empty one.
+    Order: CLI (logged-in, token-free preferred) -> CLI with token -> v13
+    inline-files API (static fallback) -> guide mode. Ensures a *deployed*
+    site, never an empty one.
     """
     token = os.getenv("VERCEL_TOKEN", "").strip()
+    if token and not token.startswith("your_"):
+        via_cli = _vercel_cli_deploy(project_dir, token)
+        if via_cli is not None:
+            return via_cli
+    via_cli_free = _vercel_cli_deploy(project_dir, "")  # token-free, logged-in CLI
+    if via_cli_free is not None:
+        return via_cli_free
     if not token or token.startswith("your_"):
-        return {"status": "guide", "message": "VERCEL_TOKEN not set — guide mode"}
-    via_cli = _vercel_cli_deploy(project_dir, token)
-    if via_cli is not None:
-        return via_cli
+        return {"status": "guide", "message": "VERCEL_TOKEN not set and no logged-in CLI — guide mode"}
     try:
-        files = _vercel_inline_files(project_dir)
+        files = _vercel_inline_files(str(_vercel_deploy_root(project_dir)))
         if not files:
             return {"status": "failed", "message": "Vercel: no deployable files found in project"}
         name = Path(project_dir).name
@@ -516,6 +608,11 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
         return {"status": "failed", "message": "Project directory not found", "platform": platform}
 
     if platform == "vercel":
+        try:  # proof badge ships with every deployment (idempotent)
+            from agent.extensions.built_with_badge import inject_built_with
+            inject_built_with(str(project_dir))
+        except Exception:
+            agent_logger.warning("Built-with badge injection skipped", exc_info=True)
         result = _vercel_deploy(str(project_dir))
     elif platform == "netlify":
         result = _netlify_deploy(str(project_dir))
@@ -530,6 +627,11 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
 
     if result["status"] == "live" and result.get("url"):
         result["live_audit"] = _live_audit(result["url"])
+        try:  # point the badge at the real URL for future rebuilds
+            from agent.extensions.built_with_badge import update_live_link
+            update_live_link(str(project_dir), result["url"])
+        except Exception:
+            pass
     return result
 
 
