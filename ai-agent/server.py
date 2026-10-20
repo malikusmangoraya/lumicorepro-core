@@ -2716,6 +2716,63 @@ class BuiltWithRequest(BaseModel):
     live_url: Optional[str] = Field(None, description="Set to point the badge link at the deployment")
 
 
+class ProjectQualityRequest(BaseModel):
+    run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
+    project_dir: Optional[str] = Field(None, description="Direct project directory path")
+    include_lint: bool = Field(True, description="Run oxlint through npx (downloads once, free)")
+    include_audit: bool = Field(True, description="Run npm audit --json vulnerability summary")
+    include_licenses: bool = Field(True, description="npm registry license lookup per dependency")
+    include_docs: bool = Field(False, description="Write docs/architecture.mmd blueprint")
+
+
+@app.post("/api/project/quality", tags=["Extensions"])
+async def project_quality(req: ProjectQualityRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """OSS power-pack quality gate: planted-credential scan, npm audit,
+    dependency licenses (copyleft risk), oxlint — all keyless internet tools.
+    Advisory output for the QA gate; never mutates the project (docs flag aside)."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir:
+        raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
+    if not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=404, detail="Generated project directory not found")
+    from agent import oss_power_tools as opt
+
+    data: Dict[str, Any] = {"secrets": opt.secrets_scan(str(project_dir))}
+    if req.include_audit:
+        data["npm_audit"] = opt.npm_audit(str(project_dir))
+    if req.include_licenses:
+        data["licenses"] = opt.license_report(str(project_dir))
+    if req.include_lint:
+        data["lint"] = opt.lint_project(str(project_dir))
+    if req.include_docs:
+        data["architecture"] = opt.mermaid_doc(str(project_dir))
+    stages = [v.get("status") for v in data.values() if isinstance(v, dict) and "status" in v]
+    overall = "passed" if "failed" not in stages and "found" not in stages else "needs_attention"
+    return {"success": True, "data": {"overall": overall, "stages": data}}
+
+
+class A11yAuditRequest(BaseModel):
+    url: str = Field(..., description="Live page to audit with axe-core (WCAG 2.1/2.2 A/AA)")
+
+
+@app.post("/api/a11y", tags=["Extensions"])
+async def a11y_audit_endpoint(req: A11yAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """axe-core accessibility audit of a live page (repo Playwright + axe from
+    CDN, keyless). Feeds the Accessibility QA stage of the design gate."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent import oss_power_tools as opt
+
+    if not req.url.startswith(("http://", "https://")):
+        raise HTTPException(status_code=422, detail="url must be an absolute http(s) address")
+    outcome = opt.a11y_audit(req.url)
+    if outcome.get("status") == "failed":
+        raise HTTPException(status_code=502, detail=outcome.get("message", "a11y audit failed"))
+    return {"success": True, "data": outcome}
+
+
 @app.post("/api/built-with", tags=["Extensions"])
 async def built_with(req: BuiltWithRequest, _auth: bool = Depends(_verify_api_key)):
     """Inject (or re-point) the Built-with-LumicorePro proof badge — project
