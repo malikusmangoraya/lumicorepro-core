@@ -283,11 +283,9 @@ class RAGEngine:
                     code_content = snippet.get("code", snippet["document"])[:400]
                     context_parts.append(f"\n### {name}\n{desc}\n```\n{code_content}\n```")
             
-            # Join and truncate
-            full_context = "\n".join(context_parts)
-            if len(full_context) > max_context_length:
-                full_context = full_context[:max_context_length] + "\n... (truncated)"
-            
+            # Join and compress (Headroom, env-gated; no-op when disabled)
+            from utils.context_tools import compress_context
+            full_context = compress_context("\n".join(context_parts), max_chars=max_context_length)
             return full_context
             
         except Exception as e:

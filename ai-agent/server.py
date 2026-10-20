@@ -2692,6 +2692,24 @@ class WebAuditRequest(BaseModel):
     npm_packages: List[str] = Field(default_factory=list, description="Packages to version-check")
 
 
+class ReferenceCrawlRequest(BaseModel):
+    urls: List[str] = Field(..., description="Reference pages to mine into LLM-ready markdown")
+    focus: str = Field("", description="Optional BM25 query to keep only relevant sections")
+
+
+@app.post("/api/reference/crawl", tags=["Design"])
+async def reference_crawl(req: ReferenceCrawlRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Reference Intelligence mining (Part 1b): fetch live pages into clean,
+    boilerplate-free markdown (Crawl4AI when REFERENCE_CRAWLER != 0, urllib
+    fallback otherwise; disk-cached for 7 days). Keyless + free."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from utils.context_tools import reference_markdown
+    results = [reference_markdown(u, req.focus or None) for u in req.urls[:10]]
+    ok = sum(1 for r in results if r.get("status") == "ok")
+    return {"success": True, "data": {"mined": ok, "total": len(results), "references": results}}
+
+
 @app.post("/api/web/audit", tags=["Extensions"])
 async def web_audit(req: WebAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
     """Free keyless internet audits: Google PageSpeed, W3C HTML checker,

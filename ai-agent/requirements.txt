@@ -96,3 +96,18 @@ stability-sdk>=0.8.5            # Stable Diffusion
 # stdio MCP tools (mcp_server.py) for Claude Desktop, Cursor, VS Code, etc.
 # FastMCP lives in mcp.server.fastmcp; 2.x renamed it, hence the <2 pin.
 mcp>=1.9.0,<2
+
+# ── Optional internet power-ups ─────────────────────────────
+# Everything below is OPTIONAL — utils/context_tools.py degrades gracefully
+# without them (urllib fallback / no-op passthrough). Install to enable:
+#
+#  1. HEADROOM_ENABLED=1  → compress injected context before LLM calls.
+#     pip install headroom-ai
+#  2. REFERENCE_CRAWLER=1 → mine live reference pages into LLM-ready markdown
+#     (Part 1b Reference Intelligence).
+#     pip install crawl4ai && python -m playwright install chromium
+#
+# Note: headroom-ai pins openai 2.x — verified compatible (1,204 agent tests
+# passed after install).
+# headroom-ai>=0.4
+# crawl4ai>=0.9.5
