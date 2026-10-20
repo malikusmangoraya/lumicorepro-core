@@ -1,1 +1,2 @@
 {"industry": "real-estate", "brand": "minimal", "score": 87.4, "passed": false, "failing": ["visual_hierarchy", "typography", "originality"], "attention": {"typography": 59.0, "hierarchy": 50.0, "originality": 53.0}, "weakest": "hierarchy", "reference_hints": 0, "ts": "{}"}
+{"industry": "real-estate", "brand": "minimal", "score": 87.4, "passed": false, "failing": ["visual_hierarchy", "typography", "originality"], "attention": {"typography": 59.0, "hierarchy": 50.0, "originality": 53.0}, "weakest": "hierarchy", "reference_hints": 3, "ts": "{}"}

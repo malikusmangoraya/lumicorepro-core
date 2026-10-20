@@ -23,6 +23,7 @@ _PROVIDER_MODULES = {
     "DeepSeekProvider": "providers.deepseek_provider",
     "KimiProvider": "providers.kimi_provider",
     "OpenWeightCloudProvider": "providers.openweight_provider",
+    "PollinationsProvider": "providers.pollinations_provider",
 }
 
 __all__ = list(_PROVIDER_MODULES.keys())

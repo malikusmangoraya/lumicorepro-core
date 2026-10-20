@@ -137,6 +137,18 @@ def _run_stage_quality(project_dir: Path) -> Dict[str, Any]:
         return {"stage": "quality", "score": 0.0, "error": str(exc)[:200], "passed": False}
 
 
+def _run_stage_store(project_dir: Path, apply_fixes: bool) -> Dict[str, Any]:
+    try:
+        from .extensions.store_gate import run_store_gate
+
+        gate = run_store_gate(str(project_dir), apply_fixes=apply_fixes)
+        return {"stage": "store_gate", "score": gate.get("score", 0),
+                "items": gate.get("items", {}), "fixes": gate.get("fixes", []),
+                "passed": gate.get("status") != "failed"}
+    except Exception as exc:  # noqa: BLE001
+        return {"stage": "store_gate", "score": 0.0, "error": str(exc)[:200], "passed": False}
+
+
 def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any]:
     """Run every stage for a single project. Always returns a result record."""
     started = time.time()
@@ -144,6 +156,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "guardrails": _run_stage_guardrails(project_dir, apply_fixes),
         "self_heal": _run_stage_self_heal(project_dir, apply_fixes),
         "quality": _run_stage_quality(project_dir),
+        "store_gate": _run_stage_store(project_dir, apply_fixes),
     }
     score = stages["quality"].get("score", 0.0)
     try:
@@ -165,6 +178,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "guardrails": stages["guardrails"],
         "self_heal": stages["self_heal"],
         "quality": stages["quality"],
+        "store_gate": stages["store_gate"],
         "trend": trend,
         "duration_seconds": round(time.time() - started, 2),
     }

@@ -41,9 +41,10 @@ def test_opencode_is_registered_as_a_keyless_open_source_provider():
 
 def test_opencode_joins_the_fallback_chain():
     assert "opencode" in FALLBACK_ORDER
-    # `opencode` must not displace kimi, which is pinned last by design.
-    assert FALLBACK_ORDER[-1] == "kimi"
-    assert FALLBACK_ORDER.index("opencode") < FALLBACK_ORDER.index("kimi")
+    # `opencode` must not displace pollinations, which is pinned last by design
+    # (keyless free tier = guaranteed last-resort, never in front of keyed tiers).
+    assert FALLBACK_ORDER[-1] == "pollinations"
+    assert FALLBACK_ORDER.index("opencode") < FALLBACK_ORDER.index("pollinations")
 
 
 def test_opencode_hop_constructs_a_real_provider():

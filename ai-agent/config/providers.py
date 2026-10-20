@@ -118,6 +118,15 @@ PROVIDER_CONFIGS: Dict[str, Dict[str, Any]] = {
         "env_var_name": "GEMINI_API_KEY",
         "class_path": "providers.gemini_provider.GeminiProvider",
     },
+    "pollinations": {
+        "provider_name": "pollinations",
+        "api_key": "",
+        "model": os.getenv("POLLINATIONS_TEXT_MODEL", "openai-fast"),
+        "env_var_name": "POLLINATIONS_API_KEY",
+        "class_path": "providers.pollinations_provider.PollinationsProvider",
+        "keyless": True,  # text + image generation over the internet, no key ever
+        "docs": "https://github.com/pollinations/pollinations (MIT-ish; community free tier)",
+    },
     "openai": {
         "provider_name": "openai",
         "api_key": OPENAI_API_KEY,
@@ -249,6 +258,7 @@ FALLBACK_ORDER: List[str] = [
     "mistral",      # open-weight + frontier, multilingual
     "opencode",     # OpenCode CLI — local MIT coding agent (free Claude Code); keyless
     "kimi",         # Moonshot AI — open-weight K2, strong coder
+    "pollinations", # Pollinations — keyless free fast tier (openai-fast), last resort
 ]
 
 # NOTE: every provider above is reached over the public internet. Local GPU
@@ -430,6 +440,12 @@ def _build_deepseek(cfg: Dict[str, Any]):
     return DeepSeekProvider(cfg["api_key"], cfg["model"])
 
 
+def _build_pollinations(cfg: Dict[str, Any]):
+    from providers.pollinations_provider import PollinationsProvider
+    return PollinationsProvider(cfg.get("api_key") or None, cfg.get("model") or None)
+
+
+
 # Canonical provider name (PROVIDER_CONFIGS[…]["provider_name"]) -> constructor.
 # Aliases such as "moonshot" (kimi) and "anthropic" (claude) resolve through the
 # canonical name, so one entry fixes every alias at once.
@@ -447,6 +463,7 @@ _PROVIDER_BUILDERS: Dict[str, Callable[[Dict[str, Any]], Any]] = {
     "nvidia": _build_nvidia,
     "claude": _build_claude,
     "deepseek": _build_deepseek,
+    "pollinations": _build_pollinations,
 }
 
 # Register every internet-only open-weight vendor from the single vendor table,

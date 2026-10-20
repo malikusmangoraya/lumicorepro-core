@@ -2794,6 +2794,66 @@ async def built_with(req: BuiltWithRequest, _auth: bool = Depends(_verify_api_ke
     return {"success": True, "data": outcome}
 
 
+class ImageGenRequest(BaseModel):
+    prompt: str = Field(..., description="Image prompt (Pollinations, keyless + free)")
+    project_dir: Optional[str] = Field(None, description="Save into <project>/public/images/generated/")
+    run_id: Optional[str] = Field(None, description="Attach to a finished generation run")
+    width: int = Field(1200, description="Image width in px")
+    height: int = Field(630, description="Image height in px")
+    fill_project: bool = Field(False, description="Fill missing og-image/hero for the whole project")
+
+
+@app.post("/api/image-gen", tags=["Design"])
+async def image_gen(req: ImageGenRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Free keyless image generation (Pollinations): ad-hoc picture, or fill a
+    generated project's missing brand imagery (OG share card, hero backdrop)."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent import asset_gen
+
+    if req.fill_project:
+        project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+        if not project_dir or not os.path.isdir(str(project_dir)):
+            raise HTTPException(status_code=422, detail="Provide run_id or valid project_dir")
+        outcome = asset_gen.gen_project_images(str(project_dir))
+        return {"success": True, "data": outcome}
+
+    stamp = str(int(time.time()))
+    out_dir = (os.path.join(str(req.project_dir), "public", "images", "generated")
+               if req.project_dir and os.path.isdir(str(req.project_dir))
+               else os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "generated-images"))
+    outcome = asset_gen.generate_image(req.prompt, os.path.join(out_dir, f"img-{stamp}.jpg"),
+                                       req.width, req.height)
+    if outcome.get("status") != "ok":
+        raise HTTPException(status_code=502, detail=outcome.get("message", "image generation failed"))
+    return {"success": True, "data": outcome}
+
+
+class StoreGateRequest(BaseModel):
+    run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
+    project_dir: Optional[str] = Field(None, description="Direct project directory path")
+    base_url: str = Field("", description="Live URL, used for robots.txt/sitemap.xml")
+    apply_fixes: bool = Field(True, description="Auto-fill safe gaps (LICENSE, robots, sitemap, OG meta…)")
+
+
+@app.post("/api/store-gate", tags=["Extensions"])
+async def store_gate(req: StoreGateRequest, _auth: bool = Depends(_verify_api_key)):
+    """Ready-to-Store gate: scans the project against the marketplace checklist
+    (README, LICENSE, robots, sitemap, favicon, OG, alt coverage…) and, with
+    apply_fixes, auto-fills the safe gaps instead of shipping them broken."""
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir:
+        raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
+    if not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=404, detail="Generated project directory not found")
+    from agent.extensions.store_gate import run_store_gate
+
+    outcome = run_store_gate(str(project_dir), base_url=req.base_url, apply_fixes=req.apply_fixes)
+    if outcome.get("status") == "failed":
+        raise HTTPException(status_code=422, detail=outcome.get("message", "store gate failed"))
+    return {"success": True, "data": outcome}
+
+
 @app.post("/api/web/audit", tags=["Extensions"])
 async def web_audit(req: WebAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
     """Free keyless internet audits: Google PageSpeed, W3C HTML checker,
