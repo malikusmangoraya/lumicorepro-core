@@ -149,6 +149,22 @@ def _run_stage_store(project_dir: Path, apply_fixes: bool) -> Dict[str, Any]:
         return {"stage": "store_gate", "score": 0.0, "error": str(exc)[:200], "passed": False}
 
 
+def _run_stage_images(project_dir: Path, apply_fixes: bool) -> Dict[str, Any]:
+    """Free keyless image fill (og-image/hero). Only on write runs: it is networked
+    and the free tier allows roughly one image per short window."""
+    if not apply_fixes:
+        return {"stage": "images", "status": "skipped", "passed": True}
+    try:
+        from .asset_gen import gen_project_images
+
+        out = gen_project_images(str(project_dir), force=False)
+        failed = [r for r in out.get("results", []) if r.get("status") != "ok"]
+        return {"stage": "images", "generated": out.get("generated", 0),
+                "results": out.get("results", []), "passed": not failed}
+    except Exception as exc:  # noqa: BLE001
+        return {"stage": "images", "error": str(exc)[:200], "passed": False}
+
+
 def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any]:
     """Run every stage for a single project. Always returns a result record."""
     started = time.time()
@@ -156,6 +172,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "guardrails": _run_stage_guardrails(project_dir, apply_fixes),
         "self_heal": _run_stage_self_heal(project_dir, apply_fixes),
         "quality": _run_stage_quality(project_dir),
+        "images": _run_stage_images(project_dir, apply_fixes),
         "store_gate": _run_stage_store(project_dir, apply_fixes),
     }
     score = stages["quality"].get("score", 0.0)
@@ -178,6 +195,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "guardrails": stages["guardrails"],
         "self_heal": stages["self_heal"],
         "quality": stages["quality"],
+        "images": stages["images"],
         "store_gate": stages["store_gate"],
         "trend": trend,
         "duration_seconds": round(time.time() - started, 2),
