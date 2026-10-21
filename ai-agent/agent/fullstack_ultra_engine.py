@@ -90,6 +90,15 @@ class FullStackUltraEngine:
         except Exception as kit_exc:
             agent_logger.warning(f"AI SaaS kit injection skipped: {kit_exc}")
 
+        # ── Production Spec: multi-stage Docker, INSTRUCTIONS.md, TS-ready
+        #    types, validation middleware, live CRUD records, real dashboard
+        try:
+            from agent.production_spec_kit import apply_production_spec
+
+            apply_production_spec(dest, brand=brand_name or brand)
+        except Exception as spec_exc:
+            agent_logger.warning(f"Production spec kit skipped: {spec_exc}")
+
         # ── Self-Healing Omni-Repair Pass ─────────────────────────────────
         repair_report = self.repair_engine.scan_and_repair_project(dest)
 
