@@ -26,6 +26,11 @@ def project(tmp_path):
     (models_dir / "index.js").write_text(
         "const DataTypes = { STRING: () => ({}), TEXT: 'TEXT', ENUM: () => ({}), UUID: 'UUID', UUIDV4: 'UUIDV4', DATE: 'DATE' };\n"
         "module.exports = { sequelize: { define: () => ({}) }, DataTypes };\n", encoding="utf-8")
+    utils_dir = backend / "utils"
+    utils_dir.mkdir()
+    (utils_dir / "jwtSecret.js").write_text(
+        "const jwtSecret = process.env.JWT_SECRET || 'probe-secret-'.padEnd(40, 'x');\n"
+        "module.exports = { jwtSecret };\n", encoding="utf-8")
     from agent.ai_saas_kit import inject_ai_saas_kit
     inject_ai_saas_kit(str(tmp_path))
     frontend = tmp_path / "frontend"
@@ -44,6 +49,8 @@ def project(tmp_path):
         "bcryptjs": "module.exports = { hash: (p) => p, compare: () => true };",
         "pg": "module.exports = { Client: class {} };",
         "openai": "module.exports = {};",
+        "sequelize": "const DataTypes = { STRING: (n) => ({ _s: 'string', n }), TEXT: 'TEXT', ENUM: (v) => ({ _s: 'enum', v }), UUID: 'UUID', UUIDV4: 'UUIDV4', DATE: 'DATE' };"
+                    "module.exports = { DataTypes, define: () => ({}) };",
     }.items():
         d = nm / name
         d.mkdir(parents=True)

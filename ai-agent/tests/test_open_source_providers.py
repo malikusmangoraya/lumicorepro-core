@@ -31,7 +31,7 @@ def test_providers_are_registered():
     assert PROVIDER_CONFIGS["grok"]["open_source"] is True
     # Open-weight hosts are preferred; the slowest-to-reach ones sit last.
     assert FALLBACK_ORDER.index("kimi") > FALLBACK_ORDER.index("mistral")
-    assert FALLBACK_ORDER[-1] == "kimi"
+    assert FALLBACK_ORDER[-1] == "pollinations"  # keyless free tier = last resort
 
 
 def test_instantiate_returns_real_provider_classes():

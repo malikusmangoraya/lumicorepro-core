@@ -110,7 +110,7 @@ CMD ["npm", "start"]
 _TSCONFIG = {
     "compilerOptions": {
         "allowJs": True,
-        "checkJs": True,
+        "checkJs": False,
         "target": "ES2022",
         "module": "commonjs",
         "moduleResolution": "node",
@@ -211,6 +211,7 @@ function validate(schema) {
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, _req, res, _next) {
   const status = err.status || err.statusCode || 500;
+  console.error(`[${new Date().toISOString()}] ${status} ${err.code || 'ERROR'}:`, err.message, status >= 500 ? `\\n${err.stack}` : '');
   if (res.headersSent) return;
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({ success: false, message: 'Invalid JSON body' });
@@ -231,7 +232,9 @@ _RECORDS_JS = """/** routes/records — live CRUD over PostgreSQL (FK: records.u
  * Sequelize = parameterized = SQLi-safe; bodies pass validate() = XSS-safe.
  */
 const express = require('express');
-const { sequelize, DataTypes } = require('../models');
+const { DataTypes } = require('sequelize'); // engine models/index.js exports { sequelize, User } only
+const { sequelize } = require('../models');
+const { jwtSecret } = require('../utils/jwtSecret');
 const { validate } = require('../middleware/validate');
 
 const router = express.Router();
@@ -256,7 +259,7 @@ function authRequired(req, res, next) {
   if (!token) return res.status(401).json({ success: false, message: 'Login required' });
   try {
     const jwt = require('jsonwebtoken');
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    req.user = jwt.verify(token, jwtSecret);
     return next();
   } catch (_e) {
     return res.status(401).json({ success: false, message: 'Invalid or expired token' });
@@ -458,6 +461,129 @@ export default function Dashboard() {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+"""
+
+_LOGIN_JSX = """import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+export default function Login() {
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
+
+  const submit = async (ev) => {
+    ev.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success || !json.token) throw new Error(json.message || `Login failed (${res.status})`);
+      localStorage.setItem('token', json.token);
+      localStorage.setItem('user', JSON.stringify(json.user || {}));
+      navigate('/dashboard');
+    } catch (e) {
+      setError(e.message || 'Login failed — check your credentials');
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="max-w-md mx-auto px-6 py-24">
+      <h2 className="text-3xl font-bold text-white text-center mb-8">Sign in</h2>
+      <form onSubmit={submit} className="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+        <label className="block text-sm text-slate-400" htmlFor="login-email">Email</label>
+        <input id="login-email" type="email" required autoComplete="email"
+          className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-teal-500 focus:outline-none"
+          placeholder="Email" value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <label className="block text-sm text-slate-400" htmlFor="login-password">Password</label>
+        <input id="login-password" type="password" required autoComplete="current-password" minLength={8}
+          className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-teal-500 focus:outline-none"
+          placeholder="Password" value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        {error && <div role="alert" className="px-4 py-3 rounded-xl bg-rose-900/40 border border-rose-700 text-rose-200 text-sm">{error}</div>}
+        <button type="submit" disabled={busy || !form.email || !form.password}
+          className="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 disabled:opacity-40 text-white font-bold transition-colors">
+          {busy ? 'Signing in…' : 'Sign In'}
+        </button>
+        <p className="text-center text-sm text-slate-400">
+          No account? <Link to="/register" className="text-teal-400 hover:underline">Create one</Link>
+        </p>
+      </form>
+    </div>
+  );
+}
+"""
+
+_REGISTER_JSX = """import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+export default function Register() {
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
+
+  const submit = async (ev) => {
+    ev.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success || !json.token) throw new Error(json.message || `Registration failed (${res.status})`);
+      localStorage.setItem('token', json.token);
+      localStorage.setItem('user', JSON.stringify(json.user || {}));
+      navigate('/dashboard');
+    } catch (e) {
+      setError(e.message || 'Registration failed');
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="max-w-md mx-auto px-6 py-24">
+      <h2 className="text-3xl font-bold text-white text-center mb-8">Create your account</h2>
+      <form onSubmit={submit} className="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+        <label className="block text-sm text-slate-400" htmlFor="reg-name">Full name</label>
+        <input id="reg-name" type="text" required autoComplete="name"
+          className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-teal-500 focus:outline-none"
+          placeholder="Full name" value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <label className="block text-sm text-slate-400" htmlFor="reg-email">Email</label>
+        <input id="reg-email" type="email" required autoComplete="email"
+          className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-teal-500 focus:outline-none"
+          placeholder="Email" value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <label className="block text-sm text-slate-400" htmlFor="reg-password">Password</label>
+        <input id="reg-password" type="password" required autoComplete="new-password" minLength={8}
+          className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-teal-500 focus:outline-none"
+          placeholder="Min 8 characters" value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        {error && <div role="alert" className="px-4 py-3 rounded-xl bg-rose-900/40 border border-rose-700 text-rose-200 text-sm">{error}</div>}
+        <button type="submit" disabled={busy || !form.name || !form.email || !form.password}
+          className="w-full py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 disabled:opacity-40 text-white font-bold transition-colors">
+          {busy ? 'Creating account…' : 'Get Started'}
+        </button>
+        <p className="text-center text-sm text-slate-400">
+          Already registered? <Link to="/login" className="text-teal-400 hover:underline">Sign in</Link>
+        </p>
+      </form>
     </div>
   );
 }
@@ -714,11 +840,19 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
     _write(backend / "routes" / "records.routes.js", _RECORDS_JS)
     _ensure_records_table(backend / "migrations")
 
-    # 6. Real dashboard (replaces static placeholder)
+    # 6. Real dashboard + real auth pages (replace static placeholders)
     dash = frontend / "src" / "pages" / "Dashboard.jsx"
     if dash.exists() and "Control Console" in dash.read_text(encoding="utf-8", errors="replace"):
         dash.write_text(_DASHBOARD_JSX, encoding="utf-8")
         created.append(str(dash.relative_to(root)))
+    login = frontend / "src" / "pages" / "Login.jsx"
+    if login.exists() and "bg-#" in login.read_text(encoding="utf-8", errors="replace"):
+        login.write_text(_LOGIN_JSX, encoding="utf-8")
+        created.append(str(login.relative_to(root)))
+    register = frontend / "src" / "pages" / "Register.jsx"
+    if register.exists() and "auth/register" not in register.read_text(encoding="utf-8", errors="replace"):
+        register.write_text(_REGISTER_JSX, encoding="utf-8")
+        created.append(str(register.relative_to(root)))
 
     # 7. server.js mounts
     server = backend / "server.js"

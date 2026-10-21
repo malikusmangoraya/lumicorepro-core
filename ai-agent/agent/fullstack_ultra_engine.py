@@ -155,7 +155,7 @@ const User = sequelize.define('User', {
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
   password: { type: DataTypes.STRING, allowNull: false },
   role: { type: DataTypes.STRING, defaultValue: 'user' },
-});
+}, { tableName: 'users', underscored: true });
 
 module.exports = { sequelize, User };
 """
@@ -417,7 +417,7 @@ export default function GlassNavbar({{ brand = "{brand}" }}) {{
           </Link>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-{color} to-cyan-500 hover:opacity-95 shadow-lg shadow-{color}/20 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[{color}] to-cyan-500 hover:opacity-95 shadow-lg shadow-[{color}]/20 transition-all"
           >
             Get Started <ArrowRight className="w-4 h-4" />
           </Link>
@@ -446,7 +446,7 @@ export default function GlassNavbar({{ brand = "{brand}" }}) {{
           ))}}
           <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
             <Link to="/login" className="text-center py-2 text-slate-300">Sign in</Link>
-            <Link to="/register" className="text-center py-2.5 rounded-full bg-{color} text-white font-semibold">Get Started</Link>
+            <Link to="/register" className="text-center py-2.5 rounded-full bg-[{color}] text-white font-semibold">Get Started</Link>
           </div>
         </div>
       )}}
@@ -532,13 +532,13 @@ import {{ ArrowRight, CheckCircle2, Zap, Shield, Globe, Cpu, BarChart3 }} from '
 export default function Home() {{
   return (
     <div className="space-y-24 py-12">
-      <!-- Hero Section -->
+      {{/* Hero Section */}}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center pt-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-{color}/10 text-{color} border border-{color}/30 mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[{color}]/10 text-[{color}] border border-[{color}]/30 mb-8">
           <Zap className="w-3.5 h-3.5" /> Next-Generation Global Architecture
         </div>
         <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-          Supercharge your business with <span className="bg-clip-text text-transparent bg-gradient-to-r from-{color} via-cyan-400 to-indigo-400">{brand}</span>
+          Supercharge your business with <span className="bg-clip-text text-transparent bg-gradient-to-r from-[{color}] via-cyan-400 to-indigo-400">{brand}</span>
         </h1>
         <p className="mt-6 text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
           The all-in-one international platform engineered for lightning speed, unmatched resilience, and global scale.
@@ -547,7 +547,7 @@ export default function Home() {{
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to="/register"
-            className="w-full sm:w-auto px-8 py-4 rounded-full text-base font-bold text-white bg-gradient-to-r from-{color} to-cyan-500 shadow-xl shadow-{color}/25 hover:opacity-95 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 rounded-full text-base font-bold text-white bg-gradient-to-r from-[{color}] to-cyan-500 shadow-xl shadow-[{color}]/25 hover:opacity-95 transition-all flex items-center justify-center gap-2"
           >
             Start Free Trial <ArrowRight className="w-5 h-5" />
           </Link>
@@ -560,7 +560,7 @@ export default function Home() {{
         </div>
       </section>
 
-      <!-- Bento Grid Section -->
+      {{/* Bento Grid Section */}}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Built for High-Growth Scale</h2>
@@ -568,18 +568,18 @@ export default function Home() {{
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-{color}/40 transition-colors">
-            <Cpu className="w-10 h-10 text-{color} mb-6" />
+          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-[{color}]/40 transition-colors">
+            <Cpu className="w-10 h-10 text-[{color}] mb-6" />
             <h3 className="text-xl font-bold text-white mb-2">Automated Execution</h3>
             <p className="text-slate-400 text-sm leading-relaxed">Sub-second execution pipelines that scale autonomously based on load.</p>
           </div>
-          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-{color}/40 transition-colors">
-            <Shield className="w-10 h-10 text-{color} mb-6" />
+          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-[{color}]/40 transition-colors">
+            <Shield className="w-10 h-10 text-[{color}] mb-6" />
             <h3 className="text-xl font-bold text-white mb-2">Enterprise Security</h3>
             <p className="text-slate-400 text-sm leading-relaxed">End-to-end encryption, automated compliance audit logs, and zero-trust perimeter.</p>
           </div>
-          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-{color}/40 transition-colors">
-            <Globe className="w-10 h-10 text-{color} mb-6" />
+          <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-[{color}]/40 transition-colors">
+            <Globe className="w-10 h-10 text-[{color}] mb-6" />
             <h3 className="text-xl font-bold text-white mb-2">Global CDN Mesh</h3>
             <p className="text-slate-400 text-sm leading-relaxed">Global multi-region replication with automatic failover and sub-15ms edge routing.</p>
           </div>
@@ -612,7 +612,7 @@ export default function Pricing() {{
           <h3 className="text-xl font-bold text-white">Starter</h3>
           <p className="text-3xl font-extrabold text-white mt-4">$29<span className="text-sm text-slate-400 font-normal">/mo</span></p>
         </div>
-        <div className="p-8 rounded-3xl bg-slate-900 border-2 border-{color} text-left">
+        <div className="p-8 rounded-3xl bg-slate-900 border-2 border-[{color}] text-left">
           <h3 className="text-xl font-bold text-white">Pro</h3>
           <p className="text-3xl font-extrabold text-white mt-4">$79<span className="text-sm text-slate-400 font-normal">/mo</span></p>
         </div>
@@ -642,7 +642,7 @@ export default function Contact() {{
         <input type="text" placeholder="Name" className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white" />
         <input type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white" />
         <textarea rows={{4}} placeholder="Message" className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white"></textarea>
-        <button type="submit" className="w-full py-3.5 rounded-xl bg-{color} text-white font-bold">Send Message</button>
+        <button type="submit" className="w-full py-3.5 rounded-xl bg-[{color}] text-white font-bold">Send Message</button>
       </form>
     </div>
   );
@@ -655,7 +655,7 @@ export default function Login() {{
       <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
         <input type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white" />
         <input type="password" placeholder="Password" className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white" />
-        <button className="w-full py-3.5 rounded-xl bg-{color} text-white font-bold">Sign In</button>
+        <button className="w-full py-3.5 rounded-xl bg-[{color}] text-white font-bold">Sign In</button>
       </div>
     </div>
   );
@@ -669,7 +669,7 @@ export default function Register() {{
         <input type="text" placeholder="Full Name" className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white" />
         <input type="email" placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white" />
         <input type="password" placeholder="Password" className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white" />
-        <button className="w-full py-3.5 rounded-xl bg-{color} text-white font-bold">Get Started</button>
+        <button className="w-full py-3.5 rounded-xl bg-[{color}] text-white font-bold">Get Started</button>
       </div>
     </div>
   );
@@ -790,7 +790,7 @@ const User = sequelize.define('User', {
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
   password: { type: DataTypes.STRING, allowNull: false },
   role: { type: DataTypes.STRING, defaultValue: 'user' },
-});
+}, { tableName: 'users', underscored: true });
 
 module.exports = { sequelize, User };
 """
@@ -879,7 +879,10 @@ router.post('/register', async (req, res) => {
 
     return res.status(201).json({ success: true, token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ success: false, code: 'EMAIL_TAKEN', message: 'Email already registered' });
+    }
+    return res.status(500).json({ success: false, message: 'Registration failed' });
   }
 });
 
@@ -895,7 +898,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret, { expiresIn: '7d' });
     return res.json({ success: true, token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: 'Login failed' });
   }
 });
 

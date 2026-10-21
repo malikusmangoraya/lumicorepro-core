@@ -26,6 +26,7 @@ _DEPS = {
     "pdf-parse": "^1.1.1",
     "docx": "^9.0.2",
     "bcryptjs": "^2.4.3",
+    "multer": "^1.4.5-lts.1",
 }
 
 _KEY_VAULT_JS = """/** keyVault — encrypted API-key manager for AI providers.
@@ -336,7 +337,8 @@ router.post('/generate', async (req, res) => {
       res.json({ success: true, data: { text, template } });
     }
   } catch (err) {
-    res.status(422).json({ success: false, message: err.message });
+    const notConfigured = /not configured/.test(err.message);
+    res.status(notConfigured ? 503 : 502).json({ success: false, message: err.message });
   }
 });
 
