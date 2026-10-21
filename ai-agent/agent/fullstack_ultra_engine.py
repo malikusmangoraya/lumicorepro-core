@@ -80,6 +80,16 @@ class FullStackUltraEngine:
             futures = [executor.submit(_write_single_file, rel_p, content) for rel_p, content in files_map.items()]
             concurrent.futures.wait(futures)
 
+        # ── AI Micro-SaaS Kit (Category-1): keyVault, aiClient, SSE stream,
+        #    prompt engine, RAG, file routes — every generated project ships it
+        try:
+            from agent.ai_saas_kit import inject_ai_saas_kit
+
+            kit = inject_ai_saas_kit(dest)
+            files_map.update({rel: "" for rel in kit.get("written", [])})
+        except Exception as kit_exc:
+            agent_logger.warning(f"AI SaaS kit injection skipped: {kit_exc}")
+
         # ── Self-Healing Omni-Repair Pass ─────────────────────────────────
         repair_report = self.repair_engine.scan_and_repair_project(dest)
 
