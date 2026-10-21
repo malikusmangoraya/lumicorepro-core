@@ -165,6 +165,23 @@ def _run_stage_images(project_dir: Path, apply_fixes: bool) -> Dict[str, Any]:
         return {"stage": "images", "error": str(exc)[:200], "passed": False}
 
 
+def _run_stage_assets(project_dir: Path, apply_fixes: bool) -> Dict[str, Any]:
+    """asset_wire: localize remote images + wire generated art (write runs only)."""
+    if not apply_fixes:
+        return {"stage": "assets", "status": "skipped", "passed": True}
+    try:
+        from .extensions.asset_wire import wire_assets
+
+        out = wire_assets(str(project_dir))
+        local = out.get("localize", {})
+        return {"stage": "assets",
+                "localize": {k: local.get(k) for k in ("downloaded", "rewritten_refs", "failed")},
+                "wired": out.get("wire", {}).get("wired"),
+                "passed": out.get("status") != "failed"}
+    except Exception as exc:  # noqa: BLE001
+        return {"stage": "assets", "error": str(exc)[:200], "passed": False}
+
+
 def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any]:
     """Run every stage for a single project. Always returns a result record."""
     started = time.time()
@@ -173,6 +190,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "self_heal": _run_stage_self_heal(project_dir, apply_fixes),
         "quality": _run_stage_quality(project_dir),
         "images": _run_stage_images(project_dir, apply_fixes),
+        "assets": _run_stage_assets(project_dir, apply_fixes),
         "store_gate": _run_stage_store(project_dir, apply_fixes),
     }
     score = stages["quality"].get("score", 0.0)
@@ -196,6 +214,7 @@ def audit_project(project_dir: Path, apply_fixes: bool = False) -> Dict[str, Any
         "self_heal": stages["self_heal"],
         "quality": stages["quality"],
         "images": stages["images"],
+        "assets": stages["assets"],
         "store_gate": stages["store_gate"],
         "trend": trend,
         "duration_seconds": round(time.time() - started, 2),

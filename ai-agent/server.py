@@ -2829,6 +2829,30 @@ async def image_gen(req: ImageGenRequest, request: Request, _auth: bool = Depend
     return {"success": True, "data": outcome}
 
 
+class AssetWireRequest(BaseModel):
+    run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
+    project_dir: Optional[str] = Field(None, description="Direct project directory path")
+    timeout: int = Field(20, description="Per-image download timeout seconds", ge=5, le=120)
+
+
+@app.post("/api/asset-wire", tags=["Extensions"])
+async def asset_wire_endpoint(req: AssetWireRequest, _auth: bool = Depends(_verify_api_key)):
+    """Self-contained assets: download remote hotlinks (Unsplash/pexels…) into
+    the project's public/images/local and rewrite every reference, then wire
+    the generated OG/hero artwork into the pages. Idempotent."""
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir:
+        raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
+    if not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=404, detail="Generated project directory not found")
+    from agent.extensions.asset_wire import wire_assets
+
+    outcome = wire_assets(str(project_dir), timeout=req.timeout)
+    if outcome.get("status") == "failed":
+        raise HTTPException(status_code=422, detail="asset wiring failed")
+    return {"success": True, "data": outcome}
+
+
 class StoreGateRequest(BaseModel):
     run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
     project_dir: Optional[str] = Field(None, description="Direct project directory path")

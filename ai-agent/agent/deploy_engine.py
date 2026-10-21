@@ -599,6 +599,29 @@ def _guide(project_dir: str, platform: str) -> Dict[str, Any]:
     }
 
 
+def _store_deploy_gate(project_dir: str) -> Dict[str, Any]:
+    """Pre-deploy readiness check on the same weighted store checklist.
+
+    Default: report-only — the score rides along on the deploy result.
+    Strict: env ``DEPLOY_GATE_STRICT=1`` blocks deploy when score < 90, so a
+    half-finished project never reaches production."""
+    out: Dict[str, Any] = {"store_gate": None, "blocked": False}
+    try:
+        from agent.extensions.store_gate import run_store_gate
+
+        report = run_store_gate(project_dir, apply_fixes=False)
+        score = float(report.get("score", 0.0))
+        out["store_gate"] = {"score": score, "status": report.get("status")}
+        strict = os.environ.get("DEPLOY_GATE_STRICT", "").strip().lower() in ("1", "true", "yes")
+        if strict and score < 90.0:
+            out["blocked"] = True
+            out["message"] = f"DEPLOY_GATE_STRICT: store score {score} < 90"
+        agent_logger.info(f"store gate: project={project_dir} score={score} blocked={out['blocked']}")
+    except Exception as exc:  # noqa: BLE001 — a broken gate must not block shipping
+        agent_logger.warning(f"store deploy gate skipped: {exc}")
+    return out
+
+
 def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]:
     """Deploy (or guide-deploy) a finished generated project."""
     platform = (platform or "vercel").strip().lower()
@@ -606,6 +629,16 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
         return {"status": "failed", "message": f"Unsupported platform: {platform}", "platform": platform}
     if not project_dir or not os.path.isdir(str(project_dir)):
         return {"status": "failed", "message": "Project directory not found", "platform": platform}
+
+    gate = _store_deploy_gate(project_dir)
+    if gate.get("blocked"):
+        return {
+            "status": "blocked",
+            "message": gate.get("message", "store gate below threshold"),
+            "platform": platform,
+            "store_gate": gate.get("store_gate"),
+            "project_dir": project_dir,
+        }
 
     if platform == "vercel":
         try:  # proof badge ships with every deployment (idempotent)
@@ -624,6 +657,8 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
     if result["status"] == "guide":
         result = {**_guide(str(project_dir), platform), **result}
     result["project_dir"] = str(project_dir)
+    if gate.get("store_gate"):
+        result["store_gate"] = gate["store_gate"]
 
     if result["status"] == "live" and result.get("url"):
         result["live_audit"] = _live_audit(result["url"])
