@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/database.js';
+import { ORDER_SOURCES } from '../constants/orderSources.js';
 
 class Order extends Model {}
 
@@ -29,7 +30,8 @@ Order.init(
     },
     shippingAddress: {
       type: DataTypes.JSONB,
-      allowNull: false,
+      allowNull: true,
+      comment: 'Required for store checkouts (validated in order.schema.js); null for self-collection',
     },
     billingAddress: {
       type: DataTypes.JSONB,
@@ -116,6 +118,15 @@ Order.init(
       type: DataTypes.TEXT,
       defaultValue: '',
     },
+    source: {
+      type: DataTypes.STRING(30),
+      allowNull: false,
+      defaultValue: 'ecommerce',
+      validate: {
+        isIn: { args: [ORDER_SOURCES], msg: 'Invalid order source' },
+      },
+      comment: 'Originating vertical — listings and admin mutations must filter on it',
+    },
     deleted_at: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -142,6 +153,7 @@ Order.init(
     indexes: [
       { name: 'idx_orders_org', fields: ['org_id'] },
       { name: 'idx_orders_org_status', fields: ['org_id', 'status'] },
+      { name: 'idx_orders_org_source_status', fields: ['org_id', 'source', 'status'] },
       { name: 'idx_orders_status', fields: ['status'] },
       { name: 'idx_orders_user', fields: ['user_id'] },
       { name: 'idx_orders_created_at', fields: ['createdAt'] },

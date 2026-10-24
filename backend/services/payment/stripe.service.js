@@ -16,6 +16,12 @@ class StripeService {
     this.icon = '💳';
   }
 
+  /** Stripe amounts are minor units; zero-decimal currencies must not ×100. */
+  _toMinorUnits(amount, currency = 'usd') {
+    const zeroDecimal = new Set(['bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf']);
+    return Math.round(zeroDecimal.has(String(currency).toLowerCase()) ? amount : amount * 100);
+  }
+
   /**
    * Re-initialize the client from runtime SystemConfig (called after the admin
    * saves new keys). Keeps the singleton in sync without a restart.
@@ -42,7 +48,7 @@ class StripeService {
     }
 
     const paymentIntent = await this.client.paymentIntents.create({
-      amount: Math.round(amount * 100),
+      amount: this._toMinorUnits(amount, currency),
       currency,
       description,
       metadata: {
@@ -71,14 +77,19 @@ class StripeService {
     };
   }
 
-  async refund({ paymentId, amount, reason }) {
+  async refund({ paymentId, amount, reason, currency = 'usd' }) {
     if (!this.enabled) {
       return { success: true, mock: true, paymentId };
     }
 
+    // `amount: 0` must not silently become a FULL refund (0 is falsy).
+    if (amount === 0) {
+      throw new Error('Stripe refund: amount must be greater than zero (omit it for a full refund)');
+    }
+
     const refund = await this.client.refunds.create({
       payment_intent: paymentId,
-      amount: amount ? Math.round(amount * 100) : undefined,
+      amount: amount ? this._toMinorUnits(amount, currency) : undefined,
       reason: reason || 'requested_by_customer',
     });
 

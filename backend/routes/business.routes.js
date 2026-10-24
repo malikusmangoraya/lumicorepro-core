@@ -11,11 +11,39 @@ import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Payment from '../models/Payment.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { callerOrgId, tenantWhere } from '../services/tenantScope.service.js';
 import logger from '../utils/logger.js';
 
 const router = express.Router();
 
 router.use(protect);
+
+const PERIOD_DAYS = { week: 7, month: 30, quarter: 90, year: 365 };
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** `YYYY-MM-DD` → UTC midnight; full ISO instants are accepted too. Null when invalid. */
+const parseDateParam = (value) => {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  if (ISO_DATE.test(value)) {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    if (Number.isNaN(date.getTime())) return null;
+    // `new Date('2026-02-30')` silently rolls over to March; a round trip
+    // proves the calendar date the caller sent exists.
+    return date.toISOString().slice(0, 10) === value ? date : null;
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+/**
+ * `users` has no immutable org membership column — `current_org_id` is the
+ * caller's active org and the closest available scope. Counting without it
+ * merged every tenant's signups into one number.
+ */
+const userTenantWhere = (req) => {
+  const orgId = callerOrgId(req);
+  return orgId === null ? { current_org_id: { [Op.is]: null } } : { current_org_id: orgId };
+};
 
 /**
  * GET /api/business/analytics
@@ -24,24 +52,44 @@ router.use(protect);
  */
 router.get('/analytics', authorize('admin', 'vendor'), async (req, res, next) => {
   try {
-    const { period = 'month', startDate: sdParam, endDate: edParam } = req.query;
-    const periodMap = { week: 7, month: 30, quarter: 90, year: 365 };
+    const { period: rawPeriod = 'month', startDate: sdParam, endDate: edParam } = req.query;
+
+    if (!Object.hasOwn(PERIOD_DAYS, rawPeriod)) {
+      return res.status(400).json({
+        success: false,
+        error: 'period must be one of week, month, quarter, year',
+      });
+    }
+    const period = rawPeriod;
 
     let start, end;
     if (sdParam) {
-      start = new Date(sdParam);
-      end   = edParam ? new Date(edParam) : new Date();
+      start = parseDateParam(sdParam);
+      if (!start) {
+        return res.status(400).json({ success: false, error: 'startDate must be a real YYYY-MM-DD date' });
+      }
+      end = edParam ? parseDateParam(edParam) : new Date();
+      if (!end) {
+        return res.status(400).json({ success: false, error: 'endDate must be a real YYYY-MM-DD date' });
+      }
+      if (start.getTime() > end.getTime()) {
+        return res.status(400).json({ success: false, error: 'startDate must not be after endDate' });
+      }
     } else {
       end   = new Date();
       start = new Date();
-      start.setDate(start.getDate() - (periodMap[period] || 30));
+      start.setDate(start.getDate() - PERIOD_DAYS[period]);
     }
 
     const prevStart = new Date(start);
-    prevStart.setDate(prevStart.getDate() - (periodMap[period] || 30));
+    prevStart.setDate(prevStart.getDate() - PERIOD_DAYS[period]);
 
-    const dateWhere      = { createdAt: { [Op.between]: [start, end] } };
-    const prevDateWhere  = { createdAt: { [Op.between]: [prevStart, start] } };
+    // Every aggregate is pinned to the caller's tenant. Without this a vendor
+    // asking for "their" revenue received a SUM over every organization.
+    const tenant = tenantWhere(req);
+    const userTenant = userTenantWhere(req);
+    const dateWhere      = { ...tenant, createdAt: { [Op.between]: [start, end] } };
+    const prevDateWhere  = { ...tenant, createdAt: { [Op.between]: [prevStart, start] } };
 
     const [
       currRevRow, prevRevRow,
@@ -66,8 +114,8 @@ router.get('/analytics', authorize('admin', 'vendor'), async (req, res, next) =>
       Order.count({ where: dateWhere }),
       Order.count({ where: prevDateWhere }),
       // Users this period
-      User.count({ where: dateWhere }),
-      User.count({ where: prevDateWhere }),
+      User.count({ where: { ...userTenant, createdAt: { [Op.between]: [start, end] } } }),
+      User.count({ where: { ...userTenant, createdAt: { [Op.between]: [prevStart, start] } } }),
       // Orders by status
       Order.findAll({
         attributes: ['status', [fn('COUNT', col('id')), 'count']],
@@ -78,7 +126,7 @@ router.get('/analytics', authorize('admin', 'vendor'), async (req, res, next) =>
       // Revenue by payment method
       Payment.findAll({
         attributes: ['provider', [fn('SUM', col('amount')), 'total'], [fn('COUNT', col('id')), 'count']],
-        where: { status: 'succeeded', ...dateWhere },
+        where: { ...tenant, status: 'succeeded', ...dateWhere },
         group: ['provider'],
         raw: true,
       }),
@@ -131,11 +179,23 @@ router.get('/analytics', authorize('admin', 'vendor'), async (req, res, next) =>
  */
 router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
   try {
-    const { format = 'json', period = 'month' } = req.query;
-    const periodMap = { week: 7, month: 30, quarter: 90, year: 365 };
-    const days = periodMap[period] || 30;
+    const { format = 'json', period: rawPeriod = 'month' } = req.query;
+
+    // Reflecting an unvalidated `period` put caller text into the CSV body and
+    // the Content-Disposition filename.
+    if (!Object.hasOwn(PERIOD_DAYS, rawPeriod)) {
+      return res.status(400).json({
+        success: false,
+        error: 'period must be one of week, month, quarter, year',
+      });
+    }
+    const period = rawPeriod;
+    const days = PERIOD_DAYS[period];
     const since = new Date();
     since.setDate(since.getDate() - days);
+
+    const tenant = tenantWhere(req);
+    const userTenant = userTenantWhere(req);
 
     const [
       totalRevRow, orderCount, newUsers, productCount,
@@ -146,16 +206,16 @@ router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
           [fn('SUM', col('totalPrice')), 'revenue'],
           [fn('AVG', col('totalPrice')), 'avgOrder'],
         ],
-        where: { isPaid: true, createdAt: { [Op.gte]: since } },
+        where: { ...tenant, isPaid: true, createdAt: { [Op.gte]: since } },
         raw: true,
       }),
-      Order.count({ where: { createdAt: { [Op.gte]: since } } }),
-      User.count({ where: { createdAt: { [Op.gte]: since } } }),
-      Product.count({ where: { isActive: true } }),
+      Order.count({ where: { ...tenant, createdAt: { [Op.gte]: since } } }),
+      User.count({ where: { ...userTenant, createdAt: { [Op.gte]: since } } }),
+      Product.count({ where: { ...tenant, isActive: true } }),
       // Top product categories
       Product.findAll({
         attributes: ['category', [fn('COUNT', col('id')), 'count']],
-        where: { isActive: true },
+        where: { ...tenant, isActive: true },
         group: ['category'],
         order: [[fn('COUNT', col('id')), 'DESC']],
         limit: 5,
@@ -164,7 +224,7 @@ router.get('/reports', authorize('admin', 'vendor'), async (req, res, next) => {
       // Order status breakdown
       Order.findAll({
         attributes: ['status', [fn('COUNT', col('id')), 'count']],
-        where: { createdAt: { [Op.gte]: since } },
+        where: { ...tenant, createdAt: { [Op.gte]: since } },
         group: ['status'],
         raw: true,
       }),

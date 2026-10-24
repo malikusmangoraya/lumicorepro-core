@@ -12,9 +12,19 @@ const Booking = sequelize.define('Booking', {
     allowNull: false,
     references: { model: 'users', key: 'id' },
   },
+  org_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Owning organization (multi-tenant); null = legacy single-tenant',
+    references: { model: 'organizations', key: 'id' },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  },
   doctor_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    // Healthcare bookings always carry one; a restaurant table booking has no
+    // doctor, and routes/restaurant.routes.js writes the same table.
+    allowNull: true,
     references: { model: 'doctors', key: 'id' },
   },
   service_id: {
@@ -35,6 +45,11 @@ const Booking = sequelize.define('Booking', {
     type: DataTypes.STRING(5),
     allowNull: false,
   },
+  startAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Slot as an unambiguous instant (DATEONLY + local time cannot be ordered or compared across timezones)',
+  },
   duration: {
     type: DataTypes.INTEGER,
     defaultValue: 30,
@@ -45,7 +60,7 @@ const Booking = sequelize.define('Booking', {
   },
   reason: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true,
   },
   notes: {
     type: DataTypes.TEXT,
@@ -53,7 +68,15 @@ const Booking = sequelize.define('Booking', {
   },
   patientInfo: {
     type: DataTypes.JSONB,
-    allowNull: false,
+    // Healthcare bookings always carry it; a restaurant table booking stores the
+    // diner in `metadata` instead. routes/booking.routes.js still requires it
+    // from the request body, so an appointment can never be created without one.
+    allowNull: true,
+  },
+  metadata: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    comment: 'Vertical-specific payload, e.g. {type: "restaurant-reservation", partySize, name, phone}',
   },
   paymentStatus: {
     type: DataTypes.ENUM('pending', 'deposit_paid', 'paid', 'refunded'),
@@ -78,6 +101,11 @@ const Booking = sequelize.define('Booking', {
 }, {
   tableName: 'bookings',
   timestamps: true,
+  indexes: [
+    { name: 'idx_bookings_org', fields: ['org_id'] },
+    { name: 'idx_bookings_org_start', fields: ['org_id', 'startAt'] },
+    { name: 'idx_bookings_user', fields: ['user_id'] },
+  ],
   hooks: {
     beforeCreate: (booking) => {
       if (!booking.bookingNumber) {

@@ -27,10 +27,15 @@ const numbers = {
   PORT: { min: 1, max: 65535 },
 };
 
+function normalizeEnvValue(value) {
+  if (typeof value !== 'string') return value;
+  return value.replace(/^\uFEFF/, '').trim();
+}
+
 const optional = {
   DEFAULT_CURRENCY: { pattern: /^[A-Z]{3}$/, msg: 'DEFAULT_CURRENCY must be an ISO 4217 3-letter code (e.g. USD)' },
   DEFAULT_LOCALE: { pattern: /^[a-z]{2}([_-][A-Za-z]{2,4})?$/, msg: 'DEFAULT_LOCALE must be a BCP 47 tag (e.g. en, en-US)' },
-  TZ: { pattern: /^[A-Za-z_]+(\/[A-Za-z_+\/-]+)?$/, msg: 'TZ must be a valid IANA timezone (e.g. UTC, Asia/Karachi)' },
+  TZ: { pattern: /^[A-Za-z_]+(\/[A-Za-z_+/-]+)?$/, msg: 'TZ must be a valid IANA timezone (e.g. UTC, Asia/Karachi)' },
 };
 
 // ── Access-token lifetime policy (AGENTS.md §3) ─────────────────────────────
@@ -54,6 +59,11 @@ export function parseDurationMs(value) {
   const unit = (match[2] || 's').toLowerCase();
   if (!Number.isSafeInteger(amount) || amount <= 0) return null;
   return amount * DURATION_UNIT_MS[unit];
+}
+
+export function resolvePort(env = process.env, fallback = 5000) {
+  const value = Number(normalizeEnvValue(env.PORT));
+  return Number.isInteger(value) && value >= 1 && value <= 65535 ? value : fallback;
 }
 
 export function isValidOrigin(value) {
@@ -93,7 +103,7 @@ export function validateConfig(env = process.env, { strict = false } = {}) {
   const errors = [];
 
   for (const [key, rule] of Object.entries(required)) {
-    const val = env[key];
+    const val = normalizeEnvValue(env[key]);
     if (!val) {
       errors.push(`Missing required env var: ${key}`);
       continue;
@@ -109,7 +119,7 @@ export function validateConfig(env = process.env, { strict = false } = {}) {
 
   for (const [key, rule] of Object.entries(numbers)) {
     if (env[key] === undefined) continue;
-    const num = Number(env[key]);
+    const num = Number(normalizeEnvValue(env[key]));
     if (!Number.isFinite(num) || num < rule.min || num > rule.max) {
       errors.push(`Invalid env var ${key}: expected number in [${rule.min}, ${rule.max}]`);
     }

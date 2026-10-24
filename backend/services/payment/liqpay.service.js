@@ -2,13 +2,21 @@ import crypto from 'crypto';
 import { getGatewayConfig } from './config.js';
 import logger from '../../utils/logger.js';
 
+/**
+ * LiqPay (Ukraine/CIS). Signing rules per LiqPay API v3:
+ *   signature = base64( sha1( private_key + data + private_key ) )
+ * where `data` is the BASE64-ENCODED JSON payload (not the decoded JSON).
+ * The previous implementation signed the decoded JSON with SHA-256, so every
+ * genuine callback was rejected and checkouts carried an invalid signature.
+ */
 class LiqPayService {
   constructor() {
     const config = getGatewayConfig('liqpay');
     this.enabled = config?.enabled || false;
     this.publicKey = process.env.LIQPAY_PUBLIC_KEY;
     this.privateKey = process.env.LIQPAY_PRIVATE_KEY;
-    this.baseURL = 'https://www.liqpay.ua/api/3/';
+    this.baseURL = 'https://www.liqpay.ua/api/3';
+    this.checkoutURL = 'https://www.liqpay.ua/api/3/checkout';
     this.name = 'LiqPay';
     this.description = 'Ukrainian & CIS payments (Ukraine/Eastern Europe)';
     this.supportedCurrencies = ['uah', 'usd', 'eur'];
@@ -16,26 +24,33 @@ class LiqPayService {
     this.icon = '🇺🇦';
   }
 
-  _signData(data) {
-    const sign = crypto
-      .createHash('sha256')
-      .update(this.privateKey + data + this.privateKey)
+  /** @param {string} dataB64 - base64-encoded JSON payload */
+  _signData(dataB64) {
+    return crypto
+      .createHash('sha1')
+      .update(this.privateKey + dataB64 + this.privateKey)
       .digest('base64');
-    return sign;
+  }
+
+  _safeEqual(a = '', b = '') {
+    const bufA = Buffer.from(String(a));
+    const bufB = Buffer.from(String(b));
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
   }
 
   async createPaymentForm({ amount, currency, orderId, description, productName, serverUrl }) {
     if (!this.enabled) {
       return {
         publicKey: 'gcb_public_key',
-        action: 'https://www.liqpay.ua/api/3/checkout',
+        action: this.checkoutURL,
         data: '',
         sign: '',
         mock: true,
       };
     }
 
-    const data = JSON.stringify({
+    const payload = JSON.stringify({
       version: '3',
       public_key: this.publicKey,
       action: 'pay',
@@ -47,28 +62,34 @@ class LiqPayService {
       server_url: serverUrl,
     });
 
-    const sign = this._signData(data);
+    const dataB64 = Buffer.from(payload).toString('base64');
+    const sign = this._signData(dataB64);
 
     return {
       publicKey: this.publicKey,
-      action: 'https://www.liqpay.ua/api/3/checkout',
-      data: Buffer.from(data).toString('base64'),
+      action: this.checkoutURL,
+      data: dataB64,
       sign,
       mock: false,
     };
   }
 
   async handleCallback(event) {
-    // Verify callback signature
-    const data = Buffer.from(event.data, 'base64').toString('utf8');
-    const decoded = JSON.parse(data);
+    if (!event?.data || !event?.sign) {
+      return { error: 'Missing data or signature' };
+    }
 
-    const receivedSign = event.sign;
-    const expectedSign = this._signData(data);
-
-    if (receivedSign !== expectedSign) {
+    // Signature is computed over the base64 `data` string as received.
+    if (!this._safeEqual(event.sign, this._signData(event.data))) {
       logger.warn('LiqPay callback signature mismatch');
       return { error: 'Invalid signature' };
+    }
+
+    let decoded;
+    try {
+      decoded = JSON.parse(Buffer.from(event.data, 'base64').toString('utf8'));
+    } catch {
+      return { error: 'Invalid payload' };
     }
 
     logger.info(`LiqPay callback: order=${decoded.order_id}, status=${decoded.status}`);
@@ -76,18 +97,6 @@ class LiqPayService {
   }
 
   async refund({ orderId, amount, currency }) {
-    if (!this.enabled) {
-      const action = JSON.stringify({
-        version: '3',
-        public_key: this.publicKey,
-        action: 'refund',
-        order_id: orderId,
-        amount,
-        currency_code: currency || 'UAH',
-      });
-      return { sign: this._signData(action), mock: true };
-    }
-
     const action = JSON.stringify({
       version: '3',
       public_key: this.publicKey,
@@ -96,13 +105,18 @@ class LiqPayService {
       amount,
       currency_code: currency || 'UAH',
     });
+    const dataB64 = Buffer.from(action).toString('base64');
+    const sign = this._signData(dataB64);
 
-    const sign = this._signData(action);
+    if (!this.enabled) {
+      return { sign, mock: true };
+    }
 
-    const res = await fetch(`${this.baseURL}/checkout`, {
+    // Server API endpoint is /api/3/request (previously hit /api/3//checkout).
+    const res = await fetch(`${this.baseURL}/request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `data=${Buffer.from(action).toString('base64')}&sign=${sign}`,
+      body: `data=${encodeURIComponent(dataB64)}&sign=${encodeURIComponent(sign)}`,
     });
 
     if (!res.ok) {

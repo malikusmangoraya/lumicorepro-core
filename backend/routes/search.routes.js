@@ -4,10 +4,23 @@ import Product from '../models/Product.js';
 import User from '../models/User.js';
 import cache from '../services/cache/cache.service.js';
 import { optionalProtect } from '../middleware/auth.js';
+import { callerOrgId, tenantCacheKey, tenantWhere } from '../services/tenantScope.service.js';
 
 const router = express.Router();
 
 const MAX_SEARCH_LIMIT = 50;
+
+/**
+ * Users have no immutable membership column, so their active org is the closest
+ * available scope. Searching them unscoped let any signed-in caller enumerate
+ * every tenant's users by email.
+ */
+const userScope = (req) => {
+  const orgId = callerOrgId(req);
+  return orgId === null
+    ? { current_org_id: { [Op.is]: null } }
+    : { current_org_id: orgId };
+};
 
 /**
  * @swagger
@@ -33,7 +46,9 @@ router.get('/', optionalProtect, async (req, res, next) => {
     // Cache search results for 10 min (fast-moving query space is bounded by inventory size)
     // The auth flag is part of the key: user records are only included for authenticated
     // callers, so an anonymous response must never be served to (or cached for) them.
-    const cacheKey = `search:${type}:${searchQuery.slice(0, 50)}:${searchLimit}:${category || ''}:u${req.user ? 1 : 0}`;
+    // The tenant is part of the key: without it the first org's cached results
+    // were served to every other org (and to anonymous visitors).
+    const cacheKey = `search:${type}:${searchQuery.slice(0, 50)}:${searchLimit}:${category || ''}:u${req.user ? 1 : 0}:${tenantCacheKey(req)}`;
     const cached = await cache.get('search', cacheKey);
     if (cached) return res.json({ success: true, query: searchQuery, data: cached, meta: { cached: true } });
 
@@ -42,6 +57,7 @@ router.get('/', optionalProtect, async (req, res, next) => {
     // 1. Search Products
     if (type === 'all' || type === 'products') {
       const productWhere = {
+        ...tenantWhere(req),
         isActive: true,
         [Op.or]: [
           { title: { [Op.iLike]: `%${searchQuery}%` } },
@@ -66,6 +82,7 @@ router.get('/', optionalProtect, async (req, res, next) => {
       const categoryRows = await Product.findAll({
         attributes: ['category'],
         where: {
+          ...tenantWhere(req),
           isActive: true,
           category: { [Op.iLike]: `%${searchQuery}%` },
         },
@@ -83,6 +100,7 @@ router.get('/', optionalProtect, async (req, res, next) => {
         results.users = await User.findAll({
           attributes: ['id', 'name', 'email', 'role', 'avatar'],
           where: {
+            ...userScope(req),
             [Op.or]: [
               { name: { [Op.iLike]: `%${searchQuery}%` } },
               { email: { [Op.iLike]: `%${searchQuery}%` } },
@@ -126,6 +144,7 @@ router.get('/autocomplete', async (req, res, next) => {
     const products = await Product.findAll({
       attributes: ['id', 'title', 'slug', 'price', 'thumbnail', 'category'],
       where: {
+        ...tenantWhere(req),
         isActive: true,
         title: { [Op.iLike]: `%${searchQuery}%` },
       },
@@ -162,7 +181,7 @@ router.get('/trending', async (req, res, next) => {
   try {
     const categoryRows = await Product.findAll({
       attributes: ['category'],
-      where: { isActive: true },
+      where: { ...tenantWhere(req), isActive: true },
       group: ['category'],
       raw: true,
     });

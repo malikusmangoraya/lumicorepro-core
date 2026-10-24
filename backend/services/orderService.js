@@ -9,6 +9,7 @@
 import { sequelize as defaultSequelize } from '../config/database.js';
 import { Op } from 'sequelize';
 import OrderModel from '../models/Order.js';
+import { ORDER_SOURCES } from '../constants/orderSources.js';
 import ProductModel from '../models/Product.js';
 import NotificationModel from '../models/Notification.js';
 import CouponModel from '../models/Coupon.js';
@@ -46,9 +47,21 @@ export function generateOrderNumber() {
  * `orgId` pins the checkout to one tenant: the product must belong to that org
  * (or be a legacy `org_id IS NULL` row when orgId is null) and the created order
  * is stamped with the same org.
+ *
+ * `source` records which vertical the order came from (`models/Order.js`
+ * ORDER_SOURCES). Every per-vertical listing and admin mutation filters on it, so
+ * a restaurant dashboard can neither read nor rewrite a store order.
  */
-export async function createOrder(user, { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode, currency, orgId }) {
+export async function createOrder(
+  user,
+  { items, shippingAddress, billingAddress, paymentMethod, notes, promoCode, currency, orgId, source = 'ecommerce' }
+) {
   const { sequelize, Product } = deps;
+  if (!ORDER_SOURCES.includes(source)) {
+    const err = new Error(`Unknown order source: ${source}`);
+    err.statusCode = 400;
+    throw err;
+  }
   return sequelize.transaction(async (t) => {
     let itemsPrice = 0;
     const orderItems = [];
@@ -62,9 +75,28 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
     }
 
     for (const item of items) {
-      // Row-level lock so concurrent checkouts serialize on this product
-      const productWhere = { id: item.product };
-      if (orgId !== undefined) productWhere.org_id = orgId === null ? { [Op.is]: null } : orgId;
+      // A line without a resolvable catalog id is refused here, not later: with
+      // Sequelize an `id: undefined` where-value is dropped, so the locked read
+      // would silently become "any product of this tenant" and decrement the
+      // wrong stock counter.
+      if (!Number.isInteger(Number(item.product)) || Number(item.product) <= 0) {
+        const err = new Error('Every order line must reference a catalog product id');
+        err.statusCode = 400;
+        throw err;
+      }
+      // Same reason: a `quantity` of '2' or 1.5 would pass the stock comparison
+      // and write a fractional or string quantity into the order snapshot.
+      if (!Number.isInteger(Number(item.quantity)) || Number(item.quantity) <= 0) {
+        const err = new Error('Every order line needs a whole quantity of at least 1');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      // Row-level lock so concurrent checkouts serialize on this product.
+      // The tenant filter is always applied: an omitted orgId means the legacy
+      // single-tenant scope (`org_id IS NULL`), never "every tenant's catalog".
+      const productWhere = { id: Number(item.product) };
+      productWhere.org_id = orgId === null || orgId === undefined ? { [Op.is]: null } : orgId;
       const product = await Product.findOne({
         where: productWhere,
         lock: t.LOCK.UPDATE,
@@ -76,29 +108,34 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
         throw err;
       }
 
-      if (product.stock < item.quantity) {
+      const quantity = Number(item.quantity);
+      // DECIMAL/INTEGER columns can arrive as strings; compare numerically or an
+      // "8" < "10" string comparison would approve an oversell.
+      if (Number(product.stock) < quantity) {
         const err = new Error(`Insufficient stock for product '${product.title}' (Available: ${product.stock})`);
         err.statusCode = 400;
         throw err;
       }
 
       const price = parseFloat(product.price);
-      const total = price * item.quantity;
+      const total = price * quantity;
       itemsPrice += total;
 
       orderItems.push({
         product_id: product.id,
         title: product.title,
         price,
-        quantity: item.quantity,
-        image: item.image || product.thumbnail || (product.images && product.images[0]) || '',
+        quantity,
+        // Catalog imagery only: a client-supplied image would let a buyer render
+        // someone else's product with an arbitrary picture.
+        image: product.thumbnail || (product.images && product.images[0]) || '',
         selectedColor: item.selectedColor || null,
         selectedSize: item.selectedSize || null,
       });
 
       // Atomic decrement within the same transaction
-      await product.update({ stock: product.stock - item.quantity }, { transaction: t });
-      stockDeltas.push({ productId: product.id, quantity: item.quantity });
+      await product.update({ stock: Number(product.stock) - quantity }, { transaction: t });
+      stockDeltas.push({ productId: product.id, quantity });
     }
 
     const taxPrice = Math.round(itemsPrice * TAX_RATE * 100) / 100;
@@ -107,7 +144,8 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
     // Apply promo code discount when provided
     const { applied, discount, coupon, error: couponError } = await couponService.applyCoupon(
       promoCode,
-      itemsPrice
+      itemsPrice,
+      { userId: user.id }
     );
     if (promoCode && !applied) {
       const err = new Error(couponError || 'Invalid coupon code');
@@ -136,13 +174,20 @@ export async function createOrder(user, { items, shippingAddress, billingAddress
         currency: orderCurrency,
         notes: notes || '',
         status: 'pending',
+        source,
       },
       { transaction: t }
     );
 
-    // Mark coupon usage after successful order creation
+    // Consume the redemption inside the same transaction: a coupon burned by an
+    // order that later rolled back would silently cost the buyer their discount.
     if (applied && coupon) {
-      await couponService.markCouponUsed(coupon);
+      const consumed = await couponService.markCouponUsed(coupon, { transaction: t });
+      if (!consumed) {
+        const err = new Error('This coupon has just reached its usage limit');
+        err.statusCode = 400;
+        throw err;
+      }
     }
 
     return { order, orderItems, totalPrice, discountAmount: discount || 0 };
@@ -171,7 +216,10 @@ export async function cancelOrder(orderId, { orgId, userId, isAdmin = false } = 
 
   return sequelize.transaction(async (t) => {
     const where = isNumericId ? { id: raw } : { orderNumber: raw };
-    if (orgId !== undefined) where.org_id = orgId === null ? { [Op.is]: null } : orgId;
+    // Same rule as checkout: an omitted orgId is the legacy scope, not "any
+    // tenant's order". Without it a caller that forgot to pass orgId could cancel
+    // across organizations and only the ownership check would stop them.
+    where.org_id = orgId === null || orgId === undefined ? { [Op.is]: null } : orgId;
 
     const order = await deps.Order.findOne({ where, lock: t.LOCK.UPDATE, transaction: t });
     if (!order) {

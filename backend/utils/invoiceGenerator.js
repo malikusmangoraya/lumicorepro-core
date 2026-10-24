@@ -12,25 +12,38 @@ const CURRENCY_SYMBOLS = {
 
 const currencySymbol = (code) => CURRENCY_SYMBOLS[(code || 'USD').toUpperCase()] || '$';
 
+/**
+ * Sequelize returns DECIMAL(p,s) columns as strings on PostgreSQL (models/Order.js:50-72),
+ * so `value.toFixed(2)` threw a TypeError and every real invoice 500'd.
+ */
+const money = (value) => (Number(value) || 0).toFixed(2);
+
+/** Order fields are user-supplied; the invoice is rendered in a browser. */
+const esc = (value) =>
+  String(value ?? '').replace(
+    /[&<>"']/g,
+    (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]
+  );
+
 export const generateInvoiceHTML = (order) => {
   const sym = currencySymbol(order.currency);
-  const itemsRows = order.items
+  const itemsRows = (order.items || [])
     .map(
       (item) => `
       <tr>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px;">
-          <strong>${item.title}</strong>
-          ${item.selectedColor ? `<br><small style="color: #6b7280;">Color: ${item.selectedColor}</small>` : ''}
-          ${item.selectedSize ? `<br><small style="color: #6b7280;">Size: ${item.selectedSize}</small>` : ''}
+          <strong>${esc(item.title)}</strong>
+          ${item.selectedColor ? `<br><small style="color: #6b7280;">Color: ${esc(item.selectedColor)}</small>` : ''}
+          ${item.selectedSize ? `<br><small style="color: #6b7280;">Size: ${esc(item.selectedSize)}</small>` : ''}
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; text-align: center;">
-          ${item.quantity}
+          ${Number(item.quantity) || 0}
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; text-align: right;">
-          ${sym}${item.price.toFixed(2)}
+          ${sym}${money(item.price)}
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; text-align: right; font-weight: 600;">
-          ${sym}${(item.price * item.quantity).toFixed(2)}
+          ${sym}${money((Number(item.price) || 0) * (Number(item.quantity) || 0))}
         </td>
       </tr>
     `
@@ -77,16 +90,16 @@ export const generateInvoiceHTML = (order) => {
     <div class="details-grid">
       <div>
         <h4 style="margin: 0 0 8px 0; color: #475569; font-size: 12px; text-transform: uppercase;">Billed To</h4>
-        <strong>${order.shippingAddress?.fullName || 'Valued Customer'}</strong><br>
-        ${order.shippingAddress?.street || ''}<br>
-        ${order.shippingAddress?.city || ''}, ${order.shippingAddress?.state || ''} ${order.shippingAddress?.zipCode || ''}<br>
-        ${order.shippingAddress?.country || ''}
+        <strong>${esc(order.shippingAddress?.fullName || 'Valued Customer')}</strong><br>
+        ${esc(order.shippingAddress?.street || '')}<br>
+        ${esc(order.shippingAddress?.city || '')}, ${esc(order.shippingAddress?.state || '')} ${esc(order.shippingAddress?.zipCode || '')}<br>
+        ${esc(order.shippingAddress?.country || '')}
       </div>
       <div>
         <h4 style="margin: 0 0 8px 0; color: #475569; font-size: 12px; text-transform: uppercase;">Payment Details</h4>
-        <strong>Method:</strong> ${order.paymentMethod.toUpperCase()}<br>
-        <strong>Status:</strong> ${order.status.toUpperCase()}<br>
-        ${order.trackingNumber ? `<strong>Tracking:</strong> ${order.trackingNumber}<br>` : ''}
+        <strong>Method:</strong> ${esc((order.paymentMethod || 'unspecified').toUpperCase())}<br>
+        <strong>Status:</strong> ${esc((order.status || 'pending').toUpperCase())}<br>
+        ${order.trackingNumber ? `<strong>Tracking:</strong> ${esc(order.trackingNumber)}<br>` : ''}
       </div>
     </div>
 
@@ -105,10 +118,10 @@ export const generateInvoiceHTML = (order) => {
     </table>
 
     <div class="totals">
-      <div><span>Subtotal:</span><span>${sym}${order.itemsPrice.toFixed(2)}</span></div>
-      <div><span>Tax (8%):</span><span>${sym}${order.taxPrice.toFixed(2)}</span></div>
-      <div><span>Shipping:</span><span>${order.shippingPrice === 0 ? 'Free' : `${sym}${order.shippingPrice.toFixed(2)}`}</span></div>
-      <div class="grand-total"><span>Total:</span><span>${sym}${order.totalPrice.toFixed(2)} ${order.currency || 'USD'}</span></div>
+      <div><span>Subtotal:</span><span>${sym}${money(order.itemsPrice)}</span></div>
+      <div><span>Tax (8%):</span><span>${sym}${money(order.taxPrice)}</span></div>
+      <div><span>Shipping:</span><span>${Number(order.shippingPrice) === 0 ? 'Free' : `${sym}${money(order.shippingPrice)}`}</span></div>
+      <div class="grand-total"><span>Total:</span><span>${sym}${money(order.totalPrice)} ${esc(order.currency || 'USD')}</span></div>
     </div>
 
     <div class="footer">

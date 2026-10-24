@@ -2,6 +2,19 @@ import crypto from 'crypto';
 import { getGatewayConfig } from './config.js';
 import logger from '../../utils/logger.js';
 
+/**
+ * Paytm (India: wallet/UPI/cards).
+ *
+ * Checksum follows Paytm's official scheme (verified against the
+ * `paytmchecksum` package source):
+ *   paramsString = values of params sorted by key, joined with "|"
+ *   hash         = sha256(paramsString + "|" + salt).hex + salt
+ *   checksum     = base64( AES-128-CBC(hash, merchantKey, IV "@@@@&&&&####$$$$") )
+ * The previous implementation used a made-up SHA-256 scheme and fabricated the
+ * TXN_TOKEN locally, so live payments and refunds could never work.
+ */
+const PAYTM_IV = '@@@@&&&&####$$$$';
+
 class PaytmService {
   constructor() {
     const config = getGatewayConfig('paytm');
@@ -20,32 +33,57 @@ class PaytmService {
     this.supportedCurrencies = ['inr'];
     this.region = 'India';
     this.icon = '📱';
+    if (this.enabled && this.merchantKey && Buffer.byteLength(this.merchantKey) !== 16) {
+      logger.warn('Paytm merchant key should be 16 bytes — checksum will fail with this key');
+    }
   }
 
-  _generateChecksum(params) {
-    const sortedKeys = Object.keys(params).sort();
-    const str = sortedKeys
-      .map(k => params[k] ? `${k}=${params[k]}` : '')
-      .filter(Boolean)
-      .join('&|');
-    return str + '|key=' + this.merchantKey;
+  _paramsString(params) {
+    return Object.keys(params)
+      .sort()
+      .map((k) => String(params[k] ?? ''))
+      .join('|');
   }
 
-  _encrypt(data, salt) {
-    const hasher = crypto.createHash('sha256').update(this._generateChecksum(data) + salt);
-    const key = crypto.createHmac('sha256', salt).update(hasher.digest('hex')).digest();
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    const encrypted = Buffer.concat([cipher.update(JSON.stringify(data), 'utf8'), cipher.final()]);
-    return Buffer.concat([iv, encrypted]).toString('base64');
+  _calculateHash(paramsString, salt) {
+    return crypto.createHash('sha256').update(`${paramsString}|${salt}`).digest('hex') + salt;
   }
 
-  _decrypt(data) {
-    // For server-to-server verification
-    const decoded = Buffer.from(data, 'base64');
-    const iv = decoded.slice(0, 16);
-    const encrypted = decoded.slice(16);
-    return { iv, encrypted };
+  _encrypt(input) {
+    const cipher = crypto.createCipheriv('AES-128-CBC', this.merchantKey, PAYTM_IV);
+    let encrypted = cipher.update(input, 'binary', 'base64');
+    encrypted += cipher.final('base64');
+    return encrypted;
+  }
+
+  _decrypt(encrypted) {
+    const decipher = crypto.createDecipheriv('AES-128-CBC', this.merchantKey, PAYTM_IV);
+    let decrypted = decipher.update(encrypted, 'base64', 'binary');
+    decrypted += decipher.final('binary');
+    return decrypted;
+  }
+
+  /** @param {object|string} params - params object or pre-serialized string */
+  generateChecksum(params) {
+    const paramsString = typeof params === 'string' ? params : this._paramsString(params);
+    const salt = crypto.randomBytes(3).toString('base64'); // 4 chars
+    return this._encrypt(this._calculateHash(paramsString, salt));
+  }
+
+  /** @returns {boolean} */
+  verifyChecksum(params, checksum) {
+    if (!checksum || !this.merchantKey) return false;
+    try {
+      const paramsString = typeof params === 'string' ? params : this._paramsString(params);
+      const hash = this._decrypt(checksum);
+      const salt = hash.slice(-4);
+      const expected = this._calculateHash(paramsString, salt);
+      const a = Buffer.from(expected);
+      const b = Buffer.from(hash);
+      return a.length === b.length && crypto.timingSafeEqual(a, b);
+    } catch {
+      return false; // malformed base64 / bad padding / wrong key
+    }
   }
 
   async initiateTransaction({ amount, orderId, email, phone, callbackUrl }) {
@@ -57,71 +95,71 @@ class PaytmService {
       };
     }
 
-    const txnToken = `TXN_${Date.now()}`;
-    const params = {
-      MERCHANT_ID: this.merchantId,
-      CHANNEL_ID: this.channelId,
-      INDUSTRY_TYPE_ID: this.industryType,
-      WEBSITE: this.website,
-      ORDER_ID: orderId,
-      TXN_AMOUNT: amount.toFixed(2),
-      CURRENCY: 'INR',
-      CALLBACK_URL: callbackUrl,
-      EMAIL: email,
-      MOBILE_NO: phone,
-      TXN_TOKEN: txnToken,
+    const body = {
+      requestType: 'Payment',
+      mid: this.merchantId,
+      websiteName: this.website,
+      orderId,
+      txnAmount: { value: Number(amount).toFixed(2), currency: 'INR' },
+      userInfo: { custId: email || phone || orderId },
+      callbackUrl,
     };
+    // Sign the JSON string: nested objects (txnAmount/userInfo) would otherwise
+    // stringify as "[object Object]" and the amount would not be bound to the
+    // signature. This matches the official SDK's JSON.stringify(body) flow.
+    const signature = this.generateChecksum(JSON.stringify(body));
 
-    const checksum = crypto
-      .createHash('sha256')
-      .update(this._generateChecksum(params))
-      .digest('hex');
+    const res = await fetch(
+      `${this.baseURL}/theia/api/v1/initiateTransaction?mid=${encodeURIComponent(this.merchantId)}&orderId=${encodeURIComponent(orderId)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ head: { signature }, body }),
+      }
+    );
 
-    // For staging, typically use Paytm's transaction token endpoint
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Paytm initiate transaction failed: ${text}`);
+    }
+
+    const data = await res.json();
+    const resultInfo = data?.body?.resultInfo || {};
+    if (resultInfo.resultStatus !== 'S') {
+      throw new Error(
+        `Paytm initiate transaction rejected: ${resultInfo.resultCode || 'UNKNOWN'} ${resultInfo.resultMsg || ''}`.trim()
+      );
+    }
+
     return {
-      txnToken,
-      redirectURL: `${this.baseURL}/theia/processTransaction`,
-      params,
-      checksum,
+      txnToken: data.body.txnToken,
+      redirectURL: `${this.baseURL}/theia/api/v1/showPaymentPage?mid=${encodeURIComponent(this.merchantId)}&orderId=${encodeURIComponent(orderId)}`,
       mock: false,
     };
   }
 
-  async verifyChecksum(params, checksum) {
-    // Verify response checksum from Paytm
-    const sortedKeys = Object.keys(params).filter(k => k !== 'CHECKSUMHASH').sort();
-    const str = sortedKeys
-      .map(k => params[k] ? `${k}=${params[k]}` : '')
-      .filter(Boolean)
-      .join('&|');
-    const generatedChecksum = crypto
-      .createHash('sha256')
-      .update(str + '|key=' + this.merchantKey)
-      .digest('hex');
-    return generatedChecksum === checksum;
+  async verifyChecksumResponse(params, checksum) {
+    return this.verifyChecksum(params, checksum);
   }
 
   async refund({ orderId, txnAmount, refundId }) {
     if (!this.enabled) return { success: true, mock: true, orderId, refundId };
 
     const body = {
-      MERCHANT_ID: this.merchantId,
-      ORDER_ID: orderId,
-      TXN_AMOUNT: txnAmount.toString(),
-      REFUND_ID: refundId,
-      EMAIL: 'refund@merchant.com',
-      MOBILE_NO: '0000000000',
+      mid: this.merchantId,
+      txnType: 'REFUND',
+      orderId,
+      txnAmount: { value: Number(txnAmount).toFixed(2), currency: 'INR' },
+      refId: refundId,
     };
+    const signature = this.generateChecksum(JSON.stringify(body));
 
-    const checksum = crypto
-      .createHash('sha256')
-      .update(this._generateChecksum(body))
-      .digest('hex');
-
-    const res = await fetch(`${this.baseURL}/theia/logInnerActivity`, {
+    // Real refund endpoint — previously posted to /theia/logInnerActivity
+    // (an analytics collector), so refunds never reached Paytm.
+    const res = await fetch(`${this.baseURL}/theia/api/v1/refund`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, CHECKSUMHASH: checksum, REQUEST_TYPE: 'REFUND' }),
+      body: JSON.stringify({ head: { signature }, body }),
     });
 
     if (!res.ok) {
@@ -130,7 +168,17 @@ class PaytmService {
     }
 
     const data = await res.json();
-    return { success: data?.STATUS === 'TXN_SUCCESS', orderId, refundId };
+    return {
+      success: data?.body?.resultInfo?.resultStatus === 'S',
+      orderId,
+      refundId,
+    };
+  }
+
+  /** Paytm posts CHECKSUMHASH back on callback; verify before trusting it. */
+  handleCallback(params) {
+    const { CHECKSUMHASH: checksum, ...rest } = params || {};
+    return { valid: this.verifyChecksum(rest, checksum), params: rest };
   }
 }
 

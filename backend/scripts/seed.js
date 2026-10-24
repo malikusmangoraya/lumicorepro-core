@@ -42,7 +42,12 @@ const seedData = async () => {
 
     // ── 1. Seed Users ───────────────────────────────────────────────────────
     console.log('👤 Seeding Users...');
-    const hashedPassword = await bcrypt.hash('Password123!', 10);
+    const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+    const seedAdminEmail = (process.env.SEED_ADMIN_EMAIL || 'admin@example.com').toLowerCase();
+    if (!seedPassword) {
+      throw new Error('SEED_ADMIN_PASSWORD is required to run the database seed');
+    }
+    const hashedPassword = await bcrypt.hash(seedPassword, 12);
 
     const sharedAddress = {
       street: '100 Silicon Way',
@@ -55,7 +60,7 @@ const seedData = async () => {
     const [admin, vendor, customer] = await Promise.all([
       User.create({
         name: 'Admin User',
-        email: 'admin@example.com',
+        email: seedAdminEmail,
         password: hashedPassword,
         role: 'admin',
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
@@ -355,7 +360,7 @@ const seedData = async () => {
     console.log('\n========================================');
     console.log('🎉 SEEDING COMPLETED SUCCESSFULLY!');
     console.log('========================================');
-    console.log('Admin Account:    admin@example.com     / Password123!');
+    console.log(`Admin Account:    ${seedAdminEmail}`);
     console.log('Vendor Account:   vendor@example.com    / Password123!');
     console.log('Customer Account: user@example.com      / Password123!');
     console.log('========================================\n');

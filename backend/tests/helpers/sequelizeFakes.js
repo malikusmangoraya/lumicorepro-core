@@ -9,6 +9,8 @@
  *     unless `paranoid: false` is passed),
  *   - aggregate attributes (`fn('SUM' | 'AVG' | 'COUNT' | 'DATE' | 'TO_CHAR')`)
  *     with and without `group`,
+ *   - `include: [{ model, as }]` eager-loading, resolved through the fake's own
+ *     rows via the `<as>_id` foreign key,
  *   - instance `update()` / `destroy()` that mutate the stored row, so a test can
  *     assert what really happened to the data.
  *
@@ -30,6 +32,9 @@ function matchColumn(actual, expected) {
   if (expected instanceof Date) {
     return actual instanceof Date && actual.getTime() === expected.getTime();
   }
+  // Sequelize expands a bare array to `Op.in`; without that the double matched
+  // nothing and a `status: ['pending', 'processing']` filter looked empty.
+  if (Array.isArray(expected)) return expected.some((value) => String(value) === String(actual));
   if (typeof expected !== 'object') return String(actual) === String(expected);
 
   if (Op.is in expected) {
@@ -150,8 +155,8 @@ export function createFakeModel(name, rows = [], { paranoidField = null } = {}) 
   };
   const find = (options = {}) => visible(options).filter((r) => matchesWhere(r, options.where));
 
-  /** Instance double: live row values + mutating update/destroy. */
-  const wrap = (row) => {
+  /** Instance double: live row values + eager-loaded parents + mutating update/destroy. */
+  const wrap = (row, options = {}) => {
     const instance = {
       _row: row,
       toJSON() {
@@ -172,6 +177,17 @@ export function createFakeModel(name, rows = [], { paranoidField = null } = {}) 
         }
       },
     };
+    // `include: [{ model, as }]` → attach the parent under `as`, matched on the
+    // `<as>_id` foreign key. Services read prices/titles off the association, so a
+    // double that ignored it silently priced every joined line at zero. The joined
+    // row is attached raw (read-only): mutating it belongs to the parent model.
+    for (const spec of options.include || []) {
+      if (!spec || !spec.as || !Array.isArray(spec.model?.rows)) continue;
+      const parent = spec.model.rows.find(
+        (candidate) => String(candidate.id) === String(row[`${spec.as}_id`])
+      );
+      if (parent) instance[spec.as] = parent;
+    }
     return new Proxy(instance, {
       get(target, prop) {
         if (prop in target) return target[prop];
@@ -188,14 +204,14 @@ export function createFakeModel(name, rows = [], { paranoidField = null } = {}) 
     const matched = find(options);
     if (matched.length === 0) return null;
     if (isAggregateQuery(options)) return aggregateRows(matched, options);
-    return options.raw ? projectRow(matched[0], options.attributes) : wrap(matched[0]);
+    return options.raw ? projectRow(matched[0], options.attributes) : wrap(matched[0], options);
   };
 
   model.findByPk = async (id, options = {}) => {
     const merged = { ...options, where: { ...(options.where || {}), id } };
     record('findByPk', merged);
     const found = find(merged)[0];
-    return found ? wrap(found) : null;
+    return found ? wrap(found, merged) : null;
   };
 
   model.findAll = async (options = {}) => {
@@ -214,7 +230,9 @@ export function createFakeModel(name, rows = [], { paranoidField = null } = {}) 
 
     const limited = matched.slice(options.offset || 0, options.limit ? (options.offset || 0) + options.limit : undefined);
     if (isAggregateQuery(options)) return [aggregateRows(limited, options)];
-    return options.raw ? limited.map((r) => projectRow(r, options.attributes)) : limited.map(wrap);
+    return options.raw
+      ? limited.map((r) => projectRow(r, options.attributes))
+      : limited.map((r) => wrap(r, options));
   };
 
   model.findAndCountAll = async (options = {}) => {
@@ -222,7 +240,7 @@ export function createFakeModel(name, rows = [], { paranoidField = null } = {}) 
     const matched = find(options);
     const start = options.offset || 0;
     const page = matched.slice(start, options.limit ? start + options.limit : undefined);
-    return { count: matched.length, rows: page.map(wrap) };
+    return { count: matched.length, rows: page.map((r) => wrap(r, options)) };
   };
 
   model.count = async (options = {}) => {

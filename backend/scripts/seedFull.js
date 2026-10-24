@@ -357,11 +357,16 @@ const seedData = async () => {
 
     // ── Users ─────────────────────────────────────────────────────────────
     console.log('Seeding Users...');
-    const hashedPassword = await bcrypt.hash('Password123!', 10);
+    const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+    const seedAdminEmail = (process.env.SEED_ADMIN_EMAIL || 'admin@example.com').toLowerCase();
+    if (!seedPassword) {
+      throw new Error('SEED_ADMIN_PASSWORD is required to run the database seed');
+    }
+    const hashedPassword = await bcrypt.hash(seedPassword, 12);
     const addr = { street: '100 Silicon Way', city: 'San Francisco', state: 'CA', country: 'USA', zipCode: '94105' };
 
     const [admin, vendor, customer, customer2] = await Promise.all([
-      User.create({ name: 'Admin User', email: 'admin@example.com', password: hashedPassword, role: 'admin', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150', phone: '+1 555-0100', address: addr, isVerified: true, isActive: true }),
+      User.create({ name: 'Admin User', email: seedAdminEmail, password: hashedPassword, role: 'admin', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150', phone: '+1 555-0100', address: addr, isVerified: true, isActive: true }),
       User.create({ name: 'Vendor Store', email: 'vendor@example.com', password: hashedPassword, role: 'vendor', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', phone: '+1 555-0101', address: { ...addr, street: '200 Market St', city: 'Austin', state: 'TX' }, isVerified: true, isActive: true }),
       User.create({ name: 'Alex Johnson', email: 'user@example.com', password: hashedPassword, role: 'user', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', phone: '+1 555-0102', address: { ...addr, street: '350 5th Ave', city: 'New York', state: 'NY' }, isVerified: true, isActive: true }),
       User.create({ name: 'Maria Garcia', email: 'maria@example.com', password: hashedPassword, role: 'user', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150', phone: '+1 555-0103', address: { ...addr, street: '123 Main St', city: 'Los Angeles', state: 'CA' }, isVerified: true, isActive: true }),
@@ -511,7 +516,7 @@ const seedData = async () => {
     console.log('\n========================================');
     console.log('PRODUCTION SEED COMPLETED!');
     console.log('========================================');
-    console.log('Admin:     admin@example.com    / Password123!');
+    console.log(`Admin:     ${seedAdminEmail}`);
     console.log('Vendor:    vendor@example.com   / Password123!');
     console.log('Customer1: user@example.com     / Password123!');
     console.log('Customer2: maria@example.com    / Password123!');

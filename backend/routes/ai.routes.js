@@ -13,6 +13,7 @@ import { downstreamTraceHeaders } from '../middleware/tracing.js';
 import {
   AI_AGENT_TIMEOUTS,
   agentBaseUrl,
+  agentEndpointUrl,
   agentPreviewUrl,
   agentWebSocketUrl,
   fetchAgentJson,

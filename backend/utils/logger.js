@@ -28,7 +28,7 @@ const SENSITIVE_KEYS = new Set([
 const REDACTED = '[REDACTED]';
 
 // Regexes for inline "key=value" / "key: value" / JSON-like patterns
-const TOKEN_RE = /\b([A-Za-z0-9_\-]{8,})\b/g;
+const TOKEN_RE = /\b([A-Za-z0-9_-]{8,})\b/g;
 
 /** Deep-redact an object/array without mutating the original. */
 export function redact(value, key = '') {

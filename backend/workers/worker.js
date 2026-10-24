@@ -8,6 +8,7 @@
  */
 import { Worker } from 'bullmq';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { promises as fs } from 'fs';
 import { QUEUES } from '../services/queue/queue.service.js';
 import { sendToDLQ } from '../services/queue/deadLetter.js';
@@ -159,7 +160,7 @@ const handlers = {
     log.info(`Webhook retry job ${job.id}`, { gateway, eventId });
 
     const { default: WebhookEvent } = await import('../models/WebhookEvent.js');
-    const { handleWebhook } = await import('../services/payment/index.js');
+    const { handleWebhook, isReplayable } = await import('../services/payment/index.js');
 
     if (eventId) {
       const record = await WebhookEvent.findOne({ where: { event_id: eventId } });
@@ -171,8 +172,24 @@ const handlers = {
         log.info(`Webhook retry job ${job.id}: already processed`, { eventId });
         return true;
       }
+      const gatewayName = record.gateway || gateway;
+      if (!isReplayable(gatewayName)) {
+        // The ledger keeps the verified event but not the provider's signature
+        // headers, so replays of self-verifying gateways can never be checked.
+        // Marking them processed would record a payment event that was never
+        // applied — leave the row failed and say why.
+        await record.update({ status: 'failed' });
+        log.warn(
+          `Webhook retry job ${job.id}: ${gatewayName} events are not replayable (signature not stored)`,
+          { eventId },
+        );
+        return true;
+      }
       await record.update({ status: 'failed' });
-      await handleWebhook(record.gateway || gateway, record.payload || {});
+      const result = await handleWebhook(gatewayName, record.payload || {});
+      if (result && result.valid === false) {
+        throw new Error(`Webhook ${eventId} rejected by ${gatewayName} handler`);
+      }
       await record.update({ status: 'processed' });
       log.info(`Webhook retry job ${job.id}: processed`, { eventId });
       return true;
@@ -182,7 +199,10 @@ const handlers = {
       log.warn(`Webhook retry job ${job.id}: no payload or eventId`, job.data);
       return true;
     }
-    await handleWebhook(gateway, payload);
+    const result = await handleWebhook(gateway, payload);
+    if (result && result.valid === false) {
+      throw new Error(`Webhook payload rejected by ${gateway} handler`);
+    }
     log.info(`Webhook retry job ${job.id}: payload processed`, { gateway });
     return true;
   },
@@ -243,9 +263,18 @@ async function runWorker() {
   });
 }
 
-runWorker().catch((err) => {
-  logger.error(`Worker bootstrap failed: ${err.message}`);
-  process.exit(1);
-});
+// Only bind the BullMQ consumers when this file is the process entry point.
+// Importing it (tests, tooling) must never start workers or call process.exit.
+const isDirectRun =
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
 
-export default { working };
+if (isDirectRun) {
+  runWorker().catch((err) => {
+    logger.error(`Worker bootstrap failed: ${err.message}`);
+    process.exit(1);
+  });
+}
+
+export { handlers };
+export default { working, handlers };

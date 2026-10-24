@@ -182,9 +182,14 @@ router.put(
         return res.json({ success: true, message: 'Item removed from cart', removed: true });
       }
 
-      // Validate stock inside the caller's tenant
+      // Validate stock inside the caller's tenant. Fail closed: if the product
+      // is not visible (deleted or another tenant's), the line cannot grow —
+      // `if (product && …)` skipped the guard and let a dead line reach the cap.
       const product = await Product.findOne({ where: tenantWhere(req, { id: item.product_id }) });
-      if (product && product.stock < quantity) {
+      if (!product) {
+        return res.status(404).json({ success: false, error: 'Product not found' });
+      }
+      if (product.stock < quantity) {
         return res.status(400).json({
           success: false,
           error: `Only ${product.stock} unit(s) in stock`,

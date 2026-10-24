@@ -9,6 +9,14 @@ class FlutterwaveService {
     this.publicKey = process.env.FLUTTERWAVE_PUBLIC_KEY;
     this.secretKey = process.env.FLUTTERWAVE_SECRET_KEY;
     this.encryptionKey = process.env.FLUTTERWAVE_ENCRYPTION_KEY;
+    // Dashboard webhook hash. Accept both env names: config.js exposes
+    // FLUTTERWAVE_WEBHOOK_SECRET while deployments sometimes set
+    // FLUTTERWAVE_WEBHOOK_HASH — setting only one must not silently 401.
+    this.webhookHash =
+      process.env.FLUTTERWAVE_WEBHOOK_HASH ||
+      process.env.FLUTTERWAVE_WEBHOOK_SECRET ||
+      config?.webhookSecret ||
+      '';
     this.baseURL = 'https://api.flutterwave.com/v3';
     this.name = 'Flutterwave';
     this.description = 'African payments (Africa)';
@@ -27,7 +35,7 @@ class FlutterwaveService {
       return {
         id: transferId,
         link: redirectUrl || '#',
-        status: 'success',
+        status: 'pending',
         mock: true,
       };
     }
@@ -61,7 +69,7 @@ class FlutterwaveService {
   }
 
   async verifyTransaction({ txRef, transactionId }) {
-    if (!this.enabled) return { status: 'success', chargecode: '00', mock: true };
+    if (!this.enabled) return { status: 'pending', chargecode: '', mock: true };
 
     const url = transactionId
       ? `${this.baseURL}/transactions/${transactionId}/verify`
@@ -108,20 +116,33 @@ class FlutterwaveService {
     return { ...data.data, mock: false };
   }
 
-  async handleWebhook(event) {
-    // Verify signature
-    if (this.encryptionKey) {
-      const hash = crypto.createHmac('sha256', this.encryptionKey)
-        .update(JSON.stringify(event))
-        .digest('hex');
-      const sig = event[' مصنوعات_parameter_webhook_signature'];
-      if (sig && sig !== hash) {
-        logger.warn('Flutterwave webhook signature mismatch');
-        return;
-      }
+  /**
+   * Verify a Flutterwave webhook.
+   *
+   * Flutterwave signs webhooks with the plain shared secret configured in the
+   * dashboard, sent in the `verif-hash` header — NOT an HMAC of the body. The
+   * previous implementation read a nonexistent body key and skipped the check
+   * when it was absent, so unsigned events were accepted (fail-open).
+   *
+   * @param {object} event - parsed webhook body (for logging/dispatch only)
+   * @param {string} verifHash - value of the `verif-hash` request header
+   * @returns {{ valid: boolean }}
+   */
+  handleWebhook(event, verifHash = '') {
+    const secret = process.env.FLUTTERWAVE_WEBHOOK_HASH || process.env.FLUTTERWAVE_WEBHOOK_SECRET || this.webhookHash || '';
+    if (!secret) {
+      logger.warn('Flutterwave webhook rejected: FLUTTERWAVE_WEBHOOK_HASH is not configured');
+      return { valid: false };
+    }
+    const a = Buffer.from(String(verifHash));
+    const b = Buffer.from(String(secret));
+    const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
+    if (!valid) {
+      logger.warn('Flutterwave webhook signature mismatch');
+      return { valid: false };
     }
 
-    switch (event.event) {
+    switch (event?.event) {
       case 'charge.success':
         logger.info(`Flutterwave charge success: ${event.data?.id}`);
         break;
@@ -129,8 +150,9 @@ class FlutterwaveService {
         logger.info(`Flutterwave charge failed: ${event.data?.id}`);
         break;
       default:
-        logger.info(`Unhandled Flutterwave webhook: ${event.event}`);
+        logger.info(`Unhandled Flutterwave webhook: ${event?.event}`);
     }
+    return { valid: true };
   }
 
   getPublicKey() {

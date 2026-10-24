@@ -4,12 +4,72 @@ import Booking from '../models/Booking.js';
 import Doctor from '../models/Doctor.js';
 import Service from '../models/Service.js';
 import User from '../models/User.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 import { enqueue, QUEUES } from '../services/queue/queue.service.js';
 import logger from '../utils/logger.js';
 import { sequelize } from '../config/database.js';
+import { TIME_PATTERN, isValidDate } from '../utils/reservationSlot.js';
 
 const router = express.Router();
+
+/** Minutes since midnight for an `HH:MM` string; null when malformed. */
+const timeToMinutes = (value) => {
+  if (!TIME_PATTERN.test(String(value))) return null;
+  const [hours, minutes] = String(value).split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+/** `[start, start+duration)` overlaps `[other, other+duration)` on the same day. */
+const slotsOverlap = (start, duration, otherStart, otherDuration) =>
+  start < otherStart + otherDuration && otherStart < start + duration;
+
+/**
+ * Slots are compared as UTC instants, the same convention GET /slots uses for
+ * its `isPast` flag (`new Date(`${date}T${time}:00Z`)`).
+ */
+const hasStarted = (booking, now = new Date()) =>
+  new Date(`${booking.date}T${booking.time}:00Z`).getTime() < now.getTime();
+
+const TERMINAL_STATUSES = ['cancelled', 'completed', 'no-show'];
+
+/** Money already collected for the booking — the amount a cancellation owes back. */
+const collectedAmount = (booking) => {
+  if (booking.paymentStatus === 'paid') return Number(booking.totalAmount) || 0;
+  if (booking.paymentStatus === 'deposit_paid') return Number(booking.depositAmount) || 0;
+  return 0;
+};
+
+/**
+ * Cancellation guard shared by PATCH /:id/status and DELETE /:id.
+ *
+ * A cancelled booking with a collected deposit used to keep `deposit_paid`
+ * forever, so the money left no trail. The ledger now flips to `refunded` and
+ * the caller gets the amount back in the response; the provider refund itself
+ * is manual because booking deposits are not captured through a gateway
+ * reference (there is no transaction id on this table to refund against).
+ * Patients cannot cancel after the appointment has started — that is a
+ * clinic-side bookkeeping action.
+ */
+const cancellationUpdates = (booking, req, reason) => {
+  if (TERMINAL_STATUSES.includes(booking.status)) {
+    throw Object.assign(new Error(`Cannot cancel a ${booking.status} booking`), { statusCode: 400 });
+  }
+  if (req.user.role !== 'admin' && hasStarted(booking)) {
+    throw Object.assign(
+      new Error('Cannot cancel a booking whose appointment has already passed'),
+      { statusCode: 400 },
+    );
+  }
+
+  const refundDue = collectedAmount(booking);
+  const updates = {
+    status: 'cancelled',
+    cancelledAt: new Date(),
+    cancellationReason: reason,
+  };
+  if (refundDue > 0) updates.paymentStatus = 'refunded';
+  return { updates, refundDue };
+};
 
 /**
  * GET /api/bookings/doctors — list active doctors
@@ -42,8 +102,7 @@ router.get('/doctors/:slug', async (req, res, next) => {
 
 /**
  * GET /api/bookings/slots — available time slots for a doctor on a date
- */
-router.get('/slots', async (req, res, next) => {
+ */router.get('/slots', async (req, res, next) => {
   try {
     const { doctorId, date } = req.query;
     if (!doctorId || !date) {
@@ -124,6 +183,22 @@ router.post('/', protect, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'doctorId, date, time, reason, and patientInfo are required' });
     }
 
+    const startMinutes = timeToMinutes(time);
+    if (!isValidDate(date) || startMinutes === null) {
+      return res.status(400).json({
+        success: false,
+        error: 'date must be a real YYYY-MM-DD date and time must be HH:MM',
+      });
+    }
+
+    const durationMinutes = Number(duration);
+    if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 480) {
+      return res.status(400).json({
+        success: false,
+        error: 'duration must be a whole number of minutes between 1 and 480',
+      });
+    }
+
     const doctor = await Doctor.findByPk(parseInt(doctorId, 10));
     if (!doctor) return res.status(404).json({ success: false, error: 'Doctor not found' });
 
@@ -134,16 +209,23 @@ router.post('/', protect, async (req, res, next) => {
       : parseFloat(doctor.depositRequired || 0);
 
     const booking = await sequelize.transaction(async (t) => {
-      const conflict = await Booking.findOne({
+      // Range-aware conflict probe. Comparing only the start `time` accepted an
+      // appointment that overlaps an in-progress one (09:30 into a 09:00-10:00
+      // booking) even though GET /slots marks every minute of the range busy.
+      const sameDay = await Booking.findAll({
         where: {
           doctor_id: doctor.id,
           date,
-          time,
           status: { [Op.notIn]: ['cancelled', 'no-show'] },
         },
         transaction: t,
       });
-      if (conflict) {
+      const clash = sameDay.find((row) => {
+        const rowStart = timeToMinutes(row.time);
+        if (rowStart === null) return false;
+        return slotsOverlap(startMinutes, durationMinutes, rowStart, Number(row.duration) || 30);
+      });
+      if (clash) {
         throw Object.assign(new Error('This time slot is already booked'), { statusCode: 409 });
       }
 
@@ -153,13 +235,15 @@ router.post('/', protect, async (req, res, next) => {
         service_id: serviceId || null,
         date,
         time,
-        duration,
+        duration: durationMinutes,
         reason,
         notes,
         patientInfo,
         totalAmount,
         depositAmount,
-        paymentStatus: depositAmount > 0 ? 'pending' : 'pending',
+        // A deposit at booking time is DUE, not collected — `deposit_paid` is
+        // written by the payment path once money actually arrives.
+        paymentStatus: 'pending',
       }, { transaction: t });
 
       return newBooking;
@@ -270,24 +354,52 @@ router.patch('/:id/status', protect, async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
-    const updates = { status };
-    if (notes) updates.notes = notes;
+    // Patients may confirm or cancel their own booking. `completed` and
+    // `no-show` are clinic-side outcomes, and a terminal booking cannot be
+    // reopened by the patient (no un-cancel).
+    if (req.user.role !== 'admin' && !['confirmed', 'cancelled'].includes(status)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Only clinic staff can mark a booking completed or no-show',
+      });
+    }
+    if (req.user.role !== 'admin' && TERMINAL_STATUSES.includes(booking.status)) {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot change a ${booking.status} booking`,
+      });
+    }
+
+    let updates = { status };
+    let refundDue = 0;
     if (status === 'cancelled') {
-      updates.cancelledAt = new Date();
-      updates.cancellationReason = notes || 'Cancelled by user';
+      ({ updates, refundDue } = cancellationUpdates(booking, req, notes || 'Cancelled by user'));
+    } else if (notes) {
+      updates.notes = notes;
+    }
+
+    if (status === 'confirmed' && ['cancelled', 'no-show'].includes(booking.status)) {
+      updates.cancelledAt = null;
+      updates.cancellationReason = null;
     }
 
     await booking.update(updates);
 
     const doctor = await Doctor.findByPk(booking.doctor_id);
+    const refundLine = refundDue > 0
+      ? `<p><strong>Refund due:</strong> $${refundDue.toFixed(2)}</p>`
+      : '';
     enqueue(QUEUES.EMAIL, {
       to: req.user.email,
       subject: `Booking ${status.charAt(0).toUpperCase() + status.slice(1)} — ${booking.bookingNumber}`,
-      html: `<p>Your booking <strong>${booking.bookingNumber}</strong> with Dr. ${doctor?.name || 'N/A'} has been <strong>${status}</strong>.</p>`,
+      html: `<p>Your booking <strong>${booking.bookingNumber}</strong> with Dr. ${doctor?.name || 'N/A'} has been <strong>${status}</strong>.</p>${refundLine}`,
     });
 
-    res.json({ success: true, data: booking });
+    const body = { success: true, data: booking };
+    if (refundDue > 0) body.refundDue = refundDue;
+    res.json(body);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, error: error.message });
     next(error);
   }
 });
@@ -304,13 +416,19 @@ router.delete('/:id', protect, async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
-    if (['completed', 'cancelled'].includes(booking.status)) {
-      return res.status(400).json({ success: false, error: `Cannot cancel a ${booking.status} booking` });
-    }
+    const { updates, refundDue } = cancellationUpdates(
+      booking,
+      req,
+      req.body.reason || 'Cancelled',
+    );
 
-    await booking.update({ status: 'cancelled', cancelledAt: new Date(), cancellationReason: req.body.reason || 'Cancelled' });
-    res.json({ success: true, message: 'Booking cancelled successfully' });
+    await booking.update(updates);
+
+    const body = { success: true, message: 'Booking cancelled successfully' };
+    if (refundDue > 0) body.refundDue = refundDue;
+    res.json(body);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, error: error.message });
     next(error);
   }
 });

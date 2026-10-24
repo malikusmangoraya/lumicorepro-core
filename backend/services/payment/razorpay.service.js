@@ -54,11 +54,15 @@ class RazorpayService {
     const expected = crypto.createHmac('sha256', this.keySecret)
       .update(sign.toString())
       .digest('hex');
-    return expected === signature;
+    const a = Buffer.from(expected);
+    const b = Buffer.from(String(signature || ''));
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
   }
 
   async refund({ paymentId, amount }) {
-    if (!this.enabled) return { success: true, mock: true, orderId: `ref_mock_${Date.now()}` };
+    if (!this.enabled) {
+      return { success: true, mock: true, refundId: `ref_mock_${Date.now()}` };
+    }
 
     const body = {
       payment_id: paymentId,
@@ -82,19 +86,53 @@ class RazorpayService {
     return { success: true, refundId: data.id };
   }
 
-  async handleWebhook(event) {
-    switch (event.event) {
+  /**
+   * Verify a Razorpay webhook with the dashboard webhook secret.
+   * Razorpay signs the RAW body with HMAC-SHA256, sent in `x-razorpay-signature`.
+   * The previous handler skipped verification entirely — a forged webhook could
+   * report any payment as captured.
+   *
+   * @param {string} rawBody - raw request body string (before JSON.parse)
+   * @param {string} signature - x-razorpay-signature header
+   * @returns {boolean}
+   */
+  verifyWebhook(rawBody, signature) {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
+    if (!secret) {
+      logger.warn('Razorpay webhook rejected: RAZORPAY_WEBHOOK_SECRET is not configured');
+      return false;
+    }
+    if (!rawBody || !signature) return false;
+    const expected = crypto.createHmac('sha256', secret).update(String(rawBody)).digest('hex');
+    const a = Buffer.from(expected);
+    const b = Buffer.from(String(signature));
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+  }
+
+  /**
+   * @param {object} event - parsed webhook payload
+   * @param {string} signature - x-razorpay-signature header
+   * @param {string} rawBody - raw request body
+   * @returns {{valid: boolean}}
+   */
+  async handleWebhook(event, signature, rawBody) {
+    if (!this.verifyWebhook(rawBody, signature)) {
+      logger.warn('Razorpay webhook signature mismatch');
+      return { valid: false };
+    }
+    switch (event?.event) {
       case 'payment.captured': {
-        logger.info(`Razorpay payment captured: ${event.payload.payment.entity.id}`);
+        logger.info(`Razorpay payment captured: ${event.payload?.payment?.entity?.id}`);
         break;
       }
       case 'payment.failed': {
-        logger.info(`Razorpay payment failed: ${event.payload.payment.entity.id}`);
+        logger.info(`Razorpay payment failed: ${event.payload?.payment?.entity?.id}`);
         break;
       }
       default:
-        logger.info(`Unhandled Razorpay webhook: ${event.event}`);
+        logger.info(`Unhandled Razorpay webhook: ${event?.event}`);
     }
+    return { valid: true };
   }
 
   getKeyId() {

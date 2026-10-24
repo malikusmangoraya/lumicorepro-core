@@ -63,7 +63,7 @@ if (!DEMO_SEEDING_ENABLED) {
       {
         id: 1,
         name: 'Demo User',
-        email: 'demo@lumicorepro.com',
+        email: (process.env.DEMO_USER_EMAIL || 'demo@lumicorepro.com').toLowerCase(),
         password: hash,
         role: 'user',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
@@ -74,7 +74,7 @@ if (!DEMO_SEEDING_ENABLED) {
       {
         id: 2,
         name: 'Admin User',
-        email: 'admin@lumicorepro.com',
+        email: (process.env.DEMO_ADMIN_EMAIL || 'admin@lumicorepro.com').toLowerCase(),
         password: hash,
         role: 'admin',
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',

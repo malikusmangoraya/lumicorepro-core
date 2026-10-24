@@ -16,17 +16,29 @@ const router = express.Router();
 
 router.use(protect, authorize('admin'));
 
+const badQuery = (message) => Object.assign(new Error(message), { statusCode: 400 });
+
 /** Build a Sequelize where-clause from admin query filters. */
 function buildWhere(query) {
   const where = {};
   if (query.action) where.action = { [Op.iLike]: `%${query.action}%` };
-  if (query.userId) where.user_id = parseInt(query.userId, 10);
+  if (query.userId !== undefined && query.userId !== '') {
+    const userId = Number(query.userId);
+    if (!Number.isInteger(userId) || userId < 1) throw badQuery('userId must be a positive integer');
+    where.user_id = userId;
+  }
   if (query.email) where.email = { [Op.iLike]: `%${query.email}%` };
   if (query.ip) where.ip = query.ip;
   if (query.from || query.to) {
     where.created_at = {};
-    if (query.from) where.created_at[Op.gte] = new Date(query.from);
-    if (query.to) where.created_at[Op.lte] = new Date(query.to);
+    for (const [param, operator] of [['from', Op.gte], ['to', Op.lte]]) {
+      if (!query[param]) continue;
+      const date = new Date(query[param]);
+      // An Invalid Date serialises to null and the query then fails inside
+      // PostgreSQL with a 500 instead of naming the bad parameter.
+      if (Number.isNaN(date.getTime())) throw badQuery(`${param} must be a valid date`);
+      where.created_at[operator] = date;
+    }
   }
   return where;
 }
@@ -69,8 +81,10 @@ router.get('/verify', async (req, res, next) => {
  */
 router.get('/', async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+    const rawPage = parseInt(req.query.page, 10);
+    const rawLimit = parseInt(req.query.limit, 10);
+    const page = rawPage > 0 ? rawPage : 1;
+    const limit = rawLimit > 0 ? Math.min(rawLimit, 100) : 20;
     const offset = (page - 1) * limit;
     const where = buildWhere(req.query);
 
@@ -88,6 +102,7 @@ router.get('/', async (req, res, next) => {
       data: rows,
     });
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, error: error.message });
     next(error);
   }
 });
@@ -102,7 +117,8 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/export', async (req, res, next) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit, 10) || 10000, 50000);
+    const rawLimit = parseInt(req.query.limit, 10);
+    const limit = rawLimit > 0 ? Math.min(rawLimit, 50000) : 10000;
     const where = buildWhere(req.query);
     const rows = await AuditLog.findAll({ where, order: [['created_at', 'DESC']], limit });
 
@@ -120,6 +136,7 @@ router.get('/export', async (req, res, next) => {
     res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.csv"');
     return res.send(`\uFEFF${lines.join('\n')}`);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, error: error.message });
     next(error);
   }
 });

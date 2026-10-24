@@ -7,7 +7,8 @@ import http from 'http';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
+import { fileURLToPath, pathToFileURL } from 'url';
 import path from 'path';
 import { corsMiddleware, helmetMiddleware } from './middleware/security.js';
 import { requestId } from './middleware/requestId.js';
@@ -15,12 +16,13 @@ import { tracingMiddleware } from './middleware/tracing.js';
 import { metricsMiddleware } from './middleware/metrics.js';
 import { apiLimiter } from './middleware/rateLimit.js';
 import { verifyAccessToken } from './middleware/auth.js';
-import { assertValidConfig, validateConfig } from './config/env.js';
+import { assertValidConfig, resolvePort, validateConfig } from './config/env.js';
 import connectDB from './config/database.js';
 // Side-effect import: registers every Sequelize model association (models/
 // index.js). Route files import model files directly, so without this the
 // eager-loading includes (`as: 'organization'`, `as: 'product'`, ...) fail.
 import './models/index.js';
+import User from './models/User.js';
 import { connectRedis } from './services/cache/redis.client.js';
 import passport from 'passport';
 import configureOAuth from './services/oauth.service.js';
@@ -63,6 +65,7 @@ import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import gatewayRoutes from './routes/payment-gateways.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import searchRoutes from './routes/search.routes.js';
@@ -81,6 +84,7 @@ import planRoutes from './routes/plan.routes.js';
 import addressRoutes from './routes/address.routes.js';
 import orgRoutes from './routes/org.routes.js';
 import bookingRoutes from './routes/booking.routes.js';
+import restaurantRoutes from './routes/restaurant.routes.js';
 import playbookRoutes from './routes/playbook.routes.js';
 import licenseRoutes from './routes/license.routes.js';
 import refundPolicyRoutes from './routes/refund-policy.js';
@@ -96,6 +100,14 @@ import logger from './utils/logger.js';
 import { swaggerOptions } from './config/swagger.js';
 
 const app = express();
+// Behind a reverse proxy (nginx/ingress) set TRUST_PROXY_HOPS=1 so req.ip is
+// the real client IP and IP-keyed rate limits work per client. Default 0 keeps
+// X-Forwarded-For untrusted, otherwise any client could spoof its IP and evade
+// rate limiting. Never set this to `true` (trusts the whole chain).
+const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS, 10);
+if (Number.isInteger(trustProxyHops) && trustProxyHops > 0) {
+  app.set('trust proxy', Math.min(trustProxyHops, 5));
+}
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -143,6 +155,13 @@ configureOAuth();
 // ── Stripe webhook MUST receive raw body for signature verification ──
 // Register this BEFORE express.json() parses the body globally
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+
+// Secondary gateways sign the RAW JSON body (HMAC over the exact bytes), so
+// they need the same pre-json treatment; otherwise req.body is already an
+// object and signature verification can never match.
+app.use('/api/payments/flutterwave/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/payments/square/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/payments/mercadopago/webhook', express.raw({ type: 'application/json' }));
 
 // Lemon Squeezy signs webhooks with HMAC over the RAW body, so it needs the
 // same raw-parser treatment (registered before express.json() as well).
@@ -192,6 +211,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', gatewayRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/search', searchRoutes);
@@ -208,6 +228,7 @@ app.use('/api/plans', planRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/orgs', orgRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/playbook', playbookRoutes);
 app.use('/api/license', licenseRoutes);
 app.use('/api/legal/refund-policy', refundPolicyRoutes);
@@ -235,15 +256,35 @@ app.use('/api/metrics', metricsRoutes);
 // `connection` handler below only ever runs for a verified user.
 const userRoom = (id) => `user:${id}`;
 const orgRoom = (orgId) => `org:${orgId}`;
+// Tenant-wide admin feed. Membership is granted ONLY from the verified DB role,
+// never from a client-supplied room name, so a customer cannot subscribe to
+// other customers' orders.
+const ADMIN_ROOM = 'role:admin';
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake?.auth?.token;
   if (!token) return next(new Error('Authentication required'));
 
+  let decoded;
   try {
-    const decoded = verifyAccessToken(token);
-    if (!decoded?.id) return next(new Error('Authentication required'));
-    socket.user = { id: decoded.id, orgId: decoded.org_id || decoded.orgId || null };
+    decoded = verifyAccessToken(token);
+  } catch {
+    return next(new Error('Authentication failed'));
+  }
+  if (!decoded?.id) return next(new Error('Authentication required'));
+
+  // The access token carries only the user id. Role and tenant come from the
+  // database so a stale/forged token claim can never widen room access.
+  try {
+    const dbUser = await User.findByPk(decoded.id, {
+      attributes: ['id', 'role', 'current_org_id'],
+    });
+    if (!dbUser) return next(new Error('Authentication failed'));
+    socket.user = {
+      id: dbUser.id,
+      role: dbUser.role,
+      orgId: dbUser.current_org_id ?? decoded.org_id ?? decoded.orgId ?? null,
+    };
     return next();
   } catch {
     return next(new Error('Authentication failed'));
@@ -259,6 +300,10 @@ io.use((socket, next) => {
 const allowedRoomsFor = (socket) => {
   const rooms = new Set([userRoom(socket.user.id), String(socket.user.id)]);
   if (socket.user.orgId != null) rooms.add(orgRoom(socket.user.orgId));
+  // Platform admins (no active org) get the global admin feed; org admins are
+  // already force-joined to their own `org:<id>` room and must NOT receive
+  // another tenant's events.
+  if (socket.user.role === 'admin' && socket.user.orgId == null) rooms.add(ADMIN_ROOM);
   return rooms;
 };
 
@@ -300,6 +345,36 @@ app.set('io', io);
 // this global — e.g. template updates pinging every buyer's user room.
 global.__lumicore_io = io;
 
+// ── Single-service full-stack deploy ────────────────────────────────────────
+// Vercel/Netlify can only host the static frontend, which leaves the Express API
+// on a different origin (CORS + a second deploy). Render/Railway/Fly run this
+// process, so it can serve the built SPA from the SAME origin — API, uploads and
+// the Socket.IO upgrade all share one host and one port. Enabled whenever a
+// `dist/` build exists; SERVE_FRONTEND=false opts an API-only deployment out.
+const frontendDist = path.join(__dirname, '..', 'dist');
+const serveFrontend =
+  (process.env.SERVE_FRONTEND || '').toLowerCase() !== 'false' && fs.existsSync(frontendDist);
+
+if (serveFrontend) {
+  app.use(
+    express.static(frontendDist, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (/[\\/]assets[\\/]/.test(filePath)) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      },
+    }),
+  );
+  // Browser navigations fall back to the SPA shell; /api, /uploads and the API
+  // docs keep their JSON/asset behaviour and reach the 404 handler instead.
+  app.get(/^\/(?!api\/|uploads\/|api-docs).*/, (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+  logger.info(`Serving frontend from ${frontendDist} (single-service mode)`);
+}
+
 // ── Sentry error handler — must be AFTER all routes, BEFORE custom errorHandler ──
 if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);
@@ -311,12 +386,19 @@ app.use(notFound);
 // Error handling
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-  logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
-});
+// Start server — only when executed directly (`node server.js`), never on
+// import. Tests import `app` via supertest; an unconditional listen raced
+// whatever was already bound to :5000 and failed with EADDRINUSE flakes.
+const isDirectRun =
+  process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+
+if (isDirectRun) {
+  const PORT = resolvePort();
+  server.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+    logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
+  });
+}
 
 // ── Graceful shutdown — close HTTP, websockets, Redis, BullMQ queues ──
 let shuttingDown = false;
@@ -349,7 +431,9 @@ async function shutdown(signal) {
   setTimeout(() => process.exit(1), 12_000).unref();
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+if (isDirectRun) {
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
 
 export default app;

@@ -13,6 +13,7 @@ import flutterwaveService from './flutterwave.service.js';
 import paytmService from './paytm.service.js';
 import mollieService from './mollie.service.js';
 import liqpayService from './liqpay.service.js';
+import paddleService from './paddle.service.js';
 
 import {
   getGatewayConfig,
@@ -20,7 +21,6 @@ import {
   isGatewayEnabled,
 } from './config.js';
 
-import Payment from '../../models/Payment.js';
 import logger from '../../utils/logger.js';
 
 const gateways = {
@@ -34,7 +34,67 @@ const gateways = {
   paytm: paytmService,
   mollie: mollieService,
   liqpay: liqpayService,
+  paddle: paddleService,
 };
+
+/**
+ * Provider entry points differ per gateway. Duplicating that knowledge in a
+ * route (or duck-typing a method chain) is how gateways silently go unwired:
+ * an omitted name used to throw a raw TypeError, and a wrong one would call a
+ * logging-only handler. Each map is the single source of truth.
+ */
+const CREATE_METHOD = {
+  stripe: 'createPayment',
+  paypal: 'createOrder',
+  razorpay: 'createOrder',
+  square: 'createPayment',
+  bkash: 'createPayment',
+  mercadopago: 'createPreference',
+  flutterwave: 'initializeTransaction',
+  paytm: 'initiateTransaction',
+  mollie: 'createPayment',
+  liqpay: 'createPaymentForm',
+  paddle: 'createCheckout',
+};
+
+const CONFIRM_METHOD = {
+  stripe: 'confirmPayment',
+  paypal: 'captureOrder',
+  bkash: 'executePayment',
+};
+
+/**
+ * Webhook adapters. `ctx` carries what the provider signed:
+ *   ctx.rawBody, ctx.signature, ctx.verifHash, ctx.headers,
+ *   ctx.notificationUrl, ctx.params
+ * Gateways whose handler verifies the signature itself MUST receive ctx —
+ * calling them without it correctly yields `{ valid: false }`.
+ */
+const WEBHOOK_ADAPTER = {
+  stripe: (svc, event) => svc.handleWebhook(event),
+  paypal: (svc, event) => svc.handleWebhook(event),
+  mollie: (svc, event) => svc.handleWebhook(event),
+  bkash: (svc, event) => svc.handleWebhook(event),
+  paddle: (svc, event) => svc.handleWebhook(event),
+  razorpay: (svc, event, ctx) => svc.handleWebhook(event, ctx.signature, ctx.rawBody),
+  square: (svc, event, ctx) =>
+    svc.handleWebhook(event, {
+      signature: ctx.signature,
+      rawBody: ctx.rawBody,
+      notificationUrl: ctx.notificationUrl,
+    }),
+  flutterwave: (svc, event, ctx) => svc.handleWebhook(event, ctx.verifHash || ctx.signature || ''),
+  mercadopago: (svc, event, ctx) => svc.handleWebhook(event, ctx.headers || {}),
+  liqpay: (svc, event) => svc.handleCallback(event),
+  paytm: (svc, event, ctx) => svc.handleCallback(ctx.params || event),
+};
+
+/**
+ * Gateways that authenticate the event inside their handler. A retry from the
+ * durable ledger has no live signature header, so these can never be replayed
+ * safely — callers must not treat a missing ctx as success.
+ */
+const VERIFIES_IN_HANDLER = new Set(['razorpay', 'square', 'flutterwave', 'mercadopago', 'liqpay', 'paytm']);
 
 /**
  * Get gateway info list
@@ -58,50 +118,71 @@ const getEnabledGatewaysList = () => {
   return getGatewayList().filter(g => g.enabled || g.id === 'stripe');
 };
 
-/**
- * Create payment through specific gateway
- */
-const createPayment = async (gateway, data) => {
+const resolve = gateway => {
   const svc = gateways[gateway];
   if (!svc) {
     throw new Error(`Unknown payment gateway: ${gateway}`);
   }
+  return svc;
+};
+
+/**
+ * Create payment through specific gateway
+ */
+const createPayment = async (gateway, data) => {
+  const svc = resolve(gateway);
+  const method = CREATE_METHOD[gateway];
+  if (!method || typeof svc[method] !== 'function') {
+    throw new Error(`Gateway ${gateway} does not support payment creation`);
+  }
   logger.info(`Creating ${gateway} payment for amount ${data.amount}`);
-  return svc.createPayment({ ...data });
+  return svc[method]({ ...data });
 };
 
 /**
  * Confirm/capture payment through specific gateway
  */
 const confirmPayment = async (gateway, data) => {
-  const svc = gateways[gateway];
-  if (!svc) {
-    throw new Error(`Unknown payment gateway: ${gateway}`);
+  const svc = resolve(gateway);
+  const method = CONFIRM_METHOD[gateway];
+  if (!method || typeof svc[method] !== 'function') {
+    throw new Error(`Gateway ${gateway} does not support payment confirmation`);
   }
-  return svc.confirmPayment?.(data) || svc.captureOrder?.(data);
+  return svc[method]({ ...data });
 };
 
 /**
  * Refund through specific gateway
  */
 const refundPayment = async (gateway, data) => {
-  const svc = gateways[gateway];
-  if (!svc) {
-    throw new Error(`Unknown payment gateway: ${gateway}`);
+  const svc = resolve(gateway);
+  if (typeof svc.refund !== 'function') {
+    throw new Error(`Gateway ${gateway} does not support refunds`);
   }
   return svc.refund(data);
 };
 
 /**
- * Handle webhook from specific gateway
+ * Handle webhook from specific gateway.
+ * @returns {Promise<object>} the provider handler result, normalised with
+ *   `verificationRequired` so callers can tell "rejected" from "not verifiable".
  */
-const handleWebhook = async (gateway, event) => {
-  const svc = gateways[gateway];
-  if (!svc) {
-    throw new Error(`Unknown payment gateway: ${gateway}`);
+const handleWebhook = async (gateway, event, ctx = {}) => {
+  const svc = resolve(gateway);
+  const adapter = WEBHOOK_ADAPTER[gateway];
+  if (!adapter) {
+    throw new Error(`Gateway ${gateway} has no webhook handler`);
   }
-  return svc.handleWebhook(event);
+  const result = await adapter(svc, event || {}, ctx);
+  const normalised = typeof result === 'object' && result !== null ? result : { handled: true };
+  return { ...normalised, gateway, verificationRequired: VERIFIES_IN_HANDLER.has(gateway) };
 };
+
+/**
+ * True when a stored event can be replayed without the provider's live
+ * signature — the ingress middleware already verified it before the ledger write.
+ */
+const isReplayable = gateway => !VERIFIES_IN_HANDLER.has(gateway);
 
 export {
   gateways,
@@ -111,6 +192,10 @@ export {
   confirmPayment,
   refundPayment,
   handleWebhook,
+  isReplayable,
+  CREATE_METHOD,
+  CONFIRM_METHOD,
+  WEBHOOK_ADAPTER,
   getGatewayConfig,
   getEnabledGateways,
   isGatewayEnabled,
@@ -124,6 +209,7 @@ export default {
   confirmPayment,
   refundPayment,
   handleWebhook,
+  isReplayable,
   getGatewayConfig,
   getEnabledGateways,
   isGatewayEnabled,

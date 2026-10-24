@@ -8,11 +8,10 @@
  *
  * Behavior:
  *  - REDIS_DISABLED=true  → standalone (documented single-process mode)
- *  - Redis unreachable     → standalone + warn (fail-open, never crash boot)
- *  - Redis reachable       → clustered
+ *  - Adapter missing / Redis unreachable → standalone + loud warn (never crash boot)
+ *  - Redis reachable      → clustered
  */
 import Redis from 'ioredis';
-import { createAdapter } from '@socket.io/redis-adapter';
 import logger from '../utils/logger.js';
 
 export function socketMode(env = process.env) {
@@ -29,6 +28,10 @@ export async function setupSocketScaling(io, env = process.env) {
   let pub = null;
   let sub = null;
   try {
+    // Imported lazily: a static import of this optional package used to abort
+    // boot on every deployment that had not installed it — the opposite of the
+    // documented fail-open behaviour.
+    const { createAdapter } = await import('@socket.io/redis-adapter');
     pub = new Redis(url, { lazyConnect: true, maxRetriesPerRequest: 1, connectTimeout: 2000 });
     sub = pub.duplicate();
     await pub.connect();
@@ -38,7 +41,10 @@ export async function setupSocketScaling(io, env = process.env) {
     logger.info('Socket.IO: clustered mode via Redis adapter');
     return { clustered: true, mode: 'clustered' };
   } catch (err) {
-    logger.warn(`Socket.IO: Redis unreachable (${err.message}) — standalone mode`);
+    logger.warn(
+      `Socket.IO: clustering unavailable (${err.message}) — running standalone; multi-replica ` +
+        `deployments require "@socket.io/redis-adapter" installed and a reachable Redis`,
+    );
     try { if (pub) await pub.quit().catch(() => {}); } catch { /* ignore */ }
     try { if (sub) await sub.quit().catch(() => {}); } catch { /* ignore */ }
     return { clustered: false, mode: 'standalone' };

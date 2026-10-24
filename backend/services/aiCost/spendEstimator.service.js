@@ -70,40 +70,50 @@ export async function getSpendSummary(days = 8) {
   const byEndpoint = {};
   const byUser = {};
 
+  // Fetch all day hashes in one pipeline when Redis is up. When it is down the
+  // daily skeleton below still ships (zeroed), so the dashboard keeps its shape
+  // instead of rendering an empty array.
+  let redisResults = null;
   if (isRedisAvailable()) {
     try {
       const r = getRedis();
       const pipe = r.pipeline();
       for (const { key } of dayKeys) pipe.hgetall(key);
-      const results = await pipe.exec();
-      for (let i = 0; i < dayKeys.length; i += 1) {
-        const fields = results[i]?.[1] || {};
-        const entry = {
-          date: dayKeys[i].date,
-          isToday: dayKeys[i].isToday,
-          count: parseInt(fields['global:count'] || 0, 10),
-          tokens: parseInt(fields['global:tokens'] || 0, 10),
-        };
-        for (const [field, val] of Object.entries(fields)) {
-          if (field.startsWith('endpoint:')) {
-            const ep = field.replace('endpoint:', '').replace(':count', '');
-            byEndpoint[ep] = (byEndpoint[ep] || 0) + parseInt(val, 10);
-          }
-          if (field.startsWith('user:') && field.endsWith(':tokens')) {
-            const uid = field.replace('user:', '').replace(':tokens', '');
-            byUser[uid] = (byUser[uid] || 0) + parseInt(val, 10);
-          }
-        }
-        totalCount += entry.count;
-        totalTokens += entry.tokens;
-        daily.push(entry);
-      }
+      redisResults = await pipe.exec();
     } catch {
-      /* fall through to in-memory */
+      redisResults = null;
     }
   }
 
+  for (let i = 0; i < dayKeys.length; i += 1) {
+    const fields = redisResults?.[i]?.[1] || {};
+    const entry = {
+      date: dayKeys[i].date,
+      isToday: dayKeys[i].isToday,
+      count: parseInt(fields['global:count'] || 0, 10),
+      tokens: parseInt(fields['global:tokens'] || 0, 10),
+    };
+    for (const [field, val] of Object.entries(fields)) {
+      if (field.startsWith('endpoint:')) {
+        const ep = field.replace('endpoint:', '').replace(':count', '');
+        byEndpoint[ep] = (byEndpoint[ep] || 0) + parseInt(val, 10);
+      }
+      if (field.startsWith('user:') && field.endsWith(':tokens')) {
+        const uid = field.replace('user:', '').replace(':tokens', '');
+        byUser[uid] = (byUser[uid] || 0) + parseInt(val, 10);
+      }
+    }
+    totalCount += entry.count;
+    totalTokens += entry.tokens;
+    daily.push(entry);
+  }
+
   const estimatedCost = totalTokens * (COST_PER_1K_TOKENS / 1000);
+
+  // Feed the weekly projection — without this write the cache stays at its
+  // zero init and getWeeklyProjection() always reports 0.
+  weeklySummaryCache.totals = { estimatedTokens: totalTokens, requests: totalCount };
+  weeklySummaryCache.daysCovered = Math.max(daily.filter((d) => d.count > 0).length, 1);
 
   return {
     generatedAt: new Date().toISOString(),

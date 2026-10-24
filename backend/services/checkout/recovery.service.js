@@ -18,7 +18,7 @@ const RECOVERY_URL = '/checkout';
 
 /** Discovery link helper kept local so links stay constructor-free. */
 function recoveryLink() {
-  const origin = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const origin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
   return `${origin}${RECOVERY_URL}`;
 }
 
@@ -60,29 +60,36 @@ export async function recoverCart(cartId) {
   if (!items.length) return { skipped: true, reason: 'empty-cart' };
 
   const user = await User.findByPk(cart.user_id);
-  await cart.update({ abandoned_at: new Date() });
+
+  // CartItem stores no price, so a recovered line is priced from the
+  // eager-loaded product; a stored snapshot wins when one exists.
+  const unitPriceOf = (it) => {
+    const value = Number(it.price ?? it.product?.price);
+    return Number.isFinite(value) ? value : 0;
+  };
+  const subtotal = items.reduce((sum, it) => sum + unitPriceOf(it) * (Number(it.quantity) || 0), 0);
 
   if (user?.email) {
-    const subtotal = items.reduce(
-      (sum, it) => sum + parseFloat(it.price || 0) * it.quantity,
-      0
-    );
     await enqueueEmail({
       to: user.email,
       subject: `Your cart is waiting — ${items.length} item(s) ready`,
-      html: recoveryEmailHtml(user.name || user.email, items, subtotal),
+      html: recoveryEmailHtml(user.name || user.email, items, subtotal, unitPriceOf),
     });
   }
+
+  // Flagged only after the mail is queued: setting abandoned_at first turned a
+  // queue outage into a permanently consumed one-shot recovery window.
+  await cart.update({ abandoned_at: new Date() });
 
   return { skipped: false };
 }
 
-function recoveryEmailHtml(name, items, subtotal) {
+function recoveryEmailHtml(name, items, subtotal, unitPriceOf) {
   const rows = items
     .map((it) => {
       const title = it.product?.title || it.title || 'Item';
       const line = `${title} × ${it.quantity}`;
-      const price = `$${(parseFloat(it.price) * it.quantity).toFixed(2)}`;
+      const price = `$${(unitPriceOf(it) * (Number(it.quantity) || 0)).toFixed(2)}`;
       return `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">${line}</td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">${price}</td></tr>`;
     })
     .join('');

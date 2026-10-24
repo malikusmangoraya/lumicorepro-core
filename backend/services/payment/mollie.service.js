@@ -45,7 +45,7 @@ class MollieService {
   }
 
   async getPaymentStatus(paymentId) {
-    if (!this.enabled) return { status: 'paid', mock: true };
+    if (!this.enabled) return { status: 'pending', mock: true };
 
     const res = await fetch(`${this.baseURL}/payments/${paymentId}`, {
       headers: { Authorization: `Bearer ${this.apiKey}` },
@@ -59,12 +59,22 @@ class MollieService {
     return await res.json();
   }
 
-  async refund({ paymentId, amount, description }) {
+  async refund({ paymentId, amount, currency, description }) {
     if (!this.enabled) return { id: 're_mock_' + Date.now(), mock: true };
 
     const body = { description };
     if (amount) {
-      body.amount = { value: amount.toFixed(2), currency: 'EUR' };
+      // Never assume EUR: Mollie requires the refund currency to match the
+      // original payment, so read it from the payment unless one is passed.
+      let refundCurrency = currency;
+      if (!refundCurrency) {
+        const payment = await this.getPaymentStatus(paymentId);
+        refundCurrency = payment?.amount?.currency;
+      }
+      if (!refundCurrency) {
+        throw new Error('Mollie refund: unable to determine payment currency');
+      }
+      body.amount = { value: Number(amount).toFixed(2), currency: refundCurrency };
     }
 
     const res = await fetch(`${this.baseURL}/payments/${paymentId}/refunds`, {
@@ -85,20 +95,25 @@ class MollieService {
     return { ...data, mock: false };
   }
 
-  async handleWebhook(event) {
-    switch (event.status) {
-      case 'paid':
-        logger.info(`Mollie payment paid: ${event.id}`);
-        break;
-      case 'failed':
-        logger.info(`Mollie payment failed: ${event.id}`);
-        break;
-      case 'refunded':
-        logger.info(`Mollie payment refunded: ${event.id}`);
-        break;
-      default:
-        logger.info(`Unhandled Mollie webhook: ${event.status}`);
+  /**
+   * Mollie webhooks are NOT signed — they only carry a payment id. Trusting the
+   * posted body status (or any client-supplied status) means a forged webhook
+   * can mark an unpaid order as paid. Always re-fetch the authoritative status
+   * from the Mollie API before acting on it.
+   *
+   * @param {{id?: string}|string} payload - parsed webhook body (or raw id)
+   * @returns {Promise<{valid: boolean, payment?: object, reason?: string}>}
+   */
+  async handleWebhook(payload) {
+    const paymentId = typeof payload === 'string' ? payload : payload?.id;
+    if (!paymentId) {
+      logger.warn('Mollie webhook rejected: missing payment id');
+      return { valid: false, reason: 'missing payment id' };
     }
+
+    const payment = await this.getPaymentStatus(paymentId);
+    logger.info(`Mollie webhook: ${paymentId} authoritative status=${payment?.status}`);
+    return { valid: true, payment };
   }
 }
 

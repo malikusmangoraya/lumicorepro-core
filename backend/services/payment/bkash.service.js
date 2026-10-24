@@ -68,6 +68,7 @@ class BkashService {
         mode: '0011',
         payerReference: '',
         callbackURL: callbackUrl,
+        merchantInvoiceNumber: String(orderId || `INV_${Date.now()}`),
         amount,
         currency: 'BDT',
         packageName: 'Website Payment',

@@ -13,6 +13,11 @@ import { createOrderSchema, updateOrderStatusSchema } from '../middleware/valida
 
 const router = express.Router();
 
+/** Statuses the Order model accepts — mirrors the enum in models/Order.js. */
+const ORDER_STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
+/** Statuses that move stock or money and therefore may not be written directly. */
+const LEDGER_STATUSES = ['cancelled', 'refunded'];
+
 /**
  * @swagger
  * /api/orders:
@@ -24,8 +29,11 @@ const router = express.Router();
  */
 router.get('/', protect, async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
+    // `|| 10` kept negative and zero values (`parseInt('-5')` is truthy), which
+    // reached SQL as `LIMIT -5`. Clamp both, and cap the page size like every
+    // other listing.
+    const page = Math.min(Number.MAX_SAFE_INTEGER, Math.max(1, parseInt(req.query.page, 10) || 1));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
     const offset = (page - 1) * limit;
     const status = req.query.status;
 
@@ -35,6 +43,9 @@ router.get('/', protect, async (req, res, next) => {
       where.user_id = req.user.id;
     }
     if (status && status !== 'all') {
+      if (!ORDER_STATUSES.includes(status)) {
+        return res.status(400).json({ success: false, error: `Unknown order status: ${status}` });
+      }
       where.status = status;
     }
 
@@ -182,6 +193,19 @@ router.post(
 router.patch('/:id/status', protect, authorize('admin'), validateRequest(updateOrderStatusSchema), async (req, res, next) => {
   try {
     const { status, trackingNumber, carrier } = req.body;
+
+    // Cancelling or refunding gives stock back and moves money. Writing the
+    // column here skipped both, so an "admin status update" could silently
+    // un-restock a cancelled order or mark a refund that never happened.
+    if (LEDGER_STATUSES.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error:
+          status === 'cancelled'
+            ? 'Use PATCH /api/orders/:id/cancel — it restores stock in one transaction'
+            : 'Use POST /api/payments/refund — it records the refund with the provider',
+      });
+    }
 
     const order = await Order.findOne({ where: tenantWhere(req, { id: req.params.id }) });
     if (!order) {

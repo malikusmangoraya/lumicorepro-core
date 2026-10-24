@@ -17,9 +17,19 @@ class PaddleService {
     this.baseURL = this.sandbox ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com';
     this.name = 'Paddle';
     this.description = 'Paddle (Merchant of Record) — global cards & PayPal, sales tax handled';
-    this.supportedCurrencies = ['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy', 'sek', 'chf', 'nok', 'dkk', 'zar', 'brl', 'inr', 'sgl', 'hkd'];
+    this.supportedCurrencies = ['usd', 'eur', 'gbp', 'cad', 'aud', 'jpy', 'sek', 'chf', 'nok', 'dkk', 'zar', 'brl', 'inr', 'sgd', 'hkd'];
     this.region = 'Global';
     this.icon = '🌊';
+  }
+
+  /**
+   * Paddle amounts are minor units. Zero-decimal currencies (JPY etc.) must be
+   * sent as-is — multiplying them by 100 overcharges 100×.
+   */
+  _toMinorUnits(amount, currency) {
+    const zeroDecimal = new Set(['jpy', 'krw', 'vnd', 'clp', 'isk']);
+    const cur = String(currency || 'usd').toLowerCase();
+    return String(zeroDecimal.has(cur) ? Math.round(amount) : Math.round(amount * 100));
   }
 
   /**
@@ -45,7 +55,7 @@ class PaddleService {
           quantity: 1,
           price: {
             unit_price: {
-              amount: String(Math.round(amount * 100)),
+              amount: this._toMinorUnits(amount, currency),
               currency_code: currency.toUpperCase(),
             },
           },
@@ -63,7 +73,9 @@ class PaddleService {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
-        'X-Transaction-Id': `LU-${orderId || Date.now()}`,
+        // Paddle Billing idempotency header (X-Transaction-Id is not honoured
+        // and left duplicate-charge retries unprotected).
+        'Paddle-Idempotency-Key': `LU-${orderId || Date.now()}`,
       },
       body: JSON.stringify(body),
     });
@@ -77,7 +89,9 @@ class PaddleService {
     const txn = data?.data || {};
     return {
       id: txn.id,
-      checkoutUrl: txn.urls?.checkout || '',
+      // Paddle Billing returns the hosted checkout under `data.checkout.url`
+      // (`data.urls.checkout` never existed — checkout links were always empty).
+      checkoutUrl: txn.checkout?.url || '',
       amount,
       currency,
       mock: false,
@@ -113,10 +127,22 @@ class PaddleService {
     if (!this.enabled) {
       return { success: true, mock: true, transactionId };
     }
-    const res = await fetch(`${this.baseURL}/payments/${transactionId}/refunds`, {
+    if (amount !== undefined && amount !== null) {
+      throw new Error(
+        'Paddle integration supports full refunds only — partial refunds require Paddle item IDs (adjustment items)'
+      );
+    }
+    // Refunds are adjustments in Paddle Billing (`POST /adjustments`); the old
+    // `/payments/{id}/refunds` endpoint does not exist and always 404'd.
+    const res = await fetch(`${this.baseURL}/adjustments`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: amount ? String(Math.round(amount * 100)) : undefined, reason: reason || undefined }),
+      body: JSON.stringify({
+        action: 'refund',
+        transaction_id: transactionId,
+        reason: reason || 'Refund requested by customer',
+        items: [{ type: 'full' }],
+      }),
     });
     if (!res.ok) {
       const text = await res.text();

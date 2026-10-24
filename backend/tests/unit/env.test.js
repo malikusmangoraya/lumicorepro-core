@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { validateConfig, parseDurationMs, isValidOrigin } from '../../config/env.js';
+import { validateConfig, parseDurationMs, isValidOrigin, resolvePort } from '../../config/env.js';
 
 const base = {
   JWT_SECRET: 'x'.repeat(32),
@@ -56,6 +56,12 @@ describe('Environment validation (fail-fast)', () => {
   it('accepts a valid numeric PORT', () => {
     const { ok } = validateConfig({ ...base, PORT: '5000' });
     expect(ok).toBe(true);
+  });
+
+  it('falls back to the development port when PORT is zero or malformed', () => {
+    expect(resolvePort({ PORT: '0' })).toBe(5000);
+    expect(resolvePort({ PORT: 'not-a-port' })).toBe(5000);
+    expect(resolvePort({ PORT: '5174' })).toBe(5174);
   });
 });
 

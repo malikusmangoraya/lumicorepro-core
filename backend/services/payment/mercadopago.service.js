@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { getGatewayConfig } from './config.js';
 import logger from '../../utils/logger.js';
 
@@ -7,10 +8,12 @@ class MercadoPagoService {
     this.enabled = config?.enabled || false;
     this.accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     this.publicKey = process.env.MERCADOPAGO_PUBLIC_KEY;
+    this.webhookSecret =
+      config?.webhookPassword || process.env.MERCADOPAGO_WEBHOOK_SECRET || '';
     this.baseURL = 'https://api.mercadopago.com';
     this.name = 'Mercado Pago';
     this.description = 'Latin American payments & checkout (Latin America)';
-    this.supportedCurrencies = ['ars', 'brl', 'clp', 'cop', 'mxn', 'pen', 'pym', 'uy', 'usd', 'eur', 'gbp'];
+    this.supportedCurrencies = ['ars', 'brl', 'clp', 'cop', 'mxn', 'pen', 'pyg', 'uy', 'usd', 'eur', 'gbp'];
     this.region = 'Latin America';
     this.icon = '💲';
   }
@@ -97,17 +100,61 @@ class MercadoPagoService {
     return { success: true, refunds: data };
   }
 
-  async handleWebhook(event) {
-    switch (event.action) {
+  /**
+   * Verify Mercado Pago's `x-signature` header.
+   * Header format: `ts=<ts>,v1=<hmacSha256Hex>`; manifest is
+   * `id:<data.id>;request-id:<x-request-id>;ts:<ts>;` keyed by the webhook
+   * secret. Rejects unsigned events (fail-closed) because the previous version
+   * only logged them — a forged webhook could mark any payment as paid.
+   *
+   * @param {string} dataId - payment/order id from the notification URL/body
+   * @param {object} headers - request headers (lowercased keys expected)
+   * @returns {boolean}
+   */
+  verifyWebhook(dataId, headers = {}) {
+    if (!this.webhookSecret) {
+      logger.warn('Mercado Pago webhook rejected: webhook secret is not configured');
+      return false;
+    }
+    const signature = headers['x-signature'] || headers['X-Signature'];
+    const requestId = headers['x-request-id'] || headers['X-Request-Id'] || '';
+    if (!signature || !dataId) return false;
+
+    const parts = Object.fromEntries(
+      String(signature)
+        .split(',')
+        .map((p) => p.split('='))
+        .filter((kv) => kv.length === 2)
+    );
+    const ts = parts.ts;
+    const v1 = parts.v1;
+    if (!ts || !v1) return false;
+
+    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+    const expected = crypto.createHmac('sha256', this.webhookSecret).update(manifest).digest('hex');
+
+    const a = Buffer.from(expected);
+    const b = Buffer.from(v1);
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+  }
+
+  async handleWebhook(event, headers = {}) {
+    const dataId = event?.data?.id || event?.id;
+    if (!this.verifyWebhook(dataId, headers)) {
+      return { valid: false, reason: 'invalid or missing signature' };
+    }
+
+    switch (event.action || event.type) {
       case 'payment':
-        logger.info(`Mercado Pago payment event: ${event.data.id}`);
+        logger.info(`Mercado Pago payment event: ${dataId}`);
         break;
       case 'refund':
-        logger.info(`Mercado Pago refund event: ${event.data.id}`);
+        logger.info(`Mercado Pago refund event: ${dataId}`);
         break;
       default:
-        logger.info(`Unhandled Mercado Pago webhook: ${event.action}`);
+        logger.info(`Unhandled Mercado Pago webhook: ${event.action || event.type}`);
     }
+    return { valid: true };
   }
 
   getPublicKey() {

@@ -17,6 +17,7 @@ import { generateInvoiceHTML } from '../utils/invoiceGenerator.js';
 import stripeService from '../services/payment/stripe.service.js';
 import paypalService from '../services/payment/paypal.service.js';
 import paddleService from '../services/payment/paddle.service.js';
+import razorpayService from '../services/payment/razorpay.service.js';
 import Plan from '../models/Plan.js';
 import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
@@ -30,7 +31,7 @@ import {
   UNCONFIGURED_MESSAGE,
 } from '../services/payment/dynamic.js';
 import systemConfig from '../services/systemConfig.service.js';
-import { AI_AGENT_TIMEOUTS, agentEndpointUrl, fetchWithTimeout } from '../utils/aiAgent.js';
+import { orderOwnershipError } from '../utils/orderOwnership.js';
 
 const router = express.Router();
 
@@ -114,12 +115,31 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
       if (!order) {
         return res.status(404).json({ success: false, error: 'Order not found' });
       }
+      const ownErr = orderOwnershipError(order, req.user);
+      if (ownErr) return res.status(ownErr.status).json({ success: false, error: ownErr.error });
       targetAmount = parseFloat(order.totalPrice);
       orderCurrency = (order.currency || orderCurrency).toUpperCase();
     }
 
-    if (!targetAmount || targetAmount <= 0) {
+    if (!Number.isFinite(Number(targetAmount)) || Number(targetAmount) <= 0) {
       return res.status(400).json({ success: false, error: 'Valid amount is required' });
+    }
+    targetAmount = Number(targetAmount);
+
+    // A second intent for the same order is a second charge: a double click or a
+    // retried checkout must reuse the pending one, never open another.
+    if (order) {
+      const pending = await Payment.findOne({
+        where: { order_id: order.id, provider: 'stripe', status: 'pending' },
+      });
+      if (pending) {
+        return res.status(409).json({
+          success: false,
+          error: 'A payment is already pending for this order',
+          paymentIntentId: pending.stripePaymentIntentId,
+          paymentId: pending.id,
+        });
+      }
     }
 
     const amountInCents = Math.round(targetAmount * 100);
@@ -167,7 +187,8 @@ router.post('/create-intent', protect, paymentLimiter, async (req, res, next) =>
       paymentIntentId,
       paymentId: payment.id,
       amount: targetAmount,
-      currency,
+      // The currency actually charged and persisted, not the client's claim.
+      currency: orderCurrency.toLowerCase(),
     });
   } catch (error) {
     next(error);
@@ -181,7 +202,12 @@ router.post('/confirm', protect, paymentLimiter, async (req, res, next) => {
   try {
     const { paymentIntentId, orderId, cardDetails } = req.body;
 
-    const payment = await Payment.findOne({ where: { stripePaymentIntentId: paymentIntentId } });
+    // A Payment row belongs to the buyer who created it. Without this filter any
+    // authenticated user could confirm another user's intent by guessing the id.
+    const paymentWhere = { stripePaymentIntentId: paymentIntentId };
+    if (req.user?.role !== 'admin') paymentWhere.user_id = req.user?.id;
+
+    const payment = await Payment.findOne({ where: paymentWhere });
     if (!payment) {
       return res.status(404).json({ success: false, error: 'Payment intent not found' });
     }
@@ -196,42 +222,58 @@ router.post('/confirm', protect, paymentLimiter, async (req, res, next) => {
       });
     }
 
-    const result = await sequelize.transaction(async (t) => {
-      const paymentUpdates = { status: 'succeeded', stripeChargeId: cardDetails?.charge || null };
-      if (cardDetails) paymentUpdates.cardDetails = cardDetails;
-      await payment.update(paymentUpdates, { transaction: t });
+    let result;
+    try {
+      result = await sequelize.transaction(async (t) => {
+        const paymentUpdates = { status: 'succeeded', stripeChargeId: cardDetails?.charge || null };
+        if (cardDetails) paymentUpdates.cardDetails = cardDetails;
+        await payment.update(paymentUpdates, { transaction: t });
 
-      let order = null;
-      const targetOrderId = orderId || (payment && payment.order_id);
+        let order = null;
+        const targetOrderId = orderId || (payment && payment.order_id);
 
-      if (targetOrderId) {
-        order = await Order.findByPk(targetOrderId, { transaction: t });
-        if (order) {
-          await order.update({
-            isPaid: true,
-            paidAt: new Date(),
-            status: 'processing',
-            paymentResult: {
-              id: paymentIntentId,
-              status: 'succeeded',
-              updateTime: new Date().toISOString(),
-              emailAddress: req.user.email,
-            },
-          }, { transaction: t });
+        if (targetOrderId) {
+          order = await Order.findByPk(targetOrderId, { transaction: t });
+          if (order) {
+            // The client sends `orderId`, so it is a claim about a row the caller
+            // may not own. Aborting here rolls the payment update back too.
+            const ownErr = orderOwnershipError(order, req.user);
+            if (ownErr) {
+              const abort = new Error(ownErr.error);
+              abort.statusCode = ownErr.status;
+              throw abort;
+            }
+            await order.update({
+              isPaid: true,
+              paidAt: new Date(),
+              status: 'processing',
+              paymentResult: {
+                id: paymentIntentId,
+                status: 'succeeded',
+                updateTime: new Date().toISOString(),
+                emailAddress: req.user.email,
+              },
+            }, { transaction: t });
 
-          await Notification.create({
-            recipient: order.user_id == null ? req.user.id : order.user_id,
-            type: 'payment',
-            title: 'Payment Successful',
-            message: `Payment of $${parseFloat(order.totalPrice).toFixed(2)} for order #${order.orderNumber} received.`,
-            link: '/templates/ecommerce/OrdersHistory',
-            metadata: {},
-          }, { transaction: t });
+            await Notification.create({
+              recipient: order.user_id == null ? req.user.id : order.user_id,
+              type: 'payment',
+              title: 'Payment Successful',
+              message: `Payment of $${parseFloat(order.totalPrice).toFixed(2)} for order #${order.orderNumber} received.`,
+              link: '/templates/ecommerce/OrdersHistory',
+              metadata: {},
+            }, { transaction: t });
+          }
         }
-      }
 
-      return { payment, order };
-    });
+        return { payment, order };
+      });
+    } catch (txError) {
+      if (txError.statusCode) {
+        return res.status(txError.statusCode).json({ success: false, error: txError.message });
+      }
+      throw txError;
+    }
 
     logger.info(`Payment confirmed: ${paymentIntentId} for user ${req.user.email}`);
 
@@ -259,20 +301,27 @@ router.post('/paypal/create-order', protect, paymentLimiter, async (req, res, ne
 
     let targetAmount = amount;
     let order = null;
+    let currencyCode = (currency || process.env.DEFAULT_CURRENCY || 'USD').toUpperCase();
 
     if (orderId) {
       order = await Order.findByPk(orderId);
       if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+      const ownErr = orderOwnershipError(order, req.user);
+      if (ownErr) return res.status(ownErr.status).json({ success: false, error: ownErr.error });
       targetAmount = parseFloat(order.totalPrice);
+      // The order is the source of truth for both amount and currency; the
+      // client's `currency` only applies to orders-less payments.
+      currencyCode = (order.currency || currencyCode).toUpperCase();
     }
 
-    if (!targetAmount || targetAmount <= 0) {
+    if (!Number.isFinite(Number(targetAmount)) || Number(targetAmount) <= 0) {
       return res.status(400).json({ success: false, error: 'Valid amount is required' });
     }
+    targetAmount = Number(targetAmount);
 
     const paypalOrder = await paypalService.createOrder({
       amount: targetAmount,
-      currency,
+      currency: currencyCode,
       orderId: order?.id,
       description: description || `Order ${order?.orderNumber || 'N/A'}`,
     });
@@ -283,7 +332,7 @@ router.post('/paypal/create-order', protect, paymentLimiter, async (req, res, ne
       order_id: order?.id || null,
       stripePaymentIntentId: paypalOrder.id,
       amount: targetAmount,
-      currency,
+      currency: currencyCode,
       status: 'pending',
       provider: 'paypal',
       paymentMethod: 'paypal',
@@ -312,16 +361,17 @@ router.post('/paypal/capture', protect, paymentLimiter, async (req, res, next) =
       return res.status(400).json({ success: false, error: 'paypalOrderId is required' });
     }
 
-    const captureResult = await paypalService.captureOrder({ orderId: paypalOrderId });
+    // Resolve and authorize the payment BEFORE capturing: captureOrder moves
+    // money, and an unknown or foreign PayPal order id must never reach it.
+    const paymentWhere = { stripePaymentIntentId: paypalOrderId, provider: 'paypal' };
+    if (req.user?.role !== 'admin') paymentWhere.user_id = req.user?.id;
 
-    // Find the pending payment and update in transaction
-    const payment = await Payment.findOne({
-      where: { stripePaymentIntentId: paypalOrderId, provider: 'paypal' },
-    });
-
+    const payment = await Payment.findOne({ where: paymentWhere });
     if (!payment) {
       return res.status(404).json({ success: false, error: 'PayPal payment not found' });
     }
+
+    const captureResult = await paypalService.captureOrder({ orderId: paypalOrderId });
 
     const result = await sequelize.transaction(async (t) => {
       await payment.update({
@@ -336,6 +386,12 @@ router.post('/paypal/capture', protect, paymentLimiter, async (req, res, next) =
       if (targetOrderId && captureResult.success) {
         order = await Order.findByPk(targetOrderId, { transaction: t });
         if (order) {
+          const ownErr = orderOwnershipError(order, req.user);
+          if (ownErr) {
+            const abort = new Error(ownErr.error);
+            abort.statusCode = ownErr.status;
+            throw abort;
+          }
           await order.update({
             isPaid: true,
             paidAt: new Date(),
@@ -372,6 +428,9 @@ router.post('/paypal/capture', protect, paymentLimiter, async (req, res, next) =
       order: result.order,
     });
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, error: error.message });
+    }
     next(error);
   }
 });
@@ -425,6 +484,8 @@ router.post('/paddle/checkout', protect, paymentLimiter, async (req, res, next) 
     if (orderId) {
       order = await Order.findByPk(orderId);
       if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+      const ownErr = orderOwnershipError(order, req.user);
+      if (ownErr) return res.status(ownErr.status).json({ success: false, error: ownErr.error });
       targetAmount = parseFloat(order.totalPrice);
     }
 
@@ -475,7 +536,13 @@ router.post('/paddle/webhook', express.raw({ type: 'application/json' }), async 
     const event = JSON.parse(rawBody);
     const eventType = event?.event_type || '';
 
-    if (eventType.includes('transaction') && eventType.includes('completed')) {
+    // Paddle fires `transaction.paid` when the money lands and
+    // `transaction.completed` when the transaction closes. Matching on
+    // "completed" alone left every paid-but-not-yet-closed payment pending
+    // forever, and the else-branch fallback only logs.
+    const isPaidEvent = eventType === 'transaction.paid' || eventType === 'transaction.completed';
+
+    if (isPaidEvent) {
       const data = event.data || {};
       const txnId = data.id || data.transaction_id;
       const customOrderId = data?.custom_data?.orderId || data?.metadata?.orderId;
@@ -499,6 +566,126 @@ router.post('/paddle/webhook', express.raw({ type: 'application/json' }), async 
 });
 
 /* ══════════════════════════════════════════════════════════════════
+ * RAZORPAY — India (UPI / cards / wallets)
+ * ══════════════════════════════════════════════════════════════════ */
+router.post('/razorpay/create-order', protect, paymentLimiter, async (req, res, next) => {
+  try {
+    const { orderId, amount, currency = 'INR', receipt } = req.body;
+    let targetAmount = amount;
+    let targetOrder = null;
+
+    if (orderId) {
+      targetOrder = await Order.findByPk(orderId);
+      const ownErr = orderOwnershipError(targetOrder, req.user);
+      if (ownErr) return res.status(ownErr.status).json({ success: false, error: ownErr.error });
+      targetAmount = parseFloat(targetOrder.totalPrice);
+    }
+
+    if (!Number.isFinite(Number(targetAmount)) || Number(targetAmount) <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid amount is required' });
+    }
+    targetAmount = Number(targetAmount);
+
+    const rzpOrder = await razorpayService.createOrder({
+      amount: targetAmount,
+      currency,
+      receipt: receipt || `rcpt_${Date.now()}`,
+      notes: { userId: String(req.user.id), orderId: orderId ? String(orderId) : '' },
+    });
+
+    // Without this row the gateway order existed only in Razorpay's account:
+    // /refund could not find a transaction to return and the ledger had no
+    // record of the money owed to the buyer.
+    const payment = await Payment.create({
+      user_id: req.user.id,
+      order_id: targetOrder?.id || null,
+      gatewayPaymentId: rzpOrder.id,
+      amount: targetAmount,
+      currency,
+      status: 'pending',
+      provider: 'razorpay',
+      paymentMethod: 'upi',
+    });
+
+    res.json({
+      success: true,
+      orderId: rzpOrder.id,
+      amount: rzpOrder.amount,
+      currency: rzpOrder.currency || currency,
+      keyId: razorpayService.getKeyId(),
+      paymentId: payment.id,
+      mock: rzpOrder.mock || false,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/razorpay/verify', protect, paymentLimiter, async (req, res, next) => {
+  try {
+    const { orderId, paymentId, signature } = req.body;
+    if (!orderId || !paymentId || !signature) {
+      return res
+        .status(400)
+        .json({ success: false, error: 'orderId, paymentId and signature are required' });
+    }
+    const valid = await razorpayService.verifyPayment({ orderId, paymentId, signature });
+    if (!valid) {
+      return res.status(400).json({ success: false, error: 'Payment signature verification failed' });
+    }
+
+    // The gateway order id is what create-order stored; the refund API needs the
+    // Razorpay *payment* id, so swap it in now that the signature proves it.
+    const payment = await Payment.findOne({
+      where: { gatewayPaymentId: orderId, provider: 'razorpay', user_id: req.user.id },
+    });
+    if (payment) {
+      await payment.update({
+        status: 'succeeded',
+        razorpayPaymentId: paymentId,
+        gatewayPaymentId: paymentId,
+      });
+      if (payment.order_id) {
+        const order = await Order.findByPk(payment.order_id);
+        if (order) {
+          await order.update({ isPaid: true, paidAt: new Date(), status: 'processing' });
+        }
+      }
+    } else {
+      logger.warn(`Razorpay verify: signature valid but no Payment row for order ${orderId}`);
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/razorpay/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const rawBody = req.body?.toString('utf8') || '';
+    let event;
+    try {
+      event = JSON.parse(rawBody);
+    } catch {
+      return res.status(400).json({ success: false, error: 'Invalid JSON body' });
+    }
+    const result = await razorpayService.handleWebhook(
+      event,
+      req.headers['x-razorpay-signature'],
+      rawBody
+    );
+    if (!result.valid) {
+      return res.status(401).json({ success: false, error: 'Invalid signature' });
+    }
+    res.json({ received: true });
+  } catch (error) {
+    logger.error(`Razorpay webhook error: ${error.message}`);
+    res.status(500).json({ success: false, error: 'Webhook processing failed' });
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════
  * REFUND — Admin only, works for Stripe, PayPal, Paddle
  * ══════════════════════════════════════════════════════════════════ */
 router.post('/refund', protect, authorize('admin'), paymentLimiter, async (req, res, next) => {
@@ -514,29 +701,75 @@ router.post('/refund', protect, authorize('admin'), paymentLimiter, async (req, 
       return res.status(400).json({ success: false, error: 'Payment has already been refunded' });
     }
 
-    const refundAmount = amount || parseFloat(payment.amount);
-
-    // Gateway-specific refund
-    const stripeClient = await stripe();
-    if (payment.provider === 'paypal' && payment.stripePaymentIntentId) {
-      await paypalService.refund({ paymentId: payment.stripePaymentIntentId, amount: refundAmount });
-    } else if (payment.provider === 'paddle' && payment.gatewayPaymentId) {
-      await paddleService.refund({ transactionId: payment.gatewayPaymentId, amount: refundAmount, reason });
-    } else if (stripeClient && payment.stripePaymentIntentId && !payment.stripePaymentIntentId.startsWith('pi_mock')) {
-      await stripeClient.refunds.create({
-        payment_intent: payment.stripePaymentIntentId,
-        amount: Math.round(refundAmount * 100),
+    const capturedAmount = parseFloat(payment.amount);
+    const alreadyRefunded = parseFloat(payment.refundAmount || 0) || 0;
+    // `amount || payment.amount` read an explicit 0 as "refund everything", and
+    // accepted negative or non-numeric values straight into the ledger.
+    const requested = amount === undefined || amount === null ? capturedAmount : Number(amount);
+    if (!Number.isFinite(requested) || requested <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid refund amount is required' });
+    }
+    // Two 60% partial refunds of a 100 order would return 120%: cap the lifetime
+    // total at what was actually captured.
+    const refundable = capturedAmount - alreadyRefunded;
+    if (requested > refundable) {
+      return res.status(400).json({
+        success: false,
+        error: `Refund exceeds the remaining ${refundable.toFixed(2)} on this payment`,
       });
     }
 
-    const newStatus = refundAmount >= parseFloat(payment.amount) ? 'refunded' : 'succeeded';
+    const refundAmount = requested;
+    const isFullRefund = alreadyRefunded + refundAmount >= capturedAmount;
+    const refundCurrency = (payment.currency || 'USD').toLowerCase();
+
+    // Gateway-specific refund. If no gateway can actually process this payment
+    // we must NOT mark it refunded in the DB — that silently reports money
+    // returned while nothing left the provider.
+    let gatewayRefunded = false;
+    if (payment.provider === 'paypal' && payment.stripePaymentIntentId) {
+      await paypalService.refund({ paymentId: payment.stripePaymentIntentId, amount: refundAmount });
+      gatewayRefunded = true;
+    } else if (payment.provider === 'paddle' && payment.gatewayPaymentId) {
+      await paddleService.refund({
+        transactionId: payment.gatewayPaymentId,
+        amount: isFullRefund ? undefined : refundAmount,
+        reason,
+      });
+      gatewayRefunded = true;
+    } else if (payment.provider === 'razorpay' && payment.gatewayPaymentId) {
+      await razorpayService.refund({
+        paymentId: payment.gatewayPaymentId,
+        amount: refundAmount,
+      });
+      gatewayRefunded = true;
+    } else if (payment.stripePaymentIntentId && !payment.stripePaymentIntentId.startsWith('pi_mock')) {
+      await stripeService.refund({
+        paymentId: payment.stripePaymentIntentId,
+        amount: isFullRefund ? undefined : refundAmount,
+        currency: refundCurrency,
+        reason,
+      });
+      gatewayRefunded = true;
+    }
+
+    if (!gatewayRefunded) {
+      return res.status(400).json({
+        success: false,
+        error: 'No refundable gateway transaction found for this payment',
+      });
+    }
+
+    const newStatus = isFullRefund ? 'refunded' : 'succeeded';
     await payment.update({
       status: newStatus,
-      refundAmount: parseFloat(payment.refundAmount || 0) + refundAmount,
+      refundAmount: alreadyRefunded + refundAmount,
       refundReason: reason || 'Customer requested refund',
     });
 
-    if (payment.order_id) {
+    // A partial refund leaves the order live: flipping it to `refunded` here told
+    // buyers their whole order was returned when only part of it was.
+    if (isFullRefund && payment.order_id) {
       const order = await Order.findByPk(payment.order_id);
       if (order) await order.update({ status: 'refunded' });
     }
@@ -558,7 +791,7 @@ router.post('/refund', protect, authorize('admin'), paymentLimiter, async (req, 
  * ══════════════════════════════════════════════════════════════════ */
 router.post('/checkout', protect, paymentLimiter, async (req, res, next) => {
   try {
-    const { planId, orderId, successUrl, cancelUrl, agentApiKey } = req.body;
+    const { planId, orderId, successUrl, cancelUrl } = req.body;
 
     let priceId = null;
     let mode = 'payment';
@@ -574,12 +807,17 @@ router.post('/checkout', protect, paymentLimiter, async (req, res, next) => {
       mode = plan.interval === 'one_time' ? 'payment' : 'subscription';
       credits = parseFloat(plan.creditsGrant || 0);
       metadata = { planId: plan.slug };
-      if (agentApiKey && typeof agentApiKey === 'string' && agentApiKey.trim()) {
-        metadata.agentApiKey = agentApiKey.trim();
-      }
+      // `agentApiKey` used to be copied from the request body into the Stripe
+      // metadata and then replayed as `x-api-key` against the agent's credit
+      // top-up endpoint. The body is attacker-controlled and nothing ever
+      // proved the key belonged to this buyer, so any stolen agent key could be
+      // spent from another account. Credits are granted through the backend
+      // usage ledger (services/usage.service.js) instead.
     } else if (orderId) {
       const order = await Order.findByPk(orderId);
       if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+      const ownErr = orderOwnershipError(order, req.user);
+      if (ownErr) return res.status(ownErr.status).json({ success: false, error: ownErr.error });
       const orderCurrency = (order.currency || process.env.DEFAULT_CURRENCY || 'USD').toUpperCase();
       const session = await stripeService.createPayment({
         amount: parseFloat(order.totalPrice),
@@ -649,6 +887,24 @@ router.post('/portal', protect, paymentLimiter, async (req, res, next) => {
  * STRIPE WEBHOOK — signature verified + idempotent
  * ══════════════════════════════════════════════════════════════════ */
 router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook(), async (req, res) => {
+  try {
+    await handleStripeEvent(req);
+  } catch (error) {
+    // An async handler that rejects is invisible to Express 4: the request
+    // hangs until the provider times out. Worse, committing the ledger on a
+    // half-processed event makes Stripe's retry hit the idempotency guard, so
+    // the order would stay unpaid forever. 500 + no ledger write = retry wins.
+    logger.error(
+      `Stripe webhook ${req.webhookEvent?.type || 'unknown'} (${req.webhookEvent?.id || '-'}) failed: ${error.message}`,
+    );
+    return res.status(500).json({ received: false, error: 'Webhook processing failed' });
+  }
+
+  await markWebhookProcessed(req);
+  res.json({ received: true, eventId: req.webhookEvent?.id });
+});
+
+async function handleStripeEvent(req) {
   const event = req.webhookEvent;
 
   switch (event.type) {
@@ -666,19 +922,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook
           paymentMethod: 'card',
           providerResponse: { checkoutSessionId: session.id, planId: metadata.planId },
         });
-        if (metadata.agentApiKey) {
-          try {
-            await fetchWithTimeout(
-              agentEndpointUrl('/api/accounts/credits/topup'),
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-api-key': metadata.agentApiKey },
-                body: JSON.stringify({ amount: parseFloat(metadata.credits), reason: 'stripe_purchase' }),
-              },
-              AI_AGENT_TIMEOUTS.status
-            ).catch(() => {});
-          } catch { /* non-fatal */ }
-        }
       }
       break;
     }
@@ -729,16 +972,15 @@ router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook
     case 'payment_intent.succeeded': {
       const pi = event.data.object;
       await Payment.update({ status: 'succeeded' }, { where: { stripePaymentIntentId: pi.id } });
-      try {
-        const payment = await Payment.findOne({ where: { stripePaymentIntentId: pi.id } });
-        if (payment?.order_id) {
-          await Order.update(
-            { isPaid: true, paidAt: new Date(), status: 'processing' },
-            { where: { id: payment.order_id } },
-          );
-        }
-      } catch (orderErr) {
-        logger.warn(`Webhook order update skipped: ${orderErr.message}`);
+      const payment = await Payment.findOne({ where: { stripePaymentIntentId: pi.id } });
+      if (payment?.order_id) {
+        // Deliberately un-caught: the paid flip must either commit or the whole
+        // event must be retried. Swallowing it left the money captured and the
+        // order permanently unpaid.
+        await Order.update(
+          { isPaid: true, paidAt: new Date(), status: 'processing' },
+          { where: { id: payment.order_id } },
+        );
       }
       break;
     }
@@ -753,10 +995,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook
     default:
       break;
   }
-
-  await markWebhookProcessed(req);
-  res.json({ received: true, eventId: req.webhookEvent?.id });
-});
+}
 
 /* ══════════════════════════════════════════════════════════════════
  * INVOICE
