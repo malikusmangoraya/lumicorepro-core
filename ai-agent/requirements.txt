@@ -111,3 +111,8 @@ mcp>=1.9.0,<2
 # passed after install).
 # headroom-ai>=0.4
 # crawl4ai>=0.9.5
+#
+#  3. Demo video narration. Edge TTS gives the best voices when the network
+#     allows it; agent/demo_video.py falls back to the offline Windows SAPI
+#     voice, so this package is optional.
+#     pip install edge-tts

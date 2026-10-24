@@ -725,6 +725,7 @@ def _patched_server(server_path: Path) -> bool:
         anchor
         + "\n\nconst { errorHandler } = require('./middleware/validate');"
         + "\napp.use('/api/v1/records', require('./routes/records.routes'));"
+        + "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (_e) { /* optional */ }"
         + "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (_e) { /* kit absent */ }"
         + "\napp.use(errorHandler);"
     )
@@ -732,6 +733,7 @@ def _patched_server(server_path: Path) -> bool:
         add = (
             "\nconst { errorHandler } = require('./middleware/validate');"
             "\napp.use('/api/v1/records', require('./routes/records.routes'));"
+            "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (_e) { /* optional */ }"
             "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (_e) { /* kit absent */ }"
             "\napp.use(errorHandler);"
         )
@@ -846,7 +848,7 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
         dash.write_text(_DASHBOARD_JSX, encoding="utf-8")
         created.append(str(dash.relative_to(root)))
     login = frontend / "src" / "pages" / "Login.jsx"
-    if login.exists() and "bg-#" in login.read_text(encoding="utf-8", errors="replace"):
+    if login.exists() and "auth/login" not in login.read_text(encoding="utf-8", errors="replace"):
         login.write_text(_LOGIN_JSX, encoding="utf-8")
         created.append(str(login.relative_to(root)))
     register = frontend / "src" / "pages" / "Register.jsx"

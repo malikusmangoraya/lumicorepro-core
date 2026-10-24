@@ -23,8 +23,10 @@ from utils.logger import agent_logger
 
 try:  # works both as `agent.deploy_engine` and as a direct script
     from agent.gh_token import clean_token, is_placeholder
+    from agent.live_verify import expected_routes, verify_site
 except ImportError:
     from gh_token import clean_token, is_placeholder
+    from live_verify import expected_routes, verify_site
 
 
 def _which_git() -> str:
@@ -205,116 +207,191 @@ def _vercel_deploy_root(project_dir: str) -> Path:
     Vite build) -> raw project root.
     """
     base = Path(project_dir)
-    if (base / "frontend" / "dist" / "index.html").is_file():
-        return base / "frontend" / "dist"
+    # Source first: Vercel builds it remotely with the project's own lockfile.
+    # Deploying a prebuilt dist inherits the project's stored build command and
+    # then fails with "ENOENT package.json" (seen on nimbus-analytics-demo).
     if (base / "frontend" / "package.json").is_file():
         return base / "frontend"
+    if (base / "frontend" / "dist" / "index.html").is_file():
+        return base / "frontend" / "dist"
     return base
 
 
+VERCEL_REWRITES = [{"source": "/((?!api/).*)", "destination": "/index.html"}]
+VERCEL_ASSET_HEADERS = [
+    {"source": "/assets/(.*)",
+     "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+]
+
+
+def _ensure_vercel_spa_config(workdir: Path) -> Optional[str]:
+    """Write vercel.json when the project has none.
+
+    Two shapes, because the same directory can be source or output:
+      * source (has package.json): let Vercel run the Vite build,
+      * prebuilt dist (only index.html): no build command — Vercel failed with
+        ENOENT package.json when a build command was configured for a dist.
+
+    A Vite SPA also needs a rewrite from every non-API path to index.html,
+    otherwise the deployed site answers 404 for /features, /pricing, … while the
+    homepage looks fine. Never overwrites an existing config.
+    """
+    config_path = workdir / "vercel.json"
+    if config_path.is_file():
+        return None
+    config: Dict[str, Any] = {"rewrites": VERCEL_REWRITES, "headers": VERCEL_ASSET_HEADERS}
+    if (workdir / "package.json").is_file():
+        config = {
+            "framework": "vite",
+            "buildCommand": "npm run build",
+            "outputDirectory": "dist",
+            **config,
+        }
+    try:
+        config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+        ignore_path = workdir / ".vercelignore"
+        if not ignore_path.is_file():
+            # A 65 MB node_modules upload is not source. Vercel installs from the
+            # lockfile; dist is rebuilt from source.
+            ignore_path.write_text("node_modules\ndist\n.env*\n", encoding="utf-8")
+        return str(config_path)
+    except OSError as exc:
+        agent_logger.warning(f"vercel deploy config could not be written in {workdir}: {exc}")
+        return None
+
+
 def _vercel_project_name(project_dir: str) -> str:
-    """Stable Vercel project name derived from the generated project name."""
+    """Stable Vercel project name (VERCEL_PROJECT_NAME overrides the folder)."""
+    override = os.getenv("VERCEL_PROJECT_NAME", "").strip().lower()
+    if override:
+        cleaned = re.sub(r"[^a-z0-9-]+", "-", override).strip("-")
+        if cleaned:
+            return cleaned[:52]
     raw = Path(project_dir).name.lower()
     name = re.sub(r"[^a-z0-9-]+", "-", raw).strip("-")
     return (name or "lumicorepro-site")[:52]
 
 
 def _vercel_probe(url: str, require_marker: bool = False) -> bool:
-    """True when ``url`` answers 200 publicly (never a vercel.com/login wall).
+    """True when ``url`` serves a real page (200 + title + app shell).
 
-    ``require_marker`` additionally demands the Built-with badge id in the
-    first rendered bytes — used to reject stale/global-conflict content on
-    shared canonical domains.
+    A bare 200 is not proof: the platform serves login walls and
+    "deployment not found" pages as HTML. The marker check stays for shared
+    domains that can hold unrelated content.
     """
     try:
-        req = urllib.request.Request(
-            url,
-            method="GET",
-            headers={"User-Agent": "lumicorepro-agent/1.0"},
-        )
+        req = urllib.request.Request(url, method="GET", headers={"User-Agent": "lumicorepro-agent/1.0"})
         with urllib.request.urlopen(req, timeout=20) as resp:
             if resp.status != 200 or "vercel.com/login" in resp.geturl():
                 return False
-            if require_marker:
-                body = resp.read(65536).decode("utf-8", "replace")
-                return "built-with-lumicorepro" in body
-            return True
+            body = resp.read(120_000).decode("utf-8", "replace")
     except Exception:
         return False
+    lowered = body.lower()
+    if any(marker.lower() in lowered for marker in (
+        "DEPLOYMENT_NOT_FOUND",
+        "This deployment cannot be found",
+        "Application error: a client-side exception",
+    )):
+        return False
+    if "<title" not in lowered or 'id="root"' not in lowered and "id='root'" not in lowered \
+            and 'id="app"' not in lowered and "id='app'" not in lowered:
+        return False
+    return "built-with-lumicorepro" in lowered if require_marker else True
 
 
 def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]:
-    """Deploy with the real Vercel CLI when available (handles any framework).
+    """Deploy with the real Vercel CLI and verify the production URL.
 
-    Works token-free when the local CLI is already logged in (`vercel whoami`),
-    which is the operator's preferred path; a VERCEL_TOKEN adds only the
-    explicit scope. Project name follows the generated project's brand slug so
-    the customer-facing URL stays predictable.
+    Honours an existing ``.vercel/project.json`` (a linked project) instead of
+    forcing a derived name, waits for the build (the CLI is synchronous unless
+    ``--no-wait`` is passed), then probes the live site with
+    :func:`agent.live_verify.verify_site`. ``status: live`` is only returned
+    when that verification passes; an existing-but-broken deployment is
+    ``deployed-unverified`` with the evidence attached.
     """
     name = _vercel_project_name(project_dir)
     deploy_root = _vercel_deploy_root(project_dir)
-    cmd: Optional[List[str]] = None
+    # deploy_root may be frontend/dist, while the link lives in frontend/ (or the
+    # project root). The CLI only reads the link from its own cwd, so deploy from
+    # the directory that actually holds .vercel/project.json.
+    linked_root = next(
+        (
+            candidate
+            for candidate in (deploy_root, deploy_root.parent, Path(project_dir))
+            if (candidate / ".vercel" / "project.json").is_file()
+        ),
+        None,
+    )
+    linked = linked_root is not None
+    workdir = linked_root or deploy_root
+    _ensure_vercel_spa_config(workdir)
     cli = shutil.which("vercel")
+    npx = shutil.which("npx")
     if cli:
-        cmd = [cli, "deploy", ".", "--prod", "-y", "--project", name, "--create-if-missing"]
+        cmd = [cli, "deploy", ".", "--prod", "-y"]
+    elif npx:
+        cmd = [npx, "-y", "vercel@latest", "deploy", ".", "--prod", "-y"]
     else:
-        npx = shutil.which("npx")
-        if npx:
-            cmd = [npx, "-y", "vercel@latest", "deploy", ".", "--prod", "-y",
-                   "--project", name, "--create-if-missing"]
-    if not cmd:
         return None
+    if not linked:
+        cmd.extend(["--project", name, "--create-if-missing"])
     if token:
         cmd.extend(["--token", token])
     try:
         proc = subprocess.run(
-            cmd,
-            cwd=str(deploy_root),
-            capture_output=True,
-            text=True,
-            timeout=420,
-            encoding="utf-8",
-            errors="replace",
+            cmd, cwd=str(workdir), capture_output=True, text=True,
+            timeout=600, encoding="utf-8", errors="replace",
         )
     except (subprocess.TimeoutExpired, OSError) as exc:
         return {"status": "failed", "message": f"vercel CLI failed: {exc}"}
     if proc.returncode != 0:
-        tail = (proc.stderr or proc.stdout or "").strip()[-400:]
+        tail = (proc.stderr or proc.stdout or "").strip()[-600:]
         if "credentials" in tail.lower() or "not logged in" in tail.lower():
-            return None  # fall through to other paths
-        return {"status": "failed", "message": tail}
-    urls = re.findall(r"https://[^\s\"']+\.vercel\.app", (proc.stdout or "") + "\n" + (proc.stderr or ""))
-    urls = [u.rstrip(",;.)") for u in dict.fromkeys(urls)]
-    # Rank CLI-echoed URLs: the stable auto-project alias `<name>-<teamslug>`
-    # first (follows production), then free-named aliases; the `<hash>-<team>`
-    # deploy-scoped hostname comes last because SSO protection may gate it.
+            return None
+        return {"status": "failed", "message": tail or f"vercel CLI exited {proc.returncode}"}
+
+    output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+    urls = [u.rstrip(",;.)") for u in re.findall(r"https://[^\s\"']+\.vercel\.app", output)]
+    urls = list(dict.fromkeys(urls))
+    ids = re.findall(r"dpl_[A-Za-z0-9]+", output)
+    deployment_id = ids[-1] if ids else ""
+    if not urls:
+        return {
+            "status": "failed",
+            "message": "vercel CLI exited 0 but printed no deployment URL",
+            "deployment_id": deployment_id,
+        }
+
     team_slug = os.getenv("VERCEL_TEAM_SLUG", "lumicorepro").strip() or "lumicorepro"
     scoped = re.compile(r"-\w+-" + re.escape(team_slug) + r"\.vercel\.app$")
-    aliases = [u for u in urls if not scoped.search(u) and f"-{team_slug}.vercel.app" not in u]
-    auto_team = [u for u in aliases if u.startswith(f"https://{name}-{team_slug}.vercel.app")]
-    free = [u for u in aliases if not auto_team or u not in auto_team]
-    url = ""
-    for candidate in (auto_team or list(dict.fromkeys(auto_team + free))):
-        try:
-            if _vercel_probe(candidate):
-                url = candidate
-                break
-        except Exception:
-            continue
-    # Canonical domain only when it really serves this deployment — a shared
-    # global vercel.app namespace can hold unrelated/stale content under the
-    # same name (403 on domain lookup, cached body from an earlier project).
+    free = [u for u in urls if not scoped.search(u)]
+    auto_team = [u for u in free if u.startswith(f"https://{name}-{team_slug}.vercel.app")]
     canonical = f"https://{name}.vercel.app"
-    if not url and _vercel_probe(canonical, require_marker=True):
-        url = canonical
-    if not url and urls:
-        url = urls[0]
+    ordered = list(dict.fromkeys(auto_team + ([canonical] if canonical in urls else []) + free + urls))
+
+    routes = expected_routes(project_dir)
+    last_evidence: Optional[Dict[str, Any]] = None
+    for candidate in ordered[:4]:
+        evidence = verify_site(candidate, routes=routes, timeout=45, poll_interval=2.0)
+        last_evidence = evidence
+        if evidence.get("verified"):
+            return {
+                "status": "live",
+                "platform": "vercel",
+                "url": evidence.get("url") or candidate,
+                "project_name": name,
+                "deployment_id": deployment_id,
+                "verification": evidence,
+            }
     return {
-        "status": "live",
+        "status": "deployed-unverified",
         "platform": "vercel",
-        "url": url,
+        "url": ordered[0],
         "project_name": name,
-        "deployment_id": "",
+        "deployment_id": deployment_id,
+        "verification": last_evidence,
+        "message": "Deployment exists but the live URL did not pass verification",
     }
 
 
@@ -352,11 +429,16 @@ def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
         with urllib.request.urlopen(req, timeout=60) as resp:
             payload = json.loads(resp.read().decode())
         url = payload.get("url") or ""
+        if not url:
+            return {"status": "failed", "platform": "vercel", "message": "Vercel API returned no URL"}
+        live_url = url if url.startswith("http") else f"https://{url}"
+        evidence = verify_site(live_url, routes=expected_routes(project_dir), timeout=60)
         return {
-            "status": "live" if url else "failed",
+            "status": "live" if evidence.get("verified") else "deployed-unverified",
             "platform": "vercel",
-            "url": f"https://{url}" if url and not url.startswith("http") else url,
+            "url": evidence.get("url") or live_url,
             "deployment_id": payload.get("id") or payload.get("uid", ""),
+            "verification": evidence,
         }
     except Exception as exc:
         agent_logger.warning(f"Vercel deploy failed: {exc}")
@@ -364,60 +446,82 @@ def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
 
 
 def _netlify_deploy(project_dir: str) -> Dict[str, Any]:
+    """Deploy the built directory with the Netlify CLI, then verify it.
+
+    The previous implementation POSTed a single index.html to the sites API:
+    every JS/CSS asset 404'd on the live site while the connector reported
+    "live". A site is a directory, so the deploy must be a directory.
+    """
     token = os.getenv("NETLIFY_AUTH_TOKEN", "").strip()
     if not token or token.startswith("your_"):
         return {"status": "guide", "message": "NETLIFY_AUTH_TOKEN not set — guide mode"}
-    index = _find_index(project_dir)
-    data = _read_file(index)
-    if not data:
-        return {"status": "failed", "message": "No built index.html found for deploy"}
+    cli = shutil.which("netlify")
+    if not cli:
+        return {"status": "guide", "message": "Netlify CLI not installed (npm i -g netlify-cli) — guide mode"}
+    root = _vercel_deploy_root(project_dir)
+    if not (root / "index.html").is_file() and not (root / "package.json").is_file():
+        return {"status": "failed", "message": "No build output (dist/) or frontend/ to deploy"}
+    site_id = os.getenv("NETLIFY_SITE_ID", "").strip()
+    cmd = [cli, "deploy", "--prod", "--dir", str(root), "--auth", token, "--json"]
+    if site_id:
+        cmd.extend(["--site", site_id])
     try:
-        req = urllib.request.Request(
-            "https://api.netlify.com/api/v1/sites",
-            method="POST",
-            data=data.encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "text/html",
-            },
-        )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            payload = json.loads(resp.read().decode())
-        return {
-            "status": "live",
-            "platform": "netlify",
-            "url": payload.get("url") or "",
-            "deployment_id": payload.get("id"),
-        }
-    except Exception as exc:
-        agent_logger.warning(f"Netlify deploy failed: {exc}")
-        return {"status": "failed", "message": str(exc)}
+        proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True, timeout=600)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"status": "failed", "message": f"netlify CLI failed: {exc}"}
+    if proc.returncode != 0:
+        return {"status": "failed", "message": (proc.stderr or proc.stdout).strip()[-600:]}
+    url = ""
+    try:
+        payload = json.loads(proc.stdout[proc.stdout.index("{"):])
+        url = payload.get("url") or payload.get("deploy_url") or ""
+    except (ValueError, IndexError):
+        match = re.search(r"https://[^\s\"]+\.netlify\.app", proc.stdout + proc.stderr)
+        url = match.group(0) if match else ""
+    if not url:
+        return {"status": "deployed-unverified", "platform": "netlify",
+                "message": "netlify CLI exited 0 but printed no URL"}
+    evidence = verify_site(url, routes=expected_routes(project_dir), timeout=90)
+    return {
+        "status": "live" if evidence.get("verified") else "deployed-unverified",
+        "platform": "netlify",
+        "url": evidence.get("url") or url,
+        "verification": evidence,
+    }
 
 
 def _railway_deploy(project_dir: str) -> Dict[str, Any]:
     token = os.getenv("RAILWAY_TOKEN", "").strip()
     if not token or token.startswith("your_"):
         return {"status": "guide", "message": "RAILWAY_TOKEN not set — guide mode"}
+    cli = shutil.which("railway")
+    if not cli:
+        return {"status": "guide", "message": "Railway CLI not installed — guide mode"}
     try:
         result = subprocess.run(
-            ["railway", "up", "--detach"],
-            cwd=project_dir,
-            capture_output=True,
-            text=True,
-            timeout=120,
+            [cli, "up", "--detach"], cwd=project_dir,
+            capture_output=True, text=True, timeout=300,
         )
-        if result.returncode == 0:
-            return {
-                "status": "live",
-                "platform": "railway",
-                "url": os.getenv("RAILWAY_PUBLIC_DOMAIN", ""),
-                "deployment_id": "",
-                "output": result.stdout[-1000:],
-            }
-        return {"status": "failed", "message": (result.stderr or result.stdout)[-500:]}
-    except Exception as exc:
-        agent_logger.warning(f"Railway deploy failed: {exc}")
-        return {"status": "failed", "message": str(exc)}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"status": "failed", "message": f"railway CLI failed: {exc}"}
+    if result.returncode != 0:
+        return {"status": "failed", "message": (result.stderr or result.stdout)[-600:]}
+    url = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
+    if not url:
+        return {
+            "status": "deployed-unverified",
+            "platform": "railway",
+            "message": "railway up succeeded but RAILWAY_PUBLIC_DOMAIN is not set",
+            "output": result.stdout[-1000:],
+        }
+    evidence = verify_site(url, routes=expected_routes(project_dir), timeout=120)
+    return {
+        "status": "live" if evidence.get("verified") else "deployed-unverified",
+        "platform": "railway",
+        "url": evidence.get("url") or url,
+        "verification": evidence,
+        "output": result.stdout[-1000:],
+    }
 
 
 def _github_pages_deploy(project_dir: str) -> Dict[str, Any]:
@@ -528,12 +632,15 @@ def _github_pages_deploy(project_dir: str) -> Dict[str, Any]:
                     pass  # already enabled
                 else:
                     agent_logger.warning(f"GitHub Pages enable HTTP {he.code}")
+            live_url = f"https://{login}.github.io/{repo}/"
+            evidence = verify_site(live_url, routes=["/"], timeout=150, poll_interval=5.0)
             return {
-                "status": "live",
+                "status": "live" if evidence.get("verified") else "deployed-unverified",
                 "platform": "github-pages",
-                "url": f"https://{login}.github.io/{repo}/",
+                "url": evidence.get("url") or live_url,
                 "repo": f"{login}/{repo}",
-                "hosted_on": hot or f"https://{login}.github.io/{repo}/",
+                "hosted_on": hot or live_url,
+                "verification": evidence,
             }
         except Exception as exc:
             agent_logger.warning(f"GitHub Pages deploy failed: {exc}")
@@ -660,28 +767,45 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
     if gate.get("store_gate"):
         result["store_gate"] = gate["store_gate"]
 
-    if result["status"] == "live" and result.get("url"):
-        result["live_audit"] = _live_audit(result["url"])
-        try:  # point the badge at the real URL for future rebuilds
-            from agent.extensions.built_with_badge import update_live_link
-            update_live_link(str(project_dir), result["url"])
-        except Exception:
-            pass
+    verification = result.get("verification")
+    result["verified"] = bool(verification and verification.get("verified"))
+    if result["status"] in {"live", "deployed-unverified"} and result.get("url"):
+        if not verification:
+            verification = verify_site(
+                result["url"], routes=expected_routes(str(project_dir)), timeout=90
+            )
+            result["verification"] = verification
+            result["verified"] = bool(verification.get("verified"))
+            if result["verified"]:
+                result["status"] = "live"
+        result["live_audit"] = _live_audit(result["url"], str(project_dir))
+        if result["verified"]:
+            try:  # point the badge at the real URL for future rebuilds
+                from agent.extensions.built_with_badge import update_live_link
+                update_live_link(str(project_dir), result["url"])
+            except Exception:
+                pass
+    try:
+        report_path = Path(project_dir) / ".factory" / "deploy-report.json"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+        result["report_path"] = str(report_path)
+    except OSError:
+        pass
     return result
 
 
-def _live_audit(url: str) -> Dict[str, Any]:
-    """Post-deploy verification with the free keyless tools (PSI + reachability).
-
-    Advisory only — a failed audit never flips ``status`` to failed, but the
-    scores travel with the deployment so the QA gate can report honestly.
-    """
+def _live_audit(url: str, project_dir: Optional[str] = None) -> Dict[str, Any]:
+    """Post-deploy verification with evidence (bundle assets, routes, PSI)."""
+    routes = expected_routes(project_dir) if project_dir else ["/"]
+    audit: Dict[str, Any] = {"verification": verify_site(url, routes=routes, timeout=60)}
     try:
-        from agent.free_web_tools import http_reachable, pagespeed_audit
+        from agent.free_web_tools import pagespeed_audit
     except ImportError:  # direct-script execution
-        from free_web_tools import http_reachable, pagespeed_audit
-    audit = {"reachability": http_reachable(url)}
+        from free_web_tools import pagespeed_audit
     psi = pagespeed_audit(url)
     if psi.get("status") == "ok":
         audit["pagespeed"] = psi
     return audit
+
+

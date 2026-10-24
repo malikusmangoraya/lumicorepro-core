@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import json
 import logging
 import sqlite3
 from pathlib import Path
@@ -77,8 +78,6 @@ def run_tests() -> int:
     return int(pytest.main([str(current_dir / "tests"), "-q"]))
 
 def main():
-    print_banner()
-
     parser = argparse.ArgumentParser(description="LumicorePro Core AI Website Generation Agent")
     parser.add_argument("--prompt", type=str, help="Natural language website prompt")
     parser.add_argument("--framework", type=str, choices=("react", "reflex"), default="react", help="Project framework (default: react; reflex is opt-in)")
@@ -104,9 +103,55 @@ def main():
     parser.add_argument("--dest", type=str, default="generated-projects/fullstack-demo", help="Target output folder for full-stack generation")
     parser.add_argument("--project-name", type=str, default="lumicore_reflex_app", help="Reflex package name (lowercase letters, digits, underscores)")
     parser.add_argument("--style", type=str, help="Design style (35 available): minimalism, maximalism, glassmorphism, cyberpunk, swiss, y2k, editorial, luxury, corporate, playful, bold, brutalism, bento_grid, + 22 more")
+    parser.add_argument("--factory", type=str, metavar="PROJECT_DIR", help="Run the full delivery pipeline: build → tests → QA → deploy → live verify → demo video")
+    parser.add_argument("--factory-deploy", type=str, default="vercel",
+                        choices=("vercel", "netlify", "railway", "github-pages", "none"),
+                        help="Deploy target for --factory (default vercel; 'none' builds/tests/videos only)")
+    parser.add_argument("--factory-no-video", action="store_true", help="Skip the demo video stage")
+    parser.add_argument("--factory-skip-build", action="store_true", help="Reuse an existing frontend/dist")
+    parser.add_argument("--factory-name", type=str, default="", help="Product name used in the demo video")
+    parser.add_argument("--factory-tagline", type=str, default="", help="Tagline used in the demo video")
+    parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
+    parser.add_argument("--verify-url", type=str, help="Verify a deployed URL (assets, SPA routes, optional API health)")
+    parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. /api/v1/health")
     args = parser.parse_args()
+    if not args.factory_json:
+        print_banner()
+    else:
+        # Keep stdout machine-readable: logs go to stderr.
+        for handler in agent_logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                handler.setStream(sys.stderr)
     if args.provider:
         os.environ["ACTIVE_AI_PROVIDER"] = args.provider
+
+    # Delivery commands do not need an AI provider — run them before provider
+    # validation so a build/deploy/verify never fails on unrelated config.
+    if args.verify_url:
+        from agent.live_verify import verify_site
+
+        evidence = verify_site(args.verify_url, api_health=args.verify_api or None, timeout=120)
+        print(json.dumps(evidence, indent=2) if args.factory_json
+              else f"verified={evidence.get('verified')} status={evidence.get('status')} "
+                   f"title={evidence.get('title', '')}")
+        sys.exit(0 if evidence.get("verified") else 1)
+
+    if args.factory:
+        from agent.factory_pipeline import run_factory
+
+        result = run_factory(
+            args.factory,
+            deploy=args.factory_deploy,
+            video=not args.factory_no_video,
+            name=args.factory_name,
+            tagline=args.factory_tagline,
+            skip_build=args.factory_skip_build,
+        )
+        print(json.dumps(result, indent=2) if args.factory_json
+              else f"status={result.get('status')} verified={result.get('verified')} "
+                   f"report={result.get('report_md', '')}")
+        sys.exit(0 if result.get("verified") else 1)
+
     startup_provider = validate_active_provider()
     if not startup_provider["ok"]:
         print(f"Error: {startup_provider['error']}")

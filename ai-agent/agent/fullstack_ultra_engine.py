@@ -18,6 +18,534 @@ from agent.omni_repair_engine import OmniRepairEngine
 from agent.generation_contract import resolve_generation_contract
 
 
+# ── Generated-project production assets ────────────────────────────────────
+# These are plain strings (not f-strings) so JSX braces stay literal; brand and
+# colour are substituted with .replace() by _marketing_pages().
+
+_CONTACT_ROUTE_JS = r"""/** routes/contact — public contact form endpoint.
+ * The body is validated + sanitised by middleware/validate before it reaches
+ * Sequelize (parameterised, so SQL injection is structural, not a filter).
+ */
+const express = require('express');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../models');
+const { validate } = require('../middleware/validate');
+
+const router = express.Router();
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const ContactMessage = sequelize.define('ContactMessage', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  name: { type: DataTypes.STRING(120), allowNull: false },
+  email: { type: DataTypes.STRING(254), allowNull: false },
+  message: { type: DataTypes.TEXT, allowNull: false },
+}, { tableName: 'contact_messages', underscored: true });
+
+const RULES = {
+  name: { required: true, type: 'string', min: 1, max: 120 },
+  email: { required: true, type: 'string', max: 254 },
+  message: { required: true, type: 'string', min: 10, max: 5000 },
+};
+
+router.post('/', validate(RULES), async (req, res, next) => {
+  if (!EMAIL_RE.test(String(req.body.email || ''))) {
+    return res.status(422).json({
+      success: false,
+      code: 'VALIDATION_ERROR',
+      errors: { email: 'email must be a valid address' },
+    });
+  }
+  try {
+    const row = await ContactMessage.create({
+      name: req.body.name,
+      email: req.body.email,
+      message: req.body.message,
+    });
+    return res.status(201).json({
+      success: true,
+      message: 'Message received — we will reply within one business day.',
+      data: { id: row.id },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+module.exports = router;
+"""
+
+_CONTACT_MIGRATION_JS = """/** 002: contact_messages — persisted submissions from the public contact form. */
+const { DataTypes } = require('sequelize');
+
+module.exports = {
+  async up({ context: queryInterface }) {
+    await queryInterface.createTable('contact_messages', {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      name: { type: DataTypes.STRING(120), allowNull: false },
+      email: { type: DataTypes.STRING(254), allowNull: false },
+      message: { type: DataTypes.TEXT, allowNull: false },
+      created_at: { type: DataTypes.DATE, allowNull: false },
+      updated_at: { type: DataTypes.DATE, allowNull: false },
+    });
+    await queryInterface.addIndex('contact_messages', ['created_at']);
+  },
+  async down({ context: queryInterface }) {
+    await queryInterface.dropTable('contact_messages');
+  },
+};
+"""
+
+_BACKEND_ENV_EXAMPLE = """# Backend runtime — copy to .env and fill every value.
+PORT=5000
+NODE_ENV=development
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=lumicore_app
+DB_USER=postgres
+DB_PASSWORD=
+# REQUIRED, minimum 32 characters. Generate:
+#   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+JWT_SECRET=
+# Comma-separated origins allowed by CORS (the frontend origin in production).
+CORS_ORIGIN=http://localhost:5173
+"""
+
+_BACKEND_SMOKE_TEST_JS = """/** Backend smoke tests — run with `npm test` (node --test), no database needed. */
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { validate, sanitize } = require('../middleware/validate');
+
+const run = (schema, body) => {
+  let outcome = { nextCalled: false, error: null };
+  const req = { body };
+  const middleware = validate(schema);
+  middleware(req, {}, (err) => {
+    outcome = { nextCalled: true, error: err || null, body: req.body };
+  });
+  return outcome;
+};
+
+test('validate rejects a missing required field with 422', () => {
+  const result = run({ name: { required: true, type: 'string' } }, {});
+  assert.equal(result.nextCalled, true);
+  assert.equal(result.error.status, 422);
+  assert.equal(result.error.code, 'VALIDATION_ERROR');
+  assert.match(result.error.errors.name, /required/);
+});
+
+test('validate rejects an over-long field', () => {
+  const result = run({ name: { required: true, type: 'string', max: 5 } }, { name: 'toolong' });
+  assert.equal(result.error.status, 422);
+  assert.match(result.error.errors.name, /<= 5/);
+});
+
+test('validate passes a clean payload and sanitises it', () => {
+  const result = run({ name: { required: true, type: 'string', max: 40 } }, { name: '<script>alert(1)</script>' });
+  assert.equal(result.error, null);
+  assert.equal(result.body.name, '&lt;script&gt;alert(1)&lt;/script&gt;');
+});
+
+test('sanitize escapes every HTML-significant character', () => {
+  assert.equal(sanitize(`<>&"'`), '&lt;&gt;&amp;&quot;&#x27;');
+});
+
+test('sanitize walks nested objects and arrays', () => {
+  const cleaned = sanitize({ a: ['<b>', { c: '<i>' }] });
+  assert.equal(cleaned.a[0], '&lt;b&gt;');
+  assert.equal(cleaned.a[1].c, '&lt;i&gt;');
+});
+"""
+
+_MARKETING_PAGES: Dict[str, str] = {
+    "Features.jsx": r"""import React from 'react';
+import { Link } from 'react-router-dom';
+import { Zap, ShieldCheck, Globe2, BarChart3, Workflow, Lock } from 'lucide-react';
+
+const FEATURES = [
+  {
+    icon: Zap,
+    title: 'Sub-second workflows',
+    body: 'Streaming execution, optimistic UI and background jobs keep every interaction under a second, even at peak load.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Security by default',
+    body: 'JWT sessions, hashed credentials, parameterised queries, input sanitisation and rate limiting ship in every build.',
+  },
+  {
+    icon: Globe2,
+    title: 'Global edge delivery',
+    body: 'Static assets and API responses are cached at the edge, with automatic regional failover and gzip/brotli compression.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Operational analytics',
+    body: 'Usage, latency and error budgets are instrumented from day one, so decisions are based on evidence, not guesses.',
+  },
+  {
+    icon: Workflow,
+    title: 'Automated pipelines',
+    body: 'Build, test, database migration and release verification run on every change with a fail-closed quality gate.',
+  },
+  {
+    icon: Lock,
+    title: 'Ownership controls',
+    body: 'Role-based access, per-tenant scoping and audited mutations keep every record with the organisation that owns it.',
+  },
+];
+
+const STEPS = [
+  { step: '01', title: 'Create your account', body: 'Register in under a minute — email verification and secure sessions are handled for you.' },
+  { step: '02', title: 'Configure your workspace', body: 'Invite your team, connect your data and choose the plan that matches your volume.' },
+  { step: '03', title: 'Ship with confidence', body: 'Deploy to production with automated checks, live health monitoring and instant rollback.' },
+];
+
+export default function Features() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[__COLOR__]">Platform capabilities</p>
+        <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold text-white leading-tight">
+          Everything __BRAND__ needs to run in production
+        </h1>
+        <p className="mt-5 text-lg text-slate-400 leading-relaxed">
+          A complete platform, not a starter kit: authentication, persistence, APIs, observability
+          and deployment workflows are built in from the first commit.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link to="/register" className="px-7 py-3.5 rounded-full bg-[__COLOR__] text-white font-semibold hover:opacity-90 transition-opacity">
+            Start free
+          </Link>
+          <Link to="/pricing" className="px-7 py-3.5 rounded-full bg-slate-900 border border-slate-800 text-slate-200 font-semibold hover:bg-slate-800 transition-colors">
+            Compare plans
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {FEATURES.map(({ icon: Icon, title, body }) => (
+          <article key={title} className="p-7 rounded-3xl bg-slate-900/60 border border-slate-800 hover:border-[__COLOR__]/40 transition-colors">
+            <Icon className="w-9 h-9 text-[__COLOR__]" aria-hidden="true" />
+            <h2 className="mt-5 text-lg font-bold text-white">{title}</h2>
+            <p className="mt-2 text-sm text-slate-400 leading-relaxed">{body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="mt-20">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white text-center">How it works</h2>
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {STEPS.map(({ step, title, body }) => (
+            <div key={step} className="p-7 rounded-3xl bg-slate-950 border border-slate-800">
+              <span className="text-xs font-mono text-[__COLOR__]">{step}</span>
+              <h3 className="mt-3 text-lg font-bold text-white">{title}</h3>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-20 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-10 text-center">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Ready when you are</h2>
+        <p className="mt-3 text-slate-400">Create an account and explore the full platform with no credit card.</p>
+        <Link to="/register" className="inline-block mt-7 px-8 py-3.5 rounded-full bg-[__COLOR__] text-white font-semibold hover:opacity-90 transition-opacity">
+          Create free account
+        </Link>
+      </section>
+    </div>
+  );
+}
+""",
+    "Pricing.jsx": r"""import React from 'react';
+import { Link } from 'react-router-dom';
+import { Check, Sparkles } from 'lucide-react';
+
+const TIERS = [
+  {
+    name: 'Starter',
+    price: 29,
+    blurb: 'For solo builders validating an idea.',
+    features: ['1 workspace', 'Up to 5,000 API calls / month', 'Community support', 'Core analytics'],
+  },
+  {
+    name: 'Pro',
+    price: 79,
+    popular: true,
+    blurb: 'For teams shipping to real customers.',
+    features: ['5 workspaces', '100,000 API calls / month', 'Priority email support', 'Advanced analytics', 'Custom domains'],
+  },
+  {
+    name: 'Enterprise',
+    price: 199,
+    blurb: 'For organisations with compliance needs.',
+    features: ['Unlimited workspaces', 'Unlimited API calls', 'Dedicated support', 'SSO & audit logs', '99.9% uptime SLA'],
+  },
+];
+
+const FAQ = [
+  ['Can I change plans later?', 'Yes — upgrades and downgrades take effect immediately, and unused time is prorated.'],
+  ['Is there a free trial?', 'Every tier starts with a 14-day trial. No credit card is required to explore the platform.'],
+  ['What happens to my data if I downgrade?', 'Your data stays intact. Only workspace and API-volume limits change.'],
+];
+
+export default function Pricing() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <header className="max-w-2xl mx-auto text-center">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[__COLOR__]">Pricing</p>
+        <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold text-white">Simple, predictable plans</h1>
+        <p className="mt-4 text-lg text-slate-400">Start small, scale without renegotiating. Every plan includes the full API.</p>
+      </header>
+
+      <section className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        {TIERS.map((tier) => (
+          <article
+            key={tier.name}
+            className={`relative flex flex-col p-8 rounded-3xl bg-slate-900 border ${tier.popular ? 'border-[__COLOR__] shadow-2xl shadow-[__COLOR__]/10' : 'border-slate-800'}`}
+          >
+            {tier.popular && (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[__COLOR__] text-white text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> Most popular
+              </span>
+            )}
+            <h2 className="text-xl font-bold text-white">{tier.name}</h2>
+            <p className="mt-1 text-sm text-slate-400">{tier.blurb}</p>
+            <p className="mt-6 text-4xl font-extrabold text-white">
+              ${tier.price}<span className="text-base font-normal text-slate-400">/month</span>
+            </p>
+            <ul className="mt-7 space-y-3 flex-1">
+              {tier.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-2 text-sm text-slate-300">
+                  <Check className="w-4 h-4 mt-0.5 text-[__COLOR__] shrink-0" aria-hidden="true" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/register"
+              className={`mt-8 block text-center px-6 py-3 rounded-full font-semibold transition-opacity ${tier.popular ? 'bg-[__COLOR__] text-white hover:opacity-90' : 'bg-slate-800 text-slate-100 hover:bg-slate-700'}`}
+            >
+              Choose {tier.name}
+            </Link>
+          </article>
+        ))}
+      </section>
+
+      <section className="mt-20 max-w-3xl mx-auto">
+        <h2 className="text-2xl font-extrabold text-white text-center">Frequently asked questions</h2>
+        <div className="mt-8 space-y-3">
+          {FAQ.map(([question, answer]) => (
+            <details key={question} className="group rounded-2xl bg-slate-900 border border-slate-800 p-5">
+              <summary className="cursor-pointer list-none flex items-center justify-between text-sm font-semibold text-white">
+                {question}
+                <span className="text-[__COLOR__] group-open:rotate-45 transition-transform" aria-hidden="true">+</span>
+              </summary>
+              <p className="mt-3 text-sm text-slate-400 leading-relaxed">{answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+""",
+    "About.jsx": r"""import React from 'react';
+import { Link } from 'react-router-dom';
+
+const STATS = [
+  ['99.9%', 'Uptime target'],
+  ['< 200ms', 'Median API latency'],
+  ['24/7', 'Health monitoring'],
+  ['100%', 'Data ownership'],
+];
+
+const VALUES = [
+  ['Clarity over noise', 'Every screen answers one question and offers one obvious next step.'],
+  ['Security is a feature', 'Least-privilege access, audited mutations and encrypted secrets are non-negotiable.'],
+  ['Evidence over opinion', 'Performance budgets, test coverage and live checks decide when a release ships.'],
+];
+
+const TIMELINE = [
+  ['Foundation', 'The platform starts with a typed API, migrations and a design system — not a blank page.'],
+  ['Scale', 'Caching, background jobs and tenant isolation are introduced before they become urgent.'],
+  ['Operate', 'Deployments are verified against the live URL, and every release leaves an audit trail.'],
+];
+
+export default function About() {
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <header className="max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[__COLOR__]">About __BRAND__</p>
+        <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold text-white leading-tight">
+          Software that earns trust in production
+        </h1>
+        <p className="mt-5 text-lg text-slate-400 leading-relaxed">
+          __BRAND__ is built for teams who need a dependable platform rather than another prototype.
+          We focus on the unglamorous parts — security, observability, migrations and release
+          discipline — so your product can grow without rewrites.
+        </p>
+      </header>
+
+      <section className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {STATS.map(([value, label]) => (
+          <div key={label} className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <p className="text-2xl font-extrabold text-white">{value}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">{label}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {VALUES.map(([title, body]) => (
+          <article key={title} className="p-7 rounded-3xl bg-slate-900/60 border border-slate-800">
+            <h2 className="text-lg font-bold text-white">{title}</h2>
+            <p className="mt-2 text-sm text-slate-400 leading-relaxed">{body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="mt-16">
+        <h2 className="text-2xl font-extrabold text-white">How we build</h2>
+        <ol className="mt-8 space-y-4">
+          {TIMELINE.map(([title, body], index) => (
+            <li key={title} className="flex gap-5 p-6 rounded-2xl bg-slate-950 border border-slate-800">
+              <span className="font-mono text-sm text-[__COLOR__]">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 className="text-base font-bold text-white">{title}</h3>
+                <p className="mt-1 text-sm text-slate-400 leading-relaxed">{body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="mt-16 text-center">
+        <Link to="/contact" className="inline-block px-8 py-3.5 rounded-full bg-[__COLOR__] text-white font-semibold hover:opacity-90 transition-opacity">
+          Talk to our team
+        </Link>
+      </section>
+    </div>
+  );
+}
+""",
+    "Contact.jsx": r"""import React, { useState } from 'react';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const FIELD_CLASS = 'w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:border-[__COLOR__] focus:outline-none';
+
+export default function Contact() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState('idle');
+
+  const validate = () => {
+    const next = {};
+    if (!form.name.trim()) next.name = 'Your name is required.';
+    if (!EMAIL_RE.test(form.email.trim())) next.email = 'Enter a valid email address.';
+    if (form.message.trim().length < 10) next.message = 'Tell us at least 10 characters.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!validate()) return;
+    setStatus('sending');
+    try {
+      const res = await fetch(`${API}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          message: form.message.trim(),
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (json.errors) setErrors(json.errors);
+        throw new Error(json.message || `Request failed (${res.status})`);
+      }
+      setStatus('sent');
+      setForm({ name: '', email: '', message: '' });
+    } catch (error) {
+      setStatus('error');
+      setErrors((prev) => ({ ...prev, form: error.message || 'Could not send the message.' }));
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <section>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[__COLOR__]">Contact</p>
+        <h1 className="mt-4 text-4xl font-extrabold text-white">Let's talk</h1>
+        <p className="mt-4 text-slate-400 leading-relaxed">
+          Tell us what you are building and we will reply within one business day with next steps,
+          pricing guidance and a technical fit assessment.
+        </p>
+        <dl className="mt-10 space-y-6 text-sm">
+          <div>
+            <dt className="text-slate-500 uppercase tracking-wide text-xs">Email</dt>
+            <dd className="mt-1 text-slate-200">hello@__SLUG__.com</dd>
+          </div>
+          <div>
+            <dt className="text-slate-500 uppercase tracking-wide text-xs">Response time</dt>
+            <dd className="mt-1 text-slate-200">Within one business day</dd>
+          </div>
+          <div>
+            <dt className="text-slate-500 uppercase tracking-wide text-xs">Support hours</dt>
+            <dd className="mt-1 text-slate-200">Monday – Friday, 09:00–18:00 UTC</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        {status === 'sent' ? (
+          <div role="status" className="p-8 rounded-3xl bg-emerald-950/40 border border-emerald-800">
+            <h2 className="text-xl font-bold text-emerald-200">Message received</h2>
+            <p className="mt-2 text-sm text-emerald-300/80">Thanks — we will reply within one business day.</p>
+            <button type="button" onClick={() => setStatus('idle')} className="mt-6 px-5 py-2.5 rounded-full bg-emerald-600 text-white text-sm font-semibold">
+              Send another message
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={submit} noValidate className="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-5">
+            <div>
+              <label htmlFor="contact-name" className="block text-sm text-slate-400 mb-1.5">Your name</label>
+              <input id="contact-name" type="text" autoComplete="name" required className={FIELD_CLASS}
+                value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              {errors.name && <p role="alert" className="mt-1.5 text-xs text-rose-400">{errors.name}</p>}
+            </div>
+            <div>
+              <label htmlFor="contact-email" className="block text-sm text-slate-400 mb-1.5">Email</label>
+              <input id="contact-email" type="email" autoComplete="email" required className={FIELD_CLASS}
+                value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              {errors.email && <p role="alert" className="mt-1.5 text-xs text-rose-400">{errors.email}</p>}
+            </div>
+            <div>
+              <label htmlFor="contact-message" className="block text-sm text-slate-400 mb-1.5">How can we help?</label>
+              <textarea id="contact-message" rows={5} required className={FIELD_CLASS}
+                value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+              {errors.message && <p role="alert" className="mt-1.5 text-xs text-rose-400">{errors.message}</p>}
+            </div>
+            {errors.form && <p role="alert" className="text-sm text-rose-400">{errors.form}</p>}
+            <button type="submit" disabled={status === 'sending'}
+              className="w-full py-3.5 rounded-xl bg-[__COLOR__] text-white font-bold disabled:opacity-50 transition-opacity">
+              {status === 'sending' ? 'Sending…' : 'Send message'}
+            </button>
+            <p className="text-xs text-slate-500">By submitting you agree to our privacy policy. We never share your details.</p>
+          </form>
+        )}
+      </section>
+    </div>
+  );
+}
+""",
+}
+
+
 class FullStackUltraEngine:
     """Generates complete, clean, professional full-stack web applications at maximum velocity."""
 
@@ -63,6 +591,12 @@ class FullStackUltraEngine:
         self._build_devops_files(files_map, brand, prompt)
         files_map["backend/migrations/001_create_core_tables.js"] = self._postgres_migration()
         files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
+        files_map["backend/routes/contact.routes.js"] = _CONTACT_ROUTE_JS
+        files_map["backend/migrations/002_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
+        files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE
+        files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
+        files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
+        files_map["backend/test/smoke.test.js"] = _BACKEND_SMOKE_TEST_JS
         files_map["LICENSE.md"] = self._generated_license(brand)
 
         # ── Concurrent Parallel File Writing ──────────────────────────────
@@ -98,6 +632,13 @@ class FullStackUltraEngine:
             apply_production_spec(dest, brand=brand_name or brand)
         except Exception as spec_exc:
             agent_logger.warning(f"Production spec kit skipped: {spec_exc}")
+
+        # DDL mirror for the deployment-readiness gate and DBAs (the runtime
+        # path is the Umzug migrations above; this file must stay in sync).
+        try:
+            self._write_database_schema(dest)
+        except Exception as schema_exc:
+            agent_logger.warning(f"database/schema.sql skipped: {schema_exc}")
 
         # ── Self-Healing Omni-Repair Pass ─────────────────────────────────
         repair_report = self.repair_engine.scan_and_repair_project(dest)
@@ -704,6 +1245,65 @@ export default function Dashboard() {{
         }
         for pname, pcontent in pages.items():
             fmap[f"frontend/src/pages/{pname}"] = pcontent
+
+        # Replace the one-line placeholders with real, brand-aware marketing
+        # pages. A buyer-facing site cannot ship a page that says only
+        # "Comprehensive tools built for performance".
+        slug = "".join(ch for ch in brand.lower().replace(" ", "-") if ch.isalnum() or ch == "-")
+        for pname, template in _MARKETING_PAGES.items():
+            fmap[f"frontend/src/pages/{pname}"] = (
+                template.replace("__BRAND__", brand)
+                .replace("__COLOR__", color)
+                .replace("__SLUG__", slug or "example")
+            )
+
+    def _write_database_schema(self, dest: str) -> None:
+        """Write database/schema.sql as the DDL mirror of the migrations.
+
+        The deployment-readiness gate requires it, and an operator restoring a
+        database needs one file that reproduces the models. Column casing is
+        significant: `users`/`contact_messages` use underscored timestamps,
+        `records` keeps Sequelize's camelCase defaults (matching the models).
+        """
+        schema = """-- Generated schema mirror. Runtime authority: backend/migrations/*.js
+-- Apply with: psql "$DATABASE_URL" -f database/schema.sql
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(32) NOT NULL DEFAULT 'user',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(160) NOT NULL,
+  body TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+  "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_records_user ON records ("userId");
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(254) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON contact_messages (created_at DESC);
+"""
+        schema_path = Path(dest) / "database"
+        schema_path.mkdir(parents=True, exist_ok=True)
+        (schema_path / "schema.sql").write_text(schema, encoding="utf-8")
 
     def _build_backend_files(self, fmap: Dict[str, str], brand: str):
         # backend/package.json

@@ -72,6 +72,7 @@ import time
 import shutil
 import sqlite3
 import secrets
+import threading
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from collections import defaultdict
@@ -2739,6 +2740,153 @@ async def deploy_domain(req: DeployDomainRequest, request: Request, _auth: bool 
         agent_logger.error(f"Domain wizard failed for {req.domain}: {exc}", exc_info=True)
         raise _internal_error(exc)
     return {"success": True, "data": outcome}
+
+
+# ── Website Factory ────────────────────────────────────────────────────────
+# One job per project: build → backend tests → QA → deploy → live verify →
+# demo video. Deploy/video take minutes, so the run is a background job with a
+# polling endpoint; verification is synchronous and cheap.
+
+class FactoryRunRequest(BaseModel):
+    project_dir: str = Field(..., description="Generated project directory")
+    platform: str = Field("vercel", description="vercel | netlify | railway | github-pages | none")
+    video: bool = Field(True, description="Generate and verify the ~2-minute demo video")
+    name: str = Field("", description="Product name for the video")
+    tagline: str = Field("", description="One-line tagline for the video")
+    skip_build: bool = Field(False, description="Reuse an existing frontend/dist")
+    install: bool = Field(True, description="Run npm install when node_modules is missing")
+    allow_qa_fail: bool = Field(False, description="Continue to deploy even if browser QA fails")
+    video_target: float = Field(120.0, ge=30, le=600)
+
+
+class FactoryVerifyRequest(BaseModel):
+    url: str = Field(..., description="Deployed URL to verify")
+    routes: List[str] = Field(default_factory=list, description="SPA routes that must render")
+    marker: str = Field("", description="Optional string that must appear in index.html")
+    api_health: str = Field("", description="Optional API health path, e.g. /api/v1/health")
+    timeout: int = Field(90, ge=10, le=300)
+
+
+_FACTORY_JOBS: Dict[str, Dict[str, Any]] = {}
+_FACTORY_LOCK = threading.Lock()
+_FACTORY_MAX_JOBS = 25
+
+
+def _factory_set(job_id: str, **fields: Any) -> None:
+    with _FACTORY_LOCK:
+        job = _FACTORY_JOBS.get(job_id)
+        if job:
+            job.update(fields)
+
+
+def _factory_worker(job_id: str, payload: Dict[str, Any]) -> None:
+    _factory_set(job_id, status="running", started_at=datetime.utcnow().isoformat() + "Z")
+    try:
+        from agent.factory_pipeline import run_factory
+
+        result = run_factory(**payload)
+        _factory_set(
+            job_id,
+            status="done" if result.get("status") == "delivered" else "failed",
+            outcome=result.get("status"),
+            verified=bool(result.get("verified")),
+            result=result,
+            finished_at=datetime.utcnow().isoformat() + "Z",
+        )
+    except Exception as exc:  # noqa: BLE001 — the job must report, not crash the server
+        agent_logger.error(f"Factory job {job_id} failed: {exc}", exc_info=True)
+        _factory_set(job_id, status="failed", error=str(exc),
+                     finished_at=datetime.utcnow().isoformat() + "Z")
+
+
+@app.get("/api/factory/status", tags=["Factory"])
+async def factory_status(_auth: bool = Depends(_verify_api_key)):
+    """Report which deploy/video tools this machine can actually run."""
+    from agent.factory_pipeline import preflight
+
+    return {"success": True, "data": preflight()}
+
+
+@app.post("/api/factory/verify", tags=["Factory"])
+async def factory_verify(req: FactoryVerifyRequest, request: Request,
+                         _auth: bool = Depends(_verify_api_key)):
+    """Verify a deployed URL: assets, SPA routes, marker and optional API health."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent.live_verify import verify_site
+
+    evidence = verify_site(
+        req.url,
+        routes=req.routes or None,
+        marker=req.marker or None,
+        api_health=req.api_health or None,
+        timeout=req.timeout,
+    )
+    return {"success": True, "data": evidence}
+
+
+@app.post("/api/factory/run", tags=["Factory"])
+async def factory_run(req: FactoryRunRequest, request: Request,
+                      _auth: bool = Depends(_verify_api_key),
+                      x_api_key: Optional[str] = Header(default=None)):
+    """Start a full delivery pipeline in the background; poll the job for result."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    project_dir = os.path.abspath(os.path.expanduser(req.project_dir))
+    if not os.path.isdir(project_dir):
+        raise HTTPException(status_code=404, detail=f"Project directory not found: {req.project_dir}")
+    platform = req.platform.strip().lower()
+    if platform not in {"vercel", "netlify", "railway", "github-pages", "none"}:
+        raise HTTPException(status_code=422, detail=f"Unsupported platform: {req.platform}")
+
+    user = _authenticate_user(x_api_key)
+    job_id = uuid.uuid4().hex[:16]
+    payload = {
+        "project_dir": project_dir,
+        "deploy": platform,
+        "video": req.video,
+        "name": req.name,
+        "tagline": req.tagline,
+        "skip_build": req.skip_build,
+        "install": req.install,
+        "allow_qa_fail": req.allow_qa_fail,
+        "video_target": req.video_target,
+    }
+    with _FACTORY_LOCK:
+        if len(_FACTORY_JOBS) >= _FACTORY_MAX_JOBS:
+            oldest = sorted(_FACTORY_JOBS.items(), key=lambda item: item[1]["created_at"])[0][0]
+            _FACTORY_JOBS.pop(oldest, None)
+        _FACTORY_JOBS[job_id] = {
+            "job_id": job_id,
+            "status": "queued",
+            "project_dir": project_dir,
+            "platform": platform,
+            "video": req.video,
+            "user_id": (user or {}).get("id"),
+            "created_at": time.time(),
+        }
+    threading.Thread(target=_factory_worker, args=(job_id, payload), daemon=True, name=f"factory-{job_id}").start()
+    return {"success": True, "data": {"job_id": job_id, "status": "queued",
+                                      "poll": f"/api/factory/jobs/{job_id}"}}
+
+
+@app.get("/api/factory/jobs", tags=["Factory"])
+async def factory_jobs(_auth: bool = Depends(_verify_api_key)):
+    with _FACTORY_LOCK:
+        jobs = [
+            {key: value for key, value in job.items() if key != "result"}
+            for job in sorted(_FACTORY_JOBS.values(), key=lambda item: item["created_at"], reverse=True)
+        ]
+    return {"success": True, "data": jobs}
+
+
+@app.get("/api/factory/jobs/{job_id}", tags=["Factory"])
+async def factory_job(job_id: str, _auth: bool = Depends(_verify_api_key)):
+    with _FACTORY_LOCK:
+        job = dict(_FACTORY_JOBS.get(job_id) or {})
+    if not job:
+        raise HTTPException(status_code=404, detail="Factory job not found")
+    return {"success": True, "data": job}
 
 
 class WebAuditRequest(BaseModel):
