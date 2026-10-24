@@ -241,8 +241,8 @@ export default {{
         brand: {{
           primary: "{color}",
           accent: "{accent}",
-          surface: "{palette['surface']}",
-          background: "{palette['background']}",
+          surface: "{palette.get('surface', '#1e293b')}",
+          background: "{palette.get('background', '#0f172a')}",
         }},
       }},
     }},
@@ -310,9 +310,10 @@ import Register from './pages/Register.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 
 export default function App() {{
+  const isAuthRoute = /^\\/(?:login|register|forgot-password|reset-password(?:\\/|$)|verify-email(?:\\/|$))\\/?$/.test(window.location.pathname);
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
-      <GlassNavbar brand="{brand}" />
+      {{!isAuthRoute && <GlassNavbar brand="{brand}" />}}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={{<Home />}} />
@@ -325,7 +326,7 @@ export default function App() {{
           <Route path="/dashboard" element={{<Dashboard />}} />
         </Routes>
       </main>
-      <ModernFooter brand="{brand}" />
+      {{!isAuthRoute && <ModernFooter brand="{brand}" />}}
     </div>
   );
 }}

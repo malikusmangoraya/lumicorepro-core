@@ -759,6 +759,12 @@ class DryRunRequest(BaseModel):
     design_style: Optional[str] = Field(None, description="Named design style override (see GenerateRequest)")
 
 
+class ReverseEngineerRequest(BaseModel):
+    path: str = Field(..., min_length=1, max_length=500, description="Repository directory to analyse (read-only)")
+    max_files: int = Field(2000, ge=1, le=20000, description="Cap on files inspected")
+    include_report: bool = Field(True, description="Also return the Markdown report")
+
+
 class LocalizeRequest(BaseModel):
     prompt: str = Field(..., min_length=5, max_length=2000, description="Website prompt to detect region/currency from")
     region: Optional[str] = Field(None, description="Override region detection: NA|EU|SA|MENA|APAC|AF|LATAM")
@@ -810,7 +816,7 @@ class IterateRequest(BaseModel):
 
 
 # ── Background generation task ─────────────────────────────────────────────
-async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], design_style: Optional[str] = None, buyer_type: Optional[str] = None, image: Optional[str] = None, animation_intensity: Optional[str] = None):
+async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], design_style: Optional[str] = None, buyer_type: Optional[str] = None, image: Optional[str] = None, animation_intensity: Optional[str] = None, extra_spec: Optional[Dict[str, Any]] = None):
     """Execute the 15-phase pipeline in a thread and stream events."""
     run = _runs[run_id]
     async with _run_semaphore:
@@ -908,7 +914,7 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
                     _telemetry.record(run_id, event_type, phase=phase_name)
                     _emit(event_type, {"phase": phase_name, **data})
 
-                extra_spec = {}
+                extra_spec = dict(extra_spec or {})
                 if buyer_type:
                     extra_spec["buyer_type"] = buyer_type
                 if image:
@@ -2069,6 +2075,56 @@ async def dry_run(req: DryRunRequest, _auth: bool = Depends(_verify_api_key)):
         raise _internal_error(exc)
 
 
+@app.post("/api/reverse-engineer", tags=["Analysis"])
+async def reverse_engineer_repo(req: ReverseEngineerRequest,
+                                _auth: bool = Depends(_verify_api_key)):
+    """Read-only structural analysis of an existing repository.
+
+    The analyser inspects source text only: it never executes, imports or
+    network-calls the target. Scan roots are confined to the generated-projects
+    directory and the workspace root so the route cannot be used to read
+    arbitrary paths off the host.
+    """
+    from pathlib import Path
+
+    from agent.repo_reverse_engineer import reverse_engineer
+    from config.settings import PROJECT_ROOT
+
+    allowed_roots = [Path(GENERATED_PROJECTS_DIR).resolve(), Path(PROJECT_ROOT).resolve()]
+    extra = os.environ.get("REVERSE_ENGINEER_ROOTS", "")
+    allowed_roots.extend(
+        Path(item.strip()).expanduser().resolve() for item in extra.split(",") if item.strip()
+    )
+
+    try:
+        target = Path(req.path).expanduser().resolve()
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid path: {exc}")
+
+    if not target.is_dir():
+        raise HTTPException(status_code=404, detail="Path is not a directory")
+
+    inside = any(target == root or root in target.parents for root in allowed_roots)
+    if not inside:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Path is outside the allowed scan roots. Add it to "
+                "REVERSE_ENGINEER_ROOTS (comma-separated) if intentional."
+            ),
+        )
+
+    loop = asyncio.get_event_loop()
+    try:
+        result = await loop.run_in_executor(None, lambda: reverse_engineer(target, max_files=req.max_files))
+    except Exception as exc:
+        raise _internal_error(exc)
+
+    if not req.include_report:
+        result.pop("report_markdown", None)
+    return {"success": True, "path": str(target), **result}
+
+
 @app.get("/api/runs/{run_id}", tags=["Generation"])
 async def get_run(run_id: str, _auth: bool = Depends(_verify_api_key),
                   x_api_key: Optional[str] = Header(default=None)):
@@ -2753,6 +2809,71 @@ async def project_quality(req: ProjectQualityRequest, request: Request, _auth: b
     return {"success": True, "data": {"overall": overall, "stages": data}}
 
 
+class ExternalAgentRequest(BaseModel):
+    task: str = Field(..., description="Task prompt forwarded to the external CLI agent")
+    project_dir: Optional[str] = Field(None, description="Direct project directory path")
+    run_id: Optional[str] = Field(None, description="Finished generation run (resolves project dir)")
+    model: Optional[str] = Field(None, description="opencode only: provider/model (e.g. anthropic/claude-...)")
+    agent: Optional[str] = Field(None, description="opencode only: agent name (build/plan/custom)")
+    format: str = Field("default", description="opencode only: 'default' or 'json' event stream")
+    extra_args: Optional[List[str]] = Field(None, description="freebuff only: extra CLI flags")
+    timeout_s: int = Field(1800, ge=30, le=7200, description="Hard subprocess timeout")
+
+
+@app.get("/api/external-agents/status", tags=["Extensions"])
+async def external_agents_status(_auth: bool = Depends(_verify_api_key)):
+    """Availability probe for the open-source coding-agent bridges (opencode, freebuff)."""
+    from agent import external_agents
+    return {"success": True, "data": external_agents.tool_status()}
+
+
+@app.post("/api/external-agents/opencode", tags=["Extensions"])
+async def external_agent_opencode(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Delegate a task to the open source opencode CLI (github.com/anomalyco/opencode)
+    running in the generated project's directory: `opencode run <task> --auto`."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir or not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=422, detail="Provide a valid run_id or project_dir")
+    from agent import external_agents
+    outcome = external_agents.run_opencode(
+        str(project_dir),
+        req.task,
+        model=req.model,
+        agent=req.agent,
+        format=req.format,
+        timeout_s=req.timeout_s,
+    )
+    if outcome.get("status") == "not_available":
+        raise HTTPException(status_code=503, detail=outcome.get("message", "opencode CLI not installed"))
+    if outcome.get("status") == "failed":
+        return {"success": False, "data": outcome}
+    return {"success": True, "data": outcome}
+
+
+@app.post("/api/external-agents/freebuff", tags=["Extensions"])
+async def external_agent_freebuff(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Delegate a task to the open source freebuff CLI (github.com/CodebuffAI/freebuff)."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
+    if not project_dir or not os.path.isdir(str(project_dir)):
+        raise HTTPException(status_code=422, detail="Provide a valid run_id or project_dir")
+    from agent import external_agents
+    outcome = external_agents.run_freebuff(
+        str(project_dir),
+        req.task,
+        extra_args=req.extra_args,
+        timeout_s=req.timeout_s,
+    )
+    if outcome.get("status") == "not_available":
+        raise HTTPException(status_code=503, detail=outcome.get("message", "freebuff CLI not installed"))
+    if outcome.get("status") == "failed":
+        return {"success": False, "data": outcome}
+    return {"success": True, "data": outcome}
+
+
 class A11yAuditRequest(BaseModel):
     url: str = Field(..., description="Live page to audit with axe-core (WCAG 2.1/2.2 A/AA)")
 
@@ -2770,6 +2891,28 @@ async def a11y_audit_endpoint(req: A11yAuditRequest, request: Request, _auth: bo
     outcome = opt.a11y_audit(req.url)
     if outcome.get("status") == "failed":
         raise HTTPException(status_code=502, detail=outcome.get("message", "a11y audit failed"))
+    return {"success": True, "data": outcome}
+
+
+class MarketAuditRequest(BaseModel):
+    url: str = Field(..., description="Live page to audit against international-market standards (Playwright)")
+
+
+@app.post("/api/market-audit", tags=["Extensions"])
+async def market_audit_endpoint(req: MarketAuditRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Playwright-driven global-market audit of a live page: performance
+    (desktop + mobile LCP/CLS/TTFB/bytes/errors), SEO, i18n/currency, legal
+    trust surface and conversion basics - scored to the design-gate scale
+    (STANDARD 80 / PREMIUM 88 / SIGNATURE 92)."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent import market_audit as ma
+
+    if not req.url.startswith(("http://", "https://")):
+        raise HTTPException(status_code=422, detail="url must be an absolute http(s) address")
+    outcome = await asyncio.to_thread(ma.market_audit, req.url)
+    if outcome.get("status") == "failed":
+        raise HTTPException(status_code=502, detail=outcome.get("reason", "market audit failed"))
     return {"success": True, "data": outcome}
 
 
@@ -2792,6 +2935,156 @@ async def built_with(req: BuiltWithRequest, _auth: bool = Depends(_verify_api_ke
     if outcome.get("status") == "failed":
         raise HTTPException(status_code=422, detail=outcome.get("message", "Badge injection failed"))
     return {"success": True, "data": outcome}
+
+
+# 🧭 Market-first task intake: demand -> options -> blueprint -> build 🧭
+class TaskIntakeRequest(BaseModel):
+    prompt: str = Field(..., min_length=5, max_length=2000, description="What the operator wants to build")
+    use_live_signals: bool = Field(True, description="Fetch live Reddit/X community signals (degrades gracefully offline)")
+
+
+class TaskSelectRequest(BaseModel):
+    intake_run_id: str = Field(..., min_length=8, max_length=64)
+    option_id: str = Field(..., min_length=3, max_length=40)
+    product_name: Optional[str] = Field(None, max_length=60)
+    provider: Optional[str] = Field("grok", description="AI provider used for the build")
+    design_style: Optional[str] = Field(None, description="Optional Master Prompt design style")
+
+
+_task_intakes: Dict[str, Dict[str, Any]] = {}
+
+
+def _signals_digest(signals: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if not isinstance(signals, dict) or not signals:
+        return None
+    fragments = signals.get("fragments") or []
+    return {
+        "ok": bool(signals.get("ok")),
+        "reason": str(signals.get("reason", ""))[:200],
+        "channels_available": signals.get("channels_available") or {},
+        "preferred_features": (signals.get("preferred_features") or [])[:8],
+        "complaints": (signals.get("complaints") or [])[:8],
+        "risk_flags": (signals.get("risk_flags") or [])[:8],
+        "evidence": [
+            {"platform": (f or {}).get("platform"), "snippet": str((f or {}).get("snippet") or "")[:200]}
+            for f in list(fragments)[:5] if isinstance(f, dict)
+        ],
+    }
+
+
+@app.post("/api/tasks/intake", tags=["Tasks"])
+async def task_intake_endpoint(req: TaskIntakeRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Step 1 - market-first intake. Runs the real international market
+    analysis (benchmarks + live Reddit/X signals) for the given task and
+    returns 2-4 buildable product options, each with demand evidence and
+    indicative pricing. Nothing is built until an option is selected."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    from agent.task_intake import analyze_demand
+    try:
+        intake = await asyncio.to_thread(analyze_demand, req.prompt, req.use_live_signals, None)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001
+        agent_logger.error("task intake failed", exc_info=True)
+        raise HTTPException(status_code=502, detail=f"Market intake failed: {exc}")
+    _task_intakes[intake["run_id"]] = intake
+    agent_logger.info("task intake %s: industry=%s options=%s", intake["run_id"][:8],
+                      intake["market"].get("industry"), [o["id"] for o in intake["options"]])
+    return {"success": True, "data": {
+        "run_id": intake["run_id"],
+        "status": intake["status"],
+        "prompt": intake["prompt"],
+        "market": intake["market"],
+        "live_signals": _signals_digest(intake.get("live_signals")),
+        "options": intake["options"],
+    }}
+
+
+@app.post("/api/tasks/select", tags=["Tasks"])
+async def task_select_endpoint(req: TaskSelectRequest, request: Request, _auth: bool = Depends(_verify_api_key),
+                               x_api_key: Optional[str] = Header(default=None)):
+    """Step 2 - approve a selected option: returns the concrete build
+    blueprint (structure, features, pages, DB, QA gates) and immediately
+    queues the real generation run (stream via /ws/generate/{run_id})."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    intake = _task_intakes.get(req.intake_run_id)
+    if intake is None:
+        raise HTTPException(status_code=404, detail="Intake run not found. Run POST /api/tasks/intake first.")
+    from agent.task_intake import build_blueprint
+    try:
+        blueprint = await asyncio.to_thread(build_blueprint, intake, req.option_id, req.product_name, req.design_style)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    option = next(o for o in intake["options"] if o["id"] == req.option_id)
+
+    run_id = str(uuid.uuid4())
+    user = _authenticate_user(x_api_key)
+    _runs[run_id] = {
+        "status": "queued", "events": [], "result": None, "error": None,
+        "task": None, "cancel_requested": False,
+        "language": "en",
+        "region": None,
+        "created_at": datetime.utcnow().isoformat(),
+        "owner_id": user["id"] if user else None,
+        "intake_run_id": req.intake_run_id,
+        "selected_option": req.option_id,
+    }
+    _cleanup_run_state()
+    feature_list = ", ".join(option["features"])
+    effective_prompt = (
+        f"{intake['prompt']}\n\nMarket-first intake approved option '{option['name']}' "
+        f"({blueprint['mode']}). Deliver every one of these features: {feature_list}. "
+        f"Positioning: {option['positioning']}."
+    )
+    _pipeline_store.create_run(
+        run_id, status="queued", prompt=effective_prompt, provider=req.provider or "grok",
+        language="en", region=None, buyer_type=blueprint["mode"],
+        design_style=req.design_style, owner_id=user["id"] if user else None,
+    )
+    credits_reserved = 0.0
+    if user is not None:
+        if not _accounts.spend(user["id"], _CREDITS_PER_RUN, run_id=run_id, reason="generation"):
+            _runs.pop(run_id, None)
+            _pipeline_store.set_status(run_id, "cancelled", error="Insufficient credits", finished_at=time.time())
+            raise HTTPException(
+                status_code=402,
+                detail=f"Insufficient credits. Balance is 0. Add credits via POST /api/accounts/credits/topup.",
+            )
+        credits_reserved = _CREDITS_PER_RUN
+        _runs[run_id]["user_id"] = user["id"]
+        _runs[run_id]["credits_reserved"] = credits_reserved
+    buyer_type = "static" if option["buyer_mode"] == "client_static" else "enterprise"
+    task = asyncio.create_task(_run_pipeline(
+        run_id, effective_prompt, req.provider or "grok", req.design_style, buyer_type,
+        None, "high",
+        extra_spec={
+            "market_intake": {
+                "run_id": req.intake_run_id, "option_id": req.option_id,
+                "blueprint": blueprint, "market": intake["market"],
+            },
+            # Hand the pre-analyzed market intelligence straight to the
+            # orchestrator's Phase 1 so it never re-analyzes and honors the
+            # selected option's mode/features during generation.
+            "market_analysis": intake["market"],
+            "market_prelim_spec": {
+                "industry": intake["market"].get("industry"),
+                "website_type": intake["market"].get("website_type"),
+                "features": option["features"],
+                "name": req.product_name,
+                "buyer_mode": option["buyer_mode"],
+                "positioning": option["positioning"],
+            },
+        },
+    ))
+    _runs[run_id]["task"] = task
+    agent_logger.info("task select %s -> build run %s (%s)", req.intake_run_id[:8], run_id[:8], req.option_id)
+    return {"success": True, "data": {
+        "blueprint": blueprint,
+        "build": {"run_id": run_id, "status": "queued", "ws_url": f"/ws/generate/{run_id}",
+                  "credits_reserved": credits_reserved},
+    }}
 
 
 class ImageGenRequest(BaseModel):

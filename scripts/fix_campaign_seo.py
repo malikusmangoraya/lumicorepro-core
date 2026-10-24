@@ -39,11 +39,14 @@ PROJECTS = ROOT / "generated-projects"
 # Campaigns moved here when the sell-today storefronts became first-class
 # products; the repair tool resolves both homes so scope never drifts.
 SELL_TODAY = ROOT / "products" / "sell-today"
+# Some campaigns were later relocated into delivery/<slug> during repo
+# housekeeping; the resolver accepts any of the three homes.
+DELIVERY = ROOT / "delivery"
 
 
 def resolve_project_dir(slug: str) -> Optional[Path]:
-    """Project home for a campaign slug: generated-projects/ or sell-today/."""
-    for base in (PROJECTS, SELL_TODAY):
+    """Project home for a campaign slug: generated-projects/, sell-today/, or delivery/."""
+    for base in (PROJECTS, SELL_TODAY, DELIVERY):
         candidate = base / slug
         if candidate.is_dir():
             return candidate

@@ -254,6 +254,9 @@ def test_campaign_list_matches_generator():
     sell_today = ROOT / "products" / "sell-today"
     if sell_today.is_dir():
         generated |= {p.name for p in sell_today.glob("*") if p.is_dir()}
+    delivery = ROOT / "delivery"
+    if delivery.is_dir():
+        generated |= {p.name for p in delivery.glob("*") if p.is_dir()}
     if not any(p.is_dir() for p in ipg.PROJECTS.glob("*")):
         pytest.skip("generated-projects/ wiped for fresh regeneration; parity restores on next generator run")
     missing = set(fcs.CAMPAIGNS) - generated

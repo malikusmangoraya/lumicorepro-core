@@ -1,0 +1,117 @@
+{
+  "name": "LumicorePro Generate and Monitor",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.LUMICORE_API_BASE_URL}}/api/generate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"prompt\": $json.prompt, \"provider\": $json.provider || \"gemini\", \"dry_run\": $json.dry_run || false}",
+        "options": {}
+      },
+      "id": "start-generation",
+      "name": "Start generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "onError": "continueRegularOutput",
+      "credentials": { "httpHeaderAuth": { "id": "", "name": "LumicorePro API Key" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $json;\nif (response.error || Number(response.statusCode || 0) >= 400) {\n  return [{ json: { status: 'error', reason: 'request_failed', has_run_id: false } }];\n}\nif (!response.run_id || typeof response.run_id !== 'string') {\n  return [{ json: { status: 'error', reason: 'missing_run_id', has_run_id: false } }];\n}\nreturn [{ json: { run_id: response.run_id, status: response.status || 'queued', has_run_id: true } }];"
+      },
+      "id": "validate-run",
+      "name": "Validate run id",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{$json.has_run_id}}", "operation": "isTrue" }] }
+      },
+      "id": "has-run-id",
+      "name": "Run id present?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.LUMICORE_API_BASE_URL}}/api/runs/{{$json.run_id}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-run-status",
+      "name": "Get run status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1180, 240],
+      "onError": "continueRegularOutput",
+      "credentials": { "httpHeaderAuth": { "id": "", "name": "LumicorePro API Key" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_POLL_ATTEMPTS = 30;\nlet prior = {};\ntry { prior = $('Wait before polling again').first().json || {}; } catch (error) { prior = {}; }\nconst current = $json;\nconst status = current.status;\nconst attempt = Number(prior.attempt || 0) + 1;\nif (current.error || Number(current.statusCode || 0) >= 400) return [{ json: { ...prior, ...current, status: 'error', reason: 'request_failed', terminal: true, attempt } }];\nif (['done', 'error', 'cancelled'].includes(status)) return [{ json: { ...prior, ...current, terminal: true, attempt } }];\nif (attempt >= MAX_POLL_ATTEMPTS) return [{ json: { ...prior, ...current, status: 'error', reason: 'poll_timeout', terminal: true, attempt } }];\nif (!['queued', 'running'].includes(status)) return [{ json: { ...prior, ...current, status: 'error', reason: 'unexpected_status', terminal: true, attempt } }];\nreturn [{ json: { ...prior, ...current, attempt, terminal: false } }];"
+      },
+      "id": "poll-state",
+      "name": "Poll state",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1420, 240]
+    },
+    {
+      "parameters": { "conditions": { "boolean": [{ "value1": "={{$json.terminal}}", "operation": "isTrue" }] } },
+      "id": "terminal-check",
+      "name": "Terminal state?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1660, 240]
+    },
+    {
+      "parameters": { "amount": 5, "unit": "seconds" },
+      "id": "poll-delay",
+      "name": "Wait before polling again",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1660, 440]
+    },
+    {
+      "parameters": { "jsCode": "const item = $json;\nreturn [{ json: { run_id: item.run_id || null, status: item.status, reason: item.reason || null, notification_safe: true } }];" },
+      "id": "notification-metadata",
+      "name": "Build notification metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1900, 240]
+    }
+  ],
+  "connections": {
+    "Manual trigger": { "main": [[{ "node": "Start generation", "type": "main", "index": 0 }]] },
+    "Start generation": { "main": [[{ "node": "Validate run id", "type": "main", "index": 0 }]] },
+    "Validate run id": { "main": [[{ "node": "Run id present?", "type": "main", "index": 0 }]] },
+    "Run id present?": { "main": [[{ "node": "Get run status", "type": "main", "index": 0 }], [{ "node": "Build notification metadata", "type": "main", "index": 0 }]] },
+    "Get run status": { "main": [[{ "node": "Poll state", "type": "main", "index": 0 }]] },
+    "Poll state": { "main": [[{ "node": "Terminal state?", "type": "main", "index": 0 }]] },
+    "Terminal state?": { "main": [[{ "node": "Build notification metadata", "type": "main", "index": 0 }], [{ "node": "Wait before polling again", "type": "main", "index": 0 }]] },
+    "Wait before polling again": { "main": [[{ "node": "Get run status", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "lumicorepro-generate-monitor-v1",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

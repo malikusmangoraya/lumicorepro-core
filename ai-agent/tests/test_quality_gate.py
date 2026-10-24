@@ -211,6 +211,7 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(result["suites"]), 2)
         self.assertEqual(len(calls), 2)
         self.assertTrue(all(call[2]["CI"] == "1" for call in calls))
+        self.assertTrue(all(call[2]["NODE_ENV"] == "test" for call in calls))
         self.assertTrue(all(call[0][-1] == "test" for call in calls))
 
     async def test_run_tests_reports_missing_test_scripts(self):
@@ -291,6 +292,80 @@ class TestDevOpsQualityGate(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Unexpected token", errors_seen[0][1])
         self.assertEqual(len(report["self_correction"]), 1)
         self.assertTrue(report["build_verify"]["enabled"])
+
+    async def test_missing_tests_report_not_verified_but_still_verify_build(self):
+        """A project without tests must not pass, but build evidence is still collected."""
+        gate = DevOpsQualityGate(
+            require_node=False, self_correct_enabled=False, verify_build=True,
+        )
+        not_configured = {
+            "configured": False,
+            "passed": False,
+            "status": "not_configured",
+            "suites": [],
+        }
+        with mock.patch.object(gate, "format_project", new=_async_result(0)):
+            with mock.patch.object(gate, "lint_project", new=_async_result(0)):
+                with mock.patch.object(gate, "run_tests", new=mock.AsyncMock(return_value=not_configured)):
+                    with mock.patch.object(
+                        gate, "verify_build",
+                        new=mock.AsyncMock(return_value={
+                            "ok": True, "verified": True,
+                            "builds": [{"stack": "frontend", "ok": True, "build_exit": 0}],
+                        }),
+                    ):
+                        report = await gate.run_gate(self.project_dir)
+
+        self.assertFalse(report["passed"])
+        self.assertEqual(report["status"], "not_verified")
+        self.assertIn("tests_not_configured", report["blockers"])
+        self.assertTrue(report["build_verify"]["verified"])
+        self.assertTrue(report["build_verify"]["ok"])
+
+    async def test_build_verification_cannot_pass_without_package_roots(self):
+        """No package.json means no build evidence, so the gate must block."""
+        empty_dir = os.path.join(self.project_dir, "no-packages")
+        os.makedirs(empty_dir, exist_ok=True)
+        gate = DevOpsQualityGate(
+            require_node=False, self_correct_enabled=False, verify_build=True,
+        )
+        with mock.patch.object(gate, "format_project", new=_async_result(0)):
+            with mock.patch.object(gate, "lint_project", new=_async_result(0)):
+                with mock.patch.object(gate, "run_tests", new=mock.AsyncMock(return_value={
+                    "configured": True, "passed": True, "status": "passed", "suites": [],
+                })):
+                    report = await gate.run_gate(empty_dir)
+
+        self.assertFalse(report["passed"])
+        self.assertEqual(report["status"], "blocked")
+        self.assertIn("build_not_verified", report["blockers"])
+        self.assertFalse(report["build_verify"]["verified"])
+
+    async def test_tests_are_blocked_when_env_points_at_remote_database(self):
+        """Generated tests must not mutate a remote database by accident."""
+        remote = self.project_dir
+        with open(os.path.join(remote, ".env"), "w", encoding="utf-8") as fh:
+            fh.write("DATABASE_URL=postgres://user:pass@db.example.com:5432/app\n")
+        with open(os.path.join(remote, "package.json"), "w", encoding="utf-8") as fh:
+            json.dump({"name": "remote-db", "scripts": {"test": "node --test"}}, fh)
+
+        calls = []
+
+        async def run_command(args, cwd=None, env=None):
+            calls.append(args)
+            return _result(0)
+
+        with mock.patch.object(self.gate, "run_command", side_effect=run_command):
+            result = await DevOpsQualityGate.run_tests(
+                DevOpsQualityGate(require_node=False, self_correct_enabled=False),
+                remote,
+            )
+
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["reason"], "remote_database_detected")
+        self.assertEqual(result["database_host"], "db.example.com")
+        self.assertEqual(calls, [])
 
     async def test_self_correction_exhausts_ai_rounds(self):
         """A persistently failing build must exhaust SELF_CORRECT_MAX_ROUNDS AI

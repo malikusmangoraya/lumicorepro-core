@@ -76,6 +76,17 @@ python main.py --prompt "Create a modern electronics store" --dry-run
 python main.py --prompt "Create a modern electronics store" --verbose
 ```
 
+### Optional Reflex Mode
+
+Reflex generation is opt-in and does not change the default React/Vite path. Install the generated project's pinned optional dependency, then run the CLI with an explicit framework and valid package name:
+
+```bash
+python -m pip install reflex==0.10.0
+python main.py --framework reflex --project-name sample_app --dest generated-projects/sample_app
+```
+
+The CLI validates that Reflex is importable before writing files. It creates a minimal Python app, `rxconfig.py`, `requirements.txt`, README, and `generation-report.json`; it does not configure auth, databases, payments, deployment, or credentials. The generated README contains the local `reflex init` / `reflex run` commands. The pinned version and runtime behavior should be rechecked against the upstream Reflex release before production use.
+
 ---
 
 ## Running Test Suite

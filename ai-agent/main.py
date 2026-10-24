@@ -81,6 +81,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="LumicorePro Core AI Website Generation Agent")
     parser.add_argument("--prompt", type=str, help="Natural language website prompt")
+    parser.add_argument("--framework", type=str, choices=("react", "reflex"), default="react", help="Project framework (default: react; reflex is opt-in)")
     parser.add_argument("--provider", type=str, choices=sorted(PROVIDER_CONFIGS), help="Override active AI provider")
     parser.add_argument("--dry-run", action="store_true", help="Simulate generation plan without writing files to disk")
     parser.add_argument("--headless", action="store_true", help="Run without interactive prompts (for automation/testing)")
@@ -101,6 +102,7 @@ def main():
     parser.add_argument("--fullstack-pro", action="store_true", help="Generate complete, high-speed, clean international full-stack web application")
     parser.add_argument("--benchmark-3d", action="store_true", help="Benchmark international websites and synthesize complete 3D interactive application")
     parser.add_argument("--dest", type=str, default="generated-projects/fullstack-demo", help="Target output folder for full-stack generation")
+    parser.add_argument("--project-name", type=str, default="lumicore_reflex_app", help="Reflex package name (lowercase letters, digits, underscores)")
     parser.add_argument("--style", type=str, help="Design style (35 available): minimalism, maximalism, glassmorphism, cyberpunk, swiss, y2k, editorial, luxury, corporate, playful, bold, brutalism, bento_grid, + 22 more")
     args = parser.parse_args()
     if args.provider:
@@ -236,6 +238,24 @@ def main():
         init_database()
 
     prompt = args.prompt
+    if args.framework == "reflex":
+        from agent.reflex_project_generator import ReflexProjectGenerator
+
+        project_name = args.project_name
+        try:
+            report = ReflexProjectGenerator().generate(args.dest, project_name, validate_runtime=True)
+        except RuntimeError as exc:
+            print(f"Reflex generation failed: {exc}")
+            raise SystemExit(2) from exc
+        print("\n---------------- REFLEX GENERATION REPORT ----------------")
+        print(f"Framework       : {report['framework']}")
+        print(f"Project Name    : {report['project_name']}")
+        print(f"Status          : {report['status']}")
+        print(f"Destination     : {args.dest}")
+        print("Runtime         : dependency import validated")
+        print("----------------------------------------------------------\n")
+        return
+
     dry_run = args.dry_run
 
     if not prompt and not dry_run and len(sys.argv) == 1:

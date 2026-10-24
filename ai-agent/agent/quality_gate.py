@@ -14,10 +14,15 @@ optional build verification before release:
     3. ESLint rule       -> dedicated flat config, `--config scripts/eslint.generated.config.js`
                            (the repo root config globalIgnores `generated-projects`,
                            so a naive `npm run lint -- <path>` would silently skip files).
-    4. Test runner       -> each declared npm test script runs with CI=1; missing or
-                           failing test suites block deployment.
+    4. Test runner       -> each declared npm test script runs with CI=1 and
+                           NODE_ENV=test. Tests pointed at a remote database are
+                           blocked unless the project opts in with
+                           QUALITY_GATE_ALLOW_REMOTE_DB_TESTS=1 or declares
+                           NODE_ENV=test in its .env.
     5. Release checks    -> failed format, lint, tests, or enabled build verification
-                           block deployment; diagnostic ZIP creation remains separate.
+                           block deployment; missing tests are reported as
+                           ``not_verified`` and never as a pass. Diagnostic ZIP
+                           creation remains separate.
 """
 import os
 import re
@@ -29,6 +34,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
 from config.settings import PROJECT_ROOT
 from utils.logger import agent_logger
@@ -343,18 +349,86 @@ class DevOpsQualityGate:
         except (OSError, ValueError):
             return False
 
+    @staticmethod
+    def _read_env_map(path: str) -> Dict[str, str]:
+        values: Dict[str, str] = {}
+        try:
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                for line in fh:
+                    match = re.match(r"\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$", line)
+                    if match:
+                        values[match.group(1)] = match.group(2).strip().strip("'\"")
+        except OSError:
+            pass
+        return values
+
+    def _remote_database_host(self, project_dir: str) -> Optional[str]:
+        """Return a non-local database host that generated tests would touch."""
+        candidates = [
+            os.path.join(project_dir, ".env"),
+            os.path.join(project_dir, "backend", ".env"),
+        ]
+        local_hosts = {"", "localhost", "127.0.0.1", "::1", "0.0.0.0", "host.docker.internal"}
+        for env_path in candidates:
+            env_map = self._read_env_map(env_path)
+            allow = (
+                env_map.get("QUALITY_GATE_ALLOW_REMOTE_DB_TESTS", "").strip().lower()
+                in ("1", "true", "yes", "on")
+                or env_map.get("NODE_ENV", "").strip().lower() == "test"
+            )
+            if allow:
+                continue
+            database_url = env_map.get("DATABASE_URL", "")
+            if database_url:
+                host = urlparse(database_url).hostname or ""
+                if host.lower() not in local_hosts:
+                    return host
+            for key in ("POSTGRES_HOST", "DB_HOST", "PGHOST"):
+                host = env_map.get(key, "").strip()
+                if host and host.lower() not in local_hosts:
+                    return host
+        return None
+
     async def run_tests(self, project_dir: str) -> Dict[str, Any]:
         """Run each declared package test script non-interactively in CI mode."""
+        roots = [root for root in self._package_roots(project_dir) if self._has_test_script(root)]
+        if not roots:
+            return {
+                "configured": False,
+                "passed": False,
+                "status": "not_configured",
+                "suites": [],
+            }
+
+        remote_host = self._remote_database_host(project_dir)
+        allow_remote = os.getenv("QUALITY_GATE_ALLOW_REMOTE_DB_TESTS", "").strip().lower() in (
+            "1", "true", "yes", "on",
+        )
+        if remote_host and not allow_remote:
+            return {
+                "configured": True,
+                "passed": False,
+                "status": "blocked",
+                "reason": "remote_database_detected",
+                "database_host": remote_host,
+                "suites": [{
+                    "stack": _posix(os.path.relpath(root, project_dir)),
+                    "command": "not_run",
+                    "passed": False,
+                    "status": "blocked",
+                    "reason": "remote_database_detected",
+                    "database_host": remote_host,
+                } for root in roots],
+            }
+
         npm_bin = self.npm or "npm"
         suites: List[Dict[str, Any]] = []
-        for root in self._package_roots(project_dir):
-            if not self._has_test_script(root):
-                continue
+        for root in roots:
             rel = _posix(os.path.relpath(root, project_dir))
             result = await self.run_command(
                 [npm_bin, "test"],
                 cwd=root,
-                env={"CI": "1", "FORCE_COLOR": "0"},
+                env={"CI": "1", "FORCE_COLOR": "0", "NODE_ENV": "test"},
             )
             suites.append({
                 "stack": rel,
@@ -365,12 +439,11 @@ class DevOpsQualityGate:
                 "passed": result.ok,
                 "output": self._tail(result),
             })
-        configured = bool(suites)
-        passed = configured and all(suite["passed"] for suite in suites)
+        passed = all(suite["passed"] for suite in suites)
         return {
-            "configured": configured,
+            "configured": True,
             "passed": passed,
-            "status": "passed" if passed else "failed" if configured else "not_configured",
+            "status": "passed" if passed else "failed",
             "suites": suites,
         }
 
@@ -381,10 +454,11 @@ class DevOpsQualityGate:
         for root in self._package_roots(project_dir):
             rel = _posix(os.path.relpath(root, self.repo_root))
             entry: Dict[str, Any] = {"stack": rel}
-            install = await self.run_command(
-                [npm_bin, "install", "--no-audit", "--no-fund", "--prefer-offline"],
-                cwd=root,
-            )
+            install_args = [npm_bin, "install", "--no-audit", "--no-fund", "--prefer-offline"]
+            if os.path.isfile(os.path.join(root, "package-lock.json")):
+                install_args = [npm_bin, "ci", "--no-audit", "--no-fund"]
+            install = await self.run_command(install_args, cwd=root)
+            entry["install_command"] = install.command
             entry["install_exit"] = install.returncode
             if self._has_build_script(root):
                 build = await self.run_command([npm_bin, "run", "build"], cwd=root)
@@ -469,12 +543,25 @@ class DevOpsQualityGate:
             test_result = None
             if passed:
                 test_result = await self.run_tests(project_dir)
-                passed = bool(test_result.get("passed"))
-                if not test_result.get("configured"):
+                tests_missing = not test_result.get("configured")
+                tests_blocked = test_result.get("status") == "blocked"
+                # Build verification is still useful evidence when tests are
+                # absent or intentionally refused (remote DB guard). It must
+                # never be skipped just because there is no test script.
+                if self.verify_build_enabled and (test_result.get("passed") or tests_missing or tests_blocked):
+                    build_result = await self.verify_build(project_dir)
+                if tests_missing or tests_blocked:
+                    passed = False
                     break
-            if passed and self.verify_build_enabled:
-                build_result = await self.verify_build(project_dir)
-                passed = build_result.get("ok", False)
+                passed = bool(test_result.get("passed"))
+                if passed and self.verify_build_enabled:
+                    passed = bool(
+                        build_result
+                        and build_result.get("verified")
+                        and build_result.get("ok")
+                    )
+                    if not (build_result or {}).get("verified"):
+                        break
 
             if passed or attempt >= max_attempts:
                 break
@@ -547,13 +634,49 @@ class DevOpsQualityGate:
                 active_targets = [os.path.abspath(f) for f in offenders]
             attempt += 1
 
-        status = "passed" if passed else "blocked"
+        blockers: List[str] = []
+        if fmt_result is not None and not fmt_result.ok:
+            blockers.append("format_failed")
+        if lint_result is not None and not lint_result.ok:
+            blockers.append("lint_failed")
+        tests_configured = bool(test_result and test_result.get("configured"))
+        if test_result is None:
+            blockers.append("tests_not_run")
+        elif not tests_configured:
+            blockers.append("tests_not_configured")
+        elif test_result.get("status") == "blocked":
+            blockers.append("tests_blocked_remote_database")
+        elif not test_result.get("passed"):
+            blockers.append("tests_failed")
+        build_attempted = bool(
+            test_result
+            and (
+                test_result.get("passed")
+                or not tests_configured
+                or test_result.get("status") == "blocked"
+            )
+        )
+        if self.verify_build_enabled and build_attempted:
+            if build_result is None:
+                blockers.append("build_not_run")
+            elif not build_result.get("verified"):
+                blockers.append("build_not_verified")
+            elif not build_result.get("ok"):
+                blockers.append("build_failed")
+        if passed:
+            blockers = []
+            status = "passed"
+        elif "tests_not_configured" in blockers:
+            status = "not_verified"
+        else:
+            status = "blocked"
         agent_logger.info(f"[QUALITY GATE] {status} for {_posix(project_dir)}")
 
         return {
             "available": bool(self.npm),
             "passed": passed,
             "status": status,
+            "blockers": blockers,
             "attempts": attempt + 1,
             "maximum_attempts": max_attempts + 1,
             "format": {
@@ -590,7 +713,9 @@ class DevOpsQualityGate:
             "note": (
                 "Release checks passed (format + lint + tests + enabled build verification)."
                 if passed
-                else "Quality gate FAILED — release deployment blocked; diagnostic ZIP may still be created."
+                else "Release checks NOT VERIFIED - no test script is configured."
+                if status == "not_verified"
+                else "Quality gate FAILED - release deployment blocked; diagnostic ZIP may still be created."
             ),
         }
 

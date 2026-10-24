@@ -74,6 +74,15 @@ class TestFullStackUltraEngine(unittest.TestCase):
         self.assertIn("\n\n", license_text)
         self.assertNotIn(r"\n", license_text)
 
+    def test_generated_auth_routes_omit_marketing_chrome(self):
+        engine = FullStackUltraEngine()
+        files = {}
+        engine._build_frontend_files(files, "FreightNexus", "#123456", "#abcdef", {}, "logistics")
+        app = files["frontend/src/App.jsx"]
+        self.assertIn("isAuthRoute", app)
+        self.assertIn("!isAuthRoute && <GlassNavbar", app)
+        self.assertIn("!isAuthRoute && <ModernFooter", app)
+
     def test_orchestrator_integration(self):
         orchestrator = AgentOrchestrator(provider_name="gemini")
         self.assertTrue(hasattr(orchestrator, "fullstack_engine"))
