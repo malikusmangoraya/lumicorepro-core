@@ -345,8 +345,11 @@ Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`,
 asset + every expected SPA route + optional marker/API health) and, for video,
 `ffprobe` reported both streams. A CLI exit code, an empty URL, a Vercel login wall or a
 "deployment not found" page is not proof. Unverified artifacts are reported as
-`deployed-unverified`/`partial`, never as success. Never lower these gates — they exist
-because every connector previously reported `live` on exit 0 alone (fixed 2026-10-24).
+`deployed-unverified`/`partial`, never as success. A project with `backend/` is not
+"delivered" until the hosted API health endpoint is verified and `VITE_API_URL` was baked
+into the build (`--factory-api-url`, `--factory-api-health`): static hosts serve the
+frontend only. Never lower these gates — they exist because every connector previously
+reported `live` on exit 0 alone (fixed 2026-10-24).
 
 **Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 

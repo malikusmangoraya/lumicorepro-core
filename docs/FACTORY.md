@@ -39,6 +39,14 @@ The report is written to `<project>/.factory/report.json` and `.factory/report.m
 | live verify | HTTP 200, real `<title>`, app shell, every referenced JS/CSS asset, every expected SPA route, optional marker + API health | status codes, failures, timings |
 | `video` | ffprobe reports video stream + audio stream and duration within 30 % of the 120 s target | duration, resolution, codecs, scene list |
 
+**API hosting is a separate stage by design.** Vercel/Netlify/GitHub Pages serve the
+frontend only. When the project contains `backend/`, a run with a hosted API must pass
+`api_health`; the live verifier then hits that endpoint and records `api_deployed: true`.
+Without it the result stays `partial` with "the Express API is not deployed" — the
+frontend may be live, but a full-stack claim would be false. Host `backend/` on
+Railway/Render/Docker, set `VITE_API_URL` via `--factory-api-url`, and pass the health
+path. The generated `backend/.env.example` lists every required variable.
+
 `status: live` is never returned for an empty URL, a login wall, a platform error page, or
 a broken bundle. The deploy result uses `deployed-unverified` instead, with the failing
 checks attached.
@@ -100,7 +108,8 @@ POST /api/factory/run
 
 | Artifact | Evidence |
 |----------|----------|
-| Live site | https://nimbus-analytics-demo.vercel.app/ — verified: 6 SPA routes 200, both bundle assets loaded |
+| Live frontend | https://nimbus-analytics-demo.vercel.app/ — verified: 6 SPA routes 200, both bundle assets loaded |
+| API hosting | Not hosted for this demo (no database credentials); under the current gate that run reports `partial`, never `delivered` |
 | Demo video | `.factory/demo.mp4` — 120.02 s, 1920×1080, H.264 + AAC, 9 narrated scenes, SRT included |
 | QA | 0 console errors, 0 page errors, 4 collapse samples at 375/768/1024/1440 |
 | Backend | 5 `node --test` tests green |

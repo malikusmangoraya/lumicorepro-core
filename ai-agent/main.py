@@ -111,6 +111,8 @@ def main():
     parser.add_argument("--factory-skip-build", action="store_true", help="Reuse an existing frontend/dist")
     parser.add_argument("--factory-name", type=str, default="", help="Product name used in the demo video")
     parser.add_argument("--factory-tagline", type=str, default="", help="Tagline used in the demo video")
+    parser.add_argument("--factory-api-url", type=str, default="", help="Public API base URL baked into the build (VITE_API_URL)")
+    parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy")
     parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
     parser.add_argument("--verify-url", type=str, help="Verify a deployed URL (assets, SPA routes, optional API health)")
     parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. /api/v1/health")
@@ -146,6 +148,8 @@ def main():
             name=args.factory_name,
             tagline=args.factory_tagline,
             skip_build=args.factory_skip_build,
+            api_url=args.factory_api_url,
+            api_health=args.factory_api_health,
         )
         print(json.dumps(result, indent=2) if args.factory_json
               else f"status={result.get('status')} verified={result.get('verified')} "

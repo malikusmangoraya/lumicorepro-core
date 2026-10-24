@@ -30,12 +30,13 @@ from utils.logger import agent_logger
 DEFAULT_PLATFORM = "vercel"
 
 
-def _run(cmd, cwd: Path, timeout: int = 900) -> Dict[str, Any]:
+def _run(cmd, cwd: Path, timeout: int = 900, env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     started = time.perf_counter()
+    merged_env = {**os.environ, **(env or {})}
     try:
         proc = subprocess.run(
             cmd, cwd=str(cwd), capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=timeout,
+            encoding="utf-8", errors="replace", timeout=timeout, env=merged_env,
         )
         return {
             "ok": proc.returncode == 0,
@@ -58,8 +59,14 @@ def _npm() -> str:
     return shutil.which("npm") or "npm"
 
 
-def build_project(project_dir: str, *, install: bool = True, timeout: int = 900) -> Dict[str, Any]:
-    """Build the generated frontend and return the dist path + command evidence."""
+def build_project(project_dir: str, *, install: bool = True, api_url: str = "",
+                  timeout: int = 900) -> Dict[str, Any]:
+    """Build the generated frontend and return the dist path + command evidence.
+
+    ``api_url`` is injected as ``VITE_API_URL`` for the build. Without it the
+    generated pages fall back to ``http://localhost:5000`` and every deployed
+    form calls the visitor's own machine.
+    """
     root = Path(project_dir)
     frontend = root / "frontend"
     if not (frontend / "package.json").is_file():
@@ -78,7 +85,9 @@ def build_project(project_dir: str, *, install: bool = True, timeout: int = 900)
     package_json = json.loads((frontend / "package.json").read_text(encoding="utf-8"))
     if "build" not in (package_json.get("scripts") or {}):
         return {"ok": False, "dist": "", "steps": steps, "message": "frontend package has no build script"}
-    steps["build"] = _run([_npm(), "run", "build"], frontend, timeout=timeout)
+    build_env = {"VITE_API_URL": api_url} if api_url else None
+    steps["build"] = _run([_npm(), "run", "build"], frontend, timeout=timeout, env=build_env)
+    steps["build"]["api_url"] = api_url or ""
     dist = frontend / "dist"
     if not steps["build"]["ok"]:
         return {"ok": False, "dist": str(dist), "steps": steps, "message": "npm run build failed",
@@ -131,6 +140,8 @@ def run_factory(
     allow_qa_fail: bool = False,
     video_target: float = 120.0,
     out_dir: str = "",
+    api_url: str = "",
+    api_health: str = "",
 ) -> Dict[str, Any]:
     """Run build → backend tests → QA → deploy → live verify → demo video."""
     started = time.perf_counter()
@@ -160,7 +171,7 @@ def run_factory(
         if not build["ok"]:
             build["message"] = "--skip-build was set but no dist/index.html exists"
     else:
-        build = build_project(str(project), install=install)
+        build = build_project(str(project), install=install, api_url=api_url)
     report["stages"]["build"] = build
     if not build.get("ok"):
         report.update(status="failed", message=build.get("message", "build failed"),
@@ -184,14 +195,39 @@ def run_factory(
         return _write_report(project, report_dir, report)
 
     # 4 — deploy + live verification -------------------------------------------
+    backend_present = (project / "backend" / "package.json").is_file()
     deployment: Dict[str, Any] = {"status": "skipped", "verified": False}
     if platform != "none":
         from agent.deploy_engine import deploy_project
 
         deployment = deploy_project(str(project), platform=platform)
+        if deployment.get("verified") and backend_present:
+            # The static hosts (Vercel/Netlify/Pages) only serve the frontend.
+            # A full-stack claim needs the API host verified too.
+            if not api_health:
+                deployment = {
+                    **deployment,
+                    "verified": False,
+                    "api_deployed": False,
+                    "message": "Frontend is live, but the Express API is not deployed; "
+                               "host backend/ (Railway/Render/Docker) and pass api_health",
+                }
+            else:
+                from agent.live_verify import verify_site
+
+                evidence = verify_site(
+                    deployment["url"], api_health=api_health, timeout=60
+                )
+                deployment = {
+                    **deployment,
+                    "verification": evidence,
+                    "verified": bool(evidence.get("verified")),
+                    "api_deployed": bool((evidence.get("checks") or {}).get("api", {}).get("ok")),
+                }
     report["stages"]["deploy"] = {
         key: deployment.get(key)
-        for key in ("status", "url", "platform", "verified", "deployment_id", "message", "verification")
+        for key in ("status", "url", "platform", "verified", "deployment_id", "message",
+                    "verification", "api_deployed")
         if key in deployment
     }
 

@@ -117,6 +117,40 @@ class FactoryPipelineTests(unittest.TestCase):
             self.assertEqual(result["status"], "partial")
             self.assertIn("demo video not verified", result["failures"])
 
+    def test_backend_present_without_a_hosted_api_is_partial(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / "site")
+            (project / "backend").mkdir()
+            (project / "backend" / "package.json").write_text("{}")
+            with patch.object(factory, "build_project", return_value={"ok": True, "dist": "/tmp"}),                  patch.object(factory, "test_backend", return_value={"ok": True}),                  patch.object(factory, "run_qa", return_value={"ok": True, "status": "passed"}),                  patch("agent.deploy_engine.deploy_project", return_value={
+                     "status": "live", "verified": True, "url": "https://x",
+                 }),                  patch("agent.demo_video.generate_demo_video", return_value={
+                     "status": "ready", "verified": True,
+                 }):
+                result = factory.run_factory(str(project), deploy="vercel", video=True)
+            self.assertEqual(result["status"], "partial")
+            self.assertIn("api_deployed", result["stages"]["deploy"])
+            self.assertFalse(result["stages"]["deploy"]["api_deployed"])
+
+    def test_hosted_api_health_makes_the_run_deliverable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / "site")
+            (project / "backend").mkdir()
+            (project / "backend" / "package.json").write_text("{}")
+            good = {"verified": True, "status": "verified", "checks": {"api": {"ok": True}}}
+            with patch.object(factory, "build_project", return_value={"ok": True, "dist": "/tmp"}),                  patch.object(factory, "test_backend", return_value={"ok": True}),                  patch.object(factory, "run_qa", return_value={"ok": True, "status": "passed"}),                  patch("agent.deploy_engine.deploy_project", return_value={
+                     "status": "live", "verified": True, "url": "https://x",
+                 }),                  patch("agent.live_verify.verify_site", return_value=good),                  patch("agent.demo_video.generate_demo_video", return_value={
+                     "status": "ready", "verified": True,
+                 }):
+                result = factory.run_factory(
+                    str(project), deploy="vercel", video=True,
+                    api_url="https://api.example.com/api/v1",
+                    api_health="/api/v1/health",
+                )
+            self.assertEqual(result["status"], "delivered")
+            self.assertTrue(result["stages"]["deploy"]["api_deployed"])
+
     def test_skip_build_requires_an_existing_dist(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp) / "empty"

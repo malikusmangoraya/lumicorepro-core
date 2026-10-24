@@ -2757,6 +2757,8 @@ class FactoryRunRequest(BaseModel):
     install: bool = Field(True, description="Run npm install when node_modules is missing")
     allow_qa_fail: bool = Field(False, description="Continue to deploy even if browser QA fails")
     video_target: float = Field(120.0, ge=30, le=600)
+    api_url: str = Field("", description="Public API base URL baked into the frontend (VITE_API_URL)")
+    api_health: str = Field("", description="API health path/URL to verify after deploy")
 
 
 class FactoryVerifyRequest(BaseModel):
@@ -2845,6 +2847,8 @@ async def factory_run(req: FactoryRunRequest, request: Request,
         "project_dir": project_dir,
         "deploy": platform,
         "video": req.video,
+        "api_url": req.api_url,
+        "api_health": req.api_health,
         "name": req.name,
         "tagline": req.tagline,
         "skip_build": req.skip_build,
