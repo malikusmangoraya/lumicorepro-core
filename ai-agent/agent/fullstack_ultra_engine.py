@@ -74,7 +74,7 @@ router.post('/', validate(RULES), async (req, res, next) => {
 module.exports = router;
 """
 
-_CONTACT_MIGRATION_JS = """/** 002: contact_messages — persisted submissions from the public contact form. */
+_CONTACT_MIGRATION_JS = """/** 003: contact_messages — persisted submissions from the public contact form. */
 const { DataTypes } = require('sequelize');
 
 module.exports = {
@@ -592,7 +592,7 @@ class FullStackUltraEngine:
         files_map["backend/migrations/001_create_core_tables.js"] = self._postgres_migration()
         files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
         files_map["backend/routes/contact.routes.js"] = _CONTACT_ROUTE_JS
-        files_map["backend/migrations/002_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
+        files_map["backend/migrations/003_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
         files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE
         files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
         files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
