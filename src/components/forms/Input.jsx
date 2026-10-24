@@ -56,6 +56,7 @@ const Input = forwardRef(
             id={inputId}
             type={actualType}
             disabled={disabled}
+            required={required}
             aria-invalid={!!error}
             aria-describedby={
               error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined

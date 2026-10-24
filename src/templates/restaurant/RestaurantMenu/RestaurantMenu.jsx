@@ -44,9 +44,14 @@ export default function RestaurantMenu() {
       return exists ? prev.filter((f) => f.id !== item.id) : [...prev, item];
     });
 
+  const parsePrice = (value) => {
+    const n = parseFloat(String(value ?? '').replace(/[^0-9.]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
   const isFavorite = (itemId) => favorites.some((f) => f.id === itemId);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const cartTotal = cart.reduce((s, i) => s + parseFloat(i.price.replace('$', '')) * i.qty, 0);
+  // Prices are "PKR 450" — parseFloat("PKR 450") is NaN, which used to render $NaN.
+  const cartTotal = cart.reduce((s, i) => s + parsePrice(i.price) * i.qty, 0);
 
   const statsData = [
     { title: 'Menu Items', value: menuItems.length, icon: Award, iconColor: 'primary' },
@@ -177,7 +182,7 @@ export default function RestaurantMenu() {
       {/* Category Filter */}
       <ScrollReveal animate="fade-up" delay={0.3}>
         <div className="flex flex-wrap gap-2 mb-6">
-          {['All', ...categories].map((cat) => (
+          {['All', ...categories.filter((c) => c !== 'All')].map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -299,7 +304,7 @@ export default function RestaurantMenu() {
                 <ShoppingCart className="h-5 w-5 text-primary" />
                 Your Order ({cartCount} items)
               </h3>
-              <span className="font-display text-lg font-bold text-primary">${cartTotal.toFixed(2)}</span>
+              <span className="font-display text-lg font-bold text-primary">PKR {cartTotal.toFixed(2)}</span>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {cart.map((item) => (
@@ -324,7 +329,7 @@ export default function RestaurantMenu() {
             </div>
             <div className="mt-4 flex gap-2">
               <GlassButton variant="outline" size="sm" fullWidth leftIcon={Truck}>
-                Checkout - ${cartTotal.toFixed(2)}
+                Checkout - PKR {cartTotal.toFixed(2)}
               </GlassButton>
               <Button variant="ghost" size="sm" onClick={() => setCart([])}>
                 Clear Cart

@@ -51,6 +51,7 @@ import { aiAgentAPI, previewAPI, resolvePreviewUrl } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
 import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
+import { normalizeGenerationContext } from '@/utils/generationContext';
 import { trackEvent, AnalyticsEvents } from '@/utils/analytics';
 import { AI_AGENT_URL } from '@/config/aiAgent';
 
@@ -328,6 +329,7 @@ const REGIONS = [
 
 const STATUS_META = {
   idle: { variant: 'secondary', label: 'Ready to Generate' },
+  ready: { variant: 'warning', label: 'Daily Limit Reached' },
   running: { variant: 'info', label: 'Pipeline Running…' },
   done: { variant: 'success', label: 'Complete ✓' },
   error: { variant: 'danger', label: 'Error — Retry' },
@@ -416,6 +418,7 @@ export default function GeneratePage() {
       wsRef.current = null;
     }
     setStatus('idle');
+    setEngineMode('auto');
     setPhases(PHASES.map((p) => ({ ...p, state: 'pending', duration: null })));
     setActivePhaseIdx(-1);
     setResult(null);
@@ -494,8 +497,11 @@ export default function GeneratePage() {
         setActivePhaseIdx(i);
         setPhases((prev) => prev.map((p, j) => (j === i ? { ...p, state: 'running' } : p)));
         addLog(`▶ Phase ${i + 1}: ${PHASES[i].label}…`);
-        await new Promise((r) => setTimeout(r, delays[i]));
-        const dur = (delays[i] / 1000).toFixed(2);
+        // 9 sample delays for 16 phases — cycle them instead of setTimeout(undefined)
+        // (undefined delay made phases 10-16 complete instantly).
+        const delay = delays[i % delays.length];
+        await new Promise((r) => setTimeout(r, delay));
+        const dur = (delay / 1000).toFixed(2);
         setPhases((prev) =>
           prev.map((p, j) => (j === i ? { ...p, state: 'done', duration: `${dur}s` } : p))
         );
@@ -514,16 +520,28 @@ export default function GeneratePage() {
           .replace(/^-|-$/g, '')
           .slice(0, 40) || 'lumicore-website';
 
-      if (fallbackMeta.run_id) setRunId(fallbackMeta.run_id);
+      if (fallbackMeta.run_id) {
+        setRunId(fallbackMeta.run_id);
+        localStorage.setItem('lmc_last_run_id', fallbackMeta.run_id);
+      }
 
+      const handoff = normalizeGenerationContext({
+        mode: 'offline_engine',
+        run_id: fallbackMeta.run_id,
+        fallback_data: fallbackMeta,
+      });
       setResult({
+        ...handoff,
         projectName: fallbackMeta.projectName || projectSlug,
         template: fallbackMeta.template || 'Auto-selected from 60 templates',
         components: fallbackMeta.components || 14,
         backend: fallbackMeta.backend || 'Node.js + Express.js',
         database: fallbackMeta.database || 'PostgreSQL / SQLite',
         qualityScore: fallbackMeta.qualityScore || 95,
-        launchReady: true,
+        launchReady: false,
+        provenance: handoff.provenance,
+        lifecycle: handoff.lifecycle,
+        skippedPhases: handoff.skipped_phases,
         executionTime: '3.8',
         trendingFeatures: fallbackMeta.trendingFeatures || [
           'Smart Search',
@@ -569,6 +587,7 @@ export default function GeneratePage() {
         setEngineMode('live_agent');
         setDownloadUrl(data.download_url);
         setRunId(data.run_id);
+        localStorage.setItem('lmc_last_run_id', data.run_id);
         addLog(`Connected to AI Agent (Run ID: ${data.run_id})`);
 
         try {
@@ -613,16 +632,24 @@ export default function GeneratePage() {
                 const rep = msg.result || {};
                 const workflowAgents = rep.workflow_agents || null;
                 const qaRole = workflowAgents?.qa_deployment || {};
-                const releaseGate = qaRole.handoff?.release_gate || {};
                 const deploymentStatus = qaRole.handoff?.deployment_status || 'not_attempted';
+                const handoff = normalizeGenerationContext({
+                  mode: 'live_agent',
+                  run_id: data.run_id,
+                  result: rep,
+                });
                 setResult({
+                  ...handoff,
                   projectName: rep.project_name || 'generated-website',
                   template: rep.selected_resources?.template || 'Not reported',
                   components: rep.selected_resources?.components?.length ?? 0,
                   backend: rep.selected_resources?.backend || 'Not reported',
                   database: rep.selected_resources?.database_schemas?.join(', ') || 'Not reported',
-                  qualityScore: rep.quality_gates?.overall_score ?? 0,
-                  launchReady: releaseGate.passed === true,
+                  qualityScore: rep.quality_gates?.overall_score ?? null,
+                  launchReady: handoff.release_ready,
+                  provenance: handoff.provenance,
+                  lifecycle: handoff.lifecycle,
+                  skippedPhases: handoff.skipped_phases,
                   deploymentStatus,
                   workflowAgents,
                   executionTime: (rep.execution_time_seconds ?? 0).toFixed(1),

@@ -48,6 +48,16 @@ const Modal = ({
   };
 
   useEffect(() => {
+    // Body scroll must be locked whenever the modal is open, regardless of the
+    // Escape-key option (previously gated on closeOnEscape).
+    if (!open) return undefined;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (!open || !closeOnEscape) return undefined;
 
     const handleEscape = (e) => {
@@ -55,11 +65,8 @@ const Modal = ({
     };
 
     document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
-
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
     };
   }, [open, closeOnEscape]);
 

@@ -53,6 +53,7 @@ const Textarea = forwardRef(
           rows={rows}
           maxLength={maxLength}
           disabled={disabled}
+          required={required}
           value={value}
           aria-invalid={!!error}
           aria-describedby={

@@ -441,5 +441,49 @@
     "ctaTitleB": "One Prompt at a Time.",
     "ctaDescription": "Type your idea. The agent handles the rest — templates, components, backend, database, and deployment guide.",
     "ctaStartGenerating": "Start Generating Free"
+  },
+  "landing": {
+    "heroTitle": "Ship your SaaS in days, not months",
+    "heroCta": "Get Started Free",
+    "heroSecondary": "See Features",
+    "featuresTitle": "Built-in features that set you apart",
+    "pricingTitle": "Choose your plan",
+    "pricingSub": "Simple, predictable pricing. Scale when you are ready.",
+    "howTitle": "How it works",
+    "howSub": "From idea to production in three deliberate steps.",
+    "faqTitle": "Frequently asked questions",
+    "ctaTitle": "Ready to launch?",
+    "ctaCta": "Start building now"
+  },
+  "pricing": {
+    "starter": "Starter",
+    "starterPrice": "$49",
+    "starterDesc": "For solo builders shipping their first site.",
+    "getStarter": "Choose Starter",
+    "pro": "Pro",
+    "proPrice": "$99",
+    "proDesc": "For teams that need speed and more credits.",
+    "getPro": "Choose Pro",
+    "enterprise": "Enterprise",
+    "enterprisePrice": "$199",
+    "enterpriseDesc": "For agencies managing multiple launches.",
+    "getEnterprise": "Choose Enterprise",
+    "feat1": "Full 15-phase AI pipeline",
+    "feat2": "Responsive, accessible pages",
+    "feat3": "SEO + Open Graph metadata",
+    "feat4": "Priority generation queue",
+    "feat5": "Custom domain deployment",
+    "feat6": "Team collaboration",
+    "feat7": "Dedicated support",
+    "month": "mo",
+    "popular": "Most Popular"
+  },
+  "faq": {
+    "q1": "How does the AI build my website?",
+    "a1": "A 15-phase pipeline researches, designs, codes, tests and packages your site.",
+    "q2": "Can I use my own domain?",
+    "a2": "Yes — deployment configs and DNS instructions are included with every build.",
+    "q3": "Do I own the generated code?",
+    "a3": "Yes. Every build ships as a complete, self-hostable full-stack ZIP."
   }
 }

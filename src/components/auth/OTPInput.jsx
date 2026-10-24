@@ -19,12 +19,15 @@ const OTPInput = ({
   const inputsRef = useRef([]);
 
   useEffect(() => {
-    if (!onResend && resendCountdown > 0) {
+    // The cooldown must tick regardless of whether a resend handler exists;
+    // the old `!onResend` guard left the button disabled forever when one was
+    // provided.
+    if (resendCountdown > 0) {
       const t = setTimeout(() => setResendCountdown((c) => c - 1), 1000);
       return () => clearTimeout(t);
     }
     return undefined;
-  }, [resendCountdown, onResend]);
+  }, [resendCountdown]);
 
   const focusIndex = (index) => {
     const el = inputsRef.current[index];
@@ -72,7 +75,7 @@ const OTPInput = ({
     focusIndex(0);
   };
 
-  const canResend = !onResend || resendCountdown <= 0;
+  const canResend = typeof onResend === 'function' && resendCountdown <= 0;
 
   return (
     <div className={cn('w-full max-w-md space-y-6 text-center', className)}>

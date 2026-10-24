@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             {USE_CASES.map((item, i) => (
               <Card key={i} className="p-4">
-                <h4 className="font-semibold text-sm mb-1">{item.title}</h4>
+                <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
                 <p className="text-xs text-muted-foreground">{item.desc}</p>
               </Card>
             ))}

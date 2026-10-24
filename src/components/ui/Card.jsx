@@ -37,6 +37,8 @@ const Card = React.forwardRef(
   (
     {
       children,
+      title,
+      description,
       className = '',
       hoverable = false,
       padding = 'md',
@@ -99,6 +101,14 @@ const Card = React.forwardRef(
         {...motionProps}
         {...props}
       >
+        {(title || description) && (
+          <div className="mb-4 space-y-1">
+            {title && (
+              <h3 className="font-display text-base font-semibold text-card-foreground">{title}</h3>
+            )}
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          </div>
+        )}
         {children}
       </RenderComponent>
     );

@@ -418,7 +418,14 @@ const SEO = ({
     document.querySelectorAll('meta[property="og:locale:alternate"]').forEach((el) => el.remove());
     Object.values(seoLocales)
       .filter((l) => l !== resolvedLocale)
-      .forEach((l) => setMeta('property', 'og:locale:alternate', l));
+      .forEach((l) => {
+        // One element PER locale — reusing setMeta would overwrite the single
+        // matched node, leaving only the last alternate in the head.
+        const el = document.createElement('meta');
+        el.setAttribute('property', 'og:locale:alternate');
+        el.setAttribute('content', l);
+        document.head.appendChild(el);
+      });
 
     /* ── 5. Twitter Card ──────────────────────────────────────── */
     setMeta('name', 'twitter:card', 'summary_large_image');

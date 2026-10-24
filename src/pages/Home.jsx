@@ -255,9 +255,9 @@ const PHASES = [
 ];
 
 const TESTIMONIALS = [
-  { name: 'testimonial1Name', role: 'testimonial1Role', text: 'testimonial1Text', stars: 5 },
-  { name: 'testimonial2Name', role: 'testimonial2Role', text: 'testimonial2Text', stars: 5 },
-  { name: 'testimonial3Name', role: 'testimonial3Role', text: 'testimonial3Text', stars: 5 },
+  { name: 'home.testimonial1Name', role: 'home.testimonial1Role', text: 'home.testimonial1Text', stars: 5 },
+  { name: 'home.testimonial2Name', role: 'home.testimonial2Role', text: 'home.testimonial2Text', stars: 5 },
+  { name: 'home.testimonial3Name', role: 'home.testimonial3Role', text: 'home.testimonial3Text', stars: 5 },
 ];
 
 export default function Home() {

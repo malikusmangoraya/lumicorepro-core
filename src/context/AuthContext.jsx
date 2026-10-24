@@ -48,23 +48,21 @@ export function AuthProvider({ children }) {
             return { user: u, token: t };
           }
         } catch (apiErr) {
-          // Offline / network error. Fabricating a session is a DEV-only
-          // convenience: shipping it meant a wrong password or a dead backend
-          // logged the visitor in as "Admin User" in production.
-          if (import.meta.env.DEV) {
-            const email = credentials?.email?.toLowerCase() || '';
-            if (email && credentials?.password) {
-              const demo = {
-                id: 1,
-                name: email.includes('admin') ? 'Admin User' : 'Demo User',
-                email,
-                role: email.includes('admin') ? 'admin' : 'user',
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-              };
-              const t = 'demo-jwt-token-2026';
-              app.login(demo, t);
-              return { user: demo, token: t, demo: true };
-            }
+          const isConfiguredDemo =
+            import.meta.env.DEV &&
+            credentials?.email?.toLowerCase() === import.meta.env.VITE_DEMO_ADMIN_EMAIL?.toLowerCase() &&
+            credentials?.password === import.meta.env.VITE_DEMO_USER_PASSWORD;
+          if (isConfiguredDemo) {
+            const demo = {
+              id: 2,
+              name: 'Admin User',
+              email: credentials.email.toLowerCase(),
+              role: 'admin',
+              avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+            };
+            const t = 'local-demo-admin-token';
+            app.login(demo, t);
+            return { user: demo, token: t, demo: true };
           }
           throw new Error(
             apiErr.response?.data?.error ||
@@ -105,27 +103,13 @@ export function AuthProvider({ children }) {
             return { user: u, token: t };
           }
         } catch (apiErr) {
-          // Offline fallback — DEV only, for the same reason as login above.
-          if (!import.meta.env.DEV) {
-            throw new Error(
-              apiErr.response?.data?.error ||
-                apiErr.response?.data?.message ||
-                apiErr.message ||
-                'Registration failed. Please try again.',
-              { cause: apiErr }
-            );
-          }
-          const demo = {
-            id: Date.now(),
-            name: payload.name || 'User',
-            email: payload.email,
-            role: 'user',
-            avatar: '',
-          };
-          const t = 'demo-jwt-token-2026';
-          app.login(demo, t);
-          trackEvent(AnalyticsEvents.SIGNUP, { mode: 'demo' });
-          return { user: demo, token: t, demo: true };
+          throw new Error(
+            apiErr.response?.data?.error ||
+              apiErr.response?.data?.message ||
+              apiErr.message ||
+              'Registration failed. Please start the backend and try again.',
+            { cause: apiErr }
+          );
         }
         throw new Error('Registration failed');
       } catch (err) {

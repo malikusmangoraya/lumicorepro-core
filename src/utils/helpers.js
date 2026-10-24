@@ -50,9 +50,16 @@ export const getRelativeTime = (date) => {
   return formatDate(date);
 };
 
-/** Format date for input fields */
+/** Format date for input fields (LOCAL calendar date, not UTC) */
 export const formatDateISO = (date) => {
-  return new Date(date).toISOString().split('T')[0];
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return '';
+  // toISOString() shifted local midnight to the previous day in UTC+ zones
+  // (Asia/Karachi: Jan 15 → 2024-01-14) — build the local date instead.
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 };
 
 /** Get time since */
@@ -129,11 +136,13 @@ export const truncateText = (text, length = 100, suffix = '...') => {
   return text.slice(0, length) + suffix;
 };
 
-/** Generate random string */
+/** Generate random string of exactly `length` characters */
 export const randomString = (length = 10) => {
-  return Math.random()
-    .toString(36)
-    .substring(2, 2 + length);
+  let out = '';
+  while (out.length < length) {
+    out += Math.random().toString(36).slice(2);
+  }
+  return out.slice(0, length);
 };
 
 /** Generate random ID */

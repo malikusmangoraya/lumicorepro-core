@@ -50,7 +50,7 @@ export default function MembershipPlans() {
             <p className="font-display font-semibold text-sm text-muted-foreground">{p.name}</p>
             <div className="flex items-baseline gap-1 my-2">
               <span className="font-display text-4xl font-bold">
-                Rs {p.price.replace(/,/g, '')}
+                {p.price.replace(/,/g, '')}
               </span>
               <span className="text-xs text-muted-foreground">
                 /{p.name === 'Day Pass' ? 'day' : p.name === 'Monthly' ? 'month' : 'year'}

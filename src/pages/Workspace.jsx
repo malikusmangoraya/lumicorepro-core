@@ -21,6 +21,7 @@ import { extensionsAPI } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
 import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
+import { getEvidenceState, getNextAction, normalizeRunState } from '@/utils/agentControlCenter';
 
 const RUN_STORAGE_KEY = 'lmc_last_run_id';
 
@@ -49,6 +50,7 @@ function WorkspacePage() {
   });
   const [loading, setLoading] = useState({ watchtower: false, runAction: false, editor: false, deploy: false });
   const [errors, setErrors] = useState(initialErrors);
+  const runState = normalizeRunState(action.data?.status || action.data?.state);
   const [hooks, setHooks] = useState([]);
   const [hooksDraft, setHooksDraft] = useState('');
   const [hooksBusy, setHooksBusy] = useState({ load: false, save: false, test: false });
@@ -206,7 +208,12 @@ function WorkspacePage() {
       <Input
         id="run-id"
         value={runId}
-        onChange={(e) => setRunId(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setRunId(value);
+          if (value) localStorage.setItem(RUN_STORAGE_KEY, value);
+          else localStorage.removeItem(RUN_STORAGE_KEY);
+        }}
         placeholder="e.g. generated-website-023"
       />
     </div>
@@ -285,39 +292,68 @@ function WorkspacePage() {
     ) : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 px-3 py-4 text-slate-950 dark:bg-slate-950 dark:text-white sm:px-6 sm:py-6">
       <PageSEO title="Workspace — Agent Extensions" description="Power tools for your generated projects." />
-      <div className="mx-auto w-full max-w-6xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Agent Extensions Workspace
-          </h1>
-          <p className="mt-1 text-slate-600 dark:text-slate-400">
-            Marketing kit, real-browser QA, Stripe checkout, visual edits and live analytics — built-in.
-          </p>
+      <div className="mx-auto w-full max-w-[1440px]">
+        <header className="mb-5 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+          <div className="flex flex-col gap-5 px-5 py-5 sm:px-7 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-sm">✦</span>
+                LumicorePro / Agent OS
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+                Agent Control Center
+              </h1>
+              <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+                Operate generation, inspect evidence, and move projects from prompt to delivery with confidence.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="min-w-0 sm:w-72">{runIdField}</div>
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
+                Control plane ready
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 border-t border-slate-100 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-950/40 sm:grid-cols-4">
+            <SummaryMetric label="Run state" value={runState === 'unavailable' ? 'Unavailable' : runState} />
+            <SummaryMetric label="Next action" value={getNextAction(action.data)} />
+            <SummaryMetric label="Evidence" value={watch ? 'Reporting' : 'Waiting'} />
+            <SummaryMetric label="Delivery" value={action.status === 'ok' ? 'Ready' : 'Not started'} />
+          </div>
         </header>
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={cn(
-                  'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                  tab === t.id
-                    ? 'bg-slate-900 text-white shadow dark:bg-white dark:text-slate-900'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                )}
-              >
-                <Icon className="h-4 w-4" /> {t.label}
-              </button>
-            );
-          })}
-        </div>
+        <div className="grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
+          <aside className="h-fit rounded-2xl border border-slate-200/80 bg-white p-2 shadow-[0_12px_40px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+            <div className="hidden px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 lg:block">Workspace tools</div>
+            <div className="flex max-w-full gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible" role="tablist" aria-label="Agent control center sections">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    role="tab"
+                    aria-selected={tab === t.id}
+                    tabIndex={tab === t.id ? 0 : -1}
+                    className={cn(
+                      'group flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all duration-200 lg:w-full',
+                      tab === t.id
+                        ? 'bg-slate-950 text-white shadow-lg shadow-slate-900/10 dark:bg-white dark:text-slate-950'
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                    )}
+                  >
+                    <Icon className={cn('h-4 w-4', tab === t.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary')} />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
 
-        <Card className="p-6">
+          <Card className="min-w-0 rounded-2xl border-slate-200/80 p-4 shadow-[0_12px_40px_rgba(15,23,42,0.05)] sm:p-6 dark:border-slate-800 dark:shadow-none">
           {tab === 'watchtower' && (
             <div>
               <div className="mb-4 flex items-center justify-between">
@@ -331,6 +367,11 @@ function WorkspacePage() {
                 </Button>
               </div>
               {errorLine('watchtower')}
+              {errors.watchtower && (
+                <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200">
+                  Analytics unavailable. Retry when the agent backend is reachable; your run ID is preserved.
+                </div>
+              )}
               {watch ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid grid-cols-2 gap-3">
@@ -370,8 +411,12 @@ function WorkspacePage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400">Loading analytics…</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Loading analytics…</p>
+                  <p className="text-sm text-muted-foreground">Analytics unavailable until the agent backend responds.</p>
+                </div>
               )}
+              {watch && <EvidenceSummary data={watch} />}
             </div>
           )}
 
@@ -386,7 +431,6 @@ function WorkspacePage() {
                 {tab === 'checkout' && 'Working Stripe checkout scaffold for commerce projects (safe no-op otherwise).'}
                 {tab === 'delivery' && 'QA, Performance and Accessibility reports written into the project — required for the purchase package.'}
               </p>
-              {runIdField}
               {actionButtons}
               {errorLine('runAction')}
               {statusBanner}
@@ -400,7 +444,6 @@ function WorkspacePage() {
                 AI-edits one project file (safely, with provider pool rotation). Path must stay inside the project.
               </p>
               <div className="space-y-3">
-                {runIdField}
                 <div>
                   <label htmlFor="target" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Target file (project-relative)
@@ -501,16 +544,78 @@ function WorkspacePage() {
             </Button>
           </div>
         </Card>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function EvidenceSummary({ data }) {
+  const evidence = Array.isArray(data.evidence)
+    ? data.evidence
+    : [
+        { name: 'Browser QA', ...(data.browser_qa || {}) },
+        { name: 'Accessibility', ...(data.accessibility || {}) },
+        { name: 'Performance', ...(data.performance || {}) },
+        { name: 'Deployment', ...(data.deployment || {}) },
+      ].filter((item) => Object.keys(item).length > 1);
+  const agents = Array.isArray(data.workflow_agents)
+    ? data.workflow_agents
+    : Object.entries(data.workflow_agents || {}).map(([role, value]) => ({ role, ...(value || {}) }));
+
+  return (
+    <div className="mt-6 grid gap-4 border-t border-slate-100 pt-5 dark:border-slate-800 md:grid-cols-2">
+      <section aria-labelledby="evidence-heading">
+        <h3 id="evidence-heading" className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Evidence</h3>
+        {evidence.length ? (
+          <ul className="space-y-2">
+            {evidence.map((item) => {
+              const state = getEvidenceState(item);
+              return (
+                <li key={item.name || item.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
+                  <span>{item.name || item.id}</span>
+                  <span className="font-medium text-muted-foreground">{state.replace('_', ' ')}</span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">Evidence unavailable — no report was returned.</p>
+        )}
+      </section>
+      <section aria-labelledby="handoffs-heading">
+        <h3 id="handoffs-heading" className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Workflow handoffs</h3>
+        {agents.length ? (
+          <ul className="space-y-2">
+            {agents.map((agent) => (
+              <li key={agent.role || agent.name} className="rounded-lg border border-border px-3 py-2 text-sm">
+                <div className="font-medium">{agent.role || agent.name}</div>
+                <div className="text-muted-foreground">{normalizeRunState(agent.status || agent.state)}</div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">No workflow handoffs reported.</p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function SummaryMetric({ label, value }) {
+  return (
+    <div className="min-w-0 border-r border-slate-100 px-4 py-3 last:border-r-0 dark:border-slate-800 sm:px-6">
+      <div className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">{label}</div>
+      <div className="mt-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{value}</div>
     </div>
   );
 }
 
 function Stat({ label, value }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-      <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
-      <div className="text-xl font-bold text-slate-900 dark:text-white">{value}</div>
+    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">{label}</div>
+      <div className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{value}</div>
     </div>
   );
 }

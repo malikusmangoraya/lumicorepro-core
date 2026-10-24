@@ -16,9 +16,20 @@ const LoginForm = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // The form is noValidate, so nothing blocks an empty submission natively.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setFormError('Enter a valid email address');
+      return;
+    }
+    if (!password) {
+      setFormError('Password is required');
+      return;
+    }
+    setFormError('');
     setLoading(true);
     try {
       if (typeof onSubmit === 'function') {
@@ -99,9 +110,9 @@ const LoginForm = ({
         </div>
       </div>
 
-      {error && (
+      {(error || formError) && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
+          {error || formError}
         </p>
       )}
 

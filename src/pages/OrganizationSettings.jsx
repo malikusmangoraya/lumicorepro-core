@@ -107,7 +107,7 @@ export default function OrganizationSettingsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card animate="fade-up" title={`Members (${members.length})`} className="md:col-span-2">
           <Table
-            head={['Name', 'Email', 'Role', 'Status']}
+            head={['Name', 'Email', 'Role', 'Status', 'Actions']}
             rows={members.map((m) => [
               m.name || '—',
               m.email || '—',
@@ -129,7 +129,13 @@ export default function OrganizationSettingsPage() {
                 {m.status}
               </Badge>,
               isManager && String(m.userId) !== String(user?.id) ? (
-                <Button key={m.id} variant="ghost" size="xs" onClick={() => handleRemove(m.userId)}>
+                <Button
+                  key={m.id}
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => handleRemove(m.userId)}
+                  aria-label={`Remove ${m.name || m.email || 'member'}`}
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               ) : null,
@@ -147,7 +153,7 @@ export default function OrganizationSettingsPage() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="teammate@example.com"
-                  leftIcon={<UserPlus className="h-4 w-4" />}
+                  leftIcon={UserPlus}
                 />
               </div>
               <div className="w-full sm:w-40">

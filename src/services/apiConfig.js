@@ -35,6 +35,24 @@ const defaultConfig = {
   },
 };
 
+/** Deep clone so callers mutating nested provider objects never corrupt defaults. */
+const cloneDefaults = () =>
+  typeof structuredClone === 'function'
+    ? structuredClone(defaultConfig)
+    : JSON.parse(JSON.stringify(defaultConfig));
+
+const deepMerge = (base, override) => {
+  const out = Array.isArray(base) ? [...base] : { ...base };
+  for (const [k, v] of Object.entries(override || {})) {
+    if (out[k] && typeof out[k] === 'object' && !Array.isArray(out[k]) && v && typeof v === 'object' && !Array.isArray(v)) {
+      out[k] = deepMerge(out[k], v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+};
+
 /**
  * Get current API configuration from localStorage
  */
@@ -43,12 +61,15 @@ export function getApiConfig() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return { ...defaultConfig, ...parsed };
+      // Deep-merge: the old shallow spread shared nested provider objects with
+      // the module-level defaults, so in-place edits contaminated every future
+      // read and survived resetApiConfig().
+      return deepMerge(cloneDefaults(), parsed);
     }
   } catch {
     // Invalid stored config — reset to defaults
   }
-  return { ...defaultConfig };
+  return cloneDefaults();
 }
 
 /**

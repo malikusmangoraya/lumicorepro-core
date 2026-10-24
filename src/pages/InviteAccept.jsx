@@ -121,10 +121,11 @@ export default function InviteAccept() {
             >
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="invite-name" className={labelClass}>
                     {t('invite.name', 'Your Name')}
                   </label>
                   <input
+                    id="invite-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -135,11 +136,12 @@ export default function InviteAccept() {
                 </div>
 
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="invite-password" className={labelClass}>
                     {t('invite.password', 'Password')}
                   </label>
                   <div className="relative">
                     <input
+                      id="invite-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}

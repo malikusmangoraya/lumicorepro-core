@@ -185,7 +185,7 @@ export default function DashboardOverview() {
                     <p className="text-xs text-muted-foreground">{product.category}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-display font-bold">${product.revenue}</p>
+                    <p className="font-display font-bold">{product.revenue}</p>
                     <Badge variant="success" size="sm" className="mt-1">
                       {product.growth}
                     </Badge>

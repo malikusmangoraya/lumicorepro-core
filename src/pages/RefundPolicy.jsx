@@ -4,7 +4,7 @@ import { Badge, Button, Card } from '@/components/ui';
 import PageSEO from '@/components/common/PageSEO';
 
 const REFUND_STEPS = [
-  'Log in and open Subject—your account billing section.',
+  'Log in and open Settings → Billing to manage your subscription and refunds.',
   'Choose "Request Refund" next to the applicable order.',
   'Select a reason and submit — you will get an email confirmation.',
   'Approved refunds are returned to the original payment method within 5-10 business days (Stripe/PayPal) or 14 days (bank transfer where supported).',

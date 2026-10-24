@@ -68,7 +68,7 @@ export default function ChangePasswordPage() {
             <div className="space-y-4">
               <Alert variant="success">Password changed successfully.</Alert>
               <div className="flex justify-center">
-                <Button variant="primary" onClick={() => navigate('/profile')} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                <Button variant="primary" onClick={() => navigate('/profile')} rightIcon={ArrowRight}>
                   Back to Profile
                 </Button>
               </div>
@@ -93,7 +93,7 @@ export default function ChangePasswordPage() {
                 onChange={change('currentPassword')}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                leftIcon={<Lock className="h-4 w-4" />}
+                leftIcon={Lock}
                 error={error}
               />
               <Input
@@ -104,7 +104,7 @@ export default function ChangePasswordPage() {
                 onChange={change('password')}
                 placeholder="••••••••"
                 autoComplete="new-password"
-                leftIcon={<Lock className="h-4 w-4" />}
+                leftIcon={Lock}
                 error={error}
               />
               <Input
@@ -115,7 +115,7 @@ export default function ChangePasswordPage() {
                 onChange={change('confirm')}
                 placeholder="••••••••"
                 autoComplete="new-password"
-                leftIcon={<Lock className="h-4 w-4" />}
+                leftIcon={Lock}
                 error={error}
               />
               <Button

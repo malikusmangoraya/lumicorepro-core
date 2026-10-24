@@ -182,7 +182,7 @@ export default function TemplatesHub() {
               <span
                 className={cn(
                   'px-1.5 py-0.5 rounded-full text-xs font-bold',
-                  active ? 'bg-white/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  active ? 'bg-black/30 text-primary-foreground' : 'bg-muted text-muted-foreground'
                 )}
               >
                 {count}

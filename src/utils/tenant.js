@@ -2,13 +2,20 @@
  * Tenant / subdomain utilities for multi-tenant SaaS hosting.
  */
 
-const TENANT_HOSTS = ['localhost', '127.0.0.1'];
+const isLocalHost = (hostname) =>
+  hostname === 'localhost' ||
+  hostname === '127.0.0.1' ||
+  hostname.endsWith('.localhost') ||
+  /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname);
 
 const extractSubdomain = (hostname) => {
   if (!hostname) return null;
+  // The old check compared the first label ("127") against full hostnames
+  // ("127.0.0.1"), so local IPs leaked through as tenants.
+  if (isLocalHost(hostname)) return null;
   const parts = hostname.split('.');
-  if (TENANT_HOSTS.includes(parts[0])) return null;
-  if (parts.length < 2) return null;
+  // An apex domain (example.com) has NO subdomain; 3+ labels required.
+  if (parts.length < 3) return null;
   const candidate = parts[0];
   if (['www', 'app', 'api'].includes(candidate)) return null;
   return candidate;

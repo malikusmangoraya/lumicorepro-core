@@ -2,7 +2,11 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Same origin in production when no API origin is configured: the single-service
+// deploy serves the SPA, the API and the WebSocket upgrade from one host. The
+// localhost fallback is development-only (Vite dev server is on another port).
+const SOCKET_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : undefined);
 
 /** Documented heartbeat (AGENTS.md §12) — one app-level pulse every 25 seconds. */
 export const HEARTBEAT_INTERVAL_MS = 25000;

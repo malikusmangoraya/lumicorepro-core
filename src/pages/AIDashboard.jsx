@@ -296,13 +296,13 @@ const AIDashboard = () => {
           <StatCard
             icon={Shield}
             label="Security Score"
-            value={analytics?.avg_security_score || 95}
+            value={analytics?.avg_security_score ?? '—'}
             color="from-green-500 to-green-600"
           />
           <StatCard
             icon={Cpu}
             label="Performance"
-            value={analytics?.avg_performance || 98}
+            value={analytics?.avg_performance ?? '—'}
             color="from-orange-500 to-orange-600"
           />
         </motion.div>

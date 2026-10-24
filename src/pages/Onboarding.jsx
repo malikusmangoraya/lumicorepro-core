@@ -31,6 +31,17 @@ export default function Onboarding() {
   function handleComplete() {
     setIsSubmitting(true);
     localStorage.setItem('onboarding_complete', 'true');
+    // Persist the answers — the old code dropped everything except the flag.
+    localStorage.setItem(
+      'onboarding_prefs',
+      JSON.stringify({
+        role: role === 'Other' ? customRole || role : role,
+        teamName,
+        inviteEmails: emails,
+        theme: themePref,
+        emailNotifications: emailNotifs,
+      })
+    );
     setTimeout(() => {
       window.location.href = '/dashboard';
     }, 500);

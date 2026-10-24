@@ -61,7 +61,7 @@ const providerConfig = {
     description: 'Unified gateway for multiple AI models',
     keyLabel: 'OpenRouter API Key',
     keyPlaceholder: 'sk-or-XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    helpUrl: ' https://openrouter.ai/keys',
+    helpUrl: 'https://openrouter.ai/keys',
     helpText: 'Create account and add API key',
   },
   stripe: {

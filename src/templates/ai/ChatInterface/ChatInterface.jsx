@@ -130,8 +130,8 @@ export default function ChatInterface() {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" icon={Settings} aria-label="Settings" />
-              <Button variant="ghost" size="sm" icon={Mic} aria-label="Voice input" />
+              <Button variant="ghost" size="sm" leftIcon={Settings} aria-label="Settings" />
+              <Button variant="ghost" size="sm" leftIcon={Mic} aria-label="Voice input" />
             </div>
           </div>
 

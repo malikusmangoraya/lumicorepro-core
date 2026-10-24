@@ -69,6 +69,33 @@ export default defineConfig({
     globals: true,
     css: true,
     setupFiles: ['./src/test/setup.js'],
+    // Page-render tests (Home, Workspace) pull heavy lazy graphs (three.js via
+    // HeroCanvas); under a full parallel run the 5s default fires before the
+    // transform+render settles, producing false-timeout failures.
+    testTimeout: 15000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'json-summary'],
+      include: ['src/**/*.{js,jsx,ts,tsx}'],
+      exclude: [
+        'src/test/**',
+        'src/**/__tests__/**',
+        'src/**/*.test.*',
+        'src/**/*.spec.*',
+      ],
+      // Ratchet gate: floor set ~1 point under the honest 2026-10-23 wave-3
+      // baseline (51.1% stmts, 49.3% branches, 43.4% funcs, 52.6% lines over ALL
+      // of src/; 783 tests / 114 files). The include list forces the full tree
+      // into the denominator so this number is honest. CI runs
+      // `npm run test:coverage` and fails below this — coverage can only go UP.
+      // Raise as tests are added; target 80% (§6).
+      thresholds: {
+        statements: 61,
+        branches: 58,
+        functions: 55,
+        lines: 63,
+      },
+    },
     // Unit tests live under src/ per AGENTS.md §6. Without an explicit include,
     // vitest globs the whole repo and collects test files from .opencode/ and
     // backend/node_modules/, which report hundreds of bogus suite failures.

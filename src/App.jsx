@@ -3,9 +3,6 @@ import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-qu
 import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ThemeProvider from './components/common/ThemeProvider';
-import Analytics from './components/common/Analytics';
-import CookieConsent from './components/common/CookieConsent';
-import ToastRegion from './components/common/ToastRegion';
 import './i18n';
 import './styles/advanced-effects.css';
 import { AppProvider } from './context/AppContext';
@@ -34,6 +31,11 @@ const queryClient = new QueryClient({
 });
 
 const CommandPalette = lazy(() => import('./components/advanced/CommandPalette'));
+// Deferred off the critical path: the consent banner is not needed for first
+// paint and the budget has ~0 headroom (AGENTS.md §7).
+const CookieConsent = lazy(() => import('./components/common/CookieConsent'));
+const ToastRegion = lazy(() => import('./components/common/ToastRegion'));
+const Analytics = lazy(() => import('./components/common/Analytics'));
 
 function AppCommandPalette({ isOpen, onClose }) {
   const { addNotification } = useNotifications();
@@ -78,9 +80,11 @@ function App() {
                 <CurrencyProvider>
                   <OrgProvider>
                     <RouterProvider router={router} />
-                    <Analytics />
-                    <CookieConsent />
-                    <ToastRegion />
+                    <Suspense fallback={null}>
+                      <Analytics />
+                      <CookieConsent />
+                      <ToastRegion />
+                    </Suspense>
                     {commandPaletteOpen && (
                       <AppCommandPalette isOpen onClose={() => setCommandPaletteOpen(false)} />
                     )}

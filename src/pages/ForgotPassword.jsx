@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
               </Alert>
               <div className="flex justify-center">
                 <Link to="/login">
-                  <Button variant="outline" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                  <Button variant="outline" rightIcon={ArrowRight}>
                     Back to Sign In
                   </Button>
                 </Link>
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
                 }}
                 placeholder="you@example.com"
                 autoComplete="email"
-                leftIcon={<Mail className="h-4 w-4" />}
+                leftIcon={Mail}
                 error={error}
               />
               <Button
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
                 size="lg"
                 fullWidth
                 loading={loading}
-                rightIcon={<ArrowRight className="h-4 w-4" />}
+                rightIcon={ArrowRight}
               >
                 Send Reset Link
               </Button>

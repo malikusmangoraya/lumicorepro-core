@@ -68,7 +68,7 @@ export default function OrganizationsPage() {
               setCreateError('');
             }}
             placeholder="Acme Studios"
-            leftIcon={<Building2 className="h-4 w-4" />}
+            leftIcon={Building2}
             error={createError}
           />
           <Button type="submit" variant="primary" loading={creating} loadingText="Creating..." fullWidth>
@@ -113,7 +113,7 @@ export default function OrganizationsPage() {
                       variant="ghost"
                       size="xs"
                       onClick={() => switchOrg(org.id)}
-                      rightIcon={<Check className="h-3.5 w-3.5" />}
+                      rightIcon={Check}
                     >
                       Switch
                     </Button>

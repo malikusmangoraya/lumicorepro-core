@@ -11,13 +11,20 @@ const PASSWORD_STRENGTH = [
 ];
 
 const strengthFor = (password) => {
+  if (!password) return 0;
   let score = 0;
-  if (password.length >= 8) score += 3;
-  if (password.length >= 12) score += 3;
-  if (/[A-Z]/.test(password)) score += 2;
+  if (password.length >= 8) score += 1;
+  if (password.length >= 12) score += 1;
+  if (/[A-Z]/.test(password)) score += 1;
+  if (/[a-z]/.test(password)) score += 1;
   if (/\d/.test(password)) score += 1;
   if (/[^A-Za-z0-9]/.test(password)) score += 1;
-  return Math.min(score, PASSWORD_STRENGTH.length - 1);
+  // Thresholds must map to the labels above — the old code used the raw score
+  // as an index, so any 8-char password ("password") reported "Strong".
+  if (score <= 2) return 0; // Weak
+  if (score === 3) return 1; // Fair
+  if (score === 4) return 2; // Good
+  return 3; // Strong
 };
 
 const RegisterForm = ({
@@ -36,6 +43,7 @@ const RegisterForm = ({
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState('');
 
   const strength = strengthFor(password);
   const meter = PASSWORD_STRENGTH[strength];
@@ -44,6 +52,13 @@ const RegisterForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (mismatch) return;
+    // The form is noValidate, so the native `required` checkbox never blocks —
+    // enforce the Terms/Privacy agreement explicitly.
+    if (!agree) {
+      setLocalError('You must accept the Terms and Privacy Policy');
+      return;
+    }
+    setLocalError('');
     setLoading(true);
     try {
       if (typeof onSubmit === 'function') {
@@ -189,9 +204,9 @@ const RegisterForm = ({
         </span>
       </label>
 
-      {error && (
+      {(error || localError) && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
+          {error || localError}
         </p>
       )}
 

@@ -12,7 +12,7 @@
  * - Theme switching
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -169,6 +169,21 @@ const CommandPalette = ({ isOpen, onClose, onExecute }) => {
     return groups;
   }, [filteredCommands]);
 
+  // Stable identity so the keydown effect always calls the CURRENT handlers
+  // (a stale closure previously kept old onClose/onExecute after prop changes).
+  const executeCommand = useCallback(
+    (command) => {
+      command.action();
+      setRecentCommands((prev) => {
+        const filtered = prev.filter((cmd) => cmd.id !== command.id);
+        return [command, ...filtered].slice(0, 5);
+      });
+      onExecute?.(command);
+      onClose();
+    },
+    [onExecute, onClose]
+  );
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -198,7 +213,7 @@ const CommandPalette = ({ isOpen, onClose, onExecute }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, selectedIndex, filteredCommands]);
+  }, [isOpen, selectedIndex, filteredCommands, executeCommand, onClose]);
 
   // Focus input when opened
   useEffect(() => {
@@ -218,23 +233,6 @@ const CommandPalette = ({ isOpen, onClose, onExecute }) => {
       }
     }
   }, [selectedIndex]);
-
-  const executeCommand = (command) => {
-    // Execute command
-    command.action();
-
-    // Save to recent
-    setRecentCommands((prev) => {
-      const filtered = prev.filter((cmd) => cmd.id !== command.id);
-      return [command, ...filtered].slice(0, 5);
-    });
-
-    // Callback
-    onExecute?.(command);
-
-    // Close
-    onClose();
-  };
 
   if (!isOpen) return null;
 

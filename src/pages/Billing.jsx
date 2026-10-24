@@ -17,16 +17,19 @@ export default function Billing() {
   const { formatPrice } = useCurrency();
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const res = await subscriptionsAPI.list();
       setSubs(res?.data?.data || []);
     } catch {
       setSubs([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -91,6 +94,18 @@ export default function Billing() {
           <p className="text-sm text-muted-foreground">Manage your plans, credits and invoices.</p>
         </div>
       </div>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-card px-4 py-3 text-sm text-destructive"
+        >
+          <span>Couldn&apos;t load your subscription. You may be offline.</span>
+          <Button variant="outline" size="sm" onClick={load}>
+            Retry
+          </Button>
+        </div>
+      )}
 
       {message && (
         <div className="mb-6 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">

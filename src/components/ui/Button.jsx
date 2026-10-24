@@ -37,6 +37,7 @@ const Button = React.forwardRef(
       animationDelay = 0,
       className = '',
       type = 'button',
+      asChild = false,
       onClick,
       onMouseEnter,
       onMouseLeave,
@@ -57,6 +58,16 @@ const Button = React.forwardRef(
       getAnimationClass(animate, animationDelay),
       className
     );
+
+    // asChild: render the caller's element (e.g. <Link>) with button styling
+    // instead of nesting an <a> inside a <button> (invalid HTML).
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children, {
+        className: cn(classes, children.props.className),
+        onClick,
+        ...props,
+      });
+    }
 
     return (
       <button

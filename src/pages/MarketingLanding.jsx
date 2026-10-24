@@ -99,7 +99,7 @@ export default function MarketingLandingPage() {
             deploy a complete website — in minutes, in 13 languages, with live preview.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+            <Button variant="primary" size="lg" rightIcon={ArrowRight}>
               <Link to="/generate" className="flex items-center gap-2">
                 Try the Live Demo
               </Link>
@@ -214,7 +214,7 @@ export default function MarketingLandingPage() {
               now.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button variant="primary" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              <Button variant="primary" size="lg" rightIcon={ArrowRight}>
                 <Link to="/register">Join the Waitlist</Link>
               </Button>
               <Button variant="outline" size="lg">

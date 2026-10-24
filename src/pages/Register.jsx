@@ -84,7 +84,7 @@ export default function RegisterPage() {
           err.response?.data?.error?.message ||
           err.response?.data?.error ||
           err.message ||
-          'Registration failed. Please try again.',
+          'Registration failed. Please start the backend and try again.',
       });
     } finally {
       setLoading(false);
@@ -135,7 +135,7 @@ export default function RegisterPage() {
               onChange={change('name')}
               error={errors.name}
               placeholder="Sarah Connor"
-              leftIcon={<User className="h-4 w-4" />}
+              leftIcon={User}
               autoComplete="name"
               required
             />
@@ -147,7 +147,7 @@ export default function RegisterPage() {
               onChange={change('email')}
               error={errors.email}
               placeholder="sarah@example.com"
-              leftIcon={<Mail className="h-4 w-4" />}
+              leftIcon={Mail}
               autoComplete="email"
               required
             />
@@ -159,7 +159,7 @@ export default function RegisterPage() {
               onChange={change('password')}
               error={errors.password}
               placeholder="At least 6 characters"
-              leftIcon={<Lock className="h-4 w-4" />}
+              leftIcon={Lock}
               autoComplete="new-password"
               required
             />
@@ -186,7 +186,7 @@ export default function RegisterPage() {
               onChange={change('confirm')}
               error={errors.confirm}
               placeholder="Repeat password"
-              leftIcon={<Lock className="h-4 w-4" />}
+              leftIcon={Lock}
               rightIcon={
                 form.confirm && form.confirm === form.password ? (
                   <Check className="h-4 w-4 text-emerald-400" />
@@ -196,9 +196,10 @@ export default function RegisterPage() {
               required
             />
 
-            <div>
-              <Turnstile
-                siteKey={TURNSTILE_SITE_KEY}
+            {TURNSTILE_SITE_KEY && (
+              <div>
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
                 onVerify={(token) => {
                   setCaptchaToken(token);
                   if (errors.captcha) setErrors((er) => ({ ...er, captcha: '' }));
@@ -209,7 +210,8 @@ export default function RegisterPage() {
                   {errors.captcha}
                 </p>
               )}
-            </div>
+              </div>
+            )}
 
             <div>
               <label className="flex cursor-pointer items-start gap-2.5 group">
@@ -242,7 +244,7 @@ export default function RegisterPage() {
               size="lg"
               fullWidth
               loading={loading}
-              rightIcon={<ArrowRight className="h-4 w-4" />}
+              rightIcon={ArrowRight}
             >
               Create Account
             </Button>

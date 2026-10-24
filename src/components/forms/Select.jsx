@@ -23,6 +23,8 @@ const Select = forwardRef(({ label, error, required = false, className = '', chi
           ref={ref}
           id={selectId}
           aria-invalid={!!error}
+          aria-describedby={error ? `${selectId}-error` : undefined}
+          required={required}
           className={cn(
             'w-full appearance-none rounded-lg border bg-background px-4 py-2.5 pr-9 text-sm transition-all duration-200',
             'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',

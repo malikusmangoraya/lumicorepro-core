@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getApiKey, isProviderEnabled } from './apiConfig';
 import { setTraceId } from '../utils/sentry';
+import { resolveApiBaseUrl } from './apiBase';
 
 // ── Distributed tracing (W3C traceparent) ──────────────────────────────────
 // Each request starts (or continues) a trace: random 32-hex trace id + 16-hex
@@ -14,8 +15,7 @@ const randomHex = (bytes) =>
 const buildTraceparent = () => `00-${randomHex(16)}-${randomHex(8)}-01`;
 
 // API Configuration from environment variables
-const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const API_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl.replace(/\/+$/, '')}/api`;
+const API_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL, import.meta.env.DEV);
 const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT, 10) || 10000;
 
 // Create axios instance
@@ -258,8 +258,7 @@ export const aiAgentAPI = {
   generate: (payload) => api.post('/ai/generate', payload),
   getRunStatus: (runId) => api.get(`/ai/runs/${runId}`),
   getDownloadUrl: (runId) => {
-    const raw = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const base = raw.endsWith('/api') ? raw : `${raw.replace(/\/+$/, '')}/api`;
+    const base = resolveApiBaseUrl(import.meta.env.VITE_API_URL, import.meta.env.DEV);
     return `${base}/ai/download/${runId}`;
   },
   checkHealth: () => api.get('/ai/health'),

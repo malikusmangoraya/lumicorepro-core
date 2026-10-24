@@ -9,11 +9,14 @@ const DiscountBadge = ({
   size = 'md',
   className = '',
 }) => {
-  const computed = Number.isFinite(discountPercent)
-    ? discountPercent
-    : compareAtPrice > price && price > 0
-      ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
-      : 0;
+  // 0 is a finite number, so the old check always picked the default and the
+  // compareAtPrice fallback was dead code.
+  const computed =
+    Number.isFinite(discountPercent) && discountPercent > 0
+      ? discountPercent
+      : compareAtPrice > price && price > 0
+        ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+        : 0;
 
   const text = label || `${computed}% OFF`;
   const sizes = {

@@ -37,6 +37,18 @@ export const routeConfig = [
   { path: 'boilerplate', access: 'public', smoke: false },
   { path: 'invite/:token', access: 'public', smoke: false },
 
+  // ── Restaurant (public) ─────────────────────────────────────────────────
+  { path: 'restaurant', access: 'public', smoke: true },
+  { path: 'restaurant/menu', access: 'public', smoke: true },
+  { path: 'restaurant/cart', access: 'public', smoke: true },
+  { path: 'restaurant/checkout', access: 'public', smoke: true },
+  { path: 'restaurant/checkout/success', access: 'public', smoke: true },
+  { path: 'restaurant/orders', access: 'auth', smoke: false },
+  { path: 'restaurant/reservation', access: 'public', smoke: true },
+
+  // ── Restaurant (admin) ──────────────────────────────────────────────────
+  { path: 'restaurant/admin', access: 'admin', smoke: false },
+
   // ── Authenticated (RequireAuth in the router) ───────────────────────────
   { path: 'workspace', access: 'auth', smoke: false },
   { path: 'ai-dashboard', access: 'auth', smoke: false },

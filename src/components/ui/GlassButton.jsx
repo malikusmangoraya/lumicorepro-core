@@ -19,6 +19,21 @@ const sizes = {
   xl: 'h-12 px-8 text-lg',
 };
 
+/**
+ * Renders an icon prop that may be a function component, a forwardRef/memo
+ * component object (lucide icons are forwardRef), or a ready-made element.
+ * Rendering the component object directly as a child throws React error #31.
+ */
+function GlassButtonIcon({ Icon }) {
+  if (!Icon) return null;
+  const isComponent =
+    typeof Icon === 'function' || (typeof Icon === 'object' && Icon.$$typeof && !React.isValidElement(Icon));
+  if (isComponent) {
+    return <Icon className="h-4 w-4" aria-hidden="true" />;
+  }
+  return Icon;
+}
+
 const GlassButton = React.forwardRef(
   (
     {
@@ -87,20 +102,10 @@ const GlassButton = React.forwardRef(
             </svg>
           </motion.div>
         ) : (
-          LeftIcon &&
-          (typeof LeftIcon === 'function' || LeftIcon?.prototype?.isReactComponent ? (
-            <LeftIcon className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            LeftIcon
-          ))
+          <GlassButtonIcon Icon={LeftIcon} />
         )}
         {children}
-        {!loading && RightIcon &&
-          (typeof RightIcon === 'function' || RightIcon?.prototype?.isReactComponent ? (
-            <RightIcon className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            RightIcon
-          ))}
+        {!loading && <GlassButtonIcon Icon={RightIcon} />}
       </motion.button>
     );
   }

@@ -648,7 +648,7 @@ export default function Chat() {
             >
               <ImageUp className="h-4 w-4" />
             </IconButton>
-            <Button onClick={send} disabled={sending || (text.trim().length === 0 && attachments.length === 0)}>
+            <Button onClick={() => send()} disabled={sending || (text.trim().length === 0 && attachments.length === 0)}>
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               <span className="sr-only">Send</span>
             </Button>

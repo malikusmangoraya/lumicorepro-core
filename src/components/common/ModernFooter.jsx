@@ -35,7 +35,7 @@ function SystemStatusBadge() {
       className={cn(
         'inline-flex w-fit items-center gap-2.5 rounded-full border px-3.5 py-1.5 text-xs font-medium',
         healthy
-          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
           : 'border-border bg-muted/40 text-muted-foreground'
       )}
     >

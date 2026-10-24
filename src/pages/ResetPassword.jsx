@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
               <Alert variant="success">Password updated successfully. You can sign in now.</Alert>
               <div className="flex justify-center">
                 <Link to="/login">
-                  <Button variant="primary" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                  <Button variant="primary" rightIcon={ArrowRight}>
                     Go to Sign In
                   </Button>
                 </Link>
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
                   onChange={change('password')}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  leftIcon={<Lock className="h-4 w-4" />}
+                  leftIcon={Lock}
                   error={error}
                 />
                 <Input
@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
                   onChange={change('confirm')}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  leftIcon={<Lock className="h-4 w-4" />}
+                  leftIcon={Lock}
                   error={error}
                 />
                 <Button
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
                   fullWidth
                   loading={loading}
                   disabled={!token}
-                  rightIcon={<ArrowRight className="h-4 w-4" />}
+                  rightIcon={ArrowRight}
                 >
                   Update Password
                 </Button>

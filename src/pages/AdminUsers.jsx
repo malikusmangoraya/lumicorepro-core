@@ -52,6 +52,11 @@ export default function AdminUsers() {
       queryClient.invalidateQueries(['users']);
       setDeletingId(null);
     },
+    onError: (err) => {
+      // Without this the row spinner stayed forever on a failed delete.
+      setDeletingId(null);
+      setFormError(err?.response?.data?.message || t('adminUsers.deleteError', 'Failed to delete user'));
+    },
   });
 
   const openCreate = () => {

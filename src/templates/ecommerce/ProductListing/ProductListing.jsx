@@ -5,6 +5,7 @@ import { Card, Button, Badge, Input, StatsCard, FeatureCard, ScrollReveal, Stagg
 import { products, categories } from './data/mockData';
 import useDebounce from '@/hooks/useDebounce';
 import { img } from '@/utils/images';
+import { cn } from '@/utils';
 
 const PRODUCT_IMGS = [
   img.ecommerce.product1,
@@ -55,15 +56,32 @@ export default function ProductListing() {
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('all');
   const [view, setView] = useState('grid');
+  const [sort, setSort] = useState('featured');
   const q = useDebounce(query);
-  const list = useMemo(
-    () =>
-      products.filter(
-        (p) =>
-          (cat === 'all' || p.category === cat) && p.name.toLowerCase().includes(q.toLowerCase())
-      ),
-    [q, cat]
-  );
+  const list = useMemo(() => {
+    const filtered = products.filter(
+      (p) =>
+        (cat === 'all' || p.category === cat) && p.name.toLowerCase().includes(q.toLowerCase())
+    );
+    const sorted = [...filtered];
+    switch (sort) {
+      case 'price-asc':
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case 'rating':
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'newest':
+        sorted.sort((a, b) => b.id - a.id);
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [q, cat, sort]);
 
   return (
     <TemplateShell
@@ -159,6 +177,8 @@ export default function ProductListing() {
             <div className="flex items-center gap-2">
               <label className="text-sm text-muted-foreground">Sort by:</label>
               <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
                 className="px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Sort products"
               >
@@ -171,7 +191,7 @@ export default function ProductListing() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className={view === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'}>
             {list.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
@@ -184,10 +204,18 @@ export default function ProductListing() {
                   <ScrollReveal key={p.id} animate="fade-up" delay={i * 0.05}>
                     <Card
                       hoverable
-                      className="overflow-hidden group h-full flex flex-col"
+                      className={cn(
+                        'overflow-hidden group h-full flex',
+                        view === 'list' ? 'flex-row items-stretch' : 'flex-col'
+                      )}
                       padding="none"
                     >
-                      <div className="relative aspect-square overflow-hidden bg-muted/30">
+                      <div
+                        className={cn(
+                          'relative overflow-hidden bg-muted/30',
+                          view === 'list' ? 'w-40 shrink-0 aspect-square' : 'aspect-square'
+                        )}
+                      >
                         <img
                           src={PRODUCT_IMGS[i % PRODUCT_IMGS.length]}
                           alt={p.name}
@@ -203,7 +231,10 @@ export default function ProductListing() {
                           </div>
                         )}
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="h-8 w-8 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-md hover:bg-primary hover:text-primary-foreground transition-colors">
+                          <button
+                            aria-label={`Quick add ${p.name} to cart`}
+                            className="h-8 w-8 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-md hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
                             <ShoppingCart className="h-3.5 w-3.5" />
                           </button>
                         </div>

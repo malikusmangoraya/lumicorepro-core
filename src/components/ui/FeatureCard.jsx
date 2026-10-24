@@ -38,13 +38,19 @@ const FeatureCard = React.forwardRef(
     };
 
     const Content = href ? 'a' : onClick ? 'button' : 'div';
+    // Motion-wrapped semantic element so href/onClick actually work — the old
+    // code computed Content but always rendered a plain motion.div.
+    const MotionContent = Content === 'a' ? motion.a : Content === 'button' ? motion.button : motion.div;
 
     return (
-      <motion.div
+      <MotionContent
         ref={ref}
+        {...(Content === 'a' ? { href } : {})}
+        {...(Content === 'button' ? { type: 'button', onClick } : {})}
         className={cn(
           'group relative p-6 rounded-2xl transition-all duration-300',
           'hover:-translate-y-1',
+          (href || onClick) && 'cursor-pointer text-left w-full',
           variants[variant],
           getAnimationClass(animate, animationDelay),
           className
@@ -98,7 +104,7 @@ const FeatureCard = React.forwardRef(
             </motion.span>
           </motion.div>
         )}
-      </motion.div>
+      </MotionContent>
     );
   }
 );

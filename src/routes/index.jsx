@@ -8,6 +8,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
+import AuthLayout from '../layouts/AuthLayout';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import RouteErrorBoundary from '../components/common/RouteErrorBoundary';
 import PageSkeleton from '../components/common/PageSkeleton';
@@ -29,6 +30,15 @@ const ChatPage = lazy(() => import('../pages/Chat'));
 const PlanPricingPage = lazy(() => import('../pages/Pricing'));
 const BillingPage = lazy(() => import('../pages/Billing'));
 const GalleryPage = lazy(() => import('../pages/Gallery'));
+
+// ── Restaurant pages (lazy) ───────────────────────────────────────────────
+const RestaurantHomePage = lazy(() => import('../pages/restaurant/RestaurantHome'));
+const RestaurantMenuPage = lazy(() => import('../pages/restaurant/Menu'));
+const RestaurantCartPage = lazy(() => import('../pages/restaurant/Cart'));
+const RestaurantCheckoutPage = lazy(() => import('../pages/restaurant/Checkout'));
+const RestaurantOrderHistoryPage = lazy(() => import('../pages/restaurant/OrderHistory'));
+const RestaurantReservationPage = lazy(() => import('../pages/restaurant/Reservation'));
+const RestaurantAdminPage = lazy(() => import('../pages/restaurant/AdminDashboard'));
 
 const LoginPage = lazy(() => import('../pages/Login'));
 const RegisterPage = lazy(() => import('../pages/Register'));
@@ -56,6 +66,7 @@ const OrganizationsPage = lazy(() => import('../pages/Organizations'));
 const OrganizationSettingsPage = lazy(() => import('../pages/OrganizationSettings'));
 const WorkspacePage = lazy(() => import('../pages/Workspace'));
 const AIDashboardPage = lazy(() => import('../pages/AIDashboard'));
+const AgentShellFrame = lazy(() => import('../components/navigation/AgentShell').then((module) => ({ default: module.AgentShellFrame })));
 
 // ── Lazy template imports — each group is a separate chunk ────────────────
 // Dashboard
@@ -150,12 +161,17 @@ function L({ component: Component }) {
 // Guards sit OUTSIDE the Suspense boundary so an unauthenticated visitor is
 // redirected before the private chunk is ever downloaded. Backend authorization
 // stays the real boundary; these keep the UX honest.
-function Private({ component: Component }) {
+function PrivateShell({ children }) {
   return (
-    <RequireAuth>
-      <L component={Component} />
-    </RequireAuth>
+    <Suspense fallback={<PageSkeleton />}>
+      <AgentShellFrame>{children}</AgentShellFrame>
+    </Suspense>
   );
+}
+
+function Private({ component: Component, shell = false }) {
+  const content = <L component={Component} />;
+  return <RequireAuth>{shell ? <PrivateShell>{content}</PrivateShell> : content}</RequireAuth>;
 }
 
 function AdminOnly({ component: Component }) {
@@ -274,16 +290,16 @@ export const router = createBrowserRouter([
       { path: 'generate', element: <L component={GeneratePage} /> },
       {
         path: 'workspace',
-        element: <Private component={WorkspacePage} />,
+        element: <Private component={WorkspacePage} shell />,
       },
       {
         path: 'ai-dashboard',
-        element: <Private component={AIDashboardPage} />,
+        element: <Private component={AIDashboardPage} shell />,
         errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'chat',
-        element: <Private component={ChatPage} />,
+        element: <Private component={ChatPage} shell />,
       },
       {
         path: 'pricing',
@@ -295,7 +311,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'billing',
-        element: <Private component={BillingPage} />,
+        element: <Private component={BillingPage} shell />,
       },
       {
         path: 'login',
@@ -313,20 +329,6 @@ export const router = createBrowserRouter([
             <RegisterPage />
           </Suspense>
         ),
-        errorElement: <RouteErrorBoundary />,
-      },
-      {
-        path: 'setup',
-        element: (
-          <Suspense fallback={<PageSkeleton />}>
-            <SetupWizardPage />
-          </Suspense>
-        ),
-        errorElement: <RouteErrorBoundary />,
-      },
-      {
-        path: 'admin/settings',
-        element: <AdminOnly component={GlobalSystemSettingsPage} />,
         errorElement: <RouteErrorBoundary />,
       },
       {
@@ -357,6 +359,20 @@ export const router = createBrowserRouter([
         errorElement: <RouteErrorBoundary />,
       },
       {
+        path: 'setup',
+        element: (
+          <Suspense fallback={<PageSkeleton />}>
+            <SetupWizardPage />
+          </Suspense>
+        ),
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'admin/settings',
+        element: <AdminOnly component={GlobalSystemSettingsPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
         path: 'change-password',
         element: (
           <Suspense fallback={<PageSkeleton />}>
@@ -376,7 +392,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'api-settings',
-        element: <Private component={ApiSettingsPage} />,
+        element: <Private component={ApiSettingsPage} shell />,
       },
       {
         path: 'gallery',
@@ -410,36 +426,77 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      // ── Restaurant routes ───────────────────────────────────────────────
+      {
+        path: 'restaurant',
+        element: <L component={RestaurantHomePage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/menu',
+        element: <L component={RestaurantMenuPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/cart',
+        element: <L component={RestaurantCartPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/checkout',
+        element: <L component={RestaurantCheckoutPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/checkout/success',
+        element: <L component={RestaurantCheckoutPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/orders',
+        element: <Private component={RestaurantOrderHistoryPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/reservation',
+        element: <L component={RestaurantReservationPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: 'restaurant/admin',
+        element: <AdminOnly component={RestaurantAdminPage} />,
+        errorElement: <RouteErrorBoundary />,
+      },
       // ── Shortcut routes for nav dropdown links ──────────────────────────
       {
         path: 'profile',
-        element: <Private component={Profile} />,
+        element: <Private component={Profile} shell />,
       },
       {
         path: 'settings',
-        element: <Private component={Settings} />,
+        element: <Private component={Settings} shell />,
       },
       {
         path: 'orgs',
-        element: <Private component={OrganizationsPage} />,
+        element: <Private component={OrganizationsPage} shell />,
       },
       {
         path: 'orgs/:id',
-        element: <Private component={OrganizationSettingsPage} />,
+        element: <Private component={OrganizationSettingsPage} shell />,
       },
       {
         path: 'dashboard',
-        element: <Private component={UserDashboardPage} />,
+        element: <Private component={UserDashboardPage} shell />,
         errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'notifications',
-        element: <Private component={NotificationsPage} />,
+        element: <Private component={NotificationsPage} shell />,
         errorElement: <RouteErrorBoundary />,
       },
       {
         path: 'onboarding',
-        element: <Private component={OnboardingPage} />,
+        element: <Private component={OnboardingPage} shell />,
         errorElement: <RouteErrorBoundary />,
       },
       {

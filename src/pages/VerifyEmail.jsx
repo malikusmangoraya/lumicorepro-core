@@ -12,6 +12,11 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     let active = true;
+    if (!token) {
+      setStatus('error');
+      setMessage('Missing verification token — use the link from your email.');
+      return undefined;
+    }
     (async () => {
       try {
         const data = await verifyEmail(token);
@@ -36,8 +41,10 @@ export default function VerifyEmailPage() {
     if (!email) return;
     try {
       await resendVerification(email.trim());
+      setStatus('success');
       setMessage('If an account exists, a new verification link has been sent.');
     } catch (err) {
+      setStatus('error');
       setMessage(err.response?.data?.error || err.message || 'Could not resend verification email');
     }
   };

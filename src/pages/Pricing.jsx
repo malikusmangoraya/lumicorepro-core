@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { CreditCard, CheckCheck, Loader2, Sparkles, Bot } from 'lucide-react';
 import { Card, Badge, Button, Spinner } from '@/components/ui';
 import { plansAPI, paymentsAPI, subscriptionsAPI } from '@/services/api';
-import { getApiKey } from '@/services/apiConfig';
 import { useAppContext } from '@/context/AppContext';
 import { useCurrency } from '@/hooks/useCurrency';
 import PageSEO from '@/components/common/PageSEO';
@@ -12,18 +11,25 @@ export default function Pricing() {
   const { formatPrice } = useCurrency();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [selectingId, setSelectingId] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setLoadError(false);
     plansAPI
       .list()
       .then((res) => {
         if (active) setPlans(res?.data?.data || []);
       })
       .catch(() => {
-        if (active) setPlans([]);
+        if (active) {
+          setPlans([]);
+          setLoadError(true);
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -31,7 +37,7 @@ export default function Pricing() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [reloadKey]);
 
   const handleSelect = useCallback(
     async (plan) => {
@@ -42,9 +48,8 @@ export default function Pricing() {
       setSelectingId(plan.id);
       setError('');
       try {
-        const agentKey = getApiKey('agent') || localStorage.getItem('agentApiKey') || '';
         if (plan.interval === 'one_time') {
-          const res = await paymentsAPI.checkout({ planId: plan.id, agentApiKey: agentKey || undefined });
+          const res = await paymentsAPI.checkout({ planId: plan.id });
           const url = res?.data?.checkoutUrl;
           if (url) window.location.href = url;
           else setError('Checkout session unavailable — is Stripe configured?');
@@ -89,6 +94,17 @@ export default function Pricing() {
           Every plan runs the full 15-phase international pipeline — market research, RTL/i18n,
           compliance, SEO, performance budget and multi-cloud deploy configs.
         </p>
+        {loadError && (
+          <div
+            role="alert"
+            className="mx-auto mt-5 flex max-w-xl flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-card px-4 py-3 text-left text-sm text-destructive"
+          >
+            <span>We couldn&apos;t load the plans. Check your connection and try again.</span>
+            <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>
+              Retry
+            </Button>
+          </div>
+        )}
         {!isAuthenticated && (
           <p className="mt-4 text-sm text-primary">
             Please log in before choosing a plan.

@@ -182,21 +182,12 @@ export default function RestaurantEvents() {
 
       {/* Event types strip */}
       <div className="mt-8">
-        <Tabs value={activeTab} onChange={setActiveTab} className="mb-4">
-          {eventTypes.map((tab) => (
-            <button
-              key={tab}
-              className={cn(
-                'px-4 py-1.5 rounded-lg text-sm font-medium',
-                activeTab === tab
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </Tabs>
+        <Tabs
+          className="mb-4"
+          tabs={eventTypes.map((tab) => ({ label: tab, content: null }))}
+          activeTab={Math.max(eventTypes.indexOf(activeTab), 0)}
+          onChange={(index) => setActiveTab(eventTypes[index])}
+        />
         <Card padding="sm" className="flex items-center gap-4 flex-wrap">
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <Music className="h-5 w-5 text-primary" />

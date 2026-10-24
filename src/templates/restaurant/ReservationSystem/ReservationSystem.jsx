@@ -71,14 +71,22 @@ export default function ReservationSystem() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                <label
+                  htmlFor="reservation-name"
+                  className="text-xs font-medium text-muted-foreground mb-1 block"
+                >
                   Full name
                 </label>
-                <Input placeholder="e.g. Ayesha Khan" />
+                <Input id="reservation-name" placeholder="e.g. Ayesha Khan" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Date</label>
-                <Input type="date" defaultValue="2026-09-15" />
+                <label
+                  htmlFor="reservation-date"
+                  className="text-xs font-medium text-muted-foreground mb-1 block"
+                >
+                  Date
+                </label>
+                <Input id="reservation-date" type="date" defaultValue="2026-09-15" />
               </div>
             </div>
 

@@ -50,6 +50,7 @@ export default function Gallery() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
+                aria-pressed={filter === f}
                 className={cn(
                   'rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200',
                   filter === f
@@ -123,10 +124,6 @@ export default function Gallery() {
                     <CheckCircle2 className="h-3 w-3 text-emerald-500" />
                     {study.client}
                   </span>
-                  <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs">
-                    View Details
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
                 </div>
               </Card>
             </StaggerItem>
