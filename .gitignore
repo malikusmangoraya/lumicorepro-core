@@ -13,6 +13,7 @@
 # Logs
 logs
 *.log
+*.pid
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -87,6 +88,9 @@ delivery-new/
 archive/
 new rebuilt/
 lumicorepro-core-integration-query/
+lumicorepro-core-legacy/
+node_modules_old/
+node_modules_old*/
 
 # Orphaned git worktrees that were copied into the checkout (git reports them as
 # "prunable"; their real location is ../lumicorepro-core.worktrees/<name>).
@@ -117,3 +121,5 @@ ai-agent/database/agent.db-wal
 ai-agent/database/reference_cache/
 ai-agent/database/rag_store/
 ai-agent/database/rag_store_test/
+.vercel
+.env*

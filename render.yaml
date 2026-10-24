@@ -1,0 +1,48 @@
+# =============================================================================
+# Render Blueprint — LumicorePro full stack in ONE service
+# =============================================================================
+# Deploy: push this repo, then Render Dashboard → New → Blueprint → pick the repo.
+# Render builds the root Dockerfile: Vite bundle + Express API + Socket.IO share
+# one origin and one URL (no separate frontend/backend deploys, no CORS split).
+#
+# Free tier notes:
+#   * Web service sleeps after ~15 min idle; first request cold-starts (~30-60s).
+#   * Free Postgres expires after 90 days; upgrade the plan to keep data.
+#   * Single instance => REDIS_DISABLED=true is correct: Socket.IO runs in
+#     standalone mode. Add a Redis/Key Value instance and remove that flag only
+#     when you scale to more than one replica.
+# =============================================================================
+
+databases:
+  - name: lumicorepro-db
+    databaseName: lumicorepro
+    user: lumicorepro
+    plan: free
+
+services:
+  - type: web
+    name: lumicorepro-core
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: REDIS_DISABLED
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lumicorepro-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://lumicorepro-core.onrender.com
+      - key: FRONTEND_URL
+        value: https://lumicorepro-core.onrender.com

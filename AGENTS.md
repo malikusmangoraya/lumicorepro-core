@@ -48,6 +48,14 @@ Architecture: `User → React → Hook/Context → Axios → Express → Postgre
 - HTTPS production, CORS whitelist, rate limit auth/AI, JWT 15min/7day refresh, bcrypt 12+
 - Never expose stack traces. Validate MIME/size on uploads
 - Checklist: No secrets, no debug logs, input validated, no stack traces, CORS/auth set, rate limits
+- **Webhooks: verify the provider's signature header against the RAW body, fail-closed.** Never read a signature from the body, never `if (sig && sig !== hash)` (that accepts unsigned events), and never trust a posted status — Mollie-style providers require re-fetching the payment from their API. Secret missing ⇒ reject, never skip. (2026-10-23: Flutterwave/Razorpay/Square/MercadoPago/Paytm shipped inverted or missing checks; LiqPay signed the wrong payload.)
+- **Order-scoped endpoints must call `orderOwnershipError(order, req.user)`** (`backend/utils/orderOwnership.js`) whenever a client sends an `orderId` — a missing check is an IDOR (fixed in 4 payment routes on 2026-10-23).
+- `TRUST_PROXY_HOPS` controls `trust proxy` (default 0 = don't trust X-Forwarded-For). Set 1 behind nginx/ingress so IP rate limits are per-client; never `true`.
+- **Dependency audit: high/critical must be 0** in `backend/` and root (`npm audit --omit=dev`). 2026-10-23: removed unused `square`, `awilix`, `sharp` (9 highs → 0) and upgraded nodemailer to 10.x. 24 moderate remain in Sentry's transitive OpenTelemetry — accepted risk, revisit when `@sentry/node` permits. Never keep a package that nothing imports.
+- **Shared table ⇒ a vertical discriminator is mandatory.** `orders` is written by the store and the restaurant; `orders.source` (`constants/orderSources.js`, migration `008`) is what every listing, admin mutation and aggregate filters on. Creating through `orderService.createOrder(user, { source })` requires it. `bookings` is shared with healthcare via `metadata.type` + nullable healthcare columns — see §4 Database.
+- **Never spread `req.body` into a create/update.** Spread after `user_id: req.user.id` lets a caller re-parent a row (address POST/PUT fixed 2026-10-24); `coupon PUT` let `usageCount` be reset. Whitelist writable columns (`pickAddressFields`, `pickCouponFields`) and treat ids/timestamps/owners/ledger counters as server-owned.
+- **Tenancy applies to aggregates and caches, not just lists.** Every analytics/report/count/SUM query carries `tenantWhere(req)`; `User` has no org column so it uses `current_org_id`. Search cache keys include `tenantCacheKey(req)` — an org-blind key served one tenant's results to another (fixed 2026-10-24). `x-org-id` is honoured only for anonymous storefront calls.
+- **express-validator 7 `.if(condition)` receives `(value, meta)`**, so the request is `meta.req` — `(_v, req) => req.body.x` is always falsy and silently disables the chain (a delivery order shipped with no address, 2026-10-24). Other guards: numeric route params → `parseInt` NaN reaches PostgreSQL as an error, validate/clamp first (`Math.max(1, parseInt(x) || 1)` does NOT clamp negatives).
 
 ---
 
@@ -67,6 +75,7 @@ Utility-first. Config tokens only (no hardcoded hex). `dark:` prefix required. M
 
 ### Components & UI/UX
 Max 300 lines. Props: `variant`/`size`/`disabled`/`className`. States: default/hover/active/disabled/loading/focus/error. A11y: `aria-*`, keyboard nav, visible focus. Real Lucide icons (`lucide-react`) paired with text labels. Real curated high-res Unsplash images with `LazyImage` & `alt`.
+- **Icon props are forwardRef objects, not functions.** `leftIcon`/`rightIcon`/`icon` props receive lucide's forwardRef components — render them as components (`<Icon />`), never as React children. `typeof Icon === 'function'` is false for forwardRef; the fall-through white-screened ProductListing with React error #31 (fixed in `GlassButton`, regression test in `src/__tests__/components/GlassButton.test.jsx`).
 - **Branding**: Never plain text. Always generate dynamic vector SVG logos (`UniqueLogo` / `BrandLogo`) with geometric symbols & dual-color gradients.
 - **Footers**: Never a single plain line. Always multi-column professional footers (`ModernFooter`) with live status badge (`🟢 99.99% Operational`), newsletter signup, categorized sitemap, and social links.
 - **Motion UI**: Bento grids (`BentoGrid`), Spotlight cursor illumination (`SpotlightGrid`), 3D tilt (`HolographicCard`), border beams (`BorderBeam`), and text morphing (`TextMorph`).
@@ -77,6 +86,10 @@ Response: `{success,status,message,data,timestamp}`. Errors: `success:false` + c
 
 ### Database
 Snake case. Foreign keys + constraints. Index queried columns. Versioned migrations. Soft deletes (`deleted_at`).
+
+- **A route may only write columns the model declares.** The restaurant reservation path once wrote `title`/`startAt`/`org_id` into `bookings`; Sequelize drops unknown attributes, so the insert failed or saved nothing. Migration `008` added the real `bookings.org_id/startAt/metadata` columns and relaxed the healthcare-only NOT NULLs (`doctor_id`, `reason`, `patientInfo`); keep model and migration in step.
+- **Reservation slots are instants, not wall clocks.** `utils/reservationSlot.js` converts `date` + `HH:MM` in `RESTAURANT_TIMEZONE` to UTC (`startAt`), validates calendar dates with a round trip, and decides overlap with `[start, start+duration)`. Capacity/party ceilings come from `RESTAURANT_TABLE_CAPACITY` (8) and `RESTAURANT_MAX_PARTY_SIZE` (20), seating length from `RESTAURANT_SEATING_MINUTES` (120).
+- **Booking state is a ledger.** Patients may confirm/cancel only; `completed`/`no-show` are clinic-side and terminal states cannot be reopened by a patient. Cancelling a booking with collected money flips `paymentStatus` to `refunded` and returns `refundDue` — a cancellation without that trail hid real money.
 
 ---
 
@@ -97,28 +110,57 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 
 ## 6. TESTING
 
-| Type | Tool | Location | Target | Measured (2026-09-28) |
+| Type | Tool | Location | Target | Measured (2026-10-24) |
 |------|------|----------|--------|------------------------|
-| Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **Very low — 27 tests / 4 files, no coverage gate** |
-| Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **37.9% statements (871/2300) — 21 suites / 210 tests** |
-| AI agent | pytest | `ai-agent/tests/` | 80%+ | 629 tests green |
-| E2E | Playwright | `e2e/` | Key paths | 1 file, 3 tests green |
+| Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **62.74% stmts (honest full-tree) — 1020 tests / 128 files, ratchet gate active** |
+| Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.79% statements (5155/6892) — 82 suites / 1903 tests, ratchet gate active** |
+| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1317 tests + 109 subtests green** (incl. 12 repo-reverse-engineer tests) |
+| E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
-Targets are goals, **not** the current state. Measured on 2026-09-28: backend
-statement coverage is 37.9% (871/2300 statements covered, 32.8% branches, 34.3%
-functions, 38.6% lines) against an 80% target, up from 26.3% (598/2274) earlier the
-same day. The frontend has 27 tests across 4 files and no coverage gate at all.
-Backend and frontend coverage remain the largest open gaps in the repo. `ai-agent` is
-the only suite near its target, and its count is a test count, not a measured
-coverage percentage. Run the backend suite from `backend/` with
-`node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage`; the
-root `npm run test:backend` script is not the instrumented path.
+Targets are goals, **not** the current state. Measured on 2026-10-24:
+backend coverage is 74.84% statements (5167/6904 statements, 67.11% branches,
+69.29% functions, 75.53% lines; 1903 tests / 82 suites) against an 80% target —
+up from 71.9% on 2026-10-23. Frontend coverage is 51.1% statements over the full
+`src/` tree (783 tests / 114 files; 49.3% branches, 43.4% functions, 52.6%
+lines) — an older "~41%" figure only counted test-loaded files and was retired
+as dishonest accounting.
 
-Still at 0% or near-0% and worth covering next: `middleware/usageGuard.js`,
-`services/systemConfig.service.js`, `services/aiCost/*`, `utils/monitoring.js`,
-`services/email.service.js`, and the remaining payment gateways (PayPal, Stripe,
-Flutterwave, Paytm, Mollie, MercadoPago, Razorpay, LiqPay, Square).
+**Both suites now have ratchet gates** (`coverageThreshold` in
+`backend/jest.config.js`, `coverage.thresholds` in `vite.config.js`, floors set
+~1 point under the measured baseline). CI fails below the floor, so coverage
+can only go UP — raise the floor whenever tests are added. Never lower or
+delete a floor to make a run pass; that is the regression these gates exist to
+prevent. Run the backend suite from `backend/` with
+`node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage`;
+the root `npm run test:backend` script is not the instrumented path.
+
+`server.js` only listens when executed directly (`node server.js`) — tests
+import `app` via supertest without binding a port. Do not reintroduce an
+unconditional top-level `server.listen`; it caused EADDRINUSE flakes whenever
+a dev server was already running.
+
+E2E serves the production build via `scripts/e2e-server.mjs` on `E2E_PORT`
+(default 5173). On a dev machine 5173 is often already occupied by ANOTHER app,
+and `reuseExistingServer` will then test the wrong app — verified in this repo:
+a BlogForge instance answered every request while specs "passed" and the real
+LumicorePro pages were never loaded. If E2E results look impossible or pages
+don't match the codebase, re-run on a fresh port: `E2E_PORT=5199 npx playwright
+test`. `reducedMotion: 'reduce'` is set globally for E2E so axe contrast scans
+don't measure mid-fade opacity (false 3.58:1 reports on tokens that are 4.6:1
+at rest); keep it unless the animation wait is replaced.
+
+Still at 0% or near-0% and worth covering next: `ai.routes.js` (1/47 functions),
+`dashboard.routes.js`, `analytics.routes.js`, `playbook.routes.js`,
+`upload.routes.js`, `workers/` and `utils/monitoring.js`; the frontend
+`src/pages/` + `src/components/` trees are the larger gap. Search, audit and
+coupon routes gained suites on 2026-10-24.
+Every money-moving gateway now has a suite (Stripe, PayPal, Razorpay, Square,
+Flutterwave, Paytm, Mollie, MercadoPago, LiqPay, Paddle, bKash) and HTTP routes
+(`backend/routes/payment-gateways.routes.js` for the non-Stripe/PayPal/Paddle/
+Razorpay ones) — when touching one, read its "Signing/webhook" header comment
+first: several shipped with inverted or missing signature checks (fixed
+2026-10-23). Webhook env vars are documented in `backend/.env.example`.
 
 Mock externals (MSW). Test error paths. Isolated tests. Descriptive names. Await async.
 
@@ -130,7 +172,7 @@ Mock externals (MSW). Test error paths. Isolated tests. Descriptive names. Await
 |--------|--------|------------|
 | Lighthouse Performance | 95+ | — |
 | Bundle (gzip) | <200KB | <300KB |
-| JS Bundle (gzip) | <150KB | <200KB |
+| Initial JS (gzip) | <200KB | 200KB enforced |
 | CSS (gzip) | <30KB | <50KB |
 | LCP | <1.5s | — |
 | CLS | <0.05 | <0.1 |
@@ -140,7 +182,7 @@ Mock externals (MSW). Test error paths. Isolated tests. Descriptive names. Await
 - `useMemo`/`useCallback` for expensive ops. Windowing >100 items. Debounce 300ms. Animate `transform`/`opacity` only
 - React Query: `staleTime: 5min`, `gcTime: 30min`. SW: hashed assets indefinite. `localStorage` for prefs only
 
-Measured 2026-09-28 (`npm run size`): initial JS **193.2 KB** gzip across 9 chunks, CSS 24.7 KB, largest chunk `HeroCanvas` 219.5 KB. This **passes the enforced script budgets** (200 KB initial JS, 50 KB CSS, 300 KB largest chunk) but **misses the 150 KB "JS Bundle" target row** by 43 KB. Report the two claims separately — do not describe the 200 KB gate as if it were the 150 KB target. Headroom is ~7 KB and most of the earlier saving is committed, so treat a small regression here as a gate failure, not noise.
+Measured 2026-10-24 (`npm run size`): initial JS **198.8 KB** gzip across 18 chunks, CSS 26.1 KB, largest chunk `HeroCanvas` 219.4 KB — **passes all enforced budgets** (200 KB initial JS, 50 KB CSS, 300 KB largest chunk) with ~1.2 KB headroom. `CookieConsent`, `ToastRegion`, `Analytics` and the below-the-fold `ModernFooter` were moved behind `React.lazy` (all queue state or render off-screen, nothing is missed on mount). The old 150 KB "JS Bundle" target was retired on 2026-10-23: the mandated stack alone (react+router 92.9 KB, i18next 21.4 KB, lucide 20.2 KB, axios 18.1 KB, react-query 7.9 KB = ~160.5 KB gzip before any app code) made it unreachable without breaking §4 rules, so the target was aligned to the enforced 200 KB gate with the owner's approval. Headroom is tight — treat ANY initial-JS growth as a gate failure, not noise, and lazy-defer UI that is not needed for first paint.
 
 **Manual chunks are a trap on this bundler.** Naming a large lazily-reachable package (`three`, `recharts`, `framer-motion`) in `manualChunks` makes rolldown emit it as a *static* import of the entry chunk, hoisting it onto first paint and negating the lazy boundary. Group only runtimes that are large, always-initial, and slow-moving. Do not name an icon/animation library that lazy routes import.
 
@@ -296,7 +338,9 @@ If visual quality < threshold: DO NOT PATCH ONLY — the agent may redesign hero
 - **Design Memory:** `.artifacts/01-business.json → 02-audience → 03-brand → 04-reference → 05-playbook → 06-ux → 07-design → 08-architecture → 09-build → 10-designlint → 11-visual-score → 12-critic-review → 13-qa → 14-deployment` makes every decision traceable for later "change the hero" requests
 
 ### Implementation Mapping (use existing modules, no duplicates)
-Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`, `design_style.py` · Playbooks → `theme_matrix.py`, `design_vault.py` · Blueprint → `planner.py`, `project_mode_engine.py` · Manifest/Memory → `memory_retriever.py`, `.artifacts/` · Benchmark/Lint → `vision_pipeline.py`, `quality_gates.py` · Scoring → `quality_gate.py`, `quality_gates.py` · Self-heal/Redesign → `enterprise_repair.py`, `iterate_engine.py`, `restyle_all.py` · Orchestration → `orchestrator.py`, `pipeline.py`. Central orchestrator controls task/state; agents must not randomly modify files outside the plan.
+Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`, `design_style.py` · Playbooks → `theme_matrix.py`, `design_vault.py` · Blueprint → `planner.py`, `project_mode_engine.py` · Manifest/Memory → `memory_retriever.py`, `.artifacts/` · Benchmark/Lint → `vision_pipeline.py`, `quality_gates.py` · Scoring → `quality_gate.py`, `quality_gates.py` · Self-heal/Redesign → `enterprise_repair.py`, `iterate_engine.py`, `restyle_all.py` · **Existing-repo rebuilds → `repo_reverse_engineer.py`** (read-only scan: stack/routes/models/tests/risks + clean-room reconstruction plan; `python ai-agent/agent/repo_reverse_engineer.py <repo> [--json]`) · Orchestration → `orchestrator.py`, `pipeline.py`. Central orchestrator controls task/state; agents must not randomly modify files outside the plan.
+
+**Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 
 ### Quality Gates (Part 2 hard rules)
 - **Evidence-based QA only:** pass badges ("WCAG AA ✅", "LCP <1.5s") only when the actual check ran and the measurement supports it; otherwise report "not measured". Never invent metrics.
@@ -340,6 +384,11 @@ truncated its final sections (this one included).
 
 | Date | Ver | Summary |
 |------|-----|---------|
+| 2026-10-24 | 8.28 | Vertical isolation (`orders.source` + migration 008), restaurant order/reservation contract + 175 tests, booking overlap/role/refund ledger fixed, address/wishlist/cart/business/search/audit/coupon security gaps closed, backend 82 suites / 1903 tests / 74.79% stmts (floors raised), AI agent 1317 tests |
+| 2026-10-23 | 8.26 | Wave 3: frontend coverage 27.5%→51.1% (783 tests / 114 files), 20+ UI bugs fixed (5 white-screen icon crashes, Chat send crash, Generate 429 crash, Card/Button asChild, honest dashboard scores, error+retry states, template data/i18n), **reverse-engineering module** `repo_reverse_engineer.py` (clean-room, 12 tests) added to the agent |
+| 2026-10-23 | 8.25 | Wave 2: 16 gateway HTTP routes wired (fail-closed webhooks), frontend coverage 15.1%→27.5% (491 tests), 20 real UI bugs fixed (SocialLogin/password-page crashes, terms enforcement, SEO alternates, form a11y), bundle 196.1 KB PASS |
+| 2026-10-23 | 8.24 | Wave 1: payment gateways fully tested (~205 tests) + 15 real gateway bugs fixed (webhook forgery, refund endpoints, zero-decimal currency), IDOR fixed in 4 payment routes, TRUST_PROXY_HOPS, frontend coverage 15.1% |
+| 2026-10-23 | 8.23 | Quality-gate hardening: coverage ratchets enforced (backend 57.7%, frontend 13.1% honest full-tree), CI runs main backend + bundle budget, EADDRINUSE test fix, GlassButton forwardRef-icon crash fixed (React #31 white-screen), 4 GB legacy tree removed, 8 E2E specs |
 | 2026-10-03 | 8.0 | Audit remediation: repo hygiene + `.gitignore`, P0 email-logger crash fix, CI gate un-masked, security / tenancy / AI-agent / frontend / ops workstreams |
 | 2026-09-24 | 7.13 | 10 vertical AI-agent SaaS products shipped — 69/69 full-stack packaged |
 | 2026-09-21 | 7.12 | Full-stack delivery completed — 59/59 packaged with honest manifests |

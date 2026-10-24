@@ -29,6 +29,7 @@
   - Interactive newsletter subscription with instant validation
   - Bottom bar with Copyright, React 19 + Vite badge, Language/Currency selector, and Back to Top button.
 - **Header & Navigation (`GlassNavbar` / `Navbar`)**: Glassmorphism backdrop blur, active link styling, Command Palette (`Cmd+K`) integration, responsive mobile drawer, and glowing CTA buttons.
+- **Authentication routes**: Login, registration, password-reset, and other identity-flow screens use a focused auth layout; do not render marketing navigation, promotional banners, or the marketing footer on these routes. Keep auth-specific branding and required navigation links within the auth form/layout.
 
 ---
 
