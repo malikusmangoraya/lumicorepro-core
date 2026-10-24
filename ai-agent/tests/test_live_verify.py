@@ -36,6 +36,10 @@ class _Handler(BaseHTTPRequestHandler):
             return self._send(200, "<html><head><title>Acme</title></head><body>hello</body></html>", "text/html")
         if mode == "platform":
             return self._send(200, "<html><head><title>Login – Vercel</title></head><body>vercel.com/login</body></html>", "text/html")
+        if mode == "raw-css":
+            if path == "/":
+                return self._send(200, "<html><head><title>Acme</title></head><body><div id=\"root\"></div><link rel=\"stylesheet\" href=\"/assets/app.css\"></body></html>", "text/html")
+            return self._send(200, "@tailwind base;@tailwind components;@tailwind utilities;", "text/css")
         if mode == "broken-assets":
             if path == "/":
                 return self._send(200, "<html><head><title>Acme</title></head><body><div id=\"root\"></div><script src=\"/assets/missing.js\"></script></body></html>", "text/html")
@@ -115,6 +119,13 @@ class LiveVerifyTests(unittest.TestCase):
         self.assertFalse(result["verified"])
         self.assertEqual(result["status"], "broken-assets")
         self.assertEqual(result["checks"]["assets"]["failed"][0]["status"], 404)
+
+    def test_unprocessed_tailwind_css_is_rejected(self):
+        _Handler.mode = "raw-css"
+        result = verify_site(self.base, timeout=2, poll_interval=0.1)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["status"], "unprocessed-css")
+        self.assertEqual(len(result["checks"]["css"]["unprocessed"]), 1)
 
     def test_marker_missing_fails(self):
         result = verify_site(self.base, marker="built-with-lumicorepro", timeout=2, poll_interval=0.1)

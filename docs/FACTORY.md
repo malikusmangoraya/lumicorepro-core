@@ -14,7 +14,13 @@ generate → build → backend tests → browser QA → deploy → live verify �
 # 1. Generate a full-stack site (React + Express + PostgreSQL)
 python ai-agent/main.py --fullstack-pro --prompt "Nimbus analytics platform" --dest generated-projects/nimbus
 
-# 2. Deliver it: build, test, QA, deploy to Vercel, verify, film
+# 2. One prompt → generate + build + test + QA + deploy + verify + film
+python ai-agent/main.py --deliver 'Build "Nimbus" an AI analytics copilot, deploy to vercel'
+#    The plan is inferred from the sentence: brand, industry, deploy target
+#    ("no deploy", "railway", "netlify", "github pages") and video opt-out
+#    ("no video"). Override with --deliver-deploy / --factory-no-video.
+
+# Or deliver a project that already exists on disk
 python ai-agent/main.py --factory generated-projects/nimbus \
   --factory-name Nimbus --factory-tagline "Analytics for product teams"
 
@@ -68,8 +74,10 @@ If credentials are missing the result is `guide` with exact commands — never a
 
 1. Storyboard (9 scenes): intro card, home, features, pricing, register, dashboard, contact,
    mobile viewport, closing card.
-2. Narration: Edge TTS when the network allows it, otherwise the offline Windows SAPI voice
-   (`Microsoft Zira Desktop`); each scene records which backend produced the audio.
+2. Narration: **free online voices first** — Edge TTS, then gTTS (Google Translate,
+   internet-only) — and the offline Windows SAPI voice (`Microsoft Zira Desktop`) as a
+   last resort. Each scene records which backend produced the audio, so a silent or
+   offline fallback is visible in the manifest, never hidden.
 3. Capture: Playwright screenshots at 1920×1080 (desktop) and 430×932 (mobile). A page that
    fails to capture is replaced by a title card, and the failure is a warning — never a silent gap.
 4. Assembly: ffmpeg renders one H.264/AAC clip per scene with a slow zoom, concatenates them,
@@ -77,8 +85,75 @@ If credentials are missing the result is `guide` with exact commands — never a
 5. Verification: ffprobe must report both streams and a duration close to the target; the
    manifest lands in `.factory/video/manifest.json`.
 
-Requirements: `ffmpeg`, `ffprobe`, Node + Playwright (repo `node_modules` is fine), and either
-`edge-tts` or Windows PowerShell. `GET /api/factory/status` reports exactly what is missing.
+Requirements: `ffmpeg`, `ffprobe`, Node + Playwright (repo `node_modules` is fine), and one
+TTS backend: `edge-tts` (best voices), `gTTS` (free, internet-only fallback) or Windows
+PowerShell (offline). `GET /api/factory/status` reports exactly what is missing.
+
+```bash
+pip install edge-tts gTTS   # both free
+```
+
+## Unique design system
+
+`agent/design_forge.py` derives a complete visual system per brand, so two generated
+projects no longer look identical:
+
+- **Archetype** (`aurora`, `editorial`, `kinetic`, `precision`) chosen by a stable hash of
+  brand + industry; industry hints (fintech → precision, legal → editorial, gaming → kinetic).
+- **Tinted neutral scale** built from the brand hue: `slate-*` and `white` are overridden in
+  the generated `tailwind.config.js`, so every page re-skins coherently without markup changes.
+- **Two-font pairing** loaded from Google Fonts (IBM Plex Sans + Sora, Manrope + Fraunces,
+  Space Grotesk, Plus Jakarta Sans) with system fallbacks.
+- **Radius scale and accent glow**, plus CSS variables (`--brand-primary`, `--ink`) and a
+  generated `font-display` class.
+
+Because the palette is deterministic, the same brand always gets the same design; different
+brands get measurably different systems (asserted in `tests/test_design_forge.py`).
+
+## Hosting the Express API
+
+Static hosts (Vercel/Netlify/Pages) serve the **frontend** only. The generated `backend/`
+is a normal Express + PostgreSQL service; pick one:
+
+| Option | Steps | Notes |
+|--------|-------|-------|
+| **Railway** | `railway login` → new project → add PostgreSQL → set envs → `railway up` from `backend/` | simplest; the factory can deploy with `RAILWAY_TOKEN` + `RAILWAY_PUBLIC_DOMAIN` and verify `/api/v1/health` |
+| **Render** | New → Blueprint → repo's `render.yaml`, or a Web Service with `backend/` root | add the managed Postgres and copy `DATABASE_URL`; build `npm install`, start `npm start`, migrate `npm run db:migrate` |
+| **Docker / VPS** | `cp .env.example .env` → `docker compose up -d --build` | the generated compose file runs Postgres + API + nginx; TLS via the proxy |
+| **Vercel Functions** | wrap Express in `api/index.js` and use Neon/Vercel Postgres | works, but the generated project ships a container config, not a Vercel API wrapper |
+
+Required variables (all documented in `backend/.env.example`):
+
+```
+DATABASE_URL=postgres://user:pass@host:5432/db
+JWT_SECRET=<32+ random chars>
+CORS_ORIGIN=https://your-frontend.example.com
+AI_PROVIDER=groq
+GROQ_API_KEY=<real key>          # or XAI_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY
+ENCRYPTION_KEY=<64 hex chars>    # encrypts stored provider keys
+PORT=5000
+```
+
+Then rebuild the frontend with that API base and verify both halves:
+
+```bash
+python ai-agent/main.py --factory generated-projects/my-site \
+  --factory-api-url https://api.myproduct.com/api/v1 \
+  --factory-api-health /api/v1/health
+```
+
+Only then is the run `delivered` (`api_deployed: true`). Chat features use the same
+provider key: `POST /api/v1/ai/chat` performs RAG over uploaded documents and returns
+sources; `/api/v1/ai/generate` streams with SSE.
+
+## What you must provide
+
+| Needed | Why | Where |
+|--------|-----|-------|
+| A real LLM key (`GROQ_API_KEY`/`GROK_API_KEY`, `XAI_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`) | chat/generate endpoints; placeholders return 401 | `.env` / hosting env |
+| A PostgreSQL URL | auth, records, contact, RAG | Railway/Render/Neon |
+| Vercel CLI login (present on this machine) or `VERCEL_TOKEN` | frontend deploy | already configured |
+| Railway token + public domain, or Render account | API deploy + health verification | Railway/Render dashboard |
 
 ## HTTP API
 
@@ -88,7 +163,26 @@ Requirements: `ffmpeg`, `ffprobe`, Node + Playwright (repo `node_modules` is fin
 | `POST` | `/api/factory/run` | start a background delivery job |
 | `GET` | `/api/factory/jobs` | recent jobs (no result payload) |
 | `GET` | `/api/factory/jobs/{id}` | job status + full result |
+| `POST` | `/api/factory/deliver` | one prompt → generate → full pipeline (background) |
 | `POST` | `/api/factory/verify` | verify a URL (assets, routes, marker, API health) |
+| `GET` | `/api/factory/jobs/{id}/events` | **SSE** progress stream (stage, status, detail, timestamp) |
+
+### Real-time progress
+
+`POST /api/factory/deliver` (or `/run`) returns a `job_id`. Subscribe to the SSE
+stream to watch every stage as it happens:
+
+```bash
+curl -N -H "X-API-KEY: $AGENT_API_KEY" \
+  http://localhost:5000/api/factory/jobs/<job_id>/events
+# event: progress  {"stage":"build","status":"running"}
+# event: progress  {"stage":"build","status":"done","dist":".../dist"}
+# ...
+# event: done      {"status":"done"}
+```
+
+The CLI prints the same events to stderr (`[generate] done`, `[deploy] done`, …)
+while stdout stays machine-readable JSON under `--factory-json`.
 
 All endpoints use the agent API key (`X-API-KEY`) and the shared rate limiter.
 

@@ -212,13 +212,22 @@ def verify_site(
 
     assets = _asset_urls(home.url or target, home.body)
     asset_failures: List[Dict[str, Any]] = []
+    unprocessed_css: List[str] = []
     for asset in assets:
         result = _fetch(asset, timeout=15)
         if not result.ok:
             asset_failures.append({**result.as_dict(), "asset": asset})
+        elif asset.split("?")[0].endswith(".css") and "@tailwind" in result.body:
+            # A CSS file that still contains the directives means PostCSS did not
+            # run in the deploy — the site ships unstyled while returning 200.
+            unprocessed_css.append(asset)
     checks["assets"] = {"checked": len(assets), "ok": len(assets) - len(asset_failures), "failed": asset_failures}
+    checks["css"] = {"checked": sum(1 for a in assets if a.split("?")[0].endswith(".css")),
+                     "unprocessed": unprocessed_css}
     if assets and asset_failures:
         failures.append(f"{len(asset_failures)}/{len(assets)} bundle assets failed to load")
+    if unprocessed_css:
+        failures.append(f"unprocessed Tailwind CSS in {len(unprocessed_css)} asset(s)")
     if not assets:
         failures.append("index.html references no JS/CSS assets")
 
@@ -261,6 +270,8 @@ def verify_site(
     verified = not failures
     if verified:
         status = "verified"
+    elif any("unprocessed Tailwind" in item for item in failures):
+        status = "unprocessed-css"
     elif any(item.startswith("route ") for item in failures):
         status = "missing-routes"
     elif any("assets" in item for item in failures):

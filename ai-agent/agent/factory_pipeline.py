@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import time
@@ -28,6 +29,171 @@ from typing import Any, Dict, Optional
 from utils.logger import agent_logger
 
 DEFAULT_PLATFORM = "vercel"
+
+_STOPWORDS = {
+    "a", "an", "the", "build", "create", "make", "generate", "website", "site",
+    "platform", "app", "application", "please", "need", "want", "for", "with",
+}
+
+_INDUSTRY_KEYWORDS = (
+    ("fintech", "fintech"), ("bank", "fintech"), ("payment", "fintech"), ("invoice", "fintech"),
+    ("ecommerce", "ecommerce"), ("e-commerce", "ecommerce"), ("shop", "ecommerce"), ("store", "ecommerce"),
+    ("restaurant", "restaurant"), ("food", "restaurant"), ("cafe", "restaurant"),
+    ("real estate", "real-estate"), ("property", "real-estate"),
+    ("clinic", "healthcare"), ("health", "healthcare"), ("medical", "healthcare"),
+    ("school", "education"), ("course", "education"), ("learning", "education"),
+    ("travel", "travel"), ("booking", "hospitality"), ("hotel", "hospitality"),
+    ("fitness", "sports"), ("gym", "sports"), ("sport", "sports"),
+    ("game", "gaming"), ("gaming", "gaming"), ("esports", "gaming"),
+    ("ai", "saas"), ("saas", "saas"), ("crm", "saas"), ("copilot", "saas"),
+    ("agent", "saas"), ("automation", "saas"), ("analytics", "saas"),
+)
+
+
+def _emit(progress, stage: str, status: str, **detail) -> None:
+    """Send one progress event without ever breaking the pipeline."""
+    if not callable(progress):
+        return
+    try:
+        progress({"stage": stage, "status": status, **detail})
+    except Exception:  # noqa: BLE001 — a broken listener must not fail a delivery
+        pass
+
+
+def parse_delivery_prompt(prompt: str) -> Dict[str, Any]:
+    """Turn one natural-language sentence into a generation + delivery plan.
+
+    Understands: product name (quoted, ``named X`` or a leading brand token),
+    industry keywords, deploy target keywords and an opt-out for the video.
+    """
+    text = " ".join(str(prompt or "").split())
+    if len(text) < 8:
+        raise ValueError("prompt is too short — describe the product you want")
+    lower = text.lower()
+
+    name = ""
+    quoted = re.search(r'["\u201c]([A-Za-z][A-Za-z0-9&. -]{1,30})["\u201d]', text)
+    named = re.search(r"(?:named|called|brand(?:ed)?)\s+([A-Z][A-Za-z0-9&.-]{1,30})", text)
+    if quoted:
+        name = quoted.group(1).strip()
+    elif named:
+        name = named.group(1).strip()
+    else:
+        first = text.split()[0].strip('"\'.,:;!?')
+        if first.lower() not in _STOPWORDS and re.match(r"^[A-Z][A-Za-z0-9&.-]{1,29}$", first):
+            name = first
+
+    industry = next((label for needle, label in _INDUSTRY_KEYWORDS if needle in lower), "saas")
+    if not name:
+        name = f"{industry.replace('-', ' ').title()} Studio"
+
+    tagline = re.split(r"(?<=[.!?])\s+", text)[0].strip()
+    if len(tagline) > 140:
+        tagline = tagline[:137].rstrip() + "..."
+    if not tagline:
+        tagline = f"{industry.replace('-', ' ').title()} platform"
+
+    deploy = "vercel"
+    if re.search(r"\b(no deploy|without deploy|local only|do not deploy)\b", lower):
+        deploy = "none"
+    elif "railway" in lower:
+        deploy = "railway"
+    elif "netlify" in lower:
+        deploy = "netlify"
+    elif "github pages" in lower:
+        deploy = "github-pages"
+
+    video = not re.search(r"\b(no video|without video|skip the video)\b", lower)
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or industry
+    return {
+        "name": name,
+        "tagline": tagline,
+        "industry": industry,
+        "slug": slug[:48],
+        "deploy": deploy,
+        "video": video,
+        "prompt": text,
+    }
+
+
+def _unique_destination(root: Path, slug: str) -> Path:
+    root.mkdir(parents=True, exist_ok=True)
+    candidate = root / slug
+    suffix = 2
+    while candidate.exists():
+        candidate = root / f"{slug}-{suffix}"
+        suffix += 1
+    return candidate
+
+
+def deliver_from_prompt(
+    prompt: str,
+    *,
+    dest_root: str = "generated-projects",
+    platform: Optional[str] = None,
+    video: Optional[bool] = None,
+    api_url: str = "",
+    api_health: str = "",
+    progress=None,
+    reuse_existing: bool = False,
+) -> Dict[str, Any]:
+    """One prompt → generated project → build/tests/QA/deploy/verify/video.
+
+    ``reuse_existing`` regenerates into ``<dest_root>/<slug>`` in place (for
+    shipping an update of the same product); the default never overwrites an
+    existing directory and picks ``<slug>-2``, ``<slug>-3`` instead.
+    """
+    plan = parse_delivery_prompt(prompt)
+    deploy = (platform or plan["deploy"]).strip().lower()
+    want_video = plan["video"] if video is None else bool(video)
+    root = Path(dest_root).resolve()
+    destination = (root / plan["slug"]) if reuse_existing else _unique_destination(root, plan["slug"])
+    destination.mkdir(parents=True, exist_ok=True)
+
+    _emit(progress, "generate", "running", name=plan["name"], industry=plan["industry"])
+    from agent.fullstack_ultra_engine import FullStackUltraEngine
+    from agent.generation_contract import resolve_generation_contract
+
+    generated = FullStackUltraEngine().generate_project(
+        str(destination),
+        prompt=plan["prompt"],
+        brand_name=plan["name"],
+        industry=plan["industry"],
+        generation_contract=resolve_generation_contract({}),
+    )
+    if not generated.get("success"):
+        _emit(progress, "generate", "failed", errors=generated.get("errors"))
+        return {
+            "status": "failed",
+            "verified": False,
+            "message": "generation failed",
+            "plan": plan,
+            "destination": str(destination),
+            "generation": generated,
+        }
+    _emit(progress, "generate", "done", files=generated.get("total_files"),
+          elapsed_ms=generated.get("elapsed_ms"))
+
+    result = run_factory(
+        str(destination),
+        deploy=deploy,
+        video=want_video,
+        name=plan["name"],
+        tagline=plan["tagline"],
+        api_url=api_url,
+        api_health=api_health,
+        progress=progress,
+        generation_meta={
+            "engine": "FullStackUltraEngine",
+            "plan": plan,
+            "files": generated.get("total_files"),
+            "elapsed_ms": generated.get("elapsed_ms"),
+            "destination": str(destination),
+        },
+    )
+    result["plan"] = plan
+    result["destination"] = str(destination)
+    return result
 
 
 def _run(cmd, cwd: Path, timeout: int = 900, env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
@@ -142,6 +308,8 @@ def run_factory(
     out_dir: str = "",
     api_url: str = "",
     api_health: str = "",
+    progress=None,
+    generation_meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Run build → backend tests → QA → deploy → live verify → demo video."""
     started = time.perf_counter()
@@ -163,6 +331,8 @@ def run_factory(
         "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "stages": {},
     }
+    if generation_meta:
+        report["generation"] = generation_meta
 
     # 1 — build -----------------------------------------------------------------
     if skip_build:
@@ -171,24 +341,31 @@ def run_factory(
         if not build["ok"]:
             build["message"] = "--skip-build was set but no dist/index.html exists"
     else:
+        _emit(progress, "build", "running")
         build = build_project(str(project), install=install, api_url=api_url)
     report["stages"]["build"] = build
+    _emit(progress, "build", "done" if build.get("ok") else "failed",
+          dist=build.get("dist"), message=build.get("message"))
     if not build.get("ok"):
         report.update(status="failed", message=build.get("message", "build failed"),
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
         return _write_report(project, report_dir, report)
 
     # 2 — backend tests ---------------------------------------------------------
+    _emit(progress, "backend_tests", "running")
     backend = test_backend(str(project))
     report["stages"]["backend_tests"] = backend
+    _emit(progress, "backend_tests", "done" if backend.get("ok") else "failed")
     if not backend.get("ok"):
         report.update(status="failed", message=backend.get("message", "backend tests failed"),
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
         return _write_report(project, report_dir, report)
 
     # 3 — QA --------------------------------------------------------------------
+    _emit(progress, "qa", "running")
     qa = run_qa(str(project))
     report["stages"]["qa"] = qa
+    _emit(progress, "qa", "done" if qa.get("ok") else "failed", detail=qa.get("status"))
     if not qa.get("ok") and not allow_qa_fail:
         report.update(status="failed", message=qa.get("message", "QA failed"),
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
@@ -200,6 +377,7 @@ def run_factory(
     if platform != "none":
         from agent.deploy_engine import deploy_project
 
+        _emit(progress, "deploy", "running", platform=platform)
         deployment = deploy_project(str(project), platform=platform)
         if deployment.get("verified") and backend_present:
             # The static hosts (Vercel/Netlify/Pages) only serve the frontend.
@@ -230,11 +408,23 @@ def run_factory(
                     "verification", "api_deployed")
         if key in deployment
     }
+    if platform == "none":
+        _emit(progress, "deploy", "skipped")
+    elif deployment.get("verified"):
+        _emit(progress, "deploy", "done", url=deployment.get("url"), verified=True)
+    elif deployment.get("status") == "live":
+        # Frontend is up; the API half is unverified — say that, not "failed".
+        _emit(progress, "deploy", "partial", url=deployment.get("url"), verified=False,
+              message=deployment.get("message"))
+    else:
+        _emit(progress, "deploy", "failed", url=deployment.get("url"),
+              message=deployment.get("message"))
 
     # 5 — demo video ------------------------------------------------------------
     if video:
         from agent.demo_video import generate_demo_video
 
+        _emit(progress, "video", "running")
         live_url = deployment.get("url", "") if deployment.get("verified") else ""
         video_result = generate_demo_video(
             str(project), name=name, tagline=tagline, live_url=live_url,
@@ -247,6 +437,9 @@ def run_factory(
                         "resolution", "warnings", "failures", "missing", "message")
             if key in video_result
         }
+        _emit(progress, "video", "done" if video_result.get("verified") else "failed",
+              duration_seconds=video_result.get("duration_seconds"),
+              message=video_result.get("message"))
 
     failures = []
     if platform != "none" and not deployment.get("verified"):
@@ -260,6 +453,8 @@ def run_factory(
     report["failures"] = failures
     report["verified"] = not failures
     report["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+    _emit(progress, "run", report["status"], verified=report["verified"], failures=failures,
+          elapsed_ms=report["elapsed_ms"])
     return _write_report(project, report_dir, report)
 
 

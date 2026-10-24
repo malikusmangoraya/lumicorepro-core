@@ -45,6 +45,8 @@ coverage/
 # AI Agent Database & Logs
 ai-agent/.env
 ai-agent/database/*.db
+ai-agent/database/*.db-shm
+ai-agent/database/*.db-wal
 ai-agent/logs/
 
 # Local AI provider routing tiers (machine-specific ordering, written by

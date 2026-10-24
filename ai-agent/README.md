@@ -80,6 +80,16 @@ python main.py --prompt "Create a modern electronics store" --verbose
 
 ### Deliver a Generated Project (build → test → QA → deploy → live verify → video)
 
+**One prompt does the whole job:**
+
+```bash
+python main.py --deliver 'Build "CortexDesk" an AI knowledge copilot, deploy to vercel'
+```
+
+The agent infers the brand, industry, deploy target (`no deploy`, `railway`, `netlify`,
+`github pages`) and video opt-out from the sentence. Generation, tests, QA, deployment,
+live verification and the demo video all run from that one command.
+
 ```bash
 # Full delivery to Vercel (uses the logged-in CLI or VERCEL_TOKEN)
 python main.py --factory generated-projects/my-site \
@@ -101,9 +111,14 @@ Exit code is `0` only when the run is `delivered`. Reports land in
 [`docs/FACTORY.md`](../docs/FACTORY.md) for the gate definitions, supported platforms
 and the HTTP endpoints (`/api/factory/run`, `/api/factory/verify`, `/api/factory/status`).
 
-Requirements for the video stage: `ffmpeg`, `ffprobe`, Node + Playwright, and either
-`edge-tts` or Windows PowerShell (offline SAPI voice). Missing tools are reported by
-`GET /api/factory/status` — the pipeline never fabricates an artifact.
+Requirements for the video stage: `ffmpeg`, `ffprobe`, Node + Playwright, and a TTS
+backend — `edge-tts` (best voices), `gTTS` (free, internet-only fallback) or Windows
+PowerShell (offline SAPI). Missing tools are reported by `GET /api/factory/status` — the
+pipeline never fabricates an artifact.
+
+Designs are brand-derived (`agent/design_forge.py`): four archetypes, a tinted neutral
+scale, a two-font pairing and a radius system, so two generated brands never look alike.
+Progress is streamed in real time at `GET /api/factory/jobs/{id}/events` (SSE).
 
 ### Optional Reflex Mode
 

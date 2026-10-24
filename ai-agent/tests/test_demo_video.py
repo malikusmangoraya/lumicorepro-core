@@ -66,6 +66,38 @@ class ToolchainTests(unittest.TestCase):
         self.assertIn("tts_backend", toolchain)
 
 
+class NarrationFallbackTests(unittest.TestCase):
+    def test_free_gtts_voice_is_used_when_edge_tts_is_blocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(demo, "_run", return_value=_Proc(1, stderr="403 Invalid response status")),                  patch.object(demo, "_synthesize_gtts", return_value={
+                     "ok": True, "path": "g.mp3", "backend": "gtts", "duration": 9.0,
+                 }) as gtts,                  patch.object(demo, "_synthesize_sapi") as sapi:
+                result = demo._synthesize({"id": "s1", "narration": "hello"}, Path(tmp), 1, "voice")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["backend"], "gtts")
+        gtts.assert_called_once()
+        sapi.assert_not_called()
+
+    def test_offline_sapi_is_the_last_resort(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(demo, "_run", return_value=_Proc(1, stderr="blocked")),                  patch.object(demo, "_synthesize_gtts", return_value={"ok": False, "error": "offline"}),                  patch.object(demo, "_synthesize_sapi", return_value={
+                     "ok": True, "path": "s.wav", "backend": "windows-sapi", "duration": 8.0,
+                 }):
+                result = demo._synthesize({"id": "s2", "narration": "hello"}, Path(tmp), 2, "voice")
+        self.assertEqual(result["backend"], "windows-sapi")
+
+    def test_edge_tts_wins_when_it_works(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "01-s3.mp3"
+            out.write_bytes(b"x" * 2048)
+            def fake_run(cmd, **kwargs):
+                return _Proc(0)
+            with patch.object(demo, "_run", side_effect=fake_run),                  patch.object(demo, "_duration", return_value=7.0),                  patch.object(demo, "_synthesize_gtts") as gtts:
+                result = demo._synthesize({"id": "s3", "narration": "hello"}, Path(tmp), 1, "voice")
+        self.assertEqual(result["backend"], "edge-tts")
+        gtts.assert_not_called()
+
+
 class GenerateVideoTests(unittest.TestCase):
     def _patches(self, probe=PROBE_OK):
         def fake_run(cmd, **kwargs):

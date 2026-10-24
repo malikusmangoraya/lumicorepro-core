@@ -115,4 +115,5 @@ mcp>=1.9.0,<2
 #  3. Demo video narration. Edge TTS gives the best voices when the network
 #     allows it; agent/demo_video.py falls back to the offline Windows SAPI
 #     voice, so this package is optional.
-#     pip install edge-tts
+#     pip install edge-tts gTTS
+#     gTTS is the free internet fallback when Edge TTS is blocked.

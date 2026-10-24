@@ -2761,6 +2761,16 @@ class FactoryRunRequest(BaseModel):
     api_health: str = Field("", description="API health path/URL to verify after deploy")
 
 
+class FactoryDeliverRequest(BaseModel):
+    prompt: str = Field(..., min_length=10, description="One sentence describing the product")
+    platform: Optional[str] = Field(None, description="vercel | netlify | railway | github-pages | none")
+    video: bool = Field(True, description="Generate and verify the demo video")
+    api_url: str = Field("", description="Public API base URL baked into the build (VITE_API_URL)")
+    api_health: str = Field("", description="API health path/URL to verify after deploy")
+    dest_root: str = Field("generated-projects", description="Directory that receives the generated project")
+    reuse_existing: bool = Field(False, description="Regenerate in <dest_root>/<slug> instead of a -2 copy")
+
+
 class FactoryVerifyRequest(BaseModel):
     url: str = Field(..., description="Deployed URL to verify")
     routes: List[str] = Field(default_factory=list, description="SPA routes that must render")
@@ -2781,12 +2791,28 @@ def _factory_set(job_id: str, **fields: Any) -> None:
             job.update(fields)
 
 
-def _factory_worker(job_id: str, payload: Dict[str, Any]) -> None:
+def _factory_worker(job_id: str, mode: str, payload: Dict[str, Any]) -> None:
     _factory_set(job_id, status="running", started_at=datetime.utcnow().isoformat() + "Z")
-    try:
-        from agent.factory_pipeline import run_factory
 
-        result = run_factory(**payload)
+    def progress(event: Dict[str, Any]) -> None:
+        with _FACTORY_LOCK:
+            job = _FACTORY_JOBS.get(job_id)
+            if not job:
+                return
+            events = job.setdefault("events", [])
+            events.append({**event, "ts": time.time()})
+            del events[:-200]
+            if event.get("stage"):
+                job["stage"] = event["stage"]
+
+    try:
+        from agent.factory_pipeline import deliver_from_prompt, run_factory
+
+        result = (
+            deliver_from_prompt(progress=progress, **payload)
+            if mode == "deliver"
+            else run_factory(progress=progress, **payload)
+        )
         _factory_set(
             job_id,
             status="done" if result.get("status") == "delivered" else "failed",
@@ -2863,25 +2889,106 @@ async def factory_run(req: FactoryRunRequest, request: Request,
         _FACTORY_JOBS[job_id] = {
             "job_id": job_id,
             "status": "queued",
+            "stage": "queued",
             "project_dir": project_dir,
             "platform": platform,
             "video": req.video,
             "user_id": (user or {}).get("id"),
             "created_at": time.time(),
+            "events": [],
         }
-    threading.Thread(target=_factory_worker, args=(job_id, payload), daemon=True, name=f"factory-{job_id}").start()
+    threading.Thread(target=_factory_worker, args=(job_id, "run", payload), daemon=True,
+                     name=f"factory-{job_id}").start()
     return {"success": True, "data": {"job_id": job_id, "status": "queued",
                                       "poll": f"/api/factory/jobs/{job_id}"}}
+
+
+@app.post("/api/factory/deliver", tags=["Factory"])
+async def factory_deliver(req: FactoryDeliverRequest, request: Request,
+                          _auth: bool = Depends(_verify_api_key),
+                          x_api_key: Optional[str] = Header(default=None)):
+    """One prompt → generate → build → test → QA → deploy → verify → demo video."""
+    if not _check_rate_limit(_get_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+    platform = (req.platform or "").strip().lower() or None
+    if platform and platform not in {"vercel", "netlify", "railway", "github-pages", "none"}:
+        raise HTTPException(status_code=422, detail=f"Unsupported platform: {platform}")
+    user = _authenticate_user(x_api_key)
+    job_id = uuid.uuid4().hex[:16]
+    payload = {
+        "prompt": req.prompt,
+        "dest_root": os.path.abspath(os.path.expanduser(req.dest_root)),
+        "platform": platform,
+        "video": req.video,
+        "api_url": req.api_url,
+        "api_health": req.api_health,
+        "reuse_existing": req.reuse_existing,
+    }
+    with _FACTORY_LOCK:
+        if len(_FACTORY_JOBS) >= _FACTORY_MAX_JOBS:
+            oldest = sorted(_FACTORY_JOBS.items(), key=lambda item: item[1]["created_at"])[0][0]
+            _FACTORY_JOBS.pop(oldest, None)
+        _FACTORY_JOBS[job_id] = {
+            "job_id": job_id,
+            "status": "queued",
+            "stage": "queued",
+            "mode": "deliver",
+            "prompt": req.prompt,
+            "platform": platform or "auto",
+            "video": req.video,
+            "user_id": (user or {}).get("id"),
+            "created_at": time.time(),
+            "events": [],
+        }
+    threading.Thread(target=_factory_worker, args=(job_id, "deliver", payload), daemon=True,
+                     name=f"factory-{job_id}").start()
+    return {"success": True, "data": {"job_id": job_id, "status": "queued",
+                                      "poll": f"/api/factory/jobs/{job_id}",
+                                      "events": f"/api/factory/jobs/{job_id}/events"}}
 
 
 @app.get("/api/factory/jobs", tags=["Factory"])
 async def factory_jobs(_auth: bool = Depends(_verify_api_key)):
     with _FACTORY_LOCK:
         jobs = [
-            {key: value for key, value in job.items() if key != "result"}
+            {
+                **{key: value for key, value in job.items() if key not in {"result", "events"}},
+                "events_count": len(job.get("events") or []),
+            }
             for job in sorted(_FACTORY_JOBS.values(), key=lambda item: item["created_at"], reverse=True)
         ]
     return {"success": True, "data": jobs}
+
+
+@app.get("/api/factory/jobs/{job_id}/events", tags=["Factory"])
+async def factory_job_events(job_id: str, _auth: bool = Depends(_verify_api_key)):
+    """Server-Sent Events stream of generation/delivery progress."""
+    from fastapi.responses import StreamingResponse
+
+    with _FACTORY_LOCK:
+        if job_id not in _FACTORY_JOBS:
+            raise HTTPException(status_code=404, detail="Factory job not found")
+
+    async def stream():
+        sent = 0
+        while True:
+            with _FACTORY_LOCK:
+                job = dict(_FACTORY_JOBS.get(job_id) or {})
+                events = list(job.get("events") or [])
+                status = job.get("status")
+            while sent < len(events):
+                yield f"event: progress\ndata: {json.dumps(events[sent])}\n\n"
+                sent += 1
+            if status in {"done", "failed"}:
+                yield f"event: done\ndata: {json.dumps({'status': status})}\n\n"
+                break
+            await asyncio.sleep(0.8)
+
+    return StreamingResponse(
+        stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.get("/api/factory/jobs/{job_id}", tags=["Factory"])

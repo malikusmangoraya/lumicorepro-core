@@ -68,15 +68,21 @@ def detect_toolchain() -> Dict[str, Any]:
         edge_ok = True
     except ImportError:
         edge_ok = False
+    try:
+        import gtts  # noqa: F401
+        gtts_ok = True
+    except ImportError:
+        gtts_ok = False
     powershell = shutil.which("powershell") or shutil.which("pwsh") or ""
     sapi_ok = bool(powershell)  # Windows built-in voices are the offline fallback
-    tts_backend = "edge-tts" if edge_ok else ("windows-sapi" if sapi_ok else "")
+    tts_backend = "edge-tts" if edge_ok else ("gtts" if gtts_ok else ("windows-sapi" if sapi_ok else ""))
     return {
         "ffmpeg": shutil.which("ffmpeg") or "",
         "ffprobe": shutil.which("ffprobe") or "",
         "node": node,
         "playwright_cli": playwright,
         "edge_tts": "edge-tts" if edge_ok else "",
+        "gtts": "gtts" if gtts_ok else "",
         "powershell": powershell,
         "tts_backend": tts_backend,
         "ready": bool(shutil.which("ffmpeg") and shutil.which("ffprobe") and node and playwright and tts_backend),
@@ -269,6 +275,26 @@ def _ps_quote(value: str) -> str:
     return "'" + str(value).replace("'", "''") + "'"
 
 
+def _synthesize_gtts(text: str, out_mp3: Path) -> Dict[str, Any]:
+    """Free, internet-only narration through Google Translate TTS (gTTS).
+
+    Edge TTS is preferred when reachable (more natural voices); some networks
+    answer its WebSocket with HTTP 403, and gTTS is the free fallback that still
+    uses a real online voice instead of the robotic offline synthesizer.
+    """
+    try:
+        from gtts import gTTS
+    except ImportError:
+        return {"ok": False, "error": "gtts not installed (pip install gTTS)"}
+    try:
+        gTTS(text=text, lang="en", slow=False).save(str(out_mp3))
+    except Exception as exc:  # noqa: BLE001 — network/API failure is reported
+        return {"ok": False, "error": f"gtts: {type(exc).__name__}: {exc}"[:300]}
+    if not out_mp3.is_file() or out_mp3.stat().st_size < 5_000:
+        return {"ok": False, "error": "gtts produced no audio"}
+    return {"ok": True, "path": str(out_mp3), "backend": "gtts", "duration": _duration(out_mp3)}
+
+
 def _synthesize_sapi(text: str, out_wav: Path, work_dir: Path) -> Dict[str, Any]:
     """Offline Windows narration via System.Speech (no network, real voice)."""
     powershell = shutil.which("powershell") or shutil.which("pwsh") or ""
@@ -316,11 +342,20 @@ def _synthesize(scene: Dict[str, Any], out_dir: Path, index: int, voice: str) ->
         return {"ok": True, "path": str(edge_media), "backend": "edge-tts", "duration": _duration(edge_media)}
     edge_error = ((proc.stderr or proc.stdout) if proc else "edge-tts timed out")
     edge_error = (edge_error or "").strip()[-200:]
+
+    online = _synthesize_gtts(scene["narration"], out_dir / f"{index:02d}-{scene_id}-gtts.mp3")
+    if online.get("ok"):
+        online["edge_error"] = edge_error
+        return online
+
     sapi = _synthesize_sapi(scene["narration"], out_dir / f"{index:02d}-{scene_id}.wav", out_dir)
     if sapi.get("ok"):
         sapi["edge_error"] = edge_error
         return sapi
-    return {"ok": False, "error": f"edge-tts: {edge_error}; windows-sapi: {sapi.get('error')}"}
+    return {
+        "ok": False,
+        "error": f"edge-tts: {edge_error}; gtts: {online.get('error')}; windows-sapi: {sapi.get('error')}",
+    }
 
 
 def _clip(scene: Dict[str, Any], image: Path, audio: Optional[Path], out_mp4: Path, duration: float) -> Dict[str, Any]:

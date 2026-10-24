@@ -114,6 +114,14 @@ def main():
     parser.add_argument("--factory-api-url", type=str, default="", help="Public API base URL baked into the build (VITE_API_URL)")
     parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy")
     parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
+    parser.add_argument("--deliver", type=str, metavar="PROMPT", help="One prompt → generate + build + test + QA + deploy + verify + demo video")
+    parser.add_argument("--deliver-root", type=str,
+                        default=str(Path(__file__).resolve().parent.parent / "generated-projects"),
+                        help="Directory that receives the generated project")
+    parser.add_argument("--deliver-reuse", action="store_true", help="Regenerate into <root>/<slug> in place instead of creating a -2 copy")
+    parser.add_argument("--deliver-deploy", type=str, default=None,
+                        choices=("vercel", "netlify", "railway", "github-pages", "none"),
+                        help="Override the deploy target inferred from the prompt")
     parser.add_argument("--verify-url", type=str, help="Verify a deployed URL (assets, SPA routes, optional API health)")
     parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. /api/v1/health")
     args = parser.parse_args()
@@ -137,6 +145,27 @@ def main():
               else f"verified={evidence.get('verified')} status={evidence.get('status')} "
                    f"title={evidence.get('title', '')}")
         sys.exit(0 if evidence.get("verified") else 1)
+
+    if args.deliver:
+        from agent.factory_pipeline import deliver_from_prompt
+
+        def _progress(event):
+            print(f"[{event.get('stage')}] {event.get('status')}", file=sys.stderr)
+
+        result = deliver_from_prompt(
+            args.deliver,
+            dest_root=args.deliver_root,
+            platform=args.deliver_deploy,
+            video=False if args.factory_no_video else None,
+            api_url=args.factory_api_url,
+            api_health=args.factory_api_health,
+            progress=_progress,
+            reuse_existing=args.deliver_reuse,
+        )
+        print(json.dumps(result, indent=2) if args.factory_json
+              else f"status={result.get('status')} verified={result.get('verified')} "
+                   f"destination={result.get('destination')} report={result.get('report_md', '')}")
+        sys.exit(0 if result.get("verified") else 1)
 
     if args.factory:
         from agent.factory_pipeline import run_factory

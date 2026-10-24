@@ -5,7 +5,7 @@ Five drop-in pieces every AI micro-SaaS needs, generated as real files:
 
   backend/services/keyVault.js    encrypted API-key manager (AES-256-GCM)
   backend/services/aiClient.js    provider-agnostic LLM client
-                                  (OpenAI / Gemini / OpenRouter / DeepSeek)
+                                  (OpenAI / Groq / xAI Grok / Gemini / OpenRouter / DeepSeek)
   backend/services/stream.js      Server-Sent Events helper (typewriter UX)
   backend/services/prompts.js     reusable prompt template engine ({{var}})
   backend/services/ragLite.js     RAG: pgvector when available, in-memory fallback
@@ -75,27 +75,39 @@ function hasKey(name) {
 module.exports = { setKey, getKey, hasKey };
 """
 
-_AI_CLIENT_JS = """/** aiClient — one client, four providers, zero lock-in.
- * AI_PROVIDER: openai | gemini | openrouter | deepseek (default openai).
- * Keys resolve through keyVault (encrypted at rest, .env fallback).
- * complete() is plain JSON; completeStream() yields text deltas for SSE.
+_AI_CLIENT_JS = """/** aiClient — one client, six providers, zero lock-in.
+ * AI_PROVIDER: openai | groq | grok | gemini | openrouter | deepseek (default openai).
+ * `groq` is Groq Cloud (fast open models); `grok` is xAI. Any OpenAI-compatible
+ * gateway works through OPENAI_BASE_URL. Keys resolve through keyVault
+ * (encrypted at rest, .env fallback). complete() is plain JSON;
+ * completeStream() yields text deltas for SSE.
  */
 const keyVault = require('./keyVault');
 
+/** Accept either a base URL or a full .../chat/completions URL. */
+function _endpoint(base) {
+  const value = String(base || '').replace(/\/+$/, '');
+  return value.endsWith('/chat/completions') ? value : `${value}/chat/completions`;
+}
+
 const ENDPOINTS = {
-  openai: { url: 'https://api.openai.com/v1/chat/completions', key: 'OPENAI_API_KEY', model: process.env.OPENAI_MODEL || 'gpt-4o-mini' },
-  deepseek: { url: 'https://api.deepseek.com/chat/completions', key: 'DEEPSEEK_API_KEY', model: process.env.DEEPSEEK_MODEL || 'deepseek-chat' },
-  openrouter: { url: 'https://openrouter.ai/api/v1/chat/completions', key: 'OPENROUTER_API_KEY', model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini' },
-  gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: 'GEMINI_API_KEY', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' },
+  openai: { url: _endpoint(process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'), keys: ['OPENAI_API_KEY'], model: process.env.OPENAI_MODEL || 'gpt-4o-mini' },
+  groq: { url: _endpoint(process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1'), keys: ['GROQ_API_KEY', 'GROK_API_KEY'], model: process.env.GROQ_MODEL || process.env.GROK_MODEL || 'llama-3.3-70b-versatile' },
+  grok: { url: _endpoint(process.env.XAI_BASE_URL || 'https://api.x.ai/v1'), keys: ['XAI_API_KEY', 'GROK_API_KEY'], model: process.env.XAI_MODEL || 'grok-3-mini' },
+  deepseek: { url: _endpoint(process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com'), keys: ['DEEPSEEK_API_KEY'], model: process.env.DEEPSEEK_MODEL || 'deepseek-chat' },
+  openrouter: { url: _endpoint(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'), keys: ['OPENROUTER_API_KEY'], model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini' },
+  gemini: { url: _endpoint(process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai'), keys: ['GEMINI_API_KEY'], model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' },
 };
 
 function _cfg(override) {
   const name = (override || process.env.AI_PROVIDER || 'openai').toLowerCase();
   const cfg = ENDPOINTS[name];
   if (!cfg) throw new Error(`Unknown AI provider: ${name}`);
-  const apiKey = keyVault.getKey(cfg.key);
-  if (!apiKey) throw new Error(`${cfg.key} not configured (keyVault or .env)`);
-  return { ...cfg, name, apiKey };
+  for (const keyName of cfg.keys) {
+    const apiKey = keyVault.getKey(keyName);
+    if (apiKey) return { ...cfg, name, apiKey, keyName };
+  }
+  throw new Error(`${cfg.keys.join(' or ')} not configured (keyVault or .env)`);
 }
 
 function _body(cfg, messages, opts) {
@@ -453,8 +465,13 @@ def _merge_deps(pkg_path: Path, force: bool = False) -> List[str]:
 
 
 _ENV_KEYS = {
-    "AI_PROVIDER": "openai",
+    "AI_PROVIDER": "groq",
+    "GROQ_API_KEY": "",
+    "GROQ_MODEL": "llama-3.3-70b-versatile",
+    "XAI_API_KEY": "",
+    "XAI_MODEL": "grok-3-mini",
     "OPENAI_API_KEY": "sk-...  (or leave empty and store via keyVault at runtime)",
+    "OPENAI_BASE_URL": "https://api.openai.com/v1",
     "OPENROUTER_API_KEY": "",
     "DEEPSEEK_API_KEY": "",
     "GEMINI_API_KEY": "",

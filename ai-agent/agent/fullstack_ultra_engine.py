@@ -16,6 +16,7 @@ from utils.logger import agent_logger
 from agent.hyper_unique_site_engine import HyperUniqueSiteEngine
 from agent.omni_repair_engine import OmniRepairEngine
 from agent.generation_contract import resolve_generation_contract
+from agent.design_forge import build_design
 
 
 # ── Generated-project production assets ────────────────────────────────────
@@ -595,6 +596,7 @@ class FullStackUltraEngine:
         files_map["backend/migrations/003_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
         files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE
         files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
+        files_map["frontend/postcss.config.cjs"] = "module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };\n"
         files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
         files_map["backend/test/smoke.test.js"] = _BACKEND_SMOKE_TEST_JS
         files_map["LICENSE.md"] = self._generated_license(brand)
@@ -771,53 +773,28 @@ export default defineConfig({
 });
 """
 
-        # tailwind.config.js
-        fmap["frontend/tailwind.config.js"] = f"""/** @type {{import('tailwindcss').Config}} */
-export default {{
-  content: ["./index.html", "./src/**/*.{{js,ts,jsx,tsx}}"],
-  darkMode: "class",
-  theme: {{
-    extend: {{
-      colors: {{
-        brand: {{
-          primary: "{color}",
-          accent: "{accent}",
-          surface: "{palette.get('surface', '#1e293b')}",
-          background: "{palette.get('background', '#0f172a')}",
-        }},
-      }},
-    }},
-  }},
-  plugins: [],
-}};
-"""
+        # Brand-derived design system (palette, fonts, radius, archetype).
+        design = build_design(brand, industry, color, accent)
+        fmap["frontend/tailwind.config.js"] = design["tailwind_config"]
+        fmap["frontend/src/index.css"] = design["index_css"]
 
         # index.html
         fmap["frontend/index.html"] = f"""<!doctype html>
-<html lang="en" class="dark">
+<html lang="en" {design["html_attrs"]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="{color}" />
     <title>{brand} — Professional Global Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?{design["google_fonts"]}&display=swap" rel="stylesheet">
   </head>
   <body class="bg-slate-950 text-slate-50 antialiased selection:bg-brand-primary selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-"""
-
-        # src/index.css
-        fmap["frontend/src/index.css"] = """@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
 """
 
         # src/main.jsx
@@ -882,12 +859,12 @@ export default function UniqueLogo({{ size = "w-8 h-8", className = "" }}) {{
       <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
         <defs>
           <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="{color}" />
-            <stop offset="100%" stopColor="{accent}" />
+            <stop offset="0%" stopColor="var(--brand-primary)" />
+            <stop offset="100%" stopColor="var(--brand-accent)" />
           </linearGradient>
         </defs>
         <polygon points="24,4 40,14 40,34 24,44 8,34 8,14" fill="none" stroke="url(#logoGrad)" strokeWidth="3" />
-        <circle cx="24" cy="24" r="5" fill="{accent}" />
+        <circle cx="24" cy="24" r="5" fill="var(--brand-accent)" />
         <line x1="24" y1="4" x2="24" y2="19" stroke="url(#logoGrad)" strokeWidth="2" />
         <line x1="40" y1="34" x2="27" y2="26" stroke="url(#logoGrad)" strokeWidth="2" />
         <line x1="8" y1="34" x2="21" y2="26" stroke="url(#logoGrad)" strokeWidth="2" />

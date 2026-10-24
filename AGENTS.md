@@ -114,7 +114,7 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 |------|------|----------|--------|------------------------|
 | Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **62.74% stmts (honest full-tree) — 1020 tests / 128 files, ratchet gate active** |
 | Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.79% statements (5155/6892) — 82 suites / 1903 tests, ratchet gate active** |
-| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1351 tests + 109 subtests green** (incl. factory / live-verify / demo-video suites) |
+| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1385 tests + 109 subtests green** (incl. factory / live-verify / demo-video / design suites) |
 | E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
@@ -338,7 +338,7 @@ If visual quality < threshold: DO NOT PATCH ONLY — the agent may redesign hero
 - **Design Memory:** `.artifacts/01-business.json → 02-audience → 03-brand → 04-reference → 05-playbook → 06-ux → 07-design → 08-architecture → 09-build → 10-designlint → 11-visual-score → 12-critic-review → 13-qa → 14-deployment` makes every decision traceable for later "change the hero" requests
 
 ### Implementation Mapping (use existing modules, no duplicates)
-Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`, `design_style.py` · Playbooks → `theme_matrix.py`, `design_vault.py` · Blueprint → `planner.py`, `project_mode_engine.py` · Manifest/Memory → `memory_retriever.py`, `.artifacts/` · Benchmark/Lint → `vision_pipeline.py`, `quality_gates.py` · Scoring → `quality_gate.py`, `quality_gates.py` · Self-heal/Redesign → `enterprise_repair.py`, `iterate_engine.py`, `restyle_all.py` · **Existing-repo rebuilds → `repo_reverse_engineer.py`** (read-only scan: stack/routes/models/tests/risks + clean-room reconstruction plan; `python ai-agent/agent/repo_reverse_engineer.py <repo> [--json]`) · **Delivery → `factory_pipeline.py`** (build → backend tests → QA → deploy) · **Deploy → `deploy_engine.py` + `live_verify.py`** · **Demo video → `demo_video.py`** (`docs/FACTORY.md`) · Orchestration → `orchestrator.py`, `pipeline.py`. Central orchestrator controls task/state; agents must not randomly modify files outside the plan.
+Reference Intelligence → `design_intelligence.py`, `competitive_benchmark.py`, `design_style.py` · Playbooks → `theme_matrix.py`, `design_vault.py` · Blueprint → `planner.py`, `project_mode_engine.py` · Manifest/Memory → `memory_retriever.py`, `.artifacts/` · Benchmark/Lint → `vision_pipeline.py`, `quality_gates.py` · Scoring → `quality_gate.py`, `quality_gates.py` · Self-heal/Redesign → `enterprise_repair.py`, `iterate_engine.py`, `restyle_all.py` · **Existing-repo rebuilds → `repo_reverse_engineer.py`** (read-only scan: stack/routes/models/tests/risks + clean-room reconstruction plan; `python ai-agent/agent/repo_reverse_engineer.py <repo> [--json]`) · **Delivery → `factory_pipeline.py`** (one prompt → generate → build → backend tests → QA → deploy; SSE progress) · **Deploy → `deploy_engine.py` + `live_verify.py`** · **Design system → `design_forge.py`** · **Demo video → `demo_video.py`** (`docs/FACTORY.md`) · Orchestration → `orchestrator.py`, `pipeline.py`. Central orchestrator controls task/state; agents must not randomly modify files outside the plan.
 
 **Delivery is evidence-gated.** `status: live`/`delivered` may only be emitted when
 `live_verify.verify_site()` passed (200 + real title + app shell + every referenced JS/CSS
@@ -348,8 +348,10 @@ asset + every expected SPA route + optional marker/API health) and, for video,
 `deployed-unverified`/`partial`, never as success. A project with `backend/` is not
 "delivered" until the hosted API health endpoint is verified and `VITE_API_URL` was baked
 into the build (`--factory-api-url`, `--factory-api-health`): static hosts serve the
-frontend only. Never lower these gates — they exist because every connector previously
-reported `live` on exit 0 alone (fixed 2026-10-24).
+frontend only. The verifier also rejects a CSS bundle that still contains `@tailwind`
+directives — a deploy without `postcss.config.cjs` returns 200 with an unstyled site
+(fixed 2026-10-24). Never lower these gates — they exist because every connector
+previously reported `live` on exit 0 alone.
 
 **Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 
@@ -395,6 +397,7 @@ truncated its final sections (this one included).
 
 | Date | Ver | Summary |
 |------|-----|---------|
+| 2026-10-24 | 8.30 | **Factory v2**: one-prompt delivery (`--deliver`), SSE progress, brand-derived design system (4 archetypes/fonts/radius), Groq/xAI providers with custom base URLs, free gTTS narration fallback, CSS-processing deploy gate, in-place regeneration; generated apps get a real contact API, schema, backend tests, PostCSS config |
 | 2026-10-24 | 8.29 | **Website Factory**: build → backend tests → browser QA → deploy → live verification → 2-minute demo video, all evidence-gated; Vercel/Netlify/Railway/Pages connectors no longer report live without a verified URL; real marketing pages + working contact API in generated sites; 1351 AI tests |
 | 2026-10-24 | 8.28 | Vertical isolation (`orders.source` + migration 008), restaurant order/reservation contract + 175 tests, booking overlap/role/refund ledger fixed, address/wishlist/cart/business/search/audit/coupon security gaps closed, backend 82 suites / 1903 tests / 74.79% stmts (floors raised), AI agent 1317 tests |
 | 2026-10-23 | 8.26 | Wave 3: frontend coverage 27.5%→51.1% (783 tests / 114 files), 20+ UI bugs fixed (5 white-screen icon crashes, Chat send crash, Generate 429 crash, Card/Button asChild, honest dashboard scores, error+retry states, template data/i18n), **reverse-engineering module** `repo_reverse_engineer.py` (clean-room, 12 tests) added to the agent |
