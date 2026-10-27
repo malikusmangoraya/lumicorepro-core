@@ -835,9 +835,13 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
                      "the live origin, and a second account was proved unable to read the "
                      "first one's rows")
     feed = handshake.get("feed") or {}
-    if feed.get("latency_ms"):
-        lines.append(f"- **Live updates:** a write reached an open dashboard in "
-                     f"{feed['latency_ms']} ms (frames seen: {', '.join(feed.get('events') or [])})")
+    if feed.get("status") == "verified":
+        # A sub-millisecond push rounds to 0, and `if latency` then dropped the
+        # line entirely — the proof exists, the report just refused to say so.
+        latency = int(feed.get("latency_ms") or 0)
+        took = f"{latency} ms" if latency else "under 1 ms"
+        lines.append(f"- **Live updates:** a write reached an open dashboard in {took} "
+                     f"(frames seen: {', '.join(feed.get('events') or [])})")
     stray = list(surface.get("leftovers") or []) + list(feed.get("leftovers") or [])
     if stray:
         lines.append(f"- **Clean-up owed:** the run could not remove its own probe rows "

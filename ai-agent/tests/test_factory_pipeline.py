@@ -522,6 +522,17 @@ class FullStackHostingTests(unittest.TestCase):
             self.assertIn("412 ms", text)
             self.assertIn("row `3f9a`", text)
 
+    def test_a_sub_millisecond_push_is_still_reported_as_live(self):
+        """The live run measured 0 ms (the frame beat the latency floor) and the
+        handoff silently dropped the line, because 0 is falsy in Python."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            fast = {**self.FEED_OK, "latency_ms": 0}
+            self._stages(project, "x", feed=Mock(return_value=fast))
+            text = (project / ".factory" / "report.md").read_text(encoding="utf-8")
+            self.assertIn("Live updates", text)
+            self.assertIn("under 1 ms", text)
+
     def test_the_session_the_probe_signed_with_never_reaches_the_report(self):
         """A report is pasted into a chat with a buyer; the token it carries would
         open the client's own dashboard as that probe user."""
