@@ -300,7 +300,64 @@ def _vercel_probe(url: str, require_marker: bool = False) -> bool:
     return "built-with-lumicorepro" in lowered if require_marker else True
 
 
-def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]:
+def _vercel_cli() -> List[str]:
+    """Vercel CLI command prefix: installed binary, else npx, else empty."""
+    cli = shutil.which("vercel")
+    if cli:
+        return [cli]
+    npx = shutil.which("npx")
+    return [npx, "-y", "vercel@latest"] if npx else []
+
+
+def _vercel_scope_args() -> List[str]:
+    """Only pass --scope when the operator named a team; otherwise let the CLI
+    use its own default so a generated project is not pinned to this machine."""
+    slug = os.getenv("VERCEL_TEAM_SLUG", "").strip()
+    return ["--scope", slug] if slug else []
+
+
+def _run_vercel_env(cmd: List[str], workdir: Path, stdin: str = "") -> Dict[str, Any]:
+    try:
+        proc = subprocess.run(cmd, cwd=str(workdir), input=stdin, capture_output=True,
+                              text=True, timeout=180, encoding="utf-8", errors="replace")
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"ok": False, "message": str(exc)}
+    tail = ((proc.stderr or "") + (proc.stdout or "")).strip()[-300:]
+    return {"ok": proc.returncode == 0, "exit": proc.returncode, "output": tail}
+
+
+def _ensure_vercel_api_env(workdir: Path, api_url: str) -> Dict[str, Any]:
+    """Put VITE_API_URL on the Vercel project before the build runs.
+
+    The generated frontend is rebuilt by Vercel from source, so a VITE_API_URL
+    exported only for the local ``npm run build`` never reaches the deployed
+    bundle — the site looks live while every form posts to localhost:5000.
+    """
+    base = _vercel_cli()
+    if not base:
+        return {"ok": False, "skipped": True, "message": "vercel CLI unavailable"}
+    _run_vercel_env([*base, "env", "rm", "VITE_API_URL", "production", "--yes",
+                    *_vercel_scope_args()], workdir)
+    added = _run_vercel_env([*base, "env", "add", "VITE_API_URL", "production",
+                             *_vercel_scope_args()], workdir, stdin=api_url)
+    if not added["ok"]:
+        added["message"] = f"VITE_API_URL could not be set on the project: {added.get('output','')}"
+    return added
+
+
+def _ensure_vercel_link(workdir: Path, name: str) -> Dict[str, Any]:
+    """Create + link the project so ``vercel env`` has a target before deploying."""
+    base = _vercel_cli()
+    if not base:
+        return {"ok": False, "skipped": True, "message": "vercel CLI unavailable"}
+    created = _run_vercel_env([*base, "project", "create", name, *_vercel_scope_args()], workdir)
+    linked = _run_vercel_env([*base, "link", "--project", name, "--yes",
+                              *_vercel_scope_args()], workdir)
+    return {"ok": bool(linked["ok"]), "created": bool(created["ok"]),
+            "output": linked.get("output", "")}
+
+
+def _vercel_cli_deploy(project_dir: str, token: str, api_url: str = "") -> Optional[Dict[str, Any]]:
     """Deploy with the real Vercel CLI and verify the production URL.
 
     Honours an existing ``.vercel/project.json`` (a linked project) instead of
@@ -326,6 +383,18 @@ def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]
     linked = linked_root is not None
     workdir = linked_root or deploy_root
     _ensure_vercel_spa_config(workdir)
+    api_env: Optional[Dict[str, Any]] = None
+    if api_url:
+        if not linked:
+            api_env = _ensure_vercel_link(workdir, name)
+            if api_env.get("ok"):
+                linked = True
+        if linked:
+            api_env = {**(api_env or {}), **_ensure_vercel_api_env(workdir, api_url)}
+        else:
+            api_env = {**(api_env or {}),
+                       "ok": False,
+                       "message": "project could not be linked, so VITE_API_URL was not set"}
     cli = shutil.which("vercel")
     npx = shutil.which("npx")
     if cli:
@@ -373,7 +442,8 @@ def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]
     routes = expected_routes(project_dir)
     last_evidence: Optional[Dict[str, Any]] = None
     for candidate in ordered[:4]:
-        evidence = verify_site(candidate, routes=routes, timeout=45, poll_interval=2.0)
+        evidence = verify_site(candidate, routes=routes, timeout=45, poll_interval=2.0,
+                               api_origin=api_url)
         last_evidence = evidence
         if evidence.get("verified"):
             return {
@@ -382,6 +452,7 @@ def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]
                 "url": evidence.get("url") or candidate,
                 "project_name": name,
                 "deployment_id": deployment_id,
+                "api_env": api_env,
                 "verification": evidence,
             }
     return {
@@ -390,12 +461,13 @@ def _vercel_cli_deploy(project_dir: str, token: str) -> Optional[Dict[str, Any]]
         "url": ordered[0],
         "project_name": name,
         "deployment_id": deployment_id,
+        "api_env": api_env,
         "verification": last_evidence,
         "message": "Deployment exists but the live URL did not pass verification",
     }
 
 
-def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
+def _vercel_deploy(project_dir: str, api_url: str = "") -> Dict[str, Any]:
     """Deploy ``project_dir`` to Vercel.
 
     Order: CLI (logged-in, token-free preferred) -> CLI with token -> v13
@@ -404,10 +476,10 @@ def _vercel_deploy(project_dir: str) -> Dict[str, Any]:
     """
     token = os.getenv("VERCEL_TOKEN", "").strip()
     if token and not token.startswith("your_"):
-        via_cli = _vercel_cli_deploy(project_dir, token)
+        via_cli = _vercel_cli_deploy(project_dir, token, api_url)
         if via_cli is not None:
             return via_cli
-    via_cli_free = _vercel_cli_deploy(project_dir, "")  # token-free, logged-in CLI
+    via_cli_free = _vercel_cli_deploy(project_dir, "", api_url)  # token-free, logged-in CLI
     if via_cli_free is not None:
         return via_cli_free
     if not token or token.startswith("your_"):
@@ -729,8 +801,13 @@ def _store_deploy_gate(project_dir: str) -> Dict[str, Any]:
     return out
 
 
-def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]:
-    """Deploy (or guide-deploy) a finished generated project."""
+def deploy_project(project_dir: str, platform: str = "vercel", api_url: str = "") -> Dict[str, Any]:
+    """Deploy (or guide-deploy) a finished generated project.
+
+    ``api_url`` is the hosted API the frontend was built against; on Vercel it is
+    published as the project's ``VITE_API_URL`` before the build and required to
+    appear in the deployed bundle during verification.
+    """
     platform = (platform or "vercel").strip().lower()
     if platform not in SUPPORTED_PLATFORMS:
         return {"status": "failed", "message": f"Unsupported platform: {platform}", "platform": platform}
@@ -753,7 +830,7 @@ def deploy_project(project_dir: str, platform: str = "vercel") -> Dict[str, Any]
             inject_built_with(str(project_dir))
         except Exception:
             agent_logger.warning("Built-with badge injection skipped", exc_info=True)
-        result = _vercel_deploy(str(project_dir))
+        result = _vercel_deploy(str(project_dir), api_url)
     elif platform == "netlify":
         result = _netlify_deploy(str(project_dir))
     elif platform == "github-pages":

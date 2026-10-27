@@ -595,6 +595,77 @@ def provider_status(provider_name: str) -> Dict[str, Any]:
     }
 
 
+def probe_model(provider_name: str = None, timeout: float = 12.0) -> Dict[str, Any]:
+    """Ask the provider live whether the configured model id actually exists.
+
+    Providers retire model ids without warning — Groq dropped
+    `llama-3.3-70b-versatile` and `meta-llama/llama-3.2-11b-vision-preview`, and
+    each generation call then failed minutes into a run. The factory probes the
+    model list once up front so a stale `*_MODEL` is a preflight error, not a
+    half-written project. Never raises: an unreachable provider is reported with
+    `probed: False` and the reason.
+    """
+    name = (provider_name or active_provider_name())
+    result: Dict[str, Any] = {"provider": str(name), "model": "", "probed": False,
+                              "model_offered": None, "available_models": 0, "reason": ""}
+    try:
+        cfg = dict(get_active_provider_config(name))
+    except ValueError:
+        result["reason"] = f"unknown provider '{name}'"
+        return result
+
+    model = str(cfg.get("model", "") or "")
+    result["model"] = model
+    if cfg.get("keyless") or not key_present(name):
+        result["reason"] = "not probed (keyless provider or missing API key)"
+        return result
+
+    provider = instantiate_provider(name)
+    endpoint = str(getattr(provider, "endpoint", "") or "")
+    if "/chat/completions" not in endpoint:
+        result["reason"] = "not probed (provider has no OpenAI-compatible model list)"
+        return result
+
+    base = endpoint.split("/chat/completions")[0]
+    try:
+        import requests
+
+        response = requests.get(
+            f"{base}/models",
+            headers={"Authorization": f"Bearer {cfg.get('api_key', '')}"},
+            timeout=timeout,
+        )
+    except Exception as exc:  # network/timeout — report, never crash generation
+        result["reason"] = f"model list unreachable ({exc.__class__.__name__})"
+        return result
+
+    if response.status_code != 200:
+        result["reason"] = f"model list returned HTTP {response.status_code}"
+        return result
+
+    try:
+        payload = response.json()
+    except ValueError:
+        result["reason"] = "model list was not JSON"
+        return result
+
+    ids = {str(item.get("id", "")) for item in payload.get("data", []) if isinstance(item, dict)}
+    ids.discard("")
+    if not ids:
+        result["reason"] = "model list is empty — model not verified"
+        return result
+
+    result.update(probed=True, available_models=len(ids), model_offered=model in ids)
+    if not result["model_offered"]:
+        result["suggested_models"] = sorted(ids)[:5]
+        env_var = str(cfg.get("env_var_name", "")).upper().replace("_API_KEY", "_MODEL")
+        result["reason"] = (
+            f"model '{model}' is not offered by {result['provider']}; "
+            f"set {env_var} to one of the reported ids"
+        )
+    return result
+
+
 def validate_provider_key(provider_name: str = None, require_key: bool = True) -> bool:
     """Validate that required API key is configured for the selected provider."""
     cfg = get_active_provider_config(provider_name)

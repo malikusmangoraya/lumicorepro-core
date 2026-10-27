@@ -87,6 +87,67 @@ class VercelCliDeployTests(unittest.TestCase):
             # The CLI must run where .vercel lives (frontend/), not in dist/.
             self.assertEqual(Path(captured["cwd"]).name, "frontend")
 
+    def test_api_url_is_published_before_the_build_and_required_in_verify(self):
+        """Vercel rebuilds from source, so VITE_API_URL must exist on the project
+        before `vercel deploy` — otherwise the live site silently posts to
+        localhost while every page still returns 200."""
+        import os
+
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / "acme-site", linked=True)
+            calls = []
+
+            def fake_run(cmd, **kwargs):
+                calls.append(([str(c) for c in cmd], kwargs.get("input")))
+                return _Proc(0, "https://acme-lumicorepro.vercel.app")
+
+            env = {k: v for k, v in os.environ.items() if k != "VERCEL_TEAM_SLUG"}
+            with patch.object(engine.shutil, "which", side_effect=lambda name: "/usr/bin/vercel" if name == "vercel" else None), \
+                 patch.object(engine.subprocess, "run", side_effect=fake_run), \
+                 patch.dict(os.environ, env, clear=True), \
+                 patch.object(engine, "verify_site", return_value=VERIFIED) as verify, \
+                 patch.object(engine, "expected_routes", return_value=["/"]):
+                result = engine._vercel_cli_deploy(str(project), "", "https://api.acme.test")
+
+            self.assertEqual(result["status"], "live")
+            self.assertTrue(result["api_env"]["ok"])
+            add_at = next(i for i, (cmd, _v) in enumerate(calls)
+                          if cmd[1:4] == ["env", "add", "VITE_API_URL"])
+            deploy_at = next(i for i, (cmd, _v) in enumerate(calls) if len(cmd) > 1 and cmd[1] == "deploy")
+            self.assertLess(add_at, deploy_at, "the env var must exist before the build runs")
+            self.assertEqual(calls[add_at][1], "https://api.acme.test")
+            self.assertEqual(verify.call_args.kwargs["api_origin"], "https://api.acme.test")
+
+    def test_unlinked_project_is_created_and_linked_so_env_can_be_set(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / "acme-site")
+            calls = []
+
+            def fake_run(cmd, **kwargs):
+                calls.append([str(c) for c in cmd])
+                # The link only "works" once .vercel/project.json exists, which is
+                # what the deploy path checks, so write it like the real CLI would.
+                if "link" in cmd:
+                    (project / "frontend" / ".vercel").mkdir(parents=True, exist_ok=True)
+                    (project / "frontend" / ".vercel" / "project.json").write_text("{}")
+                return _Proc(0, "https://acme-site-lumicorepro.vercel.app")
+
+            import os
+
+            env = {k: v for k, v in os.environ.items() if k != "VERCEL_TEAM_SLUG"}
+            with patch.object(engine.shutil, "which", side_effect=lambda name: "/usr/bin/vercel" if name == "vercel" else None), \
+                 patch.object(engine.subprocess, "run", side_effect=fake_run), \
+                 patch.dict(os.environ, env, clear=True), \
+                 patch.object(engine, "verify_site", return_value=VERIFIED), \
+                 patch.object(engine, "expected_routes", return_value=["/"]):
+                result = engine._vercel_cli_deploy(str(project), "", "https://api.acme.test")
+
+            verbs = [cmd[1] for cmd in calls]
+            self.assertEqual(verbs.index("project") < verbs.index("link"), True)
+            self.assertEqual(verbs.index("link") < verbs.index("env"), True)
+            self.assertEqual(verbs.index("env") < verbs.index("deploy"), True)
+            self.assertTrue(result["api_env"]["ok"])
+
     def test_no_url_is_a_failure_not_a_live_deployment(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = _project(Path(tmp) / "acme-site")

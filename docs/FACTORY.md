@@ -120,27 +120,74 @@ is a normal Express + PostgreSQL service; pick one:
 | **Railway** | `railway login` → new project → add PostgreSQL → set envs → `railway up` from `backend/` | simplest; the factory can deploy with `RAILWAY_TOKEN` + `RAILWAY_PUBLIC_DOMAIN` and verify `/api/v1/health` |
 | **Render** | New → Blueprint → repo's `render.yaml`, or a Web Service with `backend/` root | add the managed Postgres and copy `DATABASE_URL`; build `npm install`, start `npm start`, migrate `npm run db:migrate` |
 | **Docker / VPS** | `cp .env.example .env` → `docker compose up -d --build` | the generated compose file runs Postgres + API + nginx; TLS via the proxy |
-| **Vercel Functions** | wrap Express in `api/index.js` and use Neon/Vercel Postgres | works, but the generated project ships a container config, not a Vercel API wrapper |
+| **Vercel Functions** | `vercel link` + `vercel deploy --prod` from `backend/` | the generated backend already ships `api/index.js`, `vercel.json` and `.vercelignore`, and `server.js` only binds a port when run directly — this is the recipe verified below |
+
+Proven path used for `cortexdesk-api` (2026-10-27, Neon + Vercel, `/api/v1/health` → `db: connected`):
+
+```bash
+cd generated-projects/<slug>/backend
+npm install                                   # Vercel needs the lockfile
+npx --yes vercel@latest project add <slug>-api --scope <team>
+npx --yes vercel@latest link --project <slug>-api --yes --scope <team>
+# one variable per line, VALUES never printed; strip CR from a Windows-authored file
+while IFS= read -r l; do
+  l="${l//[$'\r']/}"; k="${l%%=*}"; v="${l#*=}"
+  printf '%s' "$v" | npx --yes vercel@latest env add "$k" production --scope <team>
+done < api.env
+npx --yes vercel@latest deploy --prod --yes --scope <team>
+curl -s https://<slug>-api.vercel.app/api/v1/health
+```
+
+A trailing `\r` becomes part of the variable, so a CRLF env file silently corrupts
+`DATABASE_URL`, `CORS_ORIGIN` and every API key — strip it, and never `echo` the values.
 
 Required variables (all documented in `backend/.env.example`):
 
 ```
-DATABASE_URL=postgres://user:pass@host:5432/db
+DATABASE_URL=postgres://user:pass@host:5432/db   # a postgresql:// URL is normalised
 JWT_SECRET=<32+ random chars>
 CORS_ORIGIN=https://your-frontend.example.com
 AI_PROVIDER=groq
 GROQ_API_KEY=<real key>          # or XAI_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY
 ENCRYPTION_KEY=<64 hex chars>    # encrypts stored provider keys
 PORT=5000
+UPLOAD_DIR=/tmp/uploads          # serverless filesystems are read-only elsewhere
 ```
+
+Managed Postgres is TLS-only and certificate verification stays on: `DB_SSL_CA`
+supplies a root bundle for a self-signed host, `DB_SSL_INSECURE=true` is the
+explicit opt-out. `/api/v1/health` runs `SELECT 1` and answers **503 + `db:
+disconnected`** when the database is unreachable, because the delivery gate reads
+this endpoint and a 200 that never opened a connection would certify a broken
+deployment as live.
 
 Then rebuild the frontend with that API base and verify both halves:
 
 ```bash
 python ai-agent/main.py --factory generated-projects/my-site \
-  --factory-api-url https://api.myproduct.com/api/v1 \
-  --factory-api-health /api/v1/health
+  --factory-api-url https://api.myproduct.com/api/v1
 ```
+
+`--factory-api-url` is published as the Vercel project's `VITE_API_URL` **before**
+the build (Vercel rebuilds the frontend from source, so a variable exported only
+for the local `npm run build` never reaches the deployed bundle) and the verifier
+fails the run with `api-not-baked` unless that host appears in the shipped JS.
+
+The health endpoint itself needs no flag: it defaults to `api/v1/health`, the route
+the generated `backend/` always serves. Pass `--factory-api-health` only for a
+non-generated API, and write it **without a leading slash**:
+
+```bash
+--factory-api-health api/v1/health          # correct
+--factory-api-health /api/v1/health         # Git Bash rewrites this
+```
+
+Git Bash/MSYS converts a leading-slash argument into `<msys-root>/api/v1/health`
+before Python sees it, and `urljoin` reads the drive letter as a scheme, so the
+value survives untouched and the "probe" targets a local file. The factory now
+drops such a value, uses the generated default, and reports
+`api-health-target-invalid` rather than probing it — the target is also logged as
+`api_health_url` in the report so you can see exactly what was checked.
 
 Only then is the run `delivered` (`api_deployed: true`). Chat features use the same
 provider key: `POST /api/v1/ai/chat` performs RAG over uploaded documents and returns

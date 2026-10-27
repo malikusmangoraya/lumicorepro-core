@@ -2815,7 +2815,7 @@ def _factory_worker(job_id: str, mode: str, payload: Dict[str, Any]) -> None:
         )
         _factory_set(
             job_id,
-            status="done" if result.get("status") == "delivered" else "failed",
+            status="done" if result.get("status") in {"delivered", "built"} else "failed",
             outcome=result.get("status"),
             verified=bool(result.get("verified")),
             result=result,

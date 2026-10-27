@@ -155,8 +155,11 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1/chat/c
 
 # ── xAI Grok / Groq Cloud ───────────────────────────────────────────────
 GROK_API_KEY = os.getenv("GROK_API_KEY", "")
-GROK_MODEL   = os.getenv("GROK_MODEL", "llama-3.3-70b-versatile")
-GROQ_VISION_MODEL = os.getenv("GROQ_VISION_MODEL", "meta-llama/llama-3.2-11b-vision-preview")
+# Groq retires model ids without notice; these two were live-checked against
+# /v1/models on 2026-10-27 (llama-3.3-70b-versatile and llama-3.2-11b-vision
+# both return model_not_found, which used to fail deep inside a generation run).
+GROK_MODEL   = os.getenv("GROK_MODEL", "openai/gpt-oss-120b")
+GROQ_VISION_MODEL = os.getenv("GROQ_VISION_MODEL", "qwen/qwen3.8-27b")
 
 # ── OmniRoute AI Gateway (keyless local install supported) ─────────────
 # One OpenAI-compatible endpoint that routes 'auto' to the fastest available

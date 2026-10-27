@@ -31,6 +31,10 @@ USER_AGENT = "lumicorepro-factory/1.0 (+live-verify)"
 TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 ASSET_RE = re.compile(r"""(?:src|href)\s*=\s*["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']""", re.IGNORECASE)
 SHELL_RE = re.compile(r"""<div[^>]+id=["'](?:root|app)["']""", re.IGNORECASE)
+# A POSIX shell on Windows (Git Bash/MSYS) rewrites a leading-slash argument such
+# as /api/v1/health into <msys-root>/api/v1/health, and urljoin then reads the
+# drive letter as a scheme. Nothing in this module may try to fetch such a value.
+LOCAL_PATH_RE = re.compile(r"^[A-Za-z]:[\\/]|^\\\\")
 
 # Pages that mean "the request reached the platform, not the app".
 _PLATFORM_ERROR_MARKERS = (
@@ -65,6 +69,8 @@ class _Fetch:
 
 
 def _fetch(url: str, timeout: int = 20) -> _Fetch:
+    if LOCAL_PATH_RE.match(url or "") or urllib.parse.urlsplit(url).scheme.lower() not in {"http", "https"}:
+        return _Fetch(False, 0, url, "", f"refused: {url!r} is not an http(s) URL")
     start = time.perf_counter()
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
@@ -150,6 +156,7 @@ def verify_site(
     routes: Optional[Iterable[str]] = None,
     marker: Optional[str] = None,
     api_health: Optional[str] = None,
+    api_origin: Optional[str] = None,
     timeout: int = 90,
     poll_interval: float = 3.0,
 ) -> Dict[str, Any]:
@@ -157,8 +164,10 @@ def verify_site(
 
     ``verified`` is true only when every configured check passed. ``status`` is
     one of ``verified``, ``unreachable``, ``platform-page``, ``broken-assets``,
-    ``missing-routes`` or ``marker-missing`` so callers can report the real
-    reason instead of "deploy failed".
+    ``missing-routes``, ``api-not-baked``, ``api-health-target-invalid``,
+    ``marker-missing`` or ``degraded`` so callers can report the real reason
+    instead of "deploy failed". ``api_origin`` demands that the deployed bundle
+    actually reference that API host.
     """
     start = time.perf_counter()
     target = normalize_url(url)
@@ -213,6 +222,11 @@ def verify_site(
     assets = _asset_urls(home.url or target, home.body)
     asset_failures: List[Dict[str, Any]] = []
     unprocessed_css: List[str] = []
+    # A frontend built without VITE_API_URL still renders perfectly while every
+    # form posts to the visitor's own localhost, so the deployed bundle has to
+    # carry the API host we asked for — a 200 on the pages proves nothing here.
+    origin_host = (urllib.parse.urlsplit(api_origin or "").netloc or "").lower()
+    api_baked = bool(origin_host) and origin_host in (home.body or "").lower()
     for asset in assets:
         result = _fetch(asset, timeout=15)
         if not result.ok:
@@ -221,9 +235,18 @@ def verify_site(
             # A CSS file that still contains the directives means PostCSS did not
             # run in the deploy — the site ships unstyled while returning 200.
             unprocessed_css.append(asset)
+        elif origin_host and asset.split("?")[0].endswith(".js") and origin_host in result.body.lower():
+            api_baked = True
     checks["assets"] = {"checked": len(assets), "ok": len(assets) - len(asset_failures), "failed": asset_failures}
     checks["css"] = {"checked": sum(1 for a in assets if a.split("?")[0].endswith(".css")),
                      "unprocessed": unprocessed_css}
+    if api_origin:
+        checks["api_baked"] = {"expected": api_origin, "ok": bool(api_baked)}
+        if not api_baked:
+            failures.append(
+                f"deployed bundle never references {api_origin} — it was built "
+                "without VITE_API_URL, so every form posts to the visitor's localhost"
+            )
     if assets and asset_failures:
         failures.append(f"{len(asset_failures)}/{len(assets)} bundle assets failed to load")
     if unprocessed_css:
@@ -250,28 +273,42 @@ def verify_site(
             failures.append(f"expected marker '{marker}' not present")
 
     if api_health:
-        health_url = urllib.parse.urljoin(origin + "/", api_health.lstrip("/"))
-        health = _fetch(health_url, timeout=20)
-        health_ok = health.ok
-        health_body: Any = health.body[:500]
-        if health.ok:
-            try:
-                parsed = json.loads(health.body)
-                health_body = parsed
-                status = str(parsed.get("status", "")).lower()
-                if status in {"unhealthy", "degraded", "down", "error"}:
-                    health_ok = False
-            except ValueError:
-                pass
-        checks["api"] = {"ok": health_ok, "status": health.status, "url": health_url, "body": health_body}
-        if not health_ok:
-            failures.append(f"API health check failed at {health_url}")
+        if LOCAL_PATH_RE.match(api_health):
+            checks["api"] = {"ok": False, "status": 0, "url": api_health, "body": "",
+                             "error": "local path, not a URL"}
+            failures.append(
+                f"API health target {api_health!r} is a filesystem path, not a URL — a Git "
+                "Bash/MSYS shell rewrote a leading-slash argument. Pass it without the slash "
+                "(api/v1/health) or as a full https:// URL."
+            )
+        else:
+            health_url = urllib.parse.urljoin(origin + "/", api_health.lstrip("/"))
+            health = _fetch(health_url, timeout=20)
+            health_ok = health.ok
+            health_body: Any = health.body[:500]
+            if health.ok:
+                try:
+                    parsed = json.loads(health.body)
+                    health_body = parsed
+                    status = str(parsed.get("status", "")).lower()
+                    if status in {"unhealthy", "degraded", "down", "error"}:
+                        health_ok = False
+                except ValueError:
+                    pass
+            checks["api"] = {"ok": health_ok, "status": health.status, "url": health_url,
+                             "body": health_body}
+            if not health_ok:
+                failures.append(f"API health check failed at {health_url}")
 
     verified = not failures
     if verified:
         status = "verified"
     elif any("unprocessed Tailwind" in item for item in failures):
         status = "unprocessed-css"
+    elif any("built without VITE_API_URL" in item for item in failures):
+        status = "api-not-baked"
+    elif any("is a filesystem path, not a URL" in item for item in failures):
+        status = "api-health-target-invalid"
     elif any(item.startswith("route ") for item in failures):
         status = "missing-routes"
     elif any("assets" in item for item in failures):

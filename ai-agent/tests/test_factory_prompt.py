@@ -34,6 +34,13 @@ class PromptParsingTests(unittest.TestCase):
         self.assertEqual(plan["deploy"], "railway")
         self.assertEqual(plan["slug"], "nimbus")
 
+    def test_brand_after_an_imperative_verb(self):
+        plan = factory.parse_delivery_prompt("Build CortexDesk, an AI copilot for support teams")
+        self.assertEqual(plan["name"], "CortexDesk")
+        self.assertEqual(plan["slug"], "cortexdesk")
+        self.assertEqual(plan["industry"], "saas")
+        self.assertTrue(plan["video"])
+
     def test_unnamed_prompt_gets_an_industry_name(self):
         plan = factory.parse_delivery_prompt("create an online course marketplace for teachers")
         self.assertEqual(plan["industry"], "education")
@@ -45,6 +52,18 @@ class PromptParsingTests(unittest.TestCase):
 
 
 class DeliverFromPromptTests(unittest.TestCase):
+    def setUp(self):
+        # deliver_from_prompt gates on the live provider before writing anything;
+        # these tests cover planning and staging, so pin the gate instead of
+        # depending on whichever key/provider config the machine happens to hold.
+        patcher = patch.object(
+            factory, "provider_health",
+            return_value={"usable": True, "provider": "groq", "model": "gpt-oss-120b",
+                          "key_present": True, "model_offered": True, "message": "pinned"},
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_generates_then_runs_the_factory_with_the_plan(self):
         generated = {"success": True, "total_files": 43, "elapsed_ms": 90, "errors": []}
         factory_result = {"status": "delivered", "verified": True, "report_md": "x"}

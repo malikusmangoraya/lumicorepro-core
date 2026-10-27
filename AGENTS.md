@@ -353,6 +353,61 @@ directives — a deploy without `postcss.config.cjs` returns 200 with an unstyle
 (fixed 2026-10-24). Never lower these gates — they exist because every connector
 previously reported `live` on exit 0 alone.
 
+**More gates added 2026-10-27:**
+- **`built` ≠ `delivered`.** A run with `--factory-deploy none` reports `built`
+  (`verified: false`) even when every stage passed — nothing is hosted, so nothing may
+  claim hosting. `deployed`+`verified` is the only path to `delivered`.
+- **Generation provider preflight.** `factory_pipeline.provider_health()` live-probes
+  the active provider's `/models` before a single file is written; a placeholder key or
+  a retired model id (Groq dropped `llama-3.3-70b-versatile` and
+  `llama-3.2-11b-vision-preview`) stops the run as `generate: blocked` instead of
+  failing minutes into generation. Providers rotate model ids — re-verify before
+  changing a default.
+- **Generated env contract.** `backend/.env.example` must declare every `process.env.X`
+  the generated backend reads (`test_backend_env_template_covers_every_var_the_code_reads`
+  enforces it). The generated `models/index.js` accepts `DATABASE_URL` and enables TLS
+  automatically, because Neon/Supabase/Render/Railway are TLS-only; a `DB_*`-only config
+  connects to localhost and fails in production with no local symptom.
+- **`postgres:` not `postgresql:`.** Sequelize v6 parses only the short scheme; Neon
+  hands out `postgresql://`, which it then treats as a bare database name with no
+  credentials — every query dies with `SASL: … client password must be a string` on a
+  URL that `pg` connects with happily. The models template normalises it
+  (`test_neon_postgresql_url_reaches_sequelize_as_postgres_scheme`).
+- **`models/index.js` loads `.env` itself.** `npm run db:migrate`, the serverless
+  wrapper and any script require it directly; when only `server.js` loaded dotenv the
+  migration runner silently targeted localhost and the real database was never created
+  (`test_migration_scripts_get_the_database_from_the_env_file`).
+- **TLS verification is on by default.** `rejectUnauthorized: false` for every
+  URL-based connection made managed Postgres an optional-encryption transport a
+  network attacker could terminate and read credentials from. Neon, Supabase and
+  Render all verify against the system CA store, so the default is strict;
+  `DB_SSL_CA` covers a private root and `DB_SSL_INSECURE=true` is the explicit
+  opt-out (`test_managed_url_keeps_certificate_verification_on`).
+- **Health must prove the database.** `/api/v1/health` runs `SELECT 1` and answers
+  503 + `db: disconnected` when Postgres is unreachable; the static `{status:
+  healthy, uptime}` version certified a broken deployment as live
+  (`test_health_endpoint_proves_the_database_is_reachable`).
+- **The deployed bundle must carry the API origin.** Vercel rebuilds the frontend
+  from source, so `VITE_API_URL` exported only for the local build never ships: the
+  site looks perfect while every form posts to the visitor's own localhost.
+  `deploy_engine` publishes it on the project before deploying, and `live_verify`
+  fails the run as `api-not-baked` unless that host appears in the shipped JS.
+- **CRLF corrupts platform secrets.** Piping a Windows-authored env file into
+  `vercel env add` appends `\r` to every value (seen on `BRAND_NAME`,
+  `DATABASE_URL`, `GROQ_API_KEY`). Strip `\r` when feeding values, and never print
+  them — masking with `sed 's/=.*:/=***:/'` leaks everything after the last colon.
+- **A rewritten health target must never be probed.** Git Bash/MSYS turns the
+  argument `/api/v1/health` into `D:/Git/api/v1/health`, and `urljoin` reads `D:`
+  as a scheme, so the value passes through unchanged and the probe hits a file
+  path — the run reported `degraded` while the hosted API was perfectly healthy.
+  `api_health_target` drops a drive-absolute value and falls back to
+  `GENERATED_API_HEALTH_PATH`, `verify_site` reports
+  `api-health-target-invalid`, and `_fetch` refuses any non-`http(s)` target
+  (`test_a_shell_rewritten_path_falls_back_to_the_generated_contract`,
+  `test_a_health_target_that_is_a_local_path_is_named_not_fetched`,
+  `test_nothing_but_http_is_ever_fetched`). Prefer `--factory-api-url` alone —
+  the health path is derived, so there is nothing for a shell to mangle.
+
 **Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 
 ### Quality Gates (Part 2 hard rules)

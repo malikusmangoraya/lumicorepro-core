@@ -6,6 +6,7 @@ Sequelize Database Models, JWT Auth, Docker Infrastructure) in single-digit seco
 """
 
 import os
+import re
 import time
 import json
 import concurrent.futures
@@ -99,16 +100,61 @@ module.exports = {
 _BACKEND_ENV_EXAMPLE = """# Backend runtime — copy to .env and fill every value.
 PORT=5000
 NODE_ENV=development
+BRAND_NAME=__BRAND__
+APP_URL=http://localhost:5173
+
+# Database — set EITHER the single URL (what Neon/Supabase/Render/Railway give
+# you; TLS is enabled automatically) OR the discrete DB_* pair for a local server.
+DATABASE_URL=
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=lumicore_app
 DB_USER=postgres
 DB_PASSWORD=
+# Set DB_SSL=true when using DB_* against a TLS-only host (a DATABASE_URL always
+# connects over TLS, so this is only needed for the discrete variables).
+DB_SSL=false
+# Optional path to a CA bundle for a host whose certificate is not in the system
+# trust store (self-signed / private deployments).
+DB_SSL_CA=
+# Escape hatch for a self-signed host only. Leaves the connection open to a
+# man-in-the-middle, so prefer DB_SSL_CA. Any other value keeps verification on.
+DB_SSL_INSECURE=false
+
 # REQUIRED, minimum 32 characters. Generate:
 #   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 JWT_SECRET=
+# REQUIRED to store provider keys in the database. Generate like JWT_SECRET.
+ENCRYPTION_KEY=
 # Comma-separated origins allowed by CORS (the frontend origin in production).
 CORS_ORIGIN=http://localhost:5173
+# Uploads directory. Serverless hosts need a writable path: /tmp/uploads
+UPLOAD_DIR=uploads/
+
+# AI chat — the provider key is stored per-user in the encrypted key vault,
+# these set the defaults the client offers.
+AI_PROVIDER=groq
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=
+GROQ_API_KEY=
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_BASE_URL=
+GROK_MODEL=grok-3-mini-beta
+XAI_API_KEY=
+XAI_MODEL=grok-3-mini-beta
+XAI_BASE_URL=
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=openai/gpt-4o-mini
+OPENROUTER_BASE_URL=
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-1.5-flash
+GEMINI_BASE_URL=
+# Optional pgvector service for semantic search over uploaded documents.
+PGVECTOR_URL=
 """
 
 _BACKEND_SMOKE_TEST_JS = """/** Backend smoke tests — run with `npm test` (node --test), no database needed. */
@@ -547,6 +593,91 @@ export default function Contact() {
 }
 
 
+_VERCEL_API_JS = """/** Vercel serverless entry for the generated Express API.
+ * `server.js` only listens when run directly, so importing it here is safe.
+ * The first request on a cold instance waits for sequelize.sync() so routes
+ * never query tables that do not exist yet.
+ */
+const app = require('../server');
+const { sequelize } = require('../models');
+
+let ready = null;
+
+module.exports = async (req, res) => {
+  if (!ready) ready = sequelize.sync();
+  try {
+    await ready;
+  } catch (error) {
+    res.status(503).json({ success: false, message: 'Database unavailable' });
+    return;
+  }
+  return app(req, res);
+};
+"""
+
+_VERCEL_API_JSON = """{
+  "version": 2,
+  "functions": {
+    "api/index.js": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index.js" }
+  ]
+}
+"""
+
+_VERCEL_API_IGNORE = chr(10).join([
+    ".git",
+    ".gitignore",
+    "node_modules",
+    "uploads",
+    "test",
+    "tests",
+    "coverage",
+    "logs",
+    "*.log",
+    ".env",
+    ".env.local",
+    ".env.*.local",
+]) + chr(10)
+
+_MIGRATION_NAME = re.compile(r"(\d{3})_(.+\.js)$")
+
+
+def _prune_renumbered_migrations(dest: str, files_map: Dict[str, str]) -> List[str]:
+    """Delete `<NNN>_<same table file>.js` copies left behind by an older run.
+
+    Regenerating in place writes the current numbering (contact is 003), but the
+    previous file (002_create_contact_messages.js) survives on disk. Umzug then
+    runs both, the second CREATE TABLE hits an existing relation and
+    `npm run db:migrate` aborts — so a re-deployed API never reaches healthy.
+    Only a file whose suffix this run still emits under a different number is
+    removed; hand-written and unrelated migrations are never touched.
+    """
+    current: Dict[str, set] = {}
+    for rel in files_map:
+        norm = rel.replace("\\", "/")
+        if "migrations/" not in norm:
+            continue
+        match = _MIGRATION_NAME.match(norm.rsplit("/", 1)[-1])
+        if match:
+            current.setdefault(match.group(2), set()).add(match.group(1))
+
+    removed: List[str] = []
+    for path in sorted(Path(dest).glob("backend/migrations/[0-9][0-9][0-9]_*.js")):
+        match = _MIGRATION_NAME.match(path.name)
+        if not match:
+            continue
+        number, suffix = match.group(1), match.group(2)
+        if suffix in current and number not in current[suffix]:
+            try:
+                path.unlink()
+                removed.append(path.name)
+            except OSError as exc:
+                agent_logger.warning(f"superseded migration {path.name} could not be removed: {exc}")
+    return removed
+
+
 class FullStackUltraEngine:
     """Generates complete, clean, professional full-stack web applications at maximum velocity."""
 
@@ -594,11 +725,14 @@ class FullStackUltraEngine:
         files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
         files_map["backend/routes/contact.routes.js"] = _CONTACT_ROUTE_JS
         files_map["backend/migrations/003_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
-        files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE
+        files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE.replace("__BRAND__", brand)
         files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
         files_map["frontend/postcss.config.cjs"] = "module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };\n"
         files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
         files_map["backend/test/smoke.test.js"] = _BACKEND_SMOKE_TEST_JS
+        files_map["backend/api/index.js"] = _VERCEL_API_JS
+        files_map["backend/vercel.json"] = _VERCEL_API_JSON
+        files_map["backend/.vercelignore"] = _VERCEL_API_IGNORE
         files_map["LICENSE.md"] = self._generated_license(brand)
 
         # ── Concurrent Parallel File Writing ──────────────────────────────
@@ -622,7 +756,7 @@ class FullStackUltraEngine:
             from agent.ai_saas_kit import inject_ai_saas_kit
 
             kit = inject_ai_saas_kit(dest)
-            files_map.update({rel: "" for rel in kit.get("written", [])})
+            files_map.update({rel.replace("\\", "/"): "" for rel in kit.get("written", [])})
         except Exception as kit_exc:
             agent_logger.warning(f"AI SaaS kit injection skipped: {kit_exc}")
 
@@ -631,9 +765,19 @@ class FullStackUltraEngine:
         try:
             from agent.production_spec_kit import apply_production_spec
 
-            apply_production_spec(dest, brand=brand_name or brand)
+            spec = apply_production_spec(dest, brand=brand_name or brand)
+            files_map.update({
+                rel.replace("\\", "/"): ""
+                for rel in list(spec.get("created", [])) + list(spec.get("updated", []))
+            })
         except Exception as spec_exc:
             agent_logger.warning(f"Production spec kit skipped: {spec_exc}")
+
+        superseded_migrations = _prune_renumbered_migrations(dest, files_map)
+        if superseded_migrations:
+            agent_logger.info(
+                f"FullStackUltraEngine: removed renumbered migrations {superseded_migrations}"
+            )
 
         # DDL mirror for the deployment-readiness gate and DBAs (the runtime
         # path is the Umzug migrations above; this file must stay in sync).
@@ -659,6 +803,7 @@ class FullStackUltraEngine:
             "elapsed_ms": elapsed_ms,
             "errors": write_errors,
             "palette": palette,
+            "superseded_migrations": superseded_migrations,
             "omni_repairs": repair_report.get("repairs_applied", 0),
             "stack": {
                 "frontend": "React 19 + Vite + Tailwind CSS + Lucide Icons + Framer Motion",
@@ -680,17 +825,58 @@ class FullStackUltraEngine:
 
     @staticmethod
     def _configure_postgresql_backend(files_map: Dict[str, str], brand: str) -> None:
-        files_map["backend/models/index.js"] = """const { Sequelize, DataTypes } = require('sequelize');
+        files_map["backend/models/index.js"] = """// Load .env here, not only in server.js: `npm run db:migrate`, the serverless
+// wrapper and any script all require this module directly, and dotenv does not
+// override variables that are already set, so entry points stay in control.
+require('dotenv').config();
+const fs = require('fs');
+const { Sequelize, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize({
+// Managed Postgres (Neon, Supabase, Render, Railway) accepts TLS only, and the
+// single connection string is the form those hosts hand you — DATABASE_URL wins
+// over the discrete DB_* variables when both are set.
+// Sequelize only recognises the `postgres:` scheme; Neon issues `postgresql:`,
+// which it then treats as a bare database name with no user or password, and
+// pg fails with "client password must be a string" on a URL that is otherwise
+// valid. Normalize the scheme before constructing the client.
+const rawUrl = process.env.DATABASE_URL || '';
+const url = rawUrl.replace(/^postgresql:/, 'postgres:');
+const caPath = process.env.DB_SSL_CA || '';
+const needsTls = Boolean(url) || process.env.DB_SSL === 'true';
+
+const dialectOptions = needsTls
+  ? {
+      ssl: {
+        require: true,
+        // Verification stays on by default: managed Postgres (Neon, Supabase,
+        // Render, Railway) ships certificates the system CA store already
+        // trusts, and turning this off makes the encrypted link a transport a
+        // network attacker can terminate and read the credentials from.
+        // DB_SSL_INSECURE=true is the explicit opt-out for a self-signed host,
+        // alongside DB_SSL_CA with that host's root certificate.
+        rejectUnauthorized: process.env.DB_SSL_INSECURE !== 'true',
+        ...(caPath ? { ca: fs.readFileSync(caPath) } : {}),
+      },
+    }
+  : undefined;
+
+const options = {
   dialect: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT || 5432),
-  database: process.env.DB_NAME || 'lumicore_app',
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
   logging: false,
-});
+  dialectOptions,
+  pool: { max: 5, min: 0, idle: 10000, acquire: 30000 },
+};
+
+const sequelize = url
+  ? new Sequelize(url, options)
+  : new Sequelize({
+      ...options,
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT || 5432),
+      database: process.env.DB_NAME || 'lumicore_app',
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+    });
 
 const User = sequelize.define('User', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -1325,7 +1511,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(helmet());
-app.use(cors({{ origin: '*' }}));
+app.use(cors({{
+  origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((value) => value.trim()).filter(Boolean)
+    : '*',
+}}));
 app.use(compression());
 app.use(express.json());
 
@@ -1338,40 +1528,24 @@ app.use(limiter);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/health', healthRoutes);
 
-sequelize.sync().then(() => {{
-  app.listen(PORT, () => {{
-    console.log(`{brand} Backend API running on port ${{PORT}}`);
+// A serverless invocation must export the handler without binding a port;
+// an unconditional listen hangs the function and never answers a request.
+if (require.main === module) {{
+  sequelize.sync().then(() => {{
+    app.listen(PORT, () => {{
+      console.log(`{brand} Backend API running on port ${{PORT}}`);
+    }});
+  }}).catch(err => {{
+    console.error('Database connection failed:', err);
+    process.exitCode = 1;
   }});
-}}).catch(err => {{
-  console.error('Database connection failed:', err);
-}});
+}}
 
 module.exports = app;
 """
 
-        # backend/models/index.js
-        fmap["backend/models/index.js"] = """const { Sequelize, DataTypes } = require('sequelize');
-
-const sequelize = new Sequelize({
-  dialect: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT || 5432),
-  database: process.env.DB_NAME || 'lumicore_app',
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-  logging: false,
-});
-
-const User = sequelize.define('User', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  name: { type: DataTypes.STRING, allowNull: false },
-  email: { type: DataTypes.STRING, unique: true, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false },
-  role: { type: DataTypes.STRING, defaultValue: 'user' },
-}, { tableName: 'users', underscored: true });
-
-module.exports = { sequelize, User };
-"""
+        # backend/models/index.js — see _configure_postgresql_backend, which is
+        # the single source of truth for this file and runs after this block.
 
         # backend/utils/jwtSecret.js -- fail-closed JWT secret resolution.
         # Plain (non-f) Python string literal: JS braces/$, backticks and
@@ -1485,11 +1659,24 @@ module.exports = router;
 
         # backend/routes/health.routes.js
         fmap["backend/routes/health.routes.js"] = """const express = require('express');
+const { sequelize } = require('../models');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.json({
-    status: 'healthy',
+// The deploy gate reads this endpoint, so it has to answer with the database
+// state rather than the process state: a 200 here that never opened a
+// connection would certify a broken deployment as live.
+router.get('/', async (req, res) => {
+  let db = 'connected';
+  try {
+    await sequelize.query('SELECT 1', { timeout: 5000 });
+  } catch (error) {
+    db = 'disconnected';
+  }
+  const healthy = db === 'connected';
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'healthy' : 'degraded',
+    db,
+    brand: process.env.BRAND_NAME || 'app',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });

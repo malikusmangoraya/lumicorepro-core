@@ -6,6 +6,10 @@ import logging
 import sqlite3
 from pathlib import Path
 
+# A factory run is a success when the stages it was asked to run all passed.
+# `built` = hosting deliberately skipped; `delivered` = hosted and verified.
+_OK_STATUSES = {"delivered", "built"}
+
 current_dir = Path(__file__).resolve().parent
 if str(current_dir) not in sys.path:
     sys.path.insert(0, str(current_dir))
@@ -111,8 +115,8 @@ def main():
     parser.add_argument("--factory-skip-build", action="store_true", help="Reuse an existing frontend/dist")
     parser.add_argument("--factory-name", type=str, default="", help="Product name used in the demo video")
     parser.add_argument("--factory-tagline", type=str, default="", help="Tagline used in the demo video")
-    parser.add_argument("--factory-api-url", type=str, default="", help="Public API base URL baked into the build (VITE_API_URL)")
-    parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy")
+    parser.add_argument("--factory-api-url", type=str, default="", help="Public API base URL baked into the build (VITE_API_URL); its api/v1/health route is probed unless --factory-api-health says otherwise")
+    parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy. Write it without a leading slash (api/v1/health): Git Bash rewrites /api/v1/health into a local D:/ path")
     parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
     parser.add_argument("--deliver", type=str, metavar="PROMPT", help="One prompt → generate + build + test + QA + deploy + verify + demo video")
     parser.add_argument("--deliver-root", type=str,
@@ -123,7 +127,7 @@ def main():
                         choices=("vercel", "netlify", "railway", "github-pages", "none"),
                         help="Override the deploy target inferred from the prompt")
     parser.add_argument("--verify-url", type=str, help="Verify a deployed URL (assets, SPA routes, optional API health)")
-    parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. /api/v1/health")
+    parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. api/v1/health (no leading slash under Git Bash, which rewrites it to a local path)")
     args = parser.parse_args()
     if not args.factory_json:
         print_banner()
@@ -165,7 +169,9 @@ def main():
         print(json.dumps(result, indent=2) if args.factory_json
               else f"status={result.get('status')} verified={result.get('verified')} "
                    f"destination={result.get('destination')} report={result.get('report_md', '')}")
-        sys.exit(0 if result.get("verified") else 1)
+        # `built` means every requested stage passed with hosting deliberately
+        # skipped, so it is a success exit; `verified` still reports honestly.
+        sys.exit(0 if result.get("status") in _OK_STATUSES else 1)
 
     if args.factory:
         from agent.factory_pipeline import run_factory
@@ -183,7 +189,7 @@ def main():
         print(json.dumps(result, indent=2) if args.factory_json
               else f"status={result.get('status')} verified={result.get('verified')} "
                    f"report={result.get('report_md', '')}")
-        sys.exit(0 if result.get("verified") else 1)
+        sys.exit(0 if result.get("status") in _OK_STATUSES else 1)
 
     startup_provider = validate_active_provider()
     if not startup_provider["ok"]:

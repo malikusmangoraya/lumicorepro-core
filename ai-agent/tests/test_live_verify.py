@@ -17,7 +17,7 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802 — http.server API
         mode = type(self).mode
         path = self.path.split("?")[0]
-        if mode == "good":
+        if mode in {"good", "api-baked"}:
             if path == "/":
                 body = (
                     "<!doctype html><html><head><title>Acme Cloud</title></head>"
@@ -26,6 +26,8 @@ class _Handler(BaseHTTPRequestHandler):
                 )
                 return self._send(200, body, "text/html")
             if path in {"/assets/app.js", "/assets/app.css"}:
+                if mode == "api-baked" and path.endswith(".js"):
+                    return self._send(200, 'const a="https://api.acme.test/api/v1"', "application/javascript")
                 return self._send(200, "body{}", "application/javascript")
             if path == "/api/health":
                 return self._send(200, json.dumps({"status": "healthy"}), "application/json")
@@ -127,6 +129,24 @@ class LiveVerifyTests(unittest.TestCase):
         self.assertEqual(result["status"], "unprocessed-css")
         self.assertEqual(len(result["checks"]["css"]["unprocessed"]), 1)
 
+    def test_bundle_built_without_the_api_origin_is_not_verified(self):
+        """Vercel rebuilds from source, so a locally exported VITE_API_URL can be
+        missing from what actually ships — and the live site then posts every form
+        to the visitor's own localhost while looking perfectly healthy."""
+        result = verify_site(self.base, api_origin="https://api.acme.test", timeout=2,
+                             poll_interval=0.1)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["status"], "api-not-baked")
+        self.assertFalse(result["checks"]["api_baked"]["ok"])
+        self.assertIn("VITE_API_URL", result["failures"][0])
+
+    def test_bundle_referencing_the_api_origin_passes(self):
+        _Handler.mode = "api-baked"
+        result = verify_site(self.base, api_origin="https://api.acme.test", timeout=2,
+                             poll_interval=0.1)
+        self.assertTrue(result["verified"], result["failures"])
+        self.assertTrue(result["checks"]["api_baked"]["ok"])
+
     def test_marker_missing_fails(self):
         result = verify_site(self.base, marker="built-with-lumicorepro", timeout=2, poll_interval=0.1)
         self.assertFalse(result["verified"])
@@ -137,6 +157,26 @@ class LiveVerifyTests(unittest.TestCase):
         result = verify_site(self.base, api_health="/api/health", timeout=2, poll_interval=0.1)
         self.assertFalse(result["verified"])
         self.assertFalse(result["checks"]["api"]["ok"])
+
+    def test_a_health_target_that_is_a_local_path_is_named_not_fetched(self):
+        """Git Bash rewrites /api/v1/health into D:/Git/api/v1/health and urljoin
+        reads the drive letter as a scheme — that run reported "degraded" with no
+        hint that the operator's shell, not the deployment, was at fault."""
+        result = verify_site(self.base, api_health="D:/Git/api/v1/health", timeout=2, poll_interval=0.1)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["status"], "api-health-target-invalid")
+        self.assertFalse(result["checks"]["api"]["ok"])
+        self.assertIn("Git Bash", result["failures"][0])
+
+    def test_nothing_but_http_is_ever_fetched(self):
+        from agent.live_verify import _fetch
+
+        for target in ("D:/Git/api/v1/health", "\\\\host\\share\\x", "file:///C:/x", "api/health"):
+            with self.subTest(target=target):
+                result = _fetch(target)
+                self.assertFalse(result.ok)
+                self.assertEqual(result.status, 0)
+                self.assertIn("not an http(s) URL", result.error)
 
     def test_normalize_url_adds_scheme_and_rejects_junk(self):
         self.assertEqual(normalize_url("example.com"), "https://example.com/")

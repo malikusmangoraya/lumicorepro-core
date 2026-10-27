@@ -328,7 +328,7 @@ const rag = require('../services/ragLite');
 
 const router = express.Router();
 const upload = multer({
-  dest: 'uploads/',
+  dest: process.env.UPLOAD_DIR || 'uploads/',
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const ok = ['application/pdf', 'text/plain',
