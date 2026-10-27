@@ -113,8 +113,8 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 | Type | Tool | Location | Target | Measured (2026-10-24) |
 |------|------|----------|--------|------------------------|
 | Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **62.74% stmts (honest full-tree) — 1020 tests / 128 files, ratchet gate active** |
-| Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.79% statements (5155/6892) — 82 suites / 1903 tests, ratchet gate active** |
-| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1385 tests + 109 subtests green** (incl. factory / live-verify / demo-video / design suites) |
+| Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.8% statements (5158/6895) — 82 suites / 1903 tests, ratchet gate active** |
+| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1530 tests + 121 subtests green** (2026-10-27; incl. factory / live-verify / deploy / demo-video / design suites) |
 | E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
@@ -408,6 +408,101 @@ previously reported `live` on exit 0 alone.
   `test_nothing_but_http_is_ever_fetched`). Prefer `--factory-api-url` alone —
   the health path is derived, so there is nothing for a shell to mangle.
 
+**Full-stack delivery is the default, not a manual step.** Hosting the database and the
+API used to be work I did by hand outside the pipeline, so a run could report `delivered`
+while shipping a form that posted into nothing. A run that finds `backend/package.json`
+and was not given `--factory-api-url` now does all of it itself, in this order:
+`db_provision.provision_database()` creates one Neon database per product →
+`deploy_engine.deploy_backend()` creates `<slug>-api`, publishes the runtime env and
+deploys → that origin is baked as `VITE_API_URL` and the frontend is deployed →
+`deploy_backend` runs a second pass with `cors_origin` pinned to the live frontend URL →
+`live_verify.verify_contact_write()` POSTs a real contact row and demands an id back.
+- **`delivered` requires the write, not just the health check.** A 200 from `/health`
+  proves the process booted; only an INSERT returning a row id proves a client can save.
+  A probe accepted *without* validation is also a failure (`validation-not-enforced`) —
+  a form that stores garbage is not "working".
+- **A health payload with no `db` field is no evidence** (`db-not-proven`): the retired
+  static `{status: healthy}` is exactly what an unreachable-database deployment reported as live.
+- **`NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env` is the one credential the owner supplies.**
+  Without it a backend run stops as `database not provisioned` *before* invoking any CLI —
+  it never deploys an API that cannot connect, and never silently reuses one shared
+  database for every product. `ai-agent/.env` is read directly because `config/settings.py`
+  stops at the first `.env` it finds (repo root).
+- **Secrets travel by stdin or env, never argv**, are CR-stripped, are generated once and
+  persisted into `backend/.env` so a redeploy never rotates `JWT_SECRET` mid-demo, and never
+  appear in `report.json`/`report.md` — those carry env **names** and a `db@host`, not a
+  connection string (`test_no_credential_appears_anywhere_in_the_evidence`,
+  `test_a_report_is_written_without_any_secret_value`).
+- **A cleared `os.environ` is not isolation.** `db_provision.template_url()` also reads
+  `ai-agent/.env`, so a test that only did `patch.dict(os.environ, {}, clear=True)` resolved
+  the owner's live Neon URL and printed it in its own assertion diff. Every test that clears
+  the environment and still resolves a credential must stub `_ENV_CANDIDATES`; a static guard
+  fails the suite when one does not (`test_no_test_resolves_a_credential_from_the_real_env_files`).
+- **The report ends with `## Client handoff`** (every live URL, the database, the video, the
+  probe row id to delete before the demo) **and `## Not proven`** when anything failed. Give
+  the client that block; never retype URLs from memory.
+- **`backend/node_modules` is installed by the pipeline, and a backend with no test
+  files is a failure.** The factory only ever installed the *frontend's* dependencies, so
+  `npm test` in `backend/` ran smoke assertions that imported nothing, and the Neon
+  creation runner — which shells out to `node` with `backend/` as its cwd — died on
+  `Cannot find module 'pg'` while the stage still reported `done`. `test_backend()` now
+  installs first, refuses to run when the project owns no `*.test.js` (a dependency's
+  suite never counts), and fails the stage if the install fails, because `pg`, `sequelize`
+  and the migration runner are all needed before any hosting claim is true
+  (`test_dependencies_are_installed_before_the_generated_tests_run`,
+  `test_a_backend_with_no_test_files_is_not_a_pass`).
+- **A Windows policy block is an environment fact, not a build failure.** App Control /
+  Smart App Control refuses a freshly written native bundler binary by file hash, so
+  `npm run build` died with `ERR_DLOPEN_FAILED` on code that was never wrong (2026-10-27:
+  `@rollup/rollup-win32-x64-msvc` 4.65.1 blocked while a 4.65.0 copy already loaded
+  elsewhere on the machine). `agent/native_binary_repair.py` reads the blocked path out of
+  the refusal, restores the same package from a sibling install in this repository (exact
+  version first, then the same `major.minor`), and retries — max `MAX_SWAP_ATTEMPTS` times,
+  and only inside the project being built. It downloads nothing, and the swap is recorded
+  in the report as a build warning with both versions, so the substitution is auditable
+  rather than silent. An ordinary compile error is still a hard stop after one attempt
+  (`test_an_ordinary_build_error_is_never_retried`,
+  `test_a_path_outside_this_project_is_never_written_to`).
+- **A hosted product must be reachable by the client, not by the account.** A project
+  created with `vercel project create` inherits the team's "Require Vercel Authentication"
+  default, so every `*.vercel.app` URL answered HTTP 200 with a login page — the API was
+  genuinely deployed, health said `not-json`, and no probe or buyer could get past the wall
+  (2026-10-27: `ledgerline-api`). `deploy_engine.open_project_for_public_demo()` runs
+  `vercel project protection disable <name> --sso` before the first probe, re-opens the
+  project and re-probes when a wall is nevertheless detected, and a wall that survives is
+  reported as `deployed-protected` (never `live`) with the exact command in the report
+  (`test_a_project_the_pipeline_creates_is_opened_for_public_demo`,
+  `test_a_walled_frontend_is_opened_and_verified_again`,
+  `test_an_api_behind_a_login_page_names_the_setting_that_blocks_it`). A broken bundle is
+  NOT answered by touching this setting (`test_a_broken_bundle_is_not_answered_by_touching_protection`).
+- **Only the `Aliased` production domain is baked into a shipped bundle.** `vercel deploy
+  --prod` prints both a permanent domain and a per-deployment URL
+  (`<name>-<hash>-<team>.vercel.app`, minted fresh every run); baking the unstable one means
+  the next redeploy moves the API out from under a bundle already delivered. A short
+  `https://<name>.vercel.app` is global and may belong to another tenant, so it is used only
+  when the CLI printed it — guessing one would post a client's contact form to a stranger
+  (`test_the_aliased_project_domain_is_the_one_baked`,
+  `test_a_domain_the_cli_never_printed_is_never_assumed`).
+- **A provisioned database is written into the delivered `backend/.env`.** The hosted
+  API is handed its URL as an argument, so a run could provision Neon, publish the var on
+  Vercel, verify `db: connected` — and still deliver a folder whose own
+  `npm run db:migrate` and `node server.js` read an env file with no `DATABASE_URL` and
+  talk to localhost (2026-10-27: `shipsignal`). `backend_runtime_env()` persists the
+  resolved URL next to the generated secrets. `CORS_ORIGIN` is deliberately excluded: the
+  CORS-lock pass passes the production origin, and writing it locally would make the
+  delivered server refuse its own dev client
+  (`test_the_provisioned_database_lands_in_the_delivered_env_file`,
+  `test_locking_the_hosted_cors_never_moves_the_local_dev_origin`).
+- **A `delivered` report may not contain a failed stage — and `_write_report` is the
+  projection that enforces it.** The markdown labels a stage PASS from `ok`, else
+  `verified`, else a `{live, skipped}` allowlist. `_host_database` rebuilt its evidence
+  from `status/database/host/message` and dropped the `ok` the provisioner returned, so a
+  run that created the database, proved `db: connected` and stored a real inquiry printed
+  `## database — FAIL/UNVERIFIED` two lines under its own `delivered` headline
+  (2026-10-27: `shipsignal`). Every stage dict carries `ok`; the missing-flag direction stays
+  loud on purpose, because an unproven stage must never render as a pass
+  (`test_a_delivered_report_never_labels_a_stage_as_failed`).
+
 **Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 
 ### Quality Gates (Part 2 hard rules)
@@ -452,6 +547,7 @@ truncated its final sections (this one included).
 
 | Date | Ver | Summary |
 |------|-----|---------|
+| 2026-10-27 | 8.31 | **Factory v3 — one prompt leaves the whole stack live**: auto-provisioned Postgres (`db_provision.py`), auto-hosted Express API with `db: connected` proof, Vercel Deployment Protection opened for demo (`deployed-protected` when it survives), only the `Aliased` domain baked, Windows native-bundler policy block self-repaired, provisioned `DATABASE_URL` persisted into the delivered `backend/.env`, and the report can no longer label a passing stage as failed. Proven end to end by ShipSignal in 551 s with zero manual steps |
 | 2026-10-24 | 8.30 | **Factory v2**: one-prompt delivery (`--deliver`), SSE progress, brand-derived design system (4 archetypes/fonts/radius), Groq/xAI providers with custom base URLs, free gTTS narration fallback, CSS-processing deploy gate, in-place regeneration; generated apps get a real contact API, schema, backend tests, PostCSS config |
 | 2026-10-24 | 8.29 | **Website Factory**: build → backend tests → browser QA → deploy → live verification → 2-minute demo video, all evidence-gated; Vercel/Netlify/Railway/Pages connectors no longer report live without a verified URL; real marketing pages + working contact API in generated sites; 1351 AI tests |
 | 2026-10-24 | 8.28 | Vertical isolation (`orders.source` + migration 008), restaurant order/reservation contract + 175 tests, booking overlap/role/refund ledger fixed, address/wishlist/cart/business/search/audit/coupon security gaps closed, backend 82 suites / 1903 tests / 74.79% stmts (floors raised), AI agent 1317 tests |

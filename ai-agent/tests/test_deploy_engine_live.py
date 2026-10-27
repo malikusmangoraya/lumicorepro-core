@@ -228,5 +228,58 @@ class VercelCliDeployTests(unittest.TestCase):
             self.assertEqual(result["status"], "deployed-unverified")
 
 
+class VercelAuthenticationWallTests(unittest.TestCase):
+    """A project created from the command line inherits the team's "Require Vercel
+    Authentication" default, which answers HTTP 200 with a login page. The site is
+    hosted, verified-looking, and impossible for a client to open."""
+
+    WALL = {
+        "verified": False,
+        "status": "platform-page",
+        "url": "https://acme-site-lumicorepro.vercel.app/",
+        "title": "",
+        "checks": {},
+        "failures": ["page is a platform login wall (sso-protection)"],
+    }
+
+    def _deploy(self, replies):
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            text = [str(c) for c in cmd]
+            calls.append(text)
+            if "protection" in text:
+                return _Proc(0, '{"ssoProtection": null}')
+            return _Proc(0, "https://acme-site-lumicorepro.vercel.app  dpl_abc123")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / "acme-site", linked=True)
+            with patch.object(engine.shutil, "which", side_effect=lambda name: "/usr/bin/vercel" if name == "vercel" else None), \
+                 patch.object(engine.subprocess, "run", side_effect=fake_run), \
+                 patch.object(engine, "verify_site", side_effect=replies) as verify, \
+                 patch.object(engine, "expected_routes", return_value=["/"]):
+                result = engine._vercel_cli_deploy(str(project), "", "")
+        result["_calls"] = calls
+        result["_verify_calls"] = verify.call_count
+        return result
+
+    def test_a_walled_frontend_is_opened_and_verified_again(self):
+        result = self._deploy([self.WALL, VERIFIED])
+        self.assertEqual(result["status"], "live", result)
+        self.assertEqual(result["_verify_calls"], 2, "the wall must be repaired then re-probed")
+        opened = [c for c in result["_calls"] if "protection" in c]
+        self.assertTrue(opened, "deployment protection was never disabled")
+        self.assertIn("--sso", opened[0])
+        self.assertEqual(result["protection"]["status"], "public")
+
+    def test_a_broken_bundle_is_not_answered_by_touching_protection(self):
+        """Toggling a security setting cannot fix a missing asset, and silently
+        doing so would blame the platform for the project's own defect."""
+        result = self._deploy([UNVERIFIED, UNVERIFIED, UNVERIFIED, UNVERIFIED])
+        self.assertEqual(result["status"], "deployed-unverified")
+        self.assertEqual([c for c in result["_calls"] if "protection" in c], [])
+        self.assertIsNone(result["protection"])
+
+
 if __name__ == "__main__":
     unittest.main()

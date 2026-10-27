@@ -28,7 +28,12 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from utils.logger import agent_logger
+from agent import native_binary_repair as nbr
 from agent.live_verify import LOCAL_PATH_RE as _LOCAL_PATH_RE
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
 
 DEFAULT_PLATFORM = "vercel"
 
@@ -173,6 +178,112 @@ def api_health_target(api_url: str, api_health: str = "") -> str:
     return urllib.parse.urljoin(f"{parts.scheme}://{parts.netloc}/", path.lstrip("/"))
 
 
+def _backend_env_value(backend_dir: Path, key: str) -> str:
+    """Read one value from the generated backend's own .env (never echoed)."""
+    try:
+        from agent.deploy_engine import read_env_file
+        return read_env_file(backend_dir / ".env").get(key, "").strip()
+    except Exception:  # noqa: BLE001 — an unreadable local file is simply "absent"
+        return ""
+
+
+def _host_database(project: Path, progress=None):
+    """Create the project's own Postgres database and hand back its URL.
+
+    Returns ``(evidence, connection_string)``. The connection string is kept out
+    of ``evidence`` on purpose: evidence goes into report.json, and a Neon
+    credential in a report is a credential in a git tree.
+    """
+    from agent.db_provision import database_url_for, provision_database, redact, template_url
+
+    _emit(progress, "database", "running", project=project.name)
+    template = template_url()
+    fallback = _backend_env_value(project / "backend", "DATABASE_URL")
+    if not template and fallback:
+        evidence = {"ok": True, "status": "reused", "host": redact(fallback)["host"],
+                    "database": (urllib.parse.urlsplit(fallback).path or "").lstrip("/"),
+                    "message": "provisioned from the connection string already configured in backend/.env"}
+        _emit(progress, "database", "done", provisioned="reused", database=evidence["database"])
+        return evidence, fallback
+    if not template:
+        evidence = {"ok": False, "status": "blocked",
+                    "message": "no database server is configured: set NEON_TEMPLATE_DATABASE_URL in "
+                               "ai-agent/.env to a connection string for any database on the target "
+                               "server, or put a DATABASE_URL in backend/.env"}
+        _emit(progress, "database", "blocked", message=evidence["message"])
+        return evidence, ""
+
+    result = provision_database(project.name, template, backend_dir=project / "backend")
+    if not result.get("ok"):
+        _emit(progress, "database", result.get("status", "failed"),
+              database=result.get("database"), message=result.get("message"))
+        return result, ""
+    evidence = {key: result[key] for key in ("ok", "status", "database", "host", "message")
+                if key in result}
+    _emit(progress, "database", "done", provisioned=result.get("status"),
+          database=result.get("database"), host=result.get("host"))
+    return evidence, database_url_for(template, result["database"])
+
+
+def _host_api(project: Path, database_url: str, progress=None) -> Dict[str, Any]:
+    """Deploy backend/ as its own hosted project — the half that used to be manual."""
+    from agent.deploy_engine import deploy_backend
+
+    _emit(progress, "api", "running", project=project.name)
+    result = deploy_backend(str(project), database_url=database_url)
+    evidence = {key: result[key] for key in
+                ("status", "url", "health_url", "project_name", "deployment_id", "message",
+                 "env", "verified") if key in result}
+    if result.get("status") == "live":
+        _emit(progress, "api", "done", url=result.get("url"))
+    else:
+        _emit(progress, "api", "failed" if result.get("status") in {"failed", "blocked"} else "partial",
+              url=result.get("url"), message=evidence.get("message"))
+    return evidence
+
+
+def _lock_api_cors(project: Path, database_url: str, frontend_url: str, progress=None) -> Dict[str, Any]:
+    """Republish the API with the real site origin, so CORS is not left on ``*``.
+
+    The frontend URL is only known after the frontend deployment, which is why
+    the API is published twice: first so the bundle can be built and verified
+    against a live origin, then once more locked to that origin.
+    """
+    from agent.deploy_engine import deploy_backend
+
+    _emit(progress, "api", "running", step="cors-lock", origin=frontend_url)
+    result = deploy_backend(str(project), database_url=database_url, cors_origin=frontend_url)
+    return {key: result[key] for key in ("status", "url", "health_url", "message", "env")
+            if key in result}
+
+
+def _prove_api(api_url: str, health_target: str, progress=None) -> Dict[str, Any]:
+    """Prove the hosted API answers, the database is reachable, and a form writes.
+
+    ``db: connected`` shows the process can reach Postgres; only an INSERT that
+    returns a row id shows the product works well enough to demo to a client.
+    """
+    from agent.live_verify import verify_api_health, verify_contact_write
+
+    _emit(progress, "handshake", "running", api=api_url)
+    health = verify_api_health(health_target, timeout=120) if health_target else {
+        "ok": False, "status": "target-invalid", "failures": ["no health target"]}
+    write = verify_contact_write(api_url, timeout=60) if health.get("ok") else {
+        "ok": False, "status": "write-skipped",
+        "failures": ["the contact form was not probed because the API health check failed"]}
+    evidence = {
+        "ok": bool(health.get("ok")) and bool(write.get("ok")),
+        "status": "verified" if (health.get("ok") and write.get("ok"))
+                  else (health.get("status") if not health.get("ok") else write.get("status")),
+        "health": {key: health.get(key) for key in ("ok", "status", "url", "body")},
+        "write": {key: write.get(key) for key in ("ok", "status", "url", "id")},
+        "failures": list(health.get("failures") or []) + list(write.get("failures") or []),
+    }
+    _emit(progress, "handshake", "done" if evidence["ok"] else "failed",
+          proof=evidence["status"], failures=evidence["failures"])
+    return evidence
+
+
 def deliver_from_prompt(
     prompt: str,
     *,
@@ -314,14 +425,40 @@ def build_project(project_dir: str, *, install: bool = True, api_url: str = "",
     build_env = {"VITE_API_URL": api_url} if api_url else None
     steps["build"] = _run([_npm(), "run", "build"], frontend, timeout=timeout, env=build_env)
     steps["build"]["api_url"] = api_url or ""
+    repairs: list = []
+    used: list = []
+    while not steps["build"]["ok"] and len(repairs) < nbr.MAX_SWAP_ATTEMPTS:
+        fix = nbr.repair(frontend, steps["build"]["stderr_tail"], repo_root=_repo_root(), exclude=used)
+        if not fix["repaired"]:
+            break
+        used.append(Path(fix["source"]))
+        repairs.append(fix)
+        agent_logger.warning("build: native binary blocked by Windows policy — restored %s and retrying",
+                             fix["blocked_path"])
+        steps["build"] = _run([_npm(), "run", "build"], frontend, timeout=timeout, env=build_env)
+        steps["build"]["api_url"] = api_url or ""
     dist = frontend / "dist"
+    notes = [f"Windows App Control refused {fix['blocked_path']} v{fix['blocked_version']} from a "
+             f"fresh install; restored the copy this machine already accepts (v{fix['source_version']}) "
+             f"and re-ran the build — a machine policy, not a defect in the generated project."
+             for fix in repairs]
+    extra = {"warnings": notes} if notes else {}
     if not steps["build"]["ok"]:
         return {"ok": False, "dist": str(dist), "steps": steps, "message": "npm run build failed",
-                "stderr": steps["build"]["stderr_tail"]}
+                "stderr": steps["build"]["stderr_tail"], "environment_repairs": repairs, **extra}
     if not (dist / "index.html").is_file():
         return {"ok": False, "dist": str(dist), "steps": steps,
-                "message": "build finished but dist/index.html is missing"}
-    return {"ok": True, "dist": str(dist), "steps": steps}
+                "message": "build finished but dist/index.html is missing",
+                "environment_repairs": repairs, **extra}
+    return {"ok": True, "dist": str(dist), "steps": steps, "environment_repairs": repairs, **extra}
+
+
+def _backend_test_files(backend: Path) -> list:
+    """Test files the project itself owns — a dependency's suite is not evidence."""
+    found = []
+    for pattern in ("test/**/*.test.js", "tests/**/*.test.js", "__tests__/**/*.test.js", "*.test.js"):
+        found.extend(path for path in backend.glob(pattern) if "node_modules" not in path.parts)
+    return found
 
 
 def test_backend(project_dir: str, timeout: int = 300) -> Dict[str, Any]:
@@ -333,8 +470,22 @@ def test_backend(project_dir: str, timeout: int = 300) -> Dict[str, Any]:
     package = json.loads((backend / "package.json").read_text(encoding="utf-8"))
     if "test" not in (package.get("scripts") or {}):
         return {"ok": False, "message": "backend package.json has no test script"}
+    if not _backend_test_files(backend):
+        return {"ok": False, "message": "backend has no test files, so `npm test` would prove nothing"}
+
+    steps: Dict[str, Any] = {}
+    if not (backend / "node_modules").is_dir():
+        # Nothing that imports sequelize can run without these, and the Neon runner shells
+        # out to node in this directory — an uninstalled backend silently tests nothing.
+        steps["install"] = _run([_npm(), "install", "--no-audit", "--no-fund"], backend,
+                                timeout=max(timeout, 900))
+        if not steps["install"]["ok"]:
+            return {"ok": False, "steps": steps, "cwd": str(backend),
+                    "message": "npm install failed in backend/, so its tests cannot run",
+                    "stderr": steps["install"]["stderr_tail"]}
+
     result = _run([_npm(), "test"], backend, timeout=timeout)
-    return {**result, "command": "npm test", "cwd": str(backend)}
+    return {**result, "command": "npm test", "cwd": str(backend), "steps": steps}
 
 
 def run_qa(project_dir: str) -> Dict[str, Any]:
@@ -431,8 +582,40 @@ def run_factory(
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
         return _write_report(project, report_dir, report)
 
-    # 4 — deploy + live verification -------------------------------------------
+    # 4 — full-stack hosting: database → API → frontend --------------------------
     backend_present = (project / "backend" / "package.json").is_file()
+    database_stage: Dict[str, Any] = {"status": "skipped", "reason": "this project has no backend/"}
+    api_stage: Dict[str, Any] = {"status": "skipped", "reason": "this project has no backend/"}
+    handshake: Dict[str, Any] = {"status": "skipped", "reason": "no hosted API to prove"}
+    database_url = ""
+    auto_host = platform != "none" and backend_present and not api_url
+    if auto_host:
+        database_stage, database_url = _host_database(project, progress)
+        if database_url:
+            api_stage = _host_api(project, database_url, progress)
+            if api_stage.get("url"):
+                api_url = api_stage["url"]
+        else:
+            api_stage = {"status": "blocked",
+                         "message": database_stage.get("message", "no database, so no API host")}
+
+    baked = str((((build.get("steps") or {}).get("build") or {}).get("api_url")) or "")
+    if api_url and api_url != baked:
+        # Stage 1 built before the API origin existed. Hosts that publish the local dist
+        # (Netlify, Pages, Railway) would ship a bundle still calling localhost, so the
+        # frontend is rebuilt against the origin it is about to be deployed with.
+        _emit(progress, "build", "running", api_url=api_url, reason="baking the hosted API origin")
+        build = build_project(str(project), install=False, api_url=api_url)
+        report["stages"]["build"] = build
+        _emit(progress, "build", "done" if build.get("ok") else "failed",
+              dist=build.get("dist"), message=build.get("message"))
+        if not build.get("ok"):
+            report.update(status="failed",
+                          message="rebuild with the hosted API origin failed: "
+                                  + str(build.get("message", "")),
+                          elapsed_ms=int((time.perf_counter() - started) * 1000))
+            return _write_report(project, report_dir, report)
+
     deployment: Dict[str, Any] = {"status": "skipped", "verified": False}
     if platform != "none":
         from agent.deploy_engine import deploy_project
@@ -450,7 +633,9 @@ def run_factory(
                     "verified": False,
                     "api_deployed": False,
                     "message": "Frontend is live, but the Express API is not deployed; "
-                               "host backend/ (Railway/Render/Docker) and pass --factory-api-url",
+                               "the factory hosts it with deploy_backend() once a database is "
+                               "configured (NEON_TEMPLATE_DATABASE_URL), or pass --factory-api-url "
+                               "for an API hosted elsewhere",
                 }
             else:
                 from agent.live_verify import verify_site
@@ -465,6 +650,25 @@ def run_factory(
                     "api_deployed": bool((evidence.get("checks") or {}).get("api", {}).get("ok")),
                     "api_health_url": health_target,
                 }
+
+    if (auto_host and database_url and api_stage.get("url") and deployment.get("url")
+            and api_health_target(api_url, api_health)):
+        # The site now has a real origin, so lock the API to it and prove the
+        # whole path end to end: health, then an actual form submission.
+        api_stage["cors"] = _lock_api_cors(project, database_url, deployment["url"], progress)
+        locked = str(api_stage["cors"].get("url") or "")
+        if locked and locked.rstrip("/") != api_url.rstrip("/"):
+            # The bundle already shipped calling `api_url`. If the CORS pass found a
+            # different production domain, the shipped origin is stale and the client's
+            # forms would post somewhere else — say so instead of delivering it.
+            api_stage["cors"]["drift"] = f"locked to {locked}, bundle calls {api_url}"
+        handshake = _prove_api(api_url, api_health_target(api_url, api_health), progress)
+    elif api_url and backend_present:
+        handshake = _prove_api(api_url, api_health_target(api_url, api_health), progress)
+
+    report["stages"]["database"] = database_stage
+    report["stages"]["api"] = api_stage
+    report["stages"]["handshake"] = handshake
     report["stages"]["deploy"] = {
         key: deployment.get(key)
         for key in ("status", "url", "platform", "verified", "deployment_id", "message",
@@ -507,6 +711,30 @@ def run_factory(
     failures = []
     if platform != "none" and not deployment.get("verified"):
         failures.append(f"deployment not verified ({deployment.get('status')}: {deployment.get('message', '')})")
+    if backend_present and platform != "none":
+        # A client demo needs all three tiers live: a page that loads but cannot
+        # save is not a product, and that is exactly what used to be shipped.
+        if auto_host:
+            if database_stage.get("status") in {"blocked", "failed"}:
+                failures.append(f"database not provisioned ({database_stage.get('status')}: "
+                                f"{database_stage.get('message', '')})")
+            if api_stage.get("status") != "live":
+                hint = ("" if api_stage.get("status") != "deployed-protected" else
+                        " — the API answers with a Vercel login page; the automatic "
+                        "`vercel project protection disable --sso` did not take effect, so turn "
+                        "Deployment Protection off for "
+                        f"`{api_stage.get('project_name', 'the API project')}` in the Vercel "
+                        "dashboard")
+                failures.append(f"API not live ({api_stage.get('status')}: "
+                                f"{api_stage.get('message', '')}){hint}")
+            elif api_stage.get("cors", {}).get("drift"):
+                failures.append("the API moved to a different domain after the bundle was "
+                                f"built ({api_stage['cors']['drift']})")
+        elif not deployment.get("api_deployed"):
+            failures.append("the API origin the deployed frontend calls did not pass its health check")
+        if not handshake.get("ok"):
+            failures.append("the hosted contact form never wrote a real row "
+                            f"({handshake.get('status')}: {'; '.join(handshake.get('failures') or [])})")
     if video and not report["stages"].get("video", {}).get("verified"):
         failures.append("demo video not verified")
     if not qa.get("ok"):
@@ -525,6 +753,59 @@ def run_factory(
     _emit(progress, "run", report["status"], verified=report["verified"], failures=failures,
           elapsed_ms=report["elapsed_ms"])
     return _write_report(project, report_dir, report)
+
+
+def _handoff_lines(report: Dict[str, Any]) -> list:
+    """The client-facing block: every URL, plus what was never proven.
+
+    A delivery report is handed to a buyer, so it names the live frontend, the
+    live API, the health endpoint to paste into a browser, the database the
+    product owns, and the demo file. Anything the run could not prove is listed
+    explicitly instead of being silently omitted.
+    """
+    stages = report.get("stages") or {}
+    deploy = stages.get("deploy") or {}
+    api = stages.get("api") or {}
+    database = stages.get("database") or {}
+    handshake = stages.get("handshake") or {}
+    video = stages.get("video") or {}
+
+    lines = ["## Client handoff", ""]
+    rows = [
+        ("Frontend (live)", deploy.get("url")),
+        ("API (live)", api.get("url") or deploy.get("api_health_url")),
+        ("API health", api.get("health_url")),
+        ("Database", f"{database.get('database', '')}@{database.get('host', '')}"
+                     if database.get("database") else None),
+        ("Demo video", video.get("video")),
+    ]
+    for label, value in rows:
+        if value:
+            lines.append(f"- **{label}:** `{value}`")
+    if api.get("env", {}).get("published"):
+        lines.append(f"- **API runtime variables set:** {', '.join(api['env']['published'])} "
+                     "(values are stored on the hosting platform, never in this report)")
+    if handshake.get("write", {}).get("id"):
+        lines.append(f"- **Form round-trip:** a real inquiry was stored "
+                     f"(row `{handshake['write']['id']}`) — delete it before the demo if you "
+                     "want an empty inbox")
+    lines.append("- **Secrets:** the signing/encryption keys live in `backend/.env` and on the "
+                 "hosting platform. Rotate them if either is shared.")
+
+    not_proven = [f for f in report.get("failures") or []]
+    skipped = [name for name, stage in stages.items()
+               if stage.get("status") in {"skipped", "blocked"} and name != "video"]
+    lines.append("")
+    lines.append("## Not proven")
+    if not not_proven and not skipped:
+        lines.append("Nothing — every stage above was verified against the live deployment.")
+    else:
+        for failure in not_proven:
+            lines.append(f"- not proven: {failure}")
+        for name in skipped:
+            lines.append(f"- skipped stage: `{name}` ({(stages.get(name) or {}).get('reason', '')})")
+    lines.append("")
+    return lines
 
 
 def _write_report(project: Path, report_dir: Path, report: Dict[str, Any]) -> Dict[str, Any]:
@@ -547,7 +828,8 @@ def _write_report(project: Path, report_dir: Path, report: Dict[str, Any]) -> Di
     for stage_name, stage in (report.get("stages") or {}).items():
         ok = stage.get("ok", stage.get("verified", stage.get("status") in {"live", "skipped"}))
         lines.append(f"## {stage_name} — {'PASS' if ok else 'FAIL/UNVERIFIED'}")
-        for key in ("url", "status", "duration_seconds", "resolution", "message", "dist"):
+        for key in ("url", "status", "duration_seconds", "resolution", "message", "dist",
+                    "database", "host", "health_url"):
             if stage.get(key):
                 lines.append(f"- {key}: `{stage[key]}`")
         for warning in stage.get("warnings") or []:
@@ -555,6 +837,8 @@ def _write_report(project: Path, report_dir: Path, report: Dict[str, Any]) -> Di
         lines.append("")
     for failure in report.get("failures") or []:
         lines.append(f"- failure: {failure}")
+    lines.append("")
+    lines.extend(_handoff_lines(report))
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return report
 

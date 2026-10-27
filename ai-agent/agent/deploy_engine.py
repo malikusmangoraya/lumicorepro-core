@@ -10,6 +10,7 @@ Every deployment is persisted to platform.db.deployments via AccountStore.
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import tempfile
@@ -23,10 +24,10 @@ from utils.logger import agent_logger
 
 try:  # works both as `agent.deploy_engine` and as a direct script
     from agent.gh_token import clean_token, is_placeholder
-    from agent.live_verify import expected_routes, verify_site
+    from agent.live_verify import expected_routes, verify_api_health, verify_site
 except ImportError:
     from gh_token import clean_token, is_placeholder
-    from live_verify import expected_routes, verify_site
+    from live_verify import expected_routes, verify_api_health, verify_site
 
 
 def _which_git() -> str:
@@ -316,13 +317,16 @@ def _vercel_scope_args() -> List[str]:
     return ["--scope", slug] if slug else []
 
 
-def _run_vercel_env(cmd: List[str], workdir: Path, stdin: str = "") -> Dict[str, Any]:
+def _run_vercel_env(cmd: List[str], workdir: Path, stdin: str = "",
+                    secret: str = "") -> Dict[str, Any]:
     try:
         proc = subprocess.run(cmd, cwd=str(workdir), input=stdin, capture_output=True,
                               text=True, timeout=180, encoding="utf-8", errors="replace")
     except (subprocess.TimeoutExpired, OSError) as exc:
-        return {"ok": False, "message": str(exc)}
-    tail = ((proc.stderr or "") + (proc.stdout or "")).strip()[-300:]
+        # TimeoutExpired echoes its argument list; a credential never travels
+        # there, but a value we piped in through stdin can still surface.
+        return {"ok": False, "message": _scrub_value(str(exc), secret)}
+    tail = _scrub_value(((proc.stderr or "") + (proc.stdout or "")).strip()[-300:], secret)
     return {"ok": proc.returncode == 0, "exit": proc.returncode, "output": tail}
 
 
@@ -355,6 +359,39 @@ def _ensure_vercel_link(workdir: Path, name: str) -> Dict[str, Any]:
                               *_vercel_scope_args()], workdir)
     return {"ok": bool(linked["ok"]), "created": bool(created["ok"]),
             "output": linked.get("output", "")}
+
+
+def _protection_is_off(output: str) -> bool:
+    """``ssoProtection`` is gone only when the CLI says null or false."""
+    return bool(re.search(r"""ssoProtection"?\s*[:=]\s*(null|false)""", output or "", re.I))
+
+
+def open_project_for_public_demo(name: str, workdir: Path, token: str = "") -> Dict[str, Any]:
+    """Turn off Vercel Authentication on a project the pipeline just created.
+
+    A project made with ``vercel project create`` inherits the team's "Require
+    Vercel Authentication for all deployments" default, which answers every
+    ``*.vercel.app`` request with a login page instead of the API. Neither a
+    health probe nor a client's demo can pass behind that wall, so hosting is
+    not finished until the product is publicly reachable.
+    """
+    base = _vercel_cli()
+    if not base or not name:
+        return {"ok": False, "skipped": True, "status": "unknown",
+                "message": "the vercel CLI is unavailable, so deployment protection is unchanged"}
+    cmd = [*base, "project", "protection", "disable", name, "--sso", "--json",
+           *_vercel_scope_args()]
+    if token:
+        cmd.append(f"--token={token}")
+    run = _run_vercel_env(cmd, workdir)
+    off = _protection_is_off(str(run.get("output", "")))
+    return {
+        "ok": bool(run.get("ok")) and off,
+        "status": "public" if off else "protected",
+        "project_name": name,
+        "message": ("" if off else str(run.get("output", ""))[-300:] or
+                    "the CLI did not confirm that deployment protection is off"),
+    }
 
 
 def _vercel_cli_deploy(project_dir: str, token: str, api_url: str = "") -> Optional[Dict[str, Any]]:
@@ -441,6 +478,7 @@ def _vercel_cli_deploy(project_dir: str, token: str, api_url: str = "") -> Optio
 
     routes = expected_routes(project_dir)
     last_evidence: Optional[Dict[str, Any]] = None
+    protection: Optional[Dict[str, Any]] = None
     for candidate in ordered[:4]:
         evidence = verify_site(candidate, routes=routes, timeout=45, poll_interval=2.0,
                                api_origin=api_url)
@@ -455,6 +493,28 @@ def _vercel_cli_deploy(project_dir: str, token: str, api_url: str = "") -> Optio
                 "api_env": api_env,
                 "verification": evidence,
             }
+
+    # Vercel Authentication answers with a login page, which no visitor or probe
+    # can get past. It is a project setting, so turn it off and try the site once
+    # more before reporting a deployment nobody can demo.
+    failures = " ".join((last_evidence or {}).get("failures") or []).lower()
+    if "login wall" in failures:
+        protection = open_project_for_public_demo(name, workdir, token)
+        evidence = verify_site(ordered[0], routes=routes, timeout=90, poll_interval=2.0,
+                               api_origin=api_url)
+        last_evidence = evidence
+        if evidence.get("verified"):
+            return {
+                "status": "live",
+                "platform": "vercel",
+                "url": evidence.get("url") or ordered[0],
+                "project_name": name,
+                "deployment_id": deployment_id,
+                "api_env": api_env,
+                "protection": protection,
+                "verification": evidence,
+            }
+
     return {
         "status": "deployed-unverified",
         "platform": "vercel",
@@ -462,6 +522,7 @@ def _vercel_cli_deploy(project_dir: str, token: str, api_url: str = "") -> Optio
         "project_name": name,
         "deployment_id": deployment_id,
         "api_env": api_env,
+        "protection": protection,
         "verification": last_evidence,
         "message": "Deployment exists but the live URL did not pass verification",
     }
@@ -884,5 +945,337 @@ def _live_audit(url: str, project_dir: Optional[str] = None) -> Dict[str, Any]:
     if psi.get("status") == "ok":
         audit["pagespeed"] = psi
     return audit
+
+
+# --- Express API hosting ------------------------------------------------------
+#
+# Static hosts (Vercel/Netlify/Pages) serve the frontend only, so a generated
+# project used to be reported as a full-stack delivery with its backend/ folder
+# never uploaded anywhere. These functions host it as its own project and refuse
+# `live` until the deployed health route proves Postgres answered.
+
+API_HEALTH_PATH = "api/v1/health"
+BACKEND_REQUIRED_ENV = ("NODE_ENV", "DATABASE_URL", "JWT_SECRET", "ENCRYPTION_KEY",
+                        "BRAND_NAME", "APP_URL")
+# Regenerated once per project and persisted, so a redeploy never rotates the
+# key out from under tokens and encrypted columns already stored in the database.
+BACKEND_SECRET_ENV = ("JWT_SECRET", "ENCRYPTION_KEY")
+_BACKEND_VERCEL_CONFIG = {
+    "version": 2,
+    "functions": {"api/index.js": {"maxDuration": 60}},
+    "rewrites": [{"source": "/(.*)", "destination": "/api/index.js"}],
+}
+
+
+def _backend_project_name(project_dir: str) -> str:
+    """`<product>-api`: the frontend keeps the bare slug, the API gets its own."""
+    override = os.getenv("VERCEL_BACKEND_PROJECT_NAME", "").strip().lower()
+    if override:
+        cleaned = re.sub(r"[^a-z0-9-]+", "-", override).strip("-")
+        if cleaned:
+            return cleaned[:52]
+    path = Path(project_dir)
+    slug = path.name
+    if slug.lower() == "backend":
+        slug = path.parent.name
+    slug = re.sub(r"[^a-z0-9-]+", "-", slug.lower()).strip("-") or "lumicorepro"
+    return f"{slug[:46]}-api"
+
+
+def read_env_file(path: Path) -> Dict[str, str]:
+    """Parse a KEY=VALUE file. Values are CR-stripped: a Windows-authored .env
+    otherwise appends \\r to every value handed to the platform."""
+    values: Dict[str, str] = {}
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return values
+    for line in text.splitlines():
+        stripped = line.strip().replace("\r", "")
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        value = value.strip().strip('"').strip("'")
+        if key.strip():
+            values[key.strip()] = value
+    return values
+
+
+def _merge_env_file(path: Path, additions: Dict[str, str]) -> None:
+    """Add or replace keys in an env file, leaving every other line untouched."""
+    existing = path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
+    lines = existing.splitlines()
+    remaining = dict(additions)
+    for index, line in enumerate(lines):
+        key, _, _value = line.strip().partition("=")
+        if key.strip() in remaining:
+            lines[index] = f"{key.strip()}={remaining.pop(key.strip())}"
+    lines.extend(f"{key}={value}" for key, value in remaining.items())
+    try:
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    except OSError as exc:
+        agent_logger.warning(f"backend env file could not be persisted: {exc}")
+
+
+def backend_runtime_env(backend_dir: str, database_url: str = "",
+                        cors_origin: str = "") -> Dict[str, str]:
+    """The environment the hosted API needs, with secrets generated once.
+
+    Values come from ``backend/.env`` (the local, already-working config) and
+    ``backend/.env.example`` (the declared contract); anything secret and absent
+    is generated and written back, so the next deploy reuses it.
+    """
+    base = Path(backend_dir)
+    local = read_env_file(base / ".env")
+    example = read_env_file(base / ".env.example")
+    env: Dict[str, str] = {"NODE_ENV": "production"}
+
+    db = (database_url or local.get("DATABASE_URL", "")).strip()
+    if db:
+        env["DATABASE_URL"] = db.replace("\r", "")
+
+    generated: Dict[str, str] = {}
+    for key in BACKEND_SECRET_ENV:
+        value = (local.get(key) or "").strip()
+        if not value:
+            value = secrets.token_hex(32)
+            generated[key] = value
+        env[key] = value
+
+    for key in ("BRAND_NAME", "APP_URL"):
+        value = (local.get(key) or example.get(key) or "").strip()
+        if value:
+            env[key] = value
+
+    origin = (cors_origin or "").strip()
+    if origin:
+        env["CORS_ORIGIN"] = origin.rstrip("/")
+
+    # The database belongs in the file, not only in the platform: the delivered
+    # folder's own `npm run db:migrate` reads backend/.env, and a provisioned
+    # database missing from it makes the migration runner talk to localhost.
+    # CORS_ORIGIN is deliberately excluded — the production lock would otherwise
+    # leave the local server refusing its own dev client.
+    persisted = dict(generated)
+    if db and local.get("DATABASE_URL", "").strip() != db:
+        persisted["DATABASE_URL"] = db
+    if persisted:
+        _merge_env_file(base / ".env", persisted)
+    return env
+
+
+def _ensure_backend_serverless_config(backend_dir: Path) -> None:
+    """Vercel needs a function entry + catch-all rewrite to run Express."""
+    config_path = backend_dir / "vercel.json"
+    if config_path.is_file():
+        return
+    config_path.write_text(json.dumps(_BACKEND_VERCEL_CONFIG, indent=2), encoding="utf-8")
+    ignore = backend_dir / ".vercelignore"
+    if not ignore.is_file():
+        ignore.write_text("node_modules\n.env*\ntest\n", encoding="utf-8")
+
+
+def publish_backend_env(workdir: Path, values: Dict[str, str], token: str = "") -> Dict[str, Any]:
+    """Set every runtime variable on the Vercel project, names-only in evidence.
+
+    ``vercel env add`` reads the value from stdin; passing it as an argument
+    would put a credential in the process list and in any subprocess error text.
+    """
+    base = _vercel_cli()
+    published: List[str] = []
+    failed: List[str] = []
+    for key, value in values.items():
+        clean = (value or "").replace("\r", "")
+        rm_cmd = [*base, "env", "rm", key, "production", "--yes", *_vercel_scope_args()]
+        add_cmd = [*base, "env", "add", key, "production", *_vercel_scope_args()]
+        if token:
+            rm_cmd.append(f"--token={token}")
+            add_cmd.append(f"--token={token}")
+        _run_vercel_env(rm_cmd, workdir, secret=clean)
+        added = _run_vercel_env(add_cmd, workdir, stdin=clean, secret=clean)
+        if added["ok"]:
+            published.append(key)
+        else:
+            failed.append(key)
+    return {"ok": not failed, "published": published, "failed": failed,
+            "message": "" if not failed else f"could not set: {', '.join(failed)}"}
+
+
+_ALIAS_URL_RE = re.compile(r"Aliased[^\n]*?(https://[^\s\"']+?\.vercel\.app)", re.IGNORECASE)
+
+
+def _api_url_order(output: str, urls: List[str], name: str) -> List[str]:
+    """Stable production domains first, per-deployment URLs last.
+
+    ``vercel deploy --prod`` prints both the deployment URL
+    (``<name>-<hash>-<team>.vercel.app``, minted anew for every deploy) and, on
+    the ``Aliased`` line, the project's own production domain. Baking the
+    unstable one into the frontend means the next redeploy moves the API out from
+    under a bundle that is already shipped, so the alias always wins. A bare
+    ``https://<name>.vercel.app`` is used only when the CLI actually printed it:
+    short project domains are global, and another tenant already owns some of
+    them — pointing a client's form at one would post their data to a stranger.
+    """
+    ordered: List[str] = []
+    aliased = _ALIAS_URL_RE.search(output or "")
+    if aliased:
+        ordered.append(aliased.group(1))
+    canonical = f"https://{name}.vercel.app"
+    if canonical in urls:
+        ordered.append(canonical)
+    ordered.extend(urls)
+    return list(dict.fromkeys(u for u in ordered if u))
+
+
+def _health_target(url: str) -> str:
+    return urllib.parse.urljoin(url.rstrip("/") + "/", API_HEALTH_PATH)
+
+
+def deploy_backend(project_dir: str, database_url: str = "", cors_origin: str = "") -> Dict[str, Any]:
+    """Host ``<project>/backend`` as its own Vercel project and prove the API.
+
+    Order matters: the database must exist before the API is deployed, because
+    the serverless entry runs ``sequelize.sync()`` on the first request. ``live``
+    is returned only when the hosted ``/api/v1/health`` answers with a payload
+    that reports the database reachable — a CLI exit code, a URL string, or a
+    health route that never queried Postgres is not evidence.
+
+    No credential value ever appears in the returned evidence: only the names of
+    the published variables, the URL, and the health payload.
+    """
+    backend_dir = Path(project_dir) / "backend"
+    if not (backend_dir / "package.json").is_file():
+        return {"status": "failed", "verified": False,
+                "message": f"backend/package.json not found in {project_dir} — "
+                           "this project has no Express API to host",
+                "project_dir": str(project_dir)}
+
+    local = read_env_file(backend_dir / ".env")
+    db = (database_url or local.get("DATABASE_URL", "")).strip()
+    if not db:
+        return {
+            "status": "blocked", "verified": False, "project_dir": str(project_dir),
+            "message": "the API has no database to connect to: provision one (agent.db_provision) "
+                       "and pass its connection string, or set NEON_TEMPLATE_DATABASE_URL in "
+                       "ai-agent/.env so the factory can create it",
+        }
+
+    base = _vercel_cli()
+    if not base:
+        return {"status": "failed", "verified": False, "project_dir": str(project_dir),
+                "message": "the vercel CLI is unavailable, so the API cannot be hosted"}
+
+    token = os.getenv("VERCEL_TOKEN", "").strip()
+    if token.startswith("your_"):
+        token = ""
+
+    name = _backend_project_name(str(project_dir))
+    _ensure_backend_serverless_config(backend_dir)
+    link = _ensure_vercel_link(backend_dir, name)
+    protection = open_project_for_public_demo(name, backend_dir, token)
+    env_result = publish_backend_env(
+        backend_dir, backend_runtime_env(str(backend_dir), db, cors_origin), token
+    )
+
+    cmd = [*base, "deploy", ".", "--prod", "-y", *_vercel_scope_args()]
+    if token:
+        cmd.append(f"--token={token}")
+    try:
+        proc = subprocess.run(cmd, cwd=str(backend_dir), capture_output=True, text=True,
+                              timeout=900, encoding="utf-8", errors="replace",
+                              env=dict(os.environ, DATABASE_URL=db))
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        # TimeoutExpired echoes its argument list, so the class name is all we keep.
+        return {"status": "failed", "verified": False, "project_dir": str(project_dir),
+                "message": f"the API deployment did not complete ({type(exc).__name__})",
+                "project_name": name, "env": env_result}
+    output = _scrub_value((proc.stdout or "") + "\n" + (proc.stderr or ""), db)
+
+    if proc.returncode != 0:
+        tail = output.strip()[-600:]
+        lowered = tail.lower()
+        status = "failed"
+        message = tail or f"the vercel CLI exited {proc.returncode}"
+        if "credentials" in lowered or "not logged in" in lowered:
+            message = "the vercel CLI is not authenticated for this account: " + tail
+        return {"status": status, "verified": False, "project_dir": str(project_dir),
+                "project_name": name, "env": env_result, "message": message,
+                "link": link}
+
+    urls = list(dict.fromkeys(
+        u.rstrip(",;.)") for u in re.findall(r"https://[^\s\"']+\.vercel\.app", output)
+    ))
+    candidates = _api_url_order(output, urls, name)
+    deployment_id = (re.findall(r"dpl_[A-Za-z0-9]+", output) or [""])[-1]
+    if not candidates:
+        return {"status": "failed", "verified": False, "project_dir": str(project_dir),
+                "project_name": name, "env": env_result, "deployment_id": deployment_id,
+                "message": "the vercel CLI exited 0 but printed no API deployment URL",
+                "output": output.strip()[-400:]}
+
+    # The chosen URL is baked into the shipped bundle, so it must be the one that
+    # actually serves this API: probe the stable domains before the per-deployment
+    # URL and keep the first answer.
+    probed: List[tuple] = []
+    url = health_url = ""
+    evidence: Dict[str, Any] = {}
+    for candidate in candidates[:3]:
+        target = _health_target(candidate)
+        attempt = verify_api_health(target, timeout=45, poll_interval=4.0)
+        if attempt.get("status") == "platform-page":
+            protection = open_project_for_public_demo(name, backend_dir, token)
+            attempt = verify_api_health(target, timeout=45, poll_interval=4.0)
+        probed.append((candidate, target, attempt))
+        if attempt.get("ok"):
+            url, health_url, evidence = candidate, target, attempt
+            break
+    if not evidence.get("ok"):
+        candidate, target, _first = probed[0]
+        evidence = verify_api_health(target, timeout=150, poll_interval=4.0)
+        url, health_url = candidate, target
+
+    result: Dict[str, Any] = {
+        "status": "live" if evidence.get("ok") else (
+            "api-db-unreachable" if evidence.get("status") in {"db-disconnected", "db-not-proven"}
+            else "deployed-protected" if evidence.get("status") == "platform-page"
+            else "deployed-unverified"
+        ),
+        "verified": bool(evidence.get("ok")),
+        "platform": "vercel",
+        "url": url,
+        "api_url": url,
+        "health_url": health_url,
+        "project_name": name,
+        "deployment_id": deployment_id,
+        "env": env_result,
+        "link": link,
+        "protection": protection,
+        "candidates": [c for c, _, _ in probed],
+        "verification": evidence,
+        "project_dir": str(project_dir),
+    }
+    if not evidence.get("ok"):
+        result["message"] = (evidence.get("failures") or ["the hosted API health check failed"])[0]
+
+    try:
+        report_path = backend_dir.parent / ".factory" / "backend-deploy-report.json"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+        result["report_path"] = str(report_path)
+    except OSError:
+        pass
+    agent_logger.info(f"backend deploy: project={name} url={url} status={result['status']}")
+    return result
+
+
+def _scrub_value(text: str, secret: str) -> str:
+    """Strip a credential from CLI output before it becomes report evidence."""
+    if not secret or not text:
+        return text
+    cleaned = text.replace(secret, "[connection string]")
+    for fragment in sorted({p for p in re.findall(r"://([^@]+)@", secret) if len(p) >= 4},
+                           key=len, reverse=True):
+        cleaned = cleaned.replace(fragment, "[credentials]")
+    return cleaned
 
 

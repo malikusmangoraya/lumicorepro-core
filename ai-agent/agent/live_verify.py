@@ -44,7 +44,8 @@ _PLATFORM_ERROR_MARKERS = (
     "Application error: a client-side exception has occurred",
     "404: NOT_FOUND",
 )
-_LOGIN_MARKERS = ("vercel.com/login", "sso-protection", "Authentication Required")
+_LOGIN_MARKERS = ("vercel.com/login", "sso-protection", "Authentication Required",
+                  "Protected by Vercel Authentication", '"code":"UNAUTHENTICATED"')
 
 
 class _Fetch:
@@ -107,14 +108,23 @@ def normalize_url(url: str) -> str:
     return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path or "/", parsed.query, ""))
 
 
+def _login_wall(result: _Fetch) -> Optional[str]:
+    """A Vercel Authentication wall is a deterministic answer, unlike a cold start."""
+    low = f"{result.url}\n{result.body[:20000]}".lower()
+    for marker in _LOGIN_MARKERS:
+        if marker.lower() in low:
+            return f"platform login wall ({marker})"
+    return None
+
+
 def _page_problem(result: _Fetch) -> Optional[str]:
     """Return a reason when a response is a platform page instead of the app."""
-    haystack = f"{result.url}\n{result.body[:20000]}"
-    for marker in _LOGIN_MARKERS:
-        if marker.lower() in haystack.lower():
-            return f"platform login wall ({marker})"
+    wall = _login_wall(result)
+    if wall:
+        return wall
+    haystack = f"{result.url}\n{result.body[:20000]}".lower()
     for marker in _PLATFORM_ERROR_MARKERS:
-        if marker.lower() in haystack.lower():
+        if marker.lower() in haystack:
             return f"platform error page ({marker})"
     return None
 
@@ -328,6 +338,260 @@ def verify_site(
         "checks": checks,
         "failures": failures,
     }
+
+
+def _is_health_envelope(payload: Any) -> bool:
+    """True for a JSON object shaped like the generated health response."""
+    return isinstance(payload, dict) and "status" in payload
+
+
+def _post_json(url: str, payload: Dict[str, Any], timeout: int = 20) -> _Fetch:
+    """POST a JSON body and capture the response with the same evidence shape."""
+    if LOCAL_PATH_RE.match(url or "") or urllib.parse.urlsplit(url).scheme.lower() not in {"http", "https"}:
+        return _Fetch(False, 0, url, "", f"refused: {url!r} is not an http(s) URL")
+    body = json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(
+        url, data=body, method="POST",
+        headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
+    )
+    start = time.perf_counter()
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read(100_000)
+            status = getattr(response, "status", 200)
+            elapsed = int((time.perf_counter() - start) * 1000)
+            return _Fetch(status < 400, status, response.geturl(),
+                          raw.decode("utf-8", "replace"),
+                          f"HTTP {status}" if status >= 400 else "", elapsed)
+    except urllib.error.HTTPError as exc:
+        elapsed = int((time.perf_counter() - start) * 1000)
+        try:
+            raw = exc.read(100_000).decode("utf-8", "replace")
+        except Exception:
+            raw = ""
+        return _Fetch(False, exc.code, getattr(exc, "url", url), raw, f"HTTP {exc.code}", elapsed)
+    except Exception as exc:
+        elapsed = int((time.perf_counter() - start) * 1000)
+        return _Fetch(False, 0, url, "", f"{type(exc).__name__}: {exc}", elapsed)
+
+
+def _health_payload(body: str) -> Any:
+    """The JSON object a health endpoint answered with, or None."""
+    if not body:
+        return None
+    try:
+        payload = json.loads(body)
+    except ValueError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _db_is_down(payload: Any) -> bool:
+    """True when a health payload explicitly reports the database unreachable."""
+    if not isinstance(payload, dict):
+        return False
+    return str(payload.get("db", "")).lower() == "disconnected" or str(payload.get("status", "")).lower() in {
+        "unhealthy", "degraded", "down", "error"
+    }
+
+
+def verify_api_health(
+    health_url: str,
+    *,
+    timeout: int = 90,
+    poll_interval: float = 3.0,
+    require_database: bool = True,
+) -> Dict[str, Any]:
+    """Poll a hosted API's health endpoint and prove the database answers.
+
+    A 200 here is not proof either. The first generated health route returned a
+    static ``{status: healthy, uptime}`` while Postgres was unreachable, so the
+    run certified a broken deployment as live; the contract is now ``db:
+    connected``, which only a real ``SELECT 1`` can produce. Cold starts and DNS
+    propagation are waited out, and a target a shell rewrote into a filesystem
+    path is named instead of fetched.
+
+    ``status`` is one of ``verified``, ``target-invalid``, ``unreachable``,
+    ``not-json``, ``platform-page``, ``db-disconnected`` or ``db-not-proven``.
+    """
+    start = time.perf_counter()
+    failures: List[str] = []
+    if LOCAL_PATH_RE.match(health_url or "") or urllib.parse.urlsplit(health_url).scheme.lower() not in {"http", "https"}:
+        return {
+            "ok": False,
+            "status": "target-invalid",
+            "url": health_url,
+            "body": "",
+            "attempts": 0,
+            "elapsed_ms": 0,
+            "failures": [f"health target {health_url!r} is not an http(s) URL — a Git Bash/MSYS "
+                         "shell rewrote a leading-slash path"],
+        }
+
+    deadline = time.time() + max(1, timeout)
+    attempts = 0
+    result = _Fetch(False, 0, health_url, "", "not attempted")
+    parsed: Any = None
+    while True:
+        attempts += 1
+        result = _fetch(health_url, timeout=20)
+        parsed = _health_payload(result.body)
+        # A payload that names the database as down is a deterministic answer,
+        # not a cold-start race — polling it again would burn the whole timeout
+        # on a deployment that can never recover.
+        if parsed is not None and (_is_health_envelope(parsed) or _db_is_down(parsed)):
+            break
+        # A login wall does not lift on its own: polling it again would burn the
+        # whole budget on a deployment nobody can reach.
+        if _login_wall(result):
+            break
+        if time.time() + poll_interval >= deadline:
+            break
+        time.sleep(poll_interval)
+
+    elapsed = int((time.perf_counter() - start) * 1000)
+    base = {"url": result.url or health_url, "attempts": attempts, "elapsed_ms": elapsed,
+            "body": parsed if parsed is not None else result.body[:400]}
+
+    if _db_is_down(parsed):
+        return {**base, "ok": False, "status": "db-disconnected",
+                "failures": ["the hosted API is up but its database is not reachable "
+                             f"(status={str(parsed.get('status', '?')).lower()}, "
+                             f"db={str(parsed.get('db', '?')).lower()})"]}
+    if not result.ok:
+        problem = _page_problem(result)
+        status = "platform-page" if problem else "unreachable"
+        reason = problem or (result.error or f"HTTP {result.status}")
+        return {**base, "ok": False, "status": status,
+                "failures": [f"hosted API health did not answer: {reason}"]}
+
+    if not isinstance(parsed, dict):
+        problem = _page_problem(result)
+        if problem:
+            return {**base, "ok": False, "status": "platform-page",
+                    "failures": [f"the API host answered with a platform page instead of the health "
+                                 f"endpoint ({problem}) — the deployment is not publicly reachable"]}
+        return {**base, "ok": False, "status": "not-json",
+                "failures": ["the health endpoint answered but not with JSON — "
+                             "the API host is serving something that is not the generated backend"]}
+
+    declared = str(parsed.get("status", "")).lower()
+    db = str(parsed.get("db", "")).lower()
+    if db == "disconnected" or declared in {"unhealthy", "degraded", "down", "error"}:
+        return {**base, "ok": False, "status": "db-disconnected",
+                "failures": [f"the hosted API is up but its database is not reachable (status={declared or '?'}, db={db or '?'})"]}
+    if require_database and not db:
+        return {**base, "ok": False, "status": "db-not-proven",
+                "failures": ["the health payload never reports a `db` field, so nothing proves the "
+                             "database was queried — a static {status: healthy} response is not evidence"]}
+    return {**base, "ok": True, "status": "verified", "failures": failures}
+
+
+CONTACT_PROBE_PATH = "api/v1/contact"
+# The probe row is deliberate: a delivery is only demonstrable to a client when a
+# real submission has been stored, so the proof leaves one clearly-labelled
+# inquiry behind instead of pretending the write happened.
+CONTACT_PROBE_PAYLOAD = {
+    "name": "LumicorePro delivery probe",
+    "email": "delivery-probe@lumicorepro.app",
+    "message": "Automated full-stack delivery verification. This inquiry was written by the "
+               "LumicorePro website factory to prove the contact form stores rows in the "
+               "hosted database. Safe to delete.",
+}
+CONTACT_PROBE_REJECTED = {
+    "name": "",
+    "email": "not-an-address",
+    "message": "short",
+}
+
+
+def verify_contact_write(
+    api_url: str,
+    *,
+    path: str = CONTACT_PROBE_PATH,
+    timeout: int = 60,
+    poll_interval: float = 4.0,
+) -> Dict[str, Any]:
+    """Write a real inquiry through the hosted API and require the row id back.
+
+    ``db: connected`` only proves the process can reach Postgres. The claim a
+    client cares about — "the form works" — needs an INSERT that returns an id,
+    plus the validation layer rejecting a malformed submission rather than
+    storing it. Cold starts are polled out; a target a shell rewrote into a
+    filesystem path is named, never posted to.
+
+    ``status`` is one of ``verified``, ``target-invalid``, ``write-failed``,
+    ``write-unconfirmed`` or ``validation-not-enforced``.
+    """
+    start = time.perf_counter()
+    base_api = normalize_url(api_url)
+    if LOCAL_PATH_RE.match(api_url or "") or not base_api:
+        return {"ok": False, "status": "target-invalid", "url": api_url, "id": "",
+                "attempts": 0, "elapsed_ms": 0,
+                "failures": [f"API target {api_url!r} is not an http(s) URL — a Git Bash/MSYS "
+                             "shell rewrote a leading-slash path"]}
+
+    suffix = "" if base_api.rstrip("/").endswith("/contact") else "/" + path.strip("/")
+    url = base_api.rstrip("/") + suffix
+
+    deadline = time.time() + max(1, timeout)
+    attempts = 0
+    written = _PostResult()
+    while True:
+        attempts += 1
+        written = _submit(url, CONTACT_PROBE_PAYLOAD)
+        if written.record_id:
+            break
+        if time.time() + poll_interval >= deadline:
+            break
+        time.sleep(poll_interval)
+
+    elapsed = int((time.perf_counter() - start) * 1000)
+    base = {"url": url, "attempts": attempts, "elapsed_ms": elapsed,
+            "status_code": written.status, "id": written.record_id}
+
+    if not written.record_id:
+        reason = written.error or f"HTTP {written.status}" or "no response"
+        status = "write-unconfirmed" if written.status in {200, 201} else "write-failed"
+        detail = ("the contact form returned a success code but no row id, so nothing proves the "
+                  "inquiry was stored" if status == "write-unconfirmed"
+                  else f"the hosted contact form did not accept a real submission ({reason})")
+        return {**base, "ok": False, "status": status, "failures": [detail]}
+
+    rejected = _submit(url, CONTACT_PROBE_REJECTED)
+    if rejected.ok:
+        return {**base, "ok": False, "status": "validation-not-enforced",
+                "failures": ["the hosted API stored a submission with an empty name, a malformed "
+                             "email and a 5-character message — the form is live but its validation "
+                             "is not, which is not something to hand a client"]}
+    return {**base, "ok": True, "status": "verified", "failures": []}
+
+
+class _PostResult:
+    __slots__ = ("ok", "status", "error", "record_id")
+
+    def __init__(self, ok=False, status=0, error="", record_id=""):
+        self.ok = ok
+        self.status = status
+        self.error = error
+        self.record_id = record_id
+
+
+def _submit(url: str, payload: Dict[str, Any]) -> _PostResult:
+    result = _post_json(url, payload)
+    record_id = ""
+    if result.ok:
+        try:
+            body = json.loads(result.body)
+        except ValueError:
+            body = None
+        if isinstance(body, dict):
+            data = body.get("data")
+            if isinstance(data, dict):
+                record_id = str(data.get("id") or "")
+            else:
+                record_id = str(body.get("id") or "")
+    return _PostResult(result.ok, result.status, result.error, record_id)
 
 
 def expected_routes(project_dir: str) -> List[str]:

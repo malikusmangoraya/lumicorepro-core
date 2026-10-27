@@ -107,18 +107,18 @@ def main():
     parser.add_argument("--dest", type=str, default="generated-projects/fullstack-demo", help="Target output folder for full-stack generation")
     parser.add_argument("--project-name", type=str, default="lumicore_reflex_app", help="Reflex package name (lowercase letters, digits, underscores)")
     parser.add_argument("--style", type=str, help="Design style (35 available): minimalism, maximalism, glassmorphism, cyberpunk, swiss, y2k, editorial, luxury, corporate, playful, bold, brutalism, bento_grid, + 22 more")
-    parser.add_argument("--factory", type=str, metavar="PROJECT_DIR", help="Run the full delivery pipeline: build → tests → QA → deploy → live verify → demo video")
+    parser.add_argument("--factory", type=str, metavar="PROJECT_DIR", help="Run the full delivery pipeline: build → tests → QA → database + API hosting → deploy → live verify → demo video")
     parser.add_argument("--factory-deploy", type=str, default="vercel",
                         choices=("vercel", "netlify", "railway", "github-pages", "none"),
-                        help="Deploy target for --factory (default vercel; 'none' builds/tests/videos only)")
+                        help="Deploy target for --factory (default vercel; 'none' builds/tests/videos only and reports 'built', never 'delivered')")
     parser.add_argument("--factory-no-video", action="store_true", help="Skip the demo video stage")
     parser.add_argument("--factory-skip-build", action="store_true", help="Reuse an existing frontend/dist")
     parser.add_argument("--factory-name", type=str, default="", help="Product name used in the demo video")
     parser.add_argument("--factory-tagline", type=str, default="", help="Tagline used in the demo video")
-    parser.add_argument("--factory-api-url", type=str, default="", help="Public API base URL baked into the build (VITE_API_URL); its api/v1/health route is probed unless --factory-api-health says otherwise")
-    parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy. Write it without a leading slash (api/v1/health): Git Bash rewrites /api/v1/health into a local D:/ path")
+    parser.add_argument("--factory-api-url", type=str, default="", help="Already-hosted API base URL to bake into the build (VITE_API_URL). Leave empty and the factory provisions its own Neon database and deploys backend/ to <slug>-api on Vercel")
+    parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy. Leave empty to use the generated contract (api/v1/health). Write it without a leading slash: Git Bash rewrites /api/v1/health into a local D:/ path")
     parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
-    parser.add_argument("--deliver", type=str, metavar="PROMPT", help="One prompt → generate + build + test + QA + deploy + verify + demo video")
+    parser.add_argument("--deliver", type=str, metavar="PROMPT", help="One prompt → generate + build + test + QA + database + hosted API + deploy + verify + demo video")
     parser.add_argument("--deliver-root", type=str,
                         default=str(Path(__file__).resolve().parent.parent / "generated-projects"),
                         help="Directory that receives the generated project")

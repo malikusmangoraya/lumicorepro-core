@@ -39,11 +39,23 @@ The report is written to `<project>/.factory/report.json` and `.factory/report.m
 | Stage | Pass condition | Evidence |
 |-------|----------------|----------|
 | `build` | `npm run build` exits 0 **and** `frontend/dist/index.html` exists | command tail, dist path |
-| `backend_tests` | generated backend `npm test` exits 0 (no tests = failure) | exit code, output tail |
+| `backend_tests` | `npm install` in `backend/` succeeds, the project owns at least one `*.test.js`, and `npm test` exits 0 | install + test tails, cwd |
 | `qa` | browser QA reports `passed` at 375/768/1024/1440 | screenshots, console errors, overflow |
-| `deploy` | platform CLI exits 0 and prints a URL | deployment id, URL |
+| `database` | a per-product Postgres database exists, its URL was handed to the API **and** written into the delivered `backend/.env` | database name, host (never the credential) |
+| `api` | `backend/` is deployed and its hosted `/api/v1/health` answers 200 with `db: connected` | API URL, health URL, deployment id |
+| `deploy` | the platform CLI prints a URL **and** `verify_site` passes against it — an exit code alone is not a delivery | deployment id, URL, per-check evidence |
 | live verify | HTTP 200, real `<title>`, app shell, every referenced JS/CSS asset, every expected SPA route, optional marker + API health | status codes, failures, timings |
+| `handshake` | the deployed frontend's origin is allowed by the API's CORS, and `POST /api/v1/contact` writes a real row that returns an id while a malformed submission is rejected | probe row id, validation status |
 | `video` | ffprobe reports video stream + audio stream and duration within 30 % of the 120 s target | duration, resolution, codecs, scene list |
+
+**A project with `backend/` hosts itself.** When no `--factory-api-url` is passed, the
+run provisions a database (`agent/db_provision.py`), deploys `backend/` to its own
+`<slug>-api` project (`deploy_engine.deploy_backend`), bakes that origin into
+`VITE_API_URL`, redeploys the API with `CORS_ORIGIN` pinned to the frontend, and only
+then calls the API a success. `delivered` additionally requires the handshake stage — a
+health endpoint alone proves the process started, not that a client can save data. This
+needs `NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env`; without it the run stops as
+`database not provisioned` instead of shipping a form that cannot write.
 
 **API hosting is a separate stage by design.** Vercel/Netlify/GitHub Pages serve the
 frontend only. When the project contains `backend/`, a run with a hosted API must pass
@@ -55,7 +67,84 @@ path. The generated `backend/.env.example` lists every required variable.
 
 `status: live` is never returned for an empty URL, a login wall, a platform error page, or
 a broken bundle. The deploy result uses `deployed-unverified` instead, with the failing
-checks attached.
+checks attached, and a deployment that answers with the Vercel login page is reported as
+`deployed-protected` — hosted, unreachable, and never a delivery.
+
+## Environment blocks
+
+Windows App Control judges a native binary by file hash, so a freshly written
+`@rollup/rollup-win32-x64-msvc` can be refused while an older copy of the same package
+loads all day. `npm run build` then dies with `ERR_DLOPEN_FAILED` before anything is
+deployed — on generated code that was never the problem.
+
+`agent/native_binary_repair.py` handles it inside the build stage: it reads the blocked
+path out of the refusal, finds the same package in another install **in this repository**
+(exact version preferred, otherwise the same `major.minor`), copies it over, and retries —
+at most twice, and only for a file inside the project being built. Nothing is downloaded,
+and the report carries a warning naming both versions, so the substitution is auditable
+instead of silent. With no compatible copy the run stops as `no-compatible-copy` and tells
+you to unblock the file in Windows Security; it never guesses at a binary. A normal
+compile error is still a hard stop after a single build attempt.
+
+### Deployment protection
+
+A project created by the CLI inherits the team's **Require Vercel Authentication**
+default. Every `*.vercel.app` URL then answers HTTP 200 with a login page: the API is
+really running, the health probe sees HTML instead of JSON, and no client — or verifier —
+can get through. The factory therefore runs
+
+```
+vercel project protection disable <project> --sso
+```
+
+for the API project before the first probe, repeats it and re-verifies for a frontend that
+still shows a wall, and records the result as `protection` in the deploy evidence. If the
+wall survives, the stage is `deployed-protected` and the failure line names the project and
+the command, because at that point it is an account permission, not something the pipeline
+can switch. A missing asset never triggers this path — protection cannot fix a broken
+bundle, and pretending otherwise would blame the platform for the project's own defect.
+
+### Which API URL gets baked
+
+`vercel deploy --prod` prints two addresses: the permanent project domain on the
+`▲ Aliased` line and a per-deployment URL (`<name>-<hash>-<team>.vercel.app`) that is
+minted again on the next run. Only the aliased domain is baked into the shipped bundle —
+a deployment URL would move the API out from under a build the client already has. The
+short `https://<name>.vercel.app` form is global and can belong to a different tenant, so
+it is used only when the CLI printed it; otherwise the factory probes what the CLI
+actually reported and keeps the first host that answers with the generated health payload.
+
+## Client handoff
+
+`.factory/report.md` ends with a **Client handoff** block generated from the real
+evidence, so the message you paste to a client cannot contain an URL that was never
+verified:
+
+```
+## Client handoff
+
+- **Frontend (live):** `https://<slug>.vercel.app`
+- **API (live):** `https://<slug>-api.vercel.app` (or `<slug>-api-<word>.vercel.app` when
+  the short domain is already taken — the report always prints the one that answered)
+- **API health:** `https://<slug>-api.vercel.app/api/v1/health`
+- **Database:** `<slug>@ep-xxx-yyy.us-east-1.aws.neon.tech`
+- **Demo video:** `.factory/demo.mp4` (narration and subtitles in `.factory/video/`)
+- **API runtime variables set:** DATABASE_URL, JWT_SECRET, ENCRYPTION_KEY, BRAND_NAME,
+  APP_URL (values are stored on the hosting platform, never in this report)
+- **Form round-trip:** a real inquiry was stored (row `7`) — delete it before the demo
+  if you want an empty inbox
+- **Secrets:** the signing/encryption keys live in `backend/.env` and on the hosting
+  platform. Rotate them if either is shared.
+
+## Not proven
+
+Nothing — every stage above was verified against the live deployment.
+```
+
+Anything the pipeline could not prove is listed under **Not proven** — never omitted,
+never softened into a pass. The probe row exists because a 200 from `/health` does not
+prove a form can save; the run inserts one real row and reports its id so you can remove
+it.
 
 ## Deployment targets
 
@@ -112,6 +201,10 @@ brands get measurably different systems (asserted in `tests/test_design_forge.py
 
 ## Hosting the Express API
 
+By default the factory hosts it for you — see "A project with `backend/` hosts itself"
+above. The table below is for **bringing your own** API host, in which case pass
+`--factory-api-url` and the run skips provisioning and only verifies what you handed over.
+
 Static hosts (Vercel/Netlify/Pages) serve the **frontend** only. The generated `backend/`
 is a normal Express + PostgreSQL service; pick one:
 
@@ -140,6 +233,18 @@ curl -s https://<slug>-api.vercel.app/api/v1/health
 
 A trailing `\r` becomes part of the variable, so a CRLF env file silently corrupts
 `DATABASE_URL`, `CORS_ORIGIN` and every API key — strip it, and never `echo` the values.
+
+### What lands in the delivered `backend/.env`
+
+When the factory provisions the database itself, it writes the resolved `DATABASE_URL`
+into `backend/.env` beside the generated `JWT_SECRET` and `ENCRYPTION_KEY`. The hosted API
+receives the URL as an argument either way, so omitting it used to produce a delivery that
+verified `db: connected` remotely while the delivered folder's own `npm run db:migrate` read
+an env file with no database and quietly targeted localhost. `CORS_ORIGIN` is the one value
+that is **not** written locally: the CORS-lock pass passes the production origin, and a
+delivered server pinned to it would refuse its own dev client. The file is covered by
+`backend/.gitignore` (`.env*`) and `.vercelignore`, so the credential is never committed
+and never uploaded in the deployment source.
 
 Required variables (all documented in `backend/.env.example`):
 
@@ -198,9 +303,13 @@ sources; `/api/v1/ai/generate` streams with SSE.
 | Needed | Why | Where |
 |--------|-----|-------|
 | A real LLM key (`GROQ_API_KEY`/`GROK_API_KEY`, `XAI_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`) | chat/generate endpoints; placeholders return 401 | `.env` / hosting env |
-| A PostgreSQL URL | auth, records, contact, RAG | Railway/Render/Neon |
-| Vercel CLI login (present on this machine) or `VERCEL_TOKEN` | frontend deploy | already configured |
-| Railway token + public domain, or Render account | API deploy + health verification | Railway/Render dashboard |
+| `NEON_TEMPLATE_DATABASE_URL` | the factory creates one database per product and the API must reach it | `ai-agent/.env` (git-ignored) |
+| A PostgreSQL URL | auth, records, contact, RAG | issued per product by `agent/db_provision.py`, or your own Railway/Render/Neon |
+| Vercel CLI login (present on this machine) or `VERCEL_TOKEN` | frontend **and** `backend/` deploy | already configured |
+| Railway token + public domain, or Render account | self-hosted API + health verification | Railway/Render dashboard |
+
+Without `NEON_TEMPLATE_DATABASE_URL` a backend run stops at `database not provisioned`
+rather than deploying an API that cannot connect — and it says so in the report.
 
 ## HTTP API
 
@@ -245,6 +354,30 @@ POST /api/factory/run
 → { "success": true, "data": { "job_id": "…", "status": "queued", "poll": "/api/factory/jobs/…" } }
 ```
 
+## Reference run (2026-10-27) — one prompt, nothing else
+
+Input was exactly one sentence and nothing was touched afterwards:
+
+```bash
+py ai-agent/main.py --deliver 'Build "ShipSignal", a SaaS that turns product changelogs
+into automated release notes, weekly email digests and a public status page for software teams.'
+```
+
+| Artifact | Evidence |
+|----------|----------|
+| Generated | 60 full-stack files from the prompt (brand, industry, pages, API, schema, tests) |
+| Build | Windows App Control blocked the freshly installed rollup binary; the pipeline restored a compatible local copy, warned in the report, and the build passed |
+| Database | Neon database `shipsignal` created by the run — no `createdb`, no dashboard |
+| API hosting | https://shipsignal-api.vercel.app — `protection: public` (set by the pipeline), `/api/v1/health` → `{status: healthy, db: connected}` on the first probe |
+| Bundle | the API origin was baked in: `api_baked.ok` true against the aliased domain |
+| Frontend | https://shipsignal-lime.vercel.app/ — 7 SPA routes 200, 2/2 assets, CSS fully processed |
+| Form round-trip | a real inquiry stored through the hosted API (row `46bc7b8d…`) |
+| Demo video | `.factory/demo.mp4` — 136.59 s, 1920×1080, verified |
+| Report | `.factory/report.md` → `delivered`, all eight stages PASS, no credential in either file |
+
+Total elapsed: 551 s end to end for a product that is live, reachable by a stranger, and
+demonstrably writing rows.
+
 ## Reference run (2026-10-24)
 
 | Artifact | Evidence |
@@ -254,7 +387,8 @@ POST /api/factory/run
 | Demo video | `.factory/demo.mp4` — 120.02 s, 1920×1080, H.264 + AAC, 9 narrated scenes, SRT included |
 | QA | 0 console errors, 0 page errors, 4 collapse samples at 375/768/1024/1440 |
 | Backend | 5 `node --test` tests green |
-| Report | `.factory/report.json` → `status: delivered`, `verified: true` |
+| Report | `.factory/report.json` — recorded `status: delivered` **before the full-stack gate existed**; the same run today is `partial`, because nothing hosted the API |
+
 
 That run used the offline Windows SAPI voice because Edge TTS returned HTTP 403 on
 this network; the fallback is part of the pipeline, not a workaround.
@@ -265,4 +399,14 @@ this network; the fallback is part of the pipeline, not a workaround.
 - Browser QA is a hard gate by default (`allow_qa_fail` exists for deliberate exceptions and
   is recorded in the report as a failure).
 - An unverified deployment or video keeps the run `partial`; it is never `delivered`.
+- A project with `backend/` is `partial` unless its database was provisioned, its hosted
+  health reports the database reachable, and the contact probe wrote a real row.
+- A health payload without a `db` field is treated as no evidence at all
+  (`db-not-proven`): the old static `{status: healthy}` response is exactly what a
+  deployment with an offline database returns.
 - Toolchain gaps return `unavailable` with the missing list instead of a half-made artifact.
+- The stage lines in `report.md` are a projection of the stage evidence, never a second
+  opinion: a stage that passed renders PASS. A `delivered` run whose markdown still
+  contains a `FAIL/UNVERIFIED` line is a reporting bug and is pinned as one
+  (`test_a_delivered_report_never_labels_a_stage_as_failed`) — a client cannot be handed a
+  report that contradicts its own headline.
