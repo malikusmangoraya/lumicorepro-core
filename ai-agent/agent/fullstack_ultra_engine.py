@@ -131,6 +131,20 @@ CORS_ORIGIN=http://localhost:5173
 # Uploads directory. Serverless hosts need a writable path: /tmp/uploads
 UPLOAD_DIR=uploads/
 
+# Live change feed (GET /api/v1/events, Server-Sent Events).
+# The feed reads Postgres, so these only tune latency and lifetime.
+# Poll interval in ms; with REDIS_URL set a write wakes the stream immediately.
+SSE_POLL_MS=1000
+# How long one stream is held before the server closes it and the browser
+# reconnects. Keep this BELOW your host's function timeout (Vercel: 60s).
+SSE_MAX_MS=45000
+# Open streams per process before a new one is refused with 503.
+SSE_MAX_CLIENTS=64
+# OPTIONAL: fan each change out across instances/machines instead of polling.
+# Needs `npm i redis` in backend/ — without it the feed still works.
+REDIS_URL=
+SSE_CHANNEL=lumicore:changes
+
 # AI chat — the provider key is stored per-user in the encrypted key vault,
 # these set the defaults the client offers.
 AI_PROVIDER=groq

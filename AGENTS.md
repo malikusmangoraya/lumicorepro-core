@@ -114,7 +114,7 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 |------|------|----------|--------|------------------------|
 | Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **62.74% stmts (honest full-tree) — 1020 tests / 128 files, ratchet gate active** |
 | Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.8% statements (5158/6895) — 82 suites / 1903 tests, ratchet gate active** |
-| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1530 tests + 121 subtests green** (2026-10-27; incl. factory / live-verify / deploy / demo-video / design suites) |
+| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1570 tests + 121 subtests green** (2026-10-27; incl. factory / live-verify / deploy / demo-video / design suites) |
 | E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
@@ -421,6 +421,35 @@ deploys → that origin is baked as `VITE_API_URL` and the frontend is deployed 
   proves the process booted; only an INSERT returning a row id proves a client can save.
   A probe accepted *without* validation is also a failure (`validation-not-enforced`) —
   a form that stores garbage is not "working".
+- **`delivered` now walks the whole client journey, not one route.** `verify_api_surface()`
+  registers, logs in, lists, creates, reads the row back, updates it, is refused on a blank
+  title, then registers a **second** account and demands it cannot read, list or delete the
+  first one's row, and that `GET /records` without a token is not a 2xx, and finally deletes
+  the probe row and expects a 404. Each step has its own status (`create-failed`,
+  `update-failed`, `tenant-isolation-broken`, `auth-not-enforced`, `delete-failed`) because
+  these routes shipped broken *independently*, and an IDOR is not visible from `/health`
+  (`test_a_route_that_breaks_the_client_journey_is_not_delivered`).
+- **"Live updates" is a measured claim.** `verify_realtime_feed()` opens `GET /api/v1/events`
+  with the token in the query string — the only transport EventSource can use — waits for
+  `event: ready`, writes a row, and requires a `record:changed` frame carrying that row's id
+  within the event budget. A feed that opens but never fires leaves the client's polling
+  fallback in place, so the page *looks* alive while the push is dead (`no-event`). A frame
+  that carries `email`/`message`/`body`/`name`/`phone` fails as `pii-in-feed`: the signal is
+  an id and a timestamp, not the inquiry text broadcast to every open dashboard.
+- **Every generated product ships the feed, and the feed closes itself.** `routes/events.js`
+  serves `GET /api/v1/events` (query-string token, since EventSource cannot set headers),
+  self-terminates at `SSE_MAX_MS=45000` — below the 60 s platform function limit — resumes by
+  `Last-Event-ID` over a `(created_at, id)` keyset cursor, caps concurrency at
+  `SSE_MAX_CLIENTS=64` with a 503, and answers with `Cache-Control: no-cache, no-transform`
+  plus `X-Accel-Buffering: no` so no proxy buffers the frames. The client hook
+  `useRealtime.js` degrades to polling after 4 failed streams and reconciles every 60 s. A
+  stream that outlives the platform timeout is a feed that looks live and is not.
+- **The probes clean up after themselves, on the failure paths too.** `leftovers` must be
+  empty: a proof that dies mid-way still deletes its row, or the buyer's demo opens on
+  factory data. The probe identity is per-product (`probe_email_for()` derives it from the
+  API host) so two delivered projects sharing a DB cluster never share a user, and the
+  session token the surface proof mints is passed to the feed call but is **never** copied
+  into `report.json`/`report.md` (`test_the_session_the_probe_signed_with_never_reaches_the_report`).
 - **A health payload with no `db` field is no evidence** (`db-not-proven`): the retired
   static `{status: healthy}` is exactly what an unreachable-database deployment reported as live.
 - **`NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env` is the one credential the owner supplies.**
@@ -547,6 +576,7 @@ truncated its final sections (this one included).
 
 | Date | Ver | Summary |
 |------|-----|---------|
+| 2026-10-27 | 8.32 | **Factory v4 — `delivered` proves the client journey and the live push**: `verify_api_surface()` walks register → login → list → create → read-back → update → blank-title rejection → second-tenant isolation → anonymous-denied → delete-then-404 over the live origin; `verify_realtime_feed()` requires a `record:changed` frame for a row written while the stream was open and rejects frames carrying customer PII; both probes delete their own rows even when they fail, and the session token they mint never enters the report |
 | 2026-10-27 | 8.31 | **Factory v3 — one prompt leaves the whole stack live**: auto-provisioned Postgres (`db_provision.py`), auto-hosted Express API with `db: connected` proof, Vercel Deployment Protection opened for demo (`deployed-protected` when it survives), only the `Aliased` domain baked, Windows native-bundler policy block self-repaired, provisioned `DATABASE_URL` persisted into the delivered `backend/.env`, and the report can no longer label a passing stage as failed. Proven end to end by ShipSignal in 551 s with zero manual steps |
 | 2026-10-24 | 8.30 | **Factory v2**: one-prompt delivery (`--deliver`), SSE progress, brand-derived design system (4 archetypes/fonts/radius), Groq/xAI providers with custom base URLs, free gTTS narration fallback, CSS-processing deploy gate, in-place regeneration; generated apps get a real contact API, schema, backend tests, PostCSS config |
 | 2026-10-24 | 8.29 | **Website Factory**: build → backend tests → browser QA → deploy → live verification → 2-minute demo video, all evidence-gated; Vercel/Netlify/Railway/Pages connectors no longer report live without a verified URL; real marketing pages + working contact API in generated sites; 1351 AI tests |

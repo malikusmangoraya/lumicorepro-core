@@ -257,27 +257,60 @@ def _lock_api_cors(project: Path, database_url: str, frontend_url: str, progress
             if key in result}
 
 
-def _prove_api(api_url: str, health_target: str, progress=None) -> Dict[str, Any]:
-    """Prove the hosted API answers, the database is reachable, and a form writes.
+_PROOF_LABELS = {
+    "health": "the hosted API never proved its database is reachable",
+    "write": "the hosted contact form never wrote a real row",
+    "surface": "the hosted API never answered the client journey its own routes promise",
+    "feed": "the hosted change feed never pushed an event to an open dashboard",
+}
 
-    ``db: connected`` shows the process can reach Postgres; only an INSERT that
-    returns a row id shows the product works well enough to demo to a client.
+
+def _not_proven(reason: str) -> Dict[str, Any]:
+    """A proof that never ran is a failure, not a blank — it must read as one."""
+    return {"ok": False, "status": "not-probed", "failures": [reason]}
+
+
+def _prove_api(api_url: str, health_target: str, progress=None) -> Dict[str, Any]:
+    """Prove the hosted API is a product, not a process that happens to boot.
+
+    Four separate claims, each with its own evidence: the health endpoint reaches
+    Postgres, the contact form stores a row, every generated endpoint answers a
+    real client journey (register, list, create, read, update, delete) with the
+    tenant checks that go with it, and the change feed pushes an event while a
+    dashboard is listening. A 200 from `/health` proves none of those.
     """
-    from agent.live_verify import verify_api_health, verify_contact_write
+    from agent.live_verify import (
+        verify_api_health,
+        verify_api_surface,
+        verify_contact_write,
+        verify_realtime_feed,
+    )
 
     _emit(progress, "handshake", "running", api=api_url)
     health = verify_api_health(health_target, timeout=120) if health_target else {
         "ok": False, "status": "target-invalid", "failures": ["no health target"]}
-    write = verify_contact_write(api_url, timeout=60) if health.get("ok") else {
-        "ok": False, "status": "write-skipped",
-        "failures": ["the contact form was not probed because the API health check failed"]}
+    write = verify_contact_write(api_url, timeout=60) if health.get("ok") else _not_proven(
+        "the contact form was not probed because the API health check failed")
+    surface = verify_api_surface(api_url, timeout=90) if write.get("ok") else _not_proven(
+        "the endpoint surface was not probed because the contact form did not write")
+    feed = verify_realtime_feed(api_url, str(surface.get("token") or ""), timeout=45,
+                                event_timeout=10.0) if surface.get("ok") else _not_proven(
+        "the live feed was not probed because the endpoint surface check failed")
+
+    stages = [("health", health), ("write", write), ("surface", surface), ("feed", feed)]
+    failing = [pair for pair in stages if not pair[1].get("ok")]
     evidence = {
-        "ok": bool(health.get("ok")) and bool(write.get("ok")),
-        "status": "verified" if (health.get("ok") and write.get("ok"))
-                  else (health.get("status") if not health.get("ok") else write.get("status")),
+        "ok": not failing,
+        "status": "verified" if not failing else failing[0][1].get("status"),
         "health": {key: health.get(key) for key in ("ok", "status", "url", "body")},
         "write": {key: write.get(key) for key in ("ok", "status", "url", "id")},
-        "failures": list(health.get("failures") or []) + list(write.get("failures") or []),
+        # `token` is a live session credential: it is read for the feed call above
+        # and deliberately never copied into the evidence the report is built from.
+        "surface": {key: surface.get(key) for key in
+                    ("ok", "status", "url", "proven", "leftovers")},
+        "feed": {key: feed.get(key) for key in
+                 ("ok", "status", "events", "latency_ms", "id", "leftovers")},
+        "failures": [str(f) for _, stage in stages for f in (stage.get("failures") or [])],
     }
     _emit(progress, "handshake", "done" if evidence["ok"] else "failed",
           proof=evidence["status"], failures=evidence["failures"])
@@ -733,8 +766,15 @@ def run_factory(
         elif not deployment.get("api_deployed"):
             failures.append("the API origin the deployed frontend calls did not pass its health check")
         if not handshake.get("ok"):
-            failures.append("the hosted contact form never wrote a real row "
-                            f"({handshake.get('status')}: {'; '.join(handshake.get('failures') or [])})")
+            # Name the proof that failed, not just "the API is broken": a database
+            # that cannot be reached, a route that 500s, a missing tenant check and
+            # a dead change feed are four different things for someone to fix.
+            first_failed = next(
+                (key for key in ("health", "write", "surface", "feed")
+                 if not (handshake.get(key) or {}).get("ok")), "health")
+            failures.append(
+                f"{_PROOF_LABELS[first_failed]} ({(handshake.get(first_failed) or {}).get('status')}: "
+                f"{'; '.join(str(f) for f in handshake.get('failures') or [])})")
     if video and not report["stages"].get("video", {}).get("verified"):
         failures.append("demo video not verified")
     if not qa.get("ok"):
@@ -789,6 +829,19 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
         lines.append(f"- **Form round-trip:** a real inquiry was stored "
                      f"(row `{handshake['write']['id']}`) — delete it before the demo if you "
                      "want an empty inbox")
+    surface = handshake.get("surface") or {}
+    if surface.get("proven"):
+        lines.append(f"- **API surface:** {' → '.join(surface['proven'])} — each answered over "
+                     "the live origin, and a second account was proved unable to read the "
+                     "first one's rows")
+    feed = handshake.get("feed") or {}
+    if feed.get("latency_ms"):
+        lines.append(f"- **Live updates:** a write reached an open dashboard in "
+                     f"{feed['latency_ms']} ms (frames seen: {', '.join(feed.get('events') or [])})")
+    stray = list(surface.get("leftovers") or []) + list(feed.get("leftovers") or [])
+    if stray:
+        lines.append(f"- **Clean-up owed:** the run could not remove its own probe rows "
+                     f"({', '.join(f'`{i}`' for i in stray)}) — delete them before the demo")
     lines.append("- **Secrets:** the signing/encryption keys live in `backend/.env` and on the "
                  "hosting platform. Rotate them if either is shared.")
 

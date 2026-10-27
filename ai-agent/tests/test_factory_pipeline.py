@@ -158,7 +158,7 @@ class FactoryPipelineTests(unittest.TestCase):
             good = {"verified": True, "status": "verified", "checks": {"api": {"ok": True}}}
             with patch.object(factory, "build_project", return_value={"ok": True, "dist": "/tmp"}),                  patch.object(factory, "test_backend", return_value={"ok": True}),                  patch.object(factory, "run_qa", return_value={"ok": True, "status": "passed"}),                  patch("agent.deploy_engine.deploy_project", return_value={
                      "status": "live", "verified": True, "url": "https://x",
-                 }),                  patch("agent.live_verify.verify_site", return_value=good),                  patch("agent.live_verify.verify_api_health", return_value={"ok": True, "status": "verified"}),                  patch("agent.live_verify.verify_contact_write", return_value={"ok": True, "status": "verified", "id": "row-1"}),                  patch("agent.demo_video.generate_demo_video", return_value={
+                 }),                  patch("agent.live_verify.verify_site", return_value=good),                  patch("agent.live_verify.verify_api_health", return_value={"ok": True, "status": "verified"}),                  patch("agent.live_verify.verify_contact_write", return_value={"ok": True, "status": "verified", "id": "row-1"}),                  patch("agent.live_verify.verify_api_surface", return_value={"ok": True, "status": "verified", "proven": ["POST /api/v1/records"], "leftovers": []}),                  patch("agent.live_verify.verify_realtime_feed", return_value={"ok": True, "status": "verified", "latency_ms": 400, "events": ["ready"], "leftovers": []}),                  patch("agent.demo_video.generate_demo_video", return_value={
                      "status": "ready", "verified": True,
                  }):
                 result = factory.run_factory(
@@ -188,6 +188,12 @@ class FactoryPipelineTests(unittest.TestCase):
                        return_value={"ok": True, "status": "verified"}), \
                  patch("agent.live_verify.verify_contact_write",
                        return_value={"ok": True, "status": "verified", "id": "row-1"}), \
+                 patch("agent.live_verify.verify_api_surface",
+                       return_value={"ok": True, "status": "verified", "proven": ["POST /api/v1/records"],
+                                     "leftovers": []}), \
+                 patch("agent.live_verify.verify_realtime_feed",
+                       return_value={"ok": True, "status": "verified", "latency_ms": 400,
+                                     "events": ["ready"], "leftovers": []}), \
                  patch("agent.demo_video.generate_demo_video", return_value={
                      "status": "ready", "verified": True,
                  }):
@@ -272,6 +278,12 @@ class FullStackHostingTests(unittest.TestCase):
                    "host": "ep-example.us-east-1.aws.neon.tech", "message": ""}
     VERIFIED_SITE = {"verified": True, "status": "verified", "checks": {"api": {"ok": True}}}
     WRITE_OK = {"ok": True, "status": "verified", "id": "3f9a", "url": "https://site-api.vercel.app/api/v1/contact"}
+    SURFACE_OK = {"ok": True, "status": "verified", "token": "jwt.secret-signing-output",
+                  "proven": ["POST /api/v1/auth/register", "GET /api/v1/records",
+                             "DELETE /api/v1/records/:id"],
+                  "leftovers": [], "url": "https://site-api.vercel.app"}
+    FEED_OK = {"ok": True, "status": "verified", "latency_ms": 412, "id": "row-7",
+               "events": ["ready", "record:changed", "cleaned"], "leftovers": []}
 
     def _project_with_backend(self, tmp: str) -> Path:
         project = _project(Path(tmp) / "site")
@@ -280,7 +292,7 @@ class FullStackHostingTests(unittest.TestCase):
         return project
 
     def _stages(self, project, result, *, api_deploy=None, provision=None, write=None,
-                verify_site_result=None, deploy_result=None, build=None):
+                surface=None, feed=None, verify_site_result=None, deploy_result=None, build=None):
         """Run the factory with every external boundary stubbed."""
         site_evidence = verify_site_result or self.VERIFIED_SITE
         frontend = deploy_result or {"status": "live", "verified": True,
@@ -300,11 +312,16 @@ class FullStackHostingTests(unittest.TestCase):
                        return_value={"ok": True, "status": "verified"}), \
                  patch("agent.live_verify.verify_contact_write",
                        write or Mock(return_value=self.WRITE_OK)) as write_mock, \
+                 patch("agent.live_verify.verify_api_surface",
+                       surface or Mock(return_value=self.SURFACE_OK)) as surface_mock, \
+                 patch("agent.live_verify.verify_realtime_feed",
+                       feed or Mock(return_value=self.FEED_OK)) as feed_mock, \
                  patch("agent.demo_video.generate_demo_video",
                        return_value={"status": "ready", "verified": True, "duration_seconds": 120.0}):
             out = factory.run_factory(str(project), deploy="vercel", video=False, name="Acme")
         return out, {"db": db_mock, "api": api_mock, "frontend": front_mock,
-                     "write": write_mock, "build": builds}
+                     "write": write_mock, "surface": surface_mock, "feed": feed_mock,
+                     "build": builds}
 
     def test_the_database_is_provisioned_before_the_api_is_deployed(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -418,6 +435,10 @@ class FullStackHostingTests(unittest.TestCase):
                        return_value={"ok": True, "status": "verified"}), \
                  patch("agent.live_verify.verify_contact_write",
                        return_value=self.WRITE_OK), \
+                 patch("agent.live_verify.verify_api_surface",
+                       return_value=self.SURFACE_OK), \
+                 patch("agent.live_verify.verify_realtime_feed",
+                       return_value=self.FEED_OK), \
                  patch("agent.demo_video.generate_demo_video",
                        return_value={"status": "ready", "verified": True}):
                 out = factory.run_factory(str(project), deploy="vercel", video=False,
@@ -450,6 +471,67 @@ class FullStackHostingTests(unittest.TestCase):
             text = (project / ".factory" / "report.md").read_text(encoding="utf-8")
             self.assertNotIn("FAIL/UNVERIFIED", text, text)
             self.assertIn("## database — PASS", text)
+
+    def test_a_route_that_breaks_the_client_journey_is_not_delivered(self):
+        """`db: connected` and one contact row say nothing about the dashboard's
+        own routes: list, create, read-back, update and delete each shipped broken
+        on their own at least once, and a tenant that can read another's rows is a
+        security bug the health check cannot see."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            broken = {"ok": False, "status": "tenant-isolation-broken",
+                      "failures": ["the second account read the first account's row"],
+                      "proven": ["POST /api/v1/auth/register"], "leftovers": ["row-1"]}
+            out, _ = self._stages(project, "x", surface=Mock(return_value=broken))
+            self.assertEqual(out["status"], "partial", out["failures"])
+            listed = [f for f in out["failures"] if "client journey" in f]
+            self.assertTrue(listed, out["failures"])
+            self.assertIn("tenant-isolation-broken", listed[0])
+            self.assertIn("second account read", listed[0])
+
+    def test_a_dashboard_that_never_gets_the_push_is_not_delivered(self):
+        """The shipped page says "Live updates". A feed that never fires leaves the
+        polling fallback, so the page looks alive while the push is dead."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            dead = {"ok": False, "status": "no-event", "events": ["ready"], "latency_ms": 0,
+                    "leftovers": [], "failures": ["no `record:changed` frame arrived"]}
+            out, _ = self._stages(project, "x", feed=Mock(return_value=dead))
+            self.assertEqual(out["status"], "partial", out["failures"])
+            listed = [f for f in out["failures"] if "change feed" in f]
+            self.assertTrue(listed, out["failures"])
+            self.assertIn("no-event", listed[0])
+
+    def test_the_feed_is_opened_with_the_session_the_endpoint_proof_minted(self):
+        """The change feed is authenticated and EventSource cannot set headers, so
+        the token the surface probe registered has to be the one it connects with."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            out, mocks = self._stages(project, "x")
+            self.assertEqual(mocks["feed"].call_args.args[1], "jwt.secret-signing-output",
+                             out["stages"]["handshake"])
+
+    def test_the_handoff_lists_the_routes_proved_and_the_push_latency(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            out, _ = self._stages(project, "x")
+            text = (project / ".factory" / "report.md").read_text(encoding="utf-8")
+            self.assertIn("API surface", text)
+            self.assertIn("DELETE /api/v1/records/:id", text)
+            self.assertIn("Live updates", text)
+            self.assertIn("412 ms", text)
+            self.assertIn("row `3f9a`", text)
+
+    def test_the_session_the_probe_signed_with_never_reaches_the_report(self):
+        """A report is pasted into a chat with a buyer; the token it carries would
+        open the client's own dashboard as that probe user."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            self._stages(project, "x")
+            for name in ("report.json", "report.md"):
+                evidence = (project / ".factory" / name).read_text(encoding="utf-8")
+                self.assertNotIn("jwt.secret-signing-output", evidence, name)
+                self.assertNotIn("FactoryProbe", evidence, name)
 
     def test_a_static_site_without_a_backend_still_delivers(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -45,7 +45,7 @@ The report is written to `<project>/.factory/report.json` and `.factory/report.m
 | `api` | `backend/` is deployed and its hosted `/api/v1/health` answers 200 with `db: connected` | API URL, health URL, deployment id |
 | `deploy` | the platform CLI prints a URL **and** `verify_site` passes against it — an exit code alone is not a delivery | deployment id, URL, per-check evidence |
 | live verify | HTTP 200, real `<title>`, app shell, every referenced JS/CSS asset, every expected SPA route, optional marker + API health | status codes, failures, timings |
-| `handshake` | the deployed frontend's origin is allowed by the API's CORS, and `POST /api/v1/contact` writes a real row that returns an id while a malformed submission is rejected | probe row id, validation status |
+| `handshake` | four proofs against the live origin: `/api/v1/health` answers `db: connected`; `POST /api/v1/contact` writes a row and returns an id; `verify_api_surface()` walks register → login → list → create → read-back → update → rejects a blank title → proves a **second** account cannot read, list or delete the first one's rows → proves `GET /records` is not world-readable → deletes the probe row and expects a 404; `verify_realtime_feed()` opens `GET /api/v1/events`, waits for `event: ready`, writes a row and requires a `record:changed` frame carrying that id | health body, probe row id, endpoints proved, feed latency in ms, rows left behind |
 | `video` | ffprobe reports video stream + audio stream and duration within 30 % of the 120 s target | duration, resolution, codecs, scene list |
 
 **A project with `backend/` hosts itself.** When no `--factory-api-url` is passed, the
@@ -53,7 +53,9 @@ run provisions a database (`agent/db_provision.py`), deploys `backend/` to its o
 `<slug>-api` project (`deploy_engine.deploy_backend`), bakes that origin into
 `VITE_API_URL`, redeploys the API with `CORS_ORIGIN` pinned to the frontend, and only
 then calls the API a success. `delivered` additionally requires the handshake stage — a
-health endpoint alone proves the process started, not that a client can save data. This
+health endpoint alone proves the process started, not that a client can save data, that the
+dashboard's own routes answer, or that the change feed pushes. Each probe deletes the rows it
+created, and the session token it signed with never enters the report. This
 needs `NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env`; without it the run stops as
 `database not provisioned` instead of shipping a form that cannot write.
 

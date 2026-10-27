@@ -16,7 +16,13 @@
   6. Real dashboard           pages/Dashboard.jsx rewritten: fetch-loop CRUD
                               against /api/v1/records with loading / error /
                               empty / success states
-  7. server.js mounts         /api/v1/records + /api/v1/ai + error handler
+  7. server.js mounts         /api/v1/records + /api/v1/events + /api/v1/ai
+                              + error handler
+  8. Live push                services/changeBus.js + routes/events.routes.js —
+                              an authenticated SSE change feed over Postgres
+                              (Redis optional), and src/hooks/useRealtime.js so
+                              the dashboard reacts without a refresh instead of
+                              asking for it
 
 Idempotent by markers; engine calls ``apply_production_spec`` after file writes.
 """
@@ -64,9 +70,11 @@ server {
         proxy_read_timeout 300s;
     }
 
-    # SSE endpoints must bypass proxy buffering
-    location /api/v1/ai/ {
-        proxy_pass http://backend:5000/api/v1/ai/;
+    # Streaming endpoints must bypass proxy buffering: /ai/* answers SSE token
+    # frames and /events is the change feed. A regex location has to repeat the
+    # original URI, so proxy_pass carries no path here.
+    location ~ ^/api/v1/(ai|events) {
+        proxy_pass http://backend:5000;
         proxy_http_version 1.1;
         proxy_set_header Connection '';
         proxy_buffering off;
@@ -180,7 +188,11 @@ function validate(schema) {
     const body = req.body || {};
     const errors = {};
     for (const [field, rule] of Object.entries(schema)) {
-      const value = body[field];
+      // A field of only whitespace is an empty field: without this a title of
+      // three spaces satisfies min: 1 and the row is stored blank.
+      const raw = body[field];
+      const value = typeof raw === 'string' ? raw.trim() : raw;
+      if (value !== raw) body[field] = value;
       if (value === undefined || value === null || value === '') {
         if (rule.required) errors[field] = `${field} is required`;
         continue;
@@ -236,6 +248,7 @@ const { DataTypes } = require('sequelize'); // engine models/index.js exports { 
 const { sequelize } = require('../models');
 const { jwtSecret } = require('../utils/jwtSecret');
 const { validate } = require('../middleware/validate');
+const { notify } = require('../services/changeBus');
 
 const router = express.Router();
 
@@ -283,6 +296,7 @@ router.post('/', validate(RULES), async (req, res, next) => {
   try {
     const status = ['draft', 'published', 'archived'].includes(req.body.status) ? req.body.status : 'draft';
     const row = await Record.create({ title: req.body.title, body: req.body.body || '', status, userId: req.user.id });
+    notify('records'); // wake every open change feed, including this client's
     res.status(201).json({ success: true, data: row });
   } catch (e) { next(e); }
 });
@@ -296,6 +310,7 @@ router.put('/:id', validate(RULES), async (req, res, next) => {
     if (req.body.body !== undefined) patch.body = req.body.body;
     if (req.body.status && ['draft', 'published', 'archived'].includes(req.body.status)) patch.status = req.body.status;
     await row.update(patch);
+    notify('records');
     res.json({ success: true, data: row });
   } catch (e) { next(e); }
 });
@@ -304,6 +319,7 @@ router.delete('/:id', async (req, res, next) => {
   try {
     const n = await Record.destroy({ where: { id: req.params.id, userId: req.user.id } });
     if (!n) return res.status(404).json({ success: false, message: 'Not found' });
+    notify('records');
     res.json({ success: true, data: { deleted: n } });
   } catch (e) { next(e); }
 });
@@ -311,7 +327,278 @@ router.delete('/:id', async (req, res, next) => {
 module.exports = router;
 """
 
+_CHANGE_BUS_JS = """/** services/changeBus — how a write tells every open stream to look again.
+ *
+ * Default: one Node process, an in-process event. Set REDIS_URL and install the
+ * OPTIONAL `redis` package and the same signal crosses processes and instances,
+ * which is what a multi-region deployment needs.
+ *
+ * Redis is never a requirement. If the package is missing, the URL is unset, or
+ * the server is unreachable, every function here degrades to the in-process
+ * event and the SSE feed falls back to its own poll. A write must never fail
+ * because a cache is down.
+ */
+const { EventEmitter } = require('events');
+
+const CHANNEL = process.env.SSE_CHANNEL || 'lumicore:changes';
+const bus = new EventEmitter();
+bus.setMaxListeners(0);
+
+let publisher = null;
+let subscriber = null;
+let attempt = null;
+
+function attach() {
+  const url = process.env.REDIS_URL;
+  if (!url || attempt) return;
+  let redis;
+  try {
+    redis = require('redis'); // optional dependency: npm i redis
+  } catch (_e) {
+    return; // no client library -> in-process only, the feed still polls
+  }
+  attempt = (async () => {
+    try {
+      publisher = redis.createClient({ url });
+      subscriber = redis.createClient({ url });
+      // node-redis surfaces every socket problem as an 'error' event, and an
+      // unhandled one kills the process — a Redis blip must not take the API with it.
+      publisher.on('error', () => {});
+      subscriber.on('error', () => {});
+      await publisher.connect();
+      await subscriber.connect();
+      await subscriber.subscribe(CHANNEL, (table) => bus.emit('change', table));
+    } catch (_e) {
+      publisher = null;
+      subscriber = null;
+    }
+  })();
+}
+
+/** Announce a committed write. Safe to call whether or not Redis is configured. */
+function notify(table) {
+  bus.emit('change', table);
+  if (publisher) {
+    try {
+      const pending = publisher.publish(CHANNEL, table);
+      if (pending && typeof pending.catch === 'function') pending.catch(() => {});
+    } catch (_e) { /* the poll interval covers this */ }
+  }
+}
+
+/** @returns {() => void} unsubscribe */
+function subscribe(listener) {
+  attach();
+  bus.on('change', listener);
+  return () => bus.off('change', listener);
+}
+
+module.exports = { notify, subscribe, CHANNEL };
+"""
+
+_EVENTS_JS = """/** routes/events — the SSE change feed: the dashboard is told, it does not ask.
+ *
+ * A frame carries { id, feed, at } — a signal, never a payload. Clients refetch
+ * the authoritative rows through the normal authenticated endpoints, so this
+ * route cannot become a second, looser copy of the data API, and an
+ * at-least-once cursor costs nothing more than one extra refetch.
+ *
+ * Two rules hold the design up:
+ *  - tenancy is compiled into the statement (`"userId" = $1` as a bind value),
+ *    so a stream can only ever see its own owner's rows. The inquiry feed is the
+ *    one exception, and it emits only the row id and timestamp: an inquiry
+ *    belongs to its sender, not to whoever happens to be logged in.
+ *  - `EventSource` cannot send an Authorization header, so `?token=` is accepted
+ *    and verified identically. That is the 15-minute access token over HTTPS, not
+ *    a refresh token — and it is why the frames carry no data worth logging.
+ *
+ * Postgres is the source of truth, so the feed works on any host. Redis (see
+ * services/changeBus.js) only shortens latency. The stream closes itself before
+ * a serverless function's maxDuration so the client reconnects on its own terms.
+ */
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const { sequelize } = require('../models');
+const { jwtSecret } = require('../utils/jwtSecret');
+const { subscribe } = require('../services/changeBus');
+
+const router = express.Router();
+
+const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
+const DEFAULTS = { pollMs: 1000, maxMs: 45000, maxClients: 64 };
+const HEARTBEAT_MS = 15000;
+const RECONNECT_MS = 3000;
+const FEED_FAILURE_LIMIT = 3;
+
+// One entry per watched table. Column casing follows each table's own migration
+// (records is underscored:false, contact_messages is underscored:true).
+const FEEDS = [
+  {
+    name: 'records',
+    event: 'record:changed',
+    sql: 'SELECT "id" AS "rowId", "updatedAt" AS "at" FROM records '
+       + 'WHERE "userId" = $1 AND ("updatedAt", "id") > ($2::timestamptz, $3::uuid) '
+       + 'ORDER BY "updatedAt" ASC, "id" ASC LIMIT 50',
+    bind: (cursor, userId) => [userId, cursor.at, cursor.id],
+  },
+  {
+    name: 'contact',
+    event: 'contact:created',
+    sql: 'SELECT id AS "rowId", created_at AS "at" FROM contact_messages '
+       + 'WHERE (created_at, id) > ($1::timestamptz, $2::uuid) '
+       + 'ORDER BY created_at ASC, id ASC LIMIT 50',
+    bind: (cursor) => [cursor.at, cursor.id],
+  },
+];
+
+function envMs(raw, fallback, floor) {
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) return fallback;
+  return Math.max(floor === undefined ? 0 : floor, value);
+}
+
+function subjectOf(req) {
+  const header = String(req.headers.authorization || '');
+  const query = req.query && req.query.token;
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim()
+    : (typeof query === 'string' ? query.trim() : '');
+  if (!token) return { error: 'Login required' };
+  try {
+    const claims = jwt.verify(token, jwtSecret);
+    const id = claims && (claims.id || claims.sub);
+    if (!id) return { error: 'Token carries no subject' };
+    return { id: String(id) };
+  } catch (_e) {
+    return { error: 'Invalid or expired token' };
+  }
+}
+
+function resumeAt(req) {
+  const raw = req.headers && req.headers['last-event-id'];
+  if (typeof raw !== 'string' || !raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+let openStreams = 0;
+
+router.get('/', (req, res) => {
+  const subject = subjectOf(req);
+  if (subject.error) return res.status(401).json({ success: false, message: subject.error });
+
+  const cap = Math.max(1, envMs(process.env.SSE_MAX_CLIENTS, DEFAULTS.maxClients, 1));
+  if (openStreams >= cap) {
+    // Refusing is honest; queueing streams until the process drowns is not.
+    return res.status(503).set({ 'Retry-After': String(Math.ceil(RECONNECT_MS / 1000)) })
+      .json({ success: false, code: 'TOO_MANY_STREAMS',
+              message: 'This API instance is at its open-stream limit; retry shortly' });
+  }
+
+  const pollMs = envMs(process.env.SSE_POLL_MS, DEFAULTS.pollMs, 50);
+  const maxMs = envMs(process.env.SSE_MAX_MS, DEFAULTS.maxMs);
+  // A brand-new visitor starts at now: nobody replays a tenant's history by
+  // opening a stream. A reconnect resumes at its Last-Event-ID instead.
+  const startAt = resumeAt(req) || new Date();
+  const cursors = FEEDS.map(() => ({ at: startAt, id: ZERO_UUID }));
+
+  res.status(200).set({
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    // `no-transform` makes compression() skip this response: a gzipped SSE stream
+    // is buffered until close, which looks like a live page and is a dead one.
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
+  });
+  if (typeof res.flushHeaders === 'function') res.flushHeaders();
+  openStreams += 1;
+
+  let closed = false;
+  let busy = false;
+  let failures = 0;
+  let timer = null;
+  let heartbeat = null;
+  let deadline = null;
+  let unsubscribe = null;
+
+  // The oldest cursor of the set: resuming from it can re-send a frame, and can
+  // never drop one. Duplicates cost a refetch, gaps cost the client's trust.
+  const watermark = () => cursors.reduce((min, c) => (c.at < min ? c.at : min), cursors[0].at);
+
+  const frame = (fields) => {
+    if (closed) return;
+    res.write(`${Object.entries(fields).map(([k, v]) => `${k}: ${v}`).join('\\n')}\\n\\n`);
+  };
+
+  const stop = (reason) => {
+    if (closed) return;
+    closed = true;
+    if (timer) clearInterval(timer);
+    if (heartbeat) clearInterval(heartbeat);
+    if (deadline) clearTimeout(deadline);
+    if (unsubscribe) unsubscribe();
+    openStreams -= 1;
+    if (reason === 'db-down') console.warn('[events] change feed closed: the database was unreachable');
+    if (!res.writableEnded) res.end();
+  };
+
+  req.on('close', () => stop('client-gone'));
+  res.on('close', () => stop('client-gone'));
+
+  frame({ retry: RECONNECT_MS });
+  frame({ id: watermark().toISOString(), event: 'ready',
+          data: JSON.stringify({ ok: true, feeds: FEEDS.map((f) => f.event), since: startAt.toISOString() }) });
+
+  const tick = async () => {
+    if (busy || closed) return;
+    busy = true;
+    const results = await Promise.all(FEEDS.map(async (feed, index) => {
+      try {
+        const rows = await sequelize.query(feed.sql, {
+          bind: feed.bind(cursors[index], subject.id), type: 'SELECT',
+        });
+        return { index, rows: Array.isArray(rows) ? rows : [] };
+      } catch (_e) {
+        return { index, rows: [], failed: true };
+      }
+    }));
+    busy = false;
+    if (closed) return;
+
+    failures = results.some((r) => r.failed) ? failures + 1 : 0;
+    if (failures >= FEED_FAILURE_LIMIT) {
+      // Silence would look like an idle dashboard. Say so, close, and let the
+      // client switch to its polling fallback.
+      frame({ event: 'feed-error',
+              data: JSON.stringify({ reason: 'the database was unreachable for '
+                + `${failures} polls, switching the client to polling` }) });
+      return stop('db-down');
+    }
+
+    for (const { index, rows } of results) {
+      const feed = FEEDS[index];
+      for (const row of rows) {
+        const at = new Date(row.at);
+        if (Number.isNaN(at.getTime())) continue;
+        cursors[index] = { at, id: String(row.rowId) };
+        frame({ id: watermark().toISOString(), event: feed.event,
+                data: JSON.stringify({ id: row.rowId, feed: feed.name, at: at.toISOString() }) });
+      }
+    }
+  };
+
+  timer = setInterval(tick, pollMs);
+  unsubscribe = subscribe(() => { tick(); }); // a local or cross-instance write polls now, not in 1 s
+  heartbeat = setInterval(() => { if (!closed) res.write(': keep-alive\\n\\n'); }, HEARTBEAT_MS);
+  if (maxMs > 0) deadline = setTimeout(() => stop('max-duration'), maxMs);
+  tick();
+  return undefined;
+});
+
+module.exports = router;
+"""
+
 _DASHBOARD_JSX = """import React, { useCallback, useEffect, useState } from 'react';
+import useRealtime from '../hooks/useRealtime';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 const STATUSES = ['draft', 'published', 'archived'];
@@ -322,6 +609,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ title: '', body: '', status: 'draft' });
+  const [inquiries, setInquiries] = useState(0);
 
   const token = () => localStorage.getItem('token') || '';
   const headers = useCallback(() => ({
@@ -344,6 +632,20 @@ export default function Dashboard() {
     }
   }, [headers]);
   useEffect(() => { load(); }, [load]);
+
+  // Live push: the API says a row changed and the console refetches. A stream
+  // that cannot be held falls back to a timer, so the panel is never silently
+  // showing yesterday's rows.
+  const onSignal = useCallback((signal) => {
+    if (signal.data && signal.data.feed === 'contact') {
+      setInquiries((n) => n + 1);
+      return;
+    }
+    load();
+  }, [load]);
+  const { status: live } = useRealtime({
+    events: ['record:changed', 'contact:created'], onSignal,
+  });
 
   const create = async (ev) => {
     ev.preventDefault();
@@ -374,14 +676,30 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-16">
-      <h1 className="text-3xl font-bold text-white mb-8">Control Console</h1>
+      <div className="flex flex-wrap items-center gap-3 mb-8">
+        <h1 className="text-3xl font-bold text-white">Control Console</h1>
+        <span
+          role="status"
+          aria-live="polite"
+          data-testid="live-status"
+          className={`px-3 py-1 text-xs rounded-full border ${
+            live === 'live' ? 'border-emerald-700 bg-emerald-900/40 text-emerald-300'
+            : live === 'polling' ? 'border-amber-700 bg-amber-900/40 text-amber-300'
+            : 'border-slate-700 bg-slate-900 text-slate-400'}`}
+        >
+          {live === 'live' ? 'Live updates'
+            : live === 'polling' ? 'Polling updates'
+            : live === 'reconnecting' ? 'Reconnecting' : 'Connecting'}
+        </span>
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-10">
         {[
           ['Records', String(items.length)],
           ['Published', String(items.filter((i) => i.status === 'published').length)],
           ['Drafts', String(items.filter((i) => i.status === 'draft').length)],
           ['Archived', String(items.filter((i) => i.status === 'archived').length)],
+          ['Inquiries', String(inquiries)],
         ].map(([label, value]) => (
           <div key={label} className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
             <p className="text-sm text-slate-400">{label}</p>
@@ -589,6 +907,93 @@ export default function Register() {
 }
 """
 
+_USE_REALTIME_JS = """import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const GIVE_UP_AFTER = 4;    // consecutive failed reconnects before polling
+const RECONCILE_MS = 60000; // one quiet refresh while the stream is held
+const FALLBACK_MS = 25000;  // polling rate once the stream is gone
+
+/** useRealtime — open the API's SSE change feed and hand each frame to onSignal.
+ *
+ * The browser reconnects EventSource on its own (the server sends `retry:`), so
+ * this hook only decides what happens when the stream cannot be held at all:
+ * after GIVE_UP_AFTER failures, or on a `feed-error`, it runs a timer instead.
+ * Live is better than polling; polling is never silent.
+ *
+ * The server closes a stream deliberately before a serverless function's hard
+ * timeout. Each new stream answers with `ready`, which resets the failure count,
+ * so a normal cycle is not mistaken for an outage.
+ */
+export default function useRealtime({
+  events = ['record:changed'],
+  onSignal,
+  enabled = true,
+  fallbackMs = FALLBACK_MS,
+} = {}) {
+  const [status, setStatus] = useState(enabled ? 'connecting' : 'off');
+  const handlers = useRef(onSignal);
+  useEffect(() => { handlers.current = onSignal; }, [onSignal]);
+
+  const emit = useCallback((signal) => {
+    if (handlers.current) handlers.current(signal);
+  }, []);
+
+  // `events` is usually an inline array; keying on its joined value keeps the
+  // subscription stable across renders instead of reconnecting on every one.
+  const eventKey = (Array.isArray(events) ? events : [events]).join(',');
+  const subscribed = useMemo(() => eventKey.split(',').filter(Boolean), [eventKey]);
+
+  useEffect(() => {
+    if (!enabled) { setStatus('off'); return undefined; }
+    const token = localStorage.getItem('token') || '';
+    if (!token || typeof EventSource !== 'function') { setStatus('off'); return undefined; }
+
+    let failed = 0;
+    let pollTimer = null;
+    const listeners = [];
+
+    const startPolling = () => {
+      if (pollTimer) return;
+      setStatus('polling');
+      pollTimer = setInterval(() => emit({ source: 'poll' }), fallbackMs);
+    };
+
+    const source = new EventSource(`${API}/events?token=${encodeURIComponent(token)}`);
+    subscribed.forEach((name) => {
+      const onEvent = (event) => {
+        let data = null;
+        try { data = JSON.parse(event.data); } catch (_e) { data = null; }
+        emit({ source: 'sse', event: name, data });
+      };
+      source.addEventListener(name, onEvent);
+      listeners.push([name, onEvent]);
+    });
+    source.addEventListener('ready', () => { failed = 0; setStatus('live'); });
+    source.addEventListener('feed-error', () => { source.close(); startPolling(); });
+    source.onerror = () => {
+      failed += 1;
+      setStatus('reconnecting');
+      if (failed >= GIVE_UP_AFTER) startPolling();
+    };
+
+    const reconcile = setInterval(() => {
+      if (source.readyState === EventSource.OPEN) emit({ source: 'reconcile' });
+    }, RECONCILE_MS);
+
+    return () => {
+      listeners.forEach(([name, onEvent]) => source.removeEventListener(name, onEvent));
+      source.close();
+      if (pollTimer) clearInterval(pollTimer);
+      clearInterval(reconcile);
+      setStatus('off');
+    };
+  }, [emit, enabled, fallbackMs, subscribed]);
+
+  return { status };
+}
+"""
+
 _INSTRUCTIONS = """# INSTRUCTIONS — {brand}
 
 Production-ready full-stack application (React 19 + Vite · Express · PostgreSQL · Docker).
@@ -653,6 +1058,11 @@ Rebuild from scratch: `docker compose down -v && docker compose up --build`
 | `DATABASE_URL` / `DB_*` | PostgreSQL connection |
 | `JWT_SECRET` | token signing (rotate carefully) |
 | `ENCRYPTION_KEY` | keyVault AES-256-GCM master key |
+| `SSE_POLL_MS` | change-feed poll interval (default 1000; 1 s latency without Redis) |
+| `SSE_MAX_MS` | how long one stream is held before the client reconnects (default 45000; keep it below your host's function timeout) |
+| `SSE_MAX_CLIENTS` | open streams per process before a new one is refused with 503 (default 64) |
+| `REDIS_URL` | optional: pushes each change across instances instead of polling. Needs `npm i redis` in `backend/` |
+| `SSE_CHANNEL` | optional: pub/sub channel name (default `lumicore:changes`) |
 
 ### Frontend (frontend/.env)
 
@@ -668,6 +1078,7 @@ Rebuild from scratch: `docker compose down -v && docker compose up --build`
 | `/api/v1/auth/login` | POST | returns JWT |
 | `/api/v1/records` | GET/POST | list/create — JWT required |
 | `/api/v1/records/:id` | GET/PUT/DELETE | owner-scoped |
+| `/api/v1/events` | GET (SSE) | live change feed — `?token=<JWT>` (EventSource cannot send headers) |
 | `/api/v1/ai/generate` | POST | JSON or SSE stream (`stream:true`) |
 | `/api/v1/ai/chat` | POST | RAG w/ sources |
 | `/api/v1/ai/files` | POST | pdf/docx/txt upload -> indexed for RAG |
@@ -697,6 +1108,8 @@ file to `.ts` and add `ts-node`/`tsc` when your team is ready.
 | Migration failed | Check `DATABASE_URL`; run `npm run db:migrate` inside `backend/` |
 | 401 on records | Token missing/expired — login again, check `Authorization: Bearer` |
 | SSE shows nothing | Any proxy in front must disable buffering (nginx sample included) |
+| Badge stuck on "Polling updates" | The feed is closed: check Postgres is reachable, then that `SSE_MAX_MS` sits below the host's function timeout |
+| Feed runs ~1 s behind | Expected without Redis — it polls Postgres. Set `REDIS_URL` and `npm i redis` in `backend/` for instant fan-out |
 | AI 422 | `ENCRYPTION_KEY` wrong length (needs 64 hex) or provider key missing (`/api/ai/health`) |
 """
 
@@ -716,31 +1129,43 @@ def _frontend_dir(project_dir: str) -> Path:
 
 
 def _patched_server(server_path: Path) -> bool:
-    """Mount records/ai routes + error handler in backend/server.js (marker-based)."""
+    """Mount records/events/ai routes + error handler in backend/server.js.
+
+    Marker-based, and each mount is checked on its own: a project generated
+    before the change feed existed must gain /api/v1/events when it is
+    regenerated, not keep the records-only wiring it was first delivered with.
+    """
     text = server_path.read_text(encoding="utf-8", errors="replace")
-    if "require('./routes/records.routes')" in text:
-        return False
-    anchor = "app.use('/api/v1/auth', authRoutes);"
-    add = (
-        anchor
-        + "\n\nconst { errorHandler } = require('./middleware/validate');"
-        + "\napp.use('/api/v1/records', require('./routes/records.routes'));"
-        + "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (_e) { /* optional */ }"
-        + "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (_e) { /* kit absent */ }"
-        + "\napp.use(errorHandler);"
-    )
-    if anchor not in text:
-        add = (
-            "\nconst { errorHandler } = require('./middleware/validate');"
+    original = text
+
+    if "require('./routes/records.routes')" not in text:
+        anchor = "app.use('/api/v1/auth', authRoutes);"
+        block = (
+            "\n\nconst { errorHandler } = require('./middleware/validate');"
             "\napp.use('/api/v1/records', require('./routes/records.routes'));"
             "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (_e) { /* optional */ }"
             "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (_e) { /* kit absent */ }"
             "\napp.use(errorHandler);"
         )
-        text = text.replace("const app = express();",
-                            "const app = express();" + add, 1)
-    else:
-        text = text.replace(anchor, add, 1)
+        if anchor in text:
+            text = text.replace(anchor, anchor + block, 1)
+        else:
+            text = text.replace("const app = express();",
+                                "const app = express();" + block, 1)
+
+    events_mount = "app.use('/api/v1/events', require('./routes/events.routes'));"
+    if "require('./routes/events.routes')" not in text:
+        records_mount = "app.use('/api/v1/records', require('./routes/records.routes'));"
+        if records_mount in text:
+            text = text.replace(records_mount, records_mount + "\n" + events_mount, 1)
+        elif "app.use(errorHandler);" in text:
+            text = text.replace("app.use(errorHandler);", events_mount + "\napp.use(errorHandler);", 1)
+        else:
+            text = text.replace("const app = express();",
+                                "const app = express();\n" + events_mount, 1)
+
+    if text == original:
+        return False
     server_path.write_text(text, encoding="utf-8")
     return True
 
@@ -842,7 +1267,13 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
     _write(backend / "routes" / "records.routes.js", _RECORDS_JS)
     _ensure_records_table(backend / "migrations")
 
+    # 5b. Live push: the change bus and its SSE feed ship with every product,
+    #     because "the dashboard sat still" is the bug this exists to kill.
+    _write(backend / "services" / "changeBus.js", _CHANGE_BUS_JS)
+    _write(backend / "routes" / "events.routes.js", _EVENTS_JS)
+
     # 6. Real dashboard + real auth pages (replace static placeholders)
+    _write(frontend / "src" / "hooks" / "useRealtime.js", _USE_REALTIME_JS)
     dash = frontend / "src" / "pages" / "Dashboard.jsx"
     if dash.exists() and "Control Console" in dash.read_text(encoding="utf-8", errors="replace"):
         dash.write_text(_DASHBOARD_JSX, encoding="utf-8")

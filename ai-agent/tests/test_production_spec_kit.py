@@ -167,6 +167,11 @@ def test_all_generated_js_parses_in_node(project):
         "hit = null; mw({ body: { title: 'ok' } }, null, (e) => { hit = e; });"
         "if (hit) process.exit(4);"
         "if (typeof errorHandler !== 'function') process.exit(5);"
+        # a title of only spaces must be refused, not stored as a blank row
+        "hit = null; const reqBlank = { body: { title: '   ' } };"
+        "validate({ title: { required: true, type: 'string', min: 1 } })"
+        "(reqBlank, null, (e) => { hit = e; });"
+        "if (!hit || hit.status !== 422) process.exit(6);"
         "console.log('VALIDATE_OK');"
     )
     res2 = _run_node_script(project, script2)

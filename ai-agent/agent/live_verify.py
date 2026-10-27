@@ -20,7 +20,10 @@ never mistake "unverified" for "live".
 from __future__ import annotations
 
 import json
+import queue
 import re
+import socket
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -69,11 +72,14 @@ class _Fetch:
         return out
 
 
-def _fetch(url: str, timeout: int = 20) -> _Fetch:
+def _fetch(url: str, timeout: int = 20, token: str = "") -> _Fetch:
     if LOCAL_PATH_RE.match(url or "") or urllib.parse.urlsplit(url).scheme.lower() not in {"http", "https"}:
         return _Fetch(False, 0, url, "", f"refused: {url!r} is not an http(s) URL")
     start = time.perf_counter()
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    headers = {"User-Agent": USER_AGENT}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             raw = response.read(300_000)
@@ -345,15 +351,20 @@ def _is_health_envelope(payload: Any) -> bool:
     return isinstance(payload, dict) and "status" in payload
 
 
-def _post_json(url: str, payload: Dict[str, Any], timeout: int = 20) -> _Fetch:
-    """POST a JSON body and capture the response with the same evidence shape."""
+def _post_json(url: str, payload: Dict[str, Any], timeout: int = 20, *,
+               token: str = "", method: str = "POST") -> _Fetch:
+    """Send a JSON body and capture the response with the same evidence shape.
+
+    ``method`` covers PUT/DELETE because the generated routes that need proving
+    are not only creates; ``token`` is what the authenticated dashboard sends.
+    """
     if LOCAL_PATH_RE.match(url or "") or urllib.parse.urlsplit(url).scheme.lower() not in {"http", "https"}:
         return _Fetch(False, 0, url, "", f"refused: {url!r} is not an http(s) URL")
-    body = json.dumps(payload).encode("utf-8")
-    request = urllib.request.Request(
-        url, data=body, method="POST",
-        headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
-    )
+    body = json.dumps(payload).encode("utf-8") if payload else None
+    headers = {"User-Agent": USER_AGENT, "Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, data=body, method=method, headers=headers)
     start = time.perf_counter()
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -567,6 +578,479 @@ def verify_contact_write(
     return {**base, "ok": True, "status": "verified", "failures": []}
 
 
+API_PREFIX = "/api/v1"
+PROBE_PASSWORD = "FactoryProbe!2026"
+# One probe identity per delivered product: two projects sharing a database
+# cluster must never share the user whose rows the verifier reads back.
+PROBE_RECORD = {
+    "title": "LumicorePro delivery probe (safe to delete)",
+    "body": "Written by the website factory to prove this product's API can create, read, "
+            "update and delete a row in its own database. Safe to delete.",
+    "status": "draft",
+}
+PROBE_BLANK_RECORD = {"title": "   ", "body": ""}
+# Codes that mean "not up yet" rather than "broken": a propagating deployment or
+# a cold function answers these and recovers.
+_COLD_STATUSES = {0, 404, 408, 425, 429}
+
+
+def probe_email_for(api_url: str, tag: str = "owner") -> str:
+    """The probe account this product's verification signs in with."""
+    host = urllib.parse.urlsplit(normalize_url(api_url)).hostname or "app"
+    label = re.sub(r"[^a-z0-9-]+", "-", host.split(".")[0].lower()).strip("-") or "app"
+    return f"factory-probe.{tag}@{label}.lumicorepro.app"
+
+
+def _json_dict(body: str) -> Optional[Dict[str, Any]]:
+    try:
+        payload = json.loads(body or "")
+    except ValueError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _token_of(result: _Fetch) -> str:
+    payload = _json_dict(result.body)
+    return str(payload.get("token") or "") if payload else ""
+
+
+def _data_of(result: _Fetch) -> Any:
+    payload = _json_dict(result.body)
+    return payload.get("data") if payload else None
+
+
+def _data_id(result: _Fetch) -> str:
+    data = _data_of(result)
+    if isinstance(data, dict):
+        return str(data.get("id") or "")
+    return ""
+
+
+def _row_ids(payload: Any) -> List[str]:
+    rows = payload if isinstance(payload, list) else []
+    return [str(row.get("id")) for row in rows if isinstance(row, dict) and row.get("id")]
+
+
+def _is_cold(result: _Fetch) -> bool:
+    """A response that means "not reachable yet", so polling is the right answer."""
+    return result.status in _COLD_STATUSES or result.status >= 500
+
+
+def verify_api_surface(
+    api_url: str,
+    *,
+    timeout: int = 90,
+    poll_interval: float = 3.0,
+) -> Dict[str, Any]:
+    """Drive every generated endpoint the way a signed-in client would.
+
+    ``db: connected`` proves the process opened a connection and the contact
+    probe proves one INSERT. Neither proves the dashboard works: sign-in, list,
+    create, read-back, edit, delete and the two guardrails (an anonymous caller
+    must not read rows, a second tenant must not see the first one's) are
+    separate routes that have each shipped broken on their own. A delivery that
+    cannot answer all of them is not something a client can be demoed.
+
+    The probe row is deleted again, so nothing is left in the buyer's database.
+
+    ``status`` is ``verified`` or the first step that failed: ``target-invalid``,
+    ``auth-failed``, ``list-failed``, ``create-failed``, ``read-back-failed``,
+    ``update-failed``, ``validation-not-enforced``, ``auth-not-enforced``,
+    ``tenant-isolation-broken``, ``tenant-isolation-unproven`` or ``delete-failed``.
+    """
+    start = time.perf_counter()
+    root = normalize_url(api_url)
+    proven: List[str] = []
+    failures: List[str] = []
+    leftovers: List[str] = []
+    attempts = 0
+    if LOCAL_PATH_RE.match(api_url or "") or not root:
+        return {"ok": False, "status": "target-invalid", "url": api_url, "token": "",
+                "proven": proven, "leftovers": leftovers, "probe": {}, "attempts": 0,
+                "elapsed_ms": 0,
+                "failures": [f"API target {api_url!r} is not an http(s) URL — a Git Bash/MSYS "
+                             "shell rewrote a leading-slash path"]}
+
+    api = root.rstrip("/") + API_PREFIX
+    owner = probe_email_for(root)
+    other = probe_email_for(root, tag="other")
+    deadline = time.time() + max(1, timeout)
+
+    def outcome(status: str, *, ok: bool = False, token: str = "") -> Dict[str, Any]:
+        return {"ok": ok, "status": status, "url": api, "token": token, "proven": proven,
+                "leftovers": leftovers, "probe": {"email": owner}, "attempts": attempts,
+                "elapsed_ms": int((time.perf_counter() - start) * 1000), "failures": failures}
+
+    def retrying(send, *, limit: int = 2):
+        """Poll a cold deployment out, then stop: a 404 twice is a missing route."""
+        nonlocal attempts
+        result = send()
+        attempts += 1
+        while _is_cold(result) and attempts <= limit and time.time() + poll_interval < deadline:
+            time.sleep(poll_interval)
+            result = send()
+            attempts += 1
+        return result
+
+    registered = retrying(lambda: _post_json(
+        f"{api}/auth/register",
+        {"name": "LumicorePro delivery probe", "email": owner, "password": PROBE_PASSWORD}))
+    if registered.status not in {200, 201, 409}:
+        failures.append("the hosted sign-up route did not answer "
+                        f"({registered.error or f'HTTP {registered.status}'}), so the API is not a "
+                        "product a client can be shown")
+        return outcome("auth-failed")
+    proven.append("POST /api/v1/auth/register")
+
+    logged_in = retrying(lambda: _post_json(f"{api}/auth/login",
+                                            {"email": owner, "password": PROBE_PASSWORD}))
+    token = _token_of(logged_in) or _token_of(registered)
+    if not token:
+        failures.append("sign-up answered but sign-in returned no session token, so the dashboard "
+                        f"cannot be opened (login: {logged_in.error or f'HTTP {logged_in.status}'})")
+        return outcome("auth-failed")
+    proven.append("POST /api/v1/auth/login")
+
+    listed = _fetch(f"{api}/records", token=token)
+    if not listed.ok or not isinstance(_data_of(listed), list):
+        failures.append("the records list did not answer for a signed-in client "
+                        f"({listed.error or f'HTTP {listed.status}'}) — the dashboard would show an "
+                        "error instead of its content")
+        return outcome("list-failed")
+    proven.append("GET /api/v1/records")
+
+    created = _post_json(f"{api}/records", PROBE_RECORD, token=token)
+    row_id = _data_id(created)
+    if not created.ok or not row_id:
+        failures.append(f"creating a row failed for a signed-in client "
+                        f"({created.error or f'HTTP {created.status}'})")
+        return outcome("create-failed")
+    proven.append("POST /api/v1/records")
+    leftovers = [row_id]
+
+    # A 201 with an id proves the process answered. Reading the row back out of
+    # Postgres is what proves the save is real.
+    refetched = _fetch(f"{api}/records", token=token)
+    single = _fetch(f"{api}/records/{row_id}", token=token)
+    if row_id not in _row_ids(_data_of(refetched)) or not single.ok:
+        failures.append(f"the row it created (id `{row_id}`) came back missing from the list or the "
+                        f"single-read ({single.error or f'HTTP {single.status}'}) — writes are not "
+                        "reaching the database the client is shown")
+        return outcome("read-back-failed")
+    proven.append("GET /api/v1/records/:id")
+    proven.append("row read back from the database")
+
+    updated = _post_json(f"{api}/records/{row_id}", {**PROBE_RECORD, "status": "published"},
+                         token=token, method="PUT")
+    updated_row = _data_of(updated) if isinstance(_data_of(updated), dict) else {}
+    if not updated.ok or str(updated_row.get("status")) != "published":
+        failures.append(f"editing a row did not stick ({updated.error or f'HTTP {updated.status}'})"
+                        if not updated.ok else
+                        "the edit route answered 200 but returned the row still in draft")
+        return outcome("update-failed")
+    proven.append("PUT /api/v1/records/:id")
+
+    blank = _post_json(f"{api}/records", PROBE_BLANK_RECORD, token=token)
+    if blank.ok:
+        failures.append("the API stored a record with a blank title, so the form's validation is "
+                        "only in the browser")
+        blank_id = _data_id(blank)
+        if blank_id:
+            leftovers.append(blank_id)
+            if _post_json(f"{api}/records/{blank_id}", None, token=token, method="DELETE").ok:
+                leftovers.remove(blank_id)
+        return outcome("validation-not-enforced")
+    proven.append("blank title is rejected")
+
+    second = _post_json(f"{api}/auth/register",
+                        {"name": "LumicorePro second tenant", "email": other,
+                         "password": PROBE_PASSWORD})
+    other_token = _token_of(second) or _token_of(
+        _post_json(f"{api}/auth/login", {"email": other, "password": PROBE_PASSWORD}))
+    if not other_token:
+        failures.append("a second signed-in account could not be created, so cross-tenant isolation "
+                        "is unproven — and an unproven guardrail is not one to ship")
+        return outcome("tenant-isolation-unproven")
+    foreign_read = _fetch(f"{api}/records/{row_id}", token=other_token)
+    foreign_list = _fetch(f"{api}/records", token=other_token)
+    foreign_delete = _post_json(f"{api}/records/{row_id}", None, token=other_token, method="DELETE")
+    if foreign_read.ok or row_id in _row_ids(_data_of(foreign_list)) or foreign_delete.ok:
+        failures.append(f"the row belonging to `{owner}` was readable or deletable by a different "
+                        "signed-in account — every listing of that tenant's data is exposed")
+        return outcome("tenant-isolation-broken")
+    proven.append("second tenant cannot read the row")
+
+    anonymous = _fetch(f"{api}/records")
+    if anonymous.ok:
+        failures.append("the records list answered without a token, so the API is world-readable")
+        return outcome("auth-not-enforced")
+    proven.append("records are unreachable without a token")
+
+    deleted = _post_json(f"{api}/records/{row_id}", None, token=token, method="DELETE")
+    still_there = _fetch(f"{api}/records/{row_id}", token=token)
+    if not deleted.ok or still_there.ok:
+        failures.append(f"the probe row could not be removed again "
+                        f"({deleted.error or f'HTTP {deleted.status}'}"
+                        f"{', and it is still readable' if still_there.ok else ''}) — the delivery "
+                        "would leave demo data in the client's database")
+        return outcome("delete-failed")
+    proven.append("DELETE /api/v1/records/:id")
+    leftovers = []
+    return outcome("verified", ok=True, token=token)
+
+
+def _abort_stream(response) -> None:
+    """Drop the connection without letting the caller wait for the server.
+
+    A shutdown ends the stream at once on POSIX. On Windows a receive that is
+    already blocked is not interrupted by it, so closing there waits for that
+    read to return — up to the feed's own self-close limit, which is a minute in
+    production. The close therefore runs on a daemon thread the caller joins
+    briefly and abandons; the proof is already in hand by this point.
+    """
+    try:
+        sock = _stream_socket(response)
+        if sock is not None:
+            sock.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass
+    dropper = threading.Thread(target=_close_quietly, args=(response,),
+                               daemon=True, name="live-verify-close")
+    dropper.start()
+    dropper.join(1.0)
+
+
+def _close_quietly(response) -> None:
+    try:
+        response.close()
+    except Exception:
+        pass
+
+
+def _stream_socket(response):
+    return getattr(getattr(getattr(response, "fp", None), "raw", None), "_sock", None)
+
+
+def _block_until_data(response) -> None:
+    """Drop the connect timeout once the stream is open.
+
+    The worker thread's own deadline decides how long a frame may take, and a
+    socket that times out mid-read is not readable again on Windows.
+    """
+    try:
+        _stream_socket(response).settimeout(None)
+    except Exception:
+        pass
+
+
+class _SseReader:
+    """Reads an event stream on a daemon thread so a deadline can be honoured.
+
+    A socket read timeout is not usable here: on Windows it poisons the socket
+    ("cannot read from timed out object"), and select is blind to the bytes
+    http.client already buffered while it parsed the headers — which is where the
+    first frames of a fast local stream usually are. A blocking read on a worker
+    thread, with the caller waiting on a queue, gets both right.
+    """
+
+    def __init__(self, response):
+        self._lines: "queue.Queue[Any]" = queue.Queue()
+        self._response = response
+        _block_until_data(response)
+        threading.Thread(target=self._pump, daemon=True, name="live-verify-sse").start()
+
+    def _pump(self):
+        try:
+            while True:
+                line = self._response.readline()
+                if not line:
+                    self._lines.put(None)  # the server closed the stream
+                    return
+                self._lines.put(line)
+        except Exception as exc:  # a reset, or the caller closing under us
+            self._lines.put(exc)
+
+    def line(self, seconds: float):
+        try:
+            item = self._lines.get(timeout=max(0.0, seconds))
+        except queue.Empty:
+            return "timeout", None
+        if item is None:
+            return "eof", None
+        if isinstance(item, BaseException):
+            return "error", item
+        return "line", item
+
+
+def _sse_frames(reader, deadline_at):
+    """Yield (kind, fields) for a server-sent-event stream: frame|eof|timeout|error.
+
+    A generator, so a caller can read a frame, do the thing that should cause the
+    next one, and resume reading with the buffer state intact. ``deadline_at`` is
+    callable because the second wait has a different, much tighter budget: the
+    frame for a write must arrive in about one poll, not in the stream's lifetime.
+    """
+    fields: Dict[str, str] = {}
+    while True:
+        remaining = deadline_at() - time.monotonic()
+        if remaining <= 0:
+            yield ("timeout", {})
+            return
+        kind, item = reader.line(min(remaining, 5.0))
+        if kind == "timeout":
+            continue
+        if kind == "eof":
+            yield ("eof", {})
+            return
+        if kind == "error":
+            yield ("error", {"reason": f"{type(item).__name__}: {item}"})
+            return
+        line = item.decode("utf-8", "replace").rstrip("\r\n")
+        if line == "":
+            if fields:
+                yield ("frame", fields)
+                fields = {}
+            continue
+        if line.startswith(":"):
+            continue  # a keep-alive comment carries no claim
+        key, _, value = line.partition(":")
+        fields[key.strip()] = value.strip()
+
+
+PII_IN_FEED_KEYS = {"email", "name", "message", "body", "phone"}
+REALTIME_FEED_EVENTS = {"record:changed", "contact:created"}
+
+
+def verify_realtime_feed(
+    api_url: str,
+    token: str,
+    *,
+    timeout: int = 45,
+    event_timeout: float = 8.0,
+) -> Dict[str, Any]:
+    """Prove the live push really pushes: write a row, watch the open stream fire.
+
+    The dashboard badge says "Live updates". Only a frame arriving on a stream
+    that was open *before* the write makes that true — a broken feed still leaves
+    the polling fallback, so the page looks alive while the push is dead. The
+    token travels in the query string because EventSource cannot set headers,
+    which is the same transport the shipped client uses.
+
+    ``status`` is ``verified``, ``target-invalid``, ``unauthorized``, ``no-stream``,
+    ``not-event-stream``, ``no-ready``, ``write-failed``, ``no-event``,
+    ``pii-in-feed`` or ``cleanup-failed``.
+    """
+    start = time.perf_counter()
+    root = normalize_url(api_url)
+    events: List[str] = []
+    latency_ms = 0
+
+    def outcome(status: str, *, ok: bool = False, detail: str = "", row_id: str = "",
+                leftovers: Optional[List[str]] = None) -> Dict[str, Any]:
+        return {"ok": ok, "status": status, "events": events, "latency_ms": latency_ms,
+                "id": row_id, "leftovers": list(leftovers or []), "attempts": 1,
+                "elapsed_ms": int((time.perf_counter() - start) * 1000),
+                "failures": [detail] if detail else []}
+
+    if LOCAL_PATH_RE.match(api_url or "") or not root:
+        return outcome("target-invalid",
+                       detail=f"API target {api_url!r} is not an http(s) URL — a Git Bash/MSYS "
+                              "shell rewrote a leading-slash path")
+    if not str(token or "").strip():
+        return outcome("target-invalid",
+                       detail="no token to open the change feed with — the feed is authenticated, so "
+                              "an unauthenticated probe would only prove a 401")
+
+    api = root.rstrip("/") + API_PREFIX
+    stream_url = f"{api}/events?token={urllib.parse.quote(str(token).strip(), safe='')}"
+    request = urllib.request.Request(
+        stream_url, headers={"User-Agent": USER_AGENT, "Accept": "text/event-stream",
+                             "Cache-Control": "no-cache"})
+    try:
+        response = urllib.request.urlopen(request, timeout=15)
+    except urllib.error.HTTPError as exc:
+        if exc.code in {401, 403}:
+            return outcome("unauthorized",
+                           detail="the change feed refused the session token it was given, so the "
+                                  "client's dashboard could never connect")
+        return outcome("no-stream", detail=f"the change feed did not open ({exc.code})")
+    except Exception as exc:
+        return outcome("no-stream",
+                       detail=f"the change feed did not open ({type(exc).__name__}: {exc})")
+
+    try:
+        content_type = str(response.headers.get("Content-Type") or "")
+        if "text/event-stream" not in content_type.lower():
+            return outcome("not-event-stream",
+                           detail=f"the feed endpoint answered with a {content_type or 'missing'} "
+                                  "content type instead of an event stream — that route is not the "
+                                  "generated change feed")
+        stream_deadline = time.monotonic() + max(1, timeout)
+        event_limit = None
+
+        def deadline_at():
+            return min(stream_deadline, event_limit) if event_limit is not None else stream_deadline
+
+        frames = _sse_frames(_SseReader(response), deadline_at)
+        for kind, fields in frames:
+            if kind != "frame":
+                return outcome("no-stream" if kind in {"eof", "error"} else "no-ready",
+                               detail=("the stream closed before the feed said ready"
+                                       if kind != "timeout" else
+                                       "the stream never said ready — a feed that opens but does not "
+                                       "announce itself is not a live feed"))
+            if (fields.get("event") or "message") == "ready":
+                events.append("ready")
+                break
+
+        written = _post_json(f"{api}/records", {**PROBE_RECORD, "title": "LumicorePro live-feed probe"},
+                             token=token)
+        row_id = _data_id(written)
+        if not written.ok or not row_id:
+            return outcome("write-failed",
+                           detail=f"the feed probe could not create a row "
+                                  f"({written.error or f'HTTP {written.status}'})")
+        write_done = time.perf_counter()
+        event_limit = time.monotonic() + max(0.5, event_timeout)
+
+        def abandon(detail: str, status: str) -> Dict[str, Any]:
+            """A failed feed proof still must not leave a row in the demo."""
+            left = [row_id]
+            if _post_json(f"{api}/records/{row_id}", None, token=token, method="DELETE").ok:
+                left = []
+            return outcome(status, detail=detail, row_id=row_id, leftovers=left)
+
+        for kind, fields in frames:
+            if kind != "frame":
+                break
+            name = fields.get("event") or "message"
+            events.append(name)
+            if name not in REALTIME_FEED_EVENTS:
+                continue
+            payload = _json_dict(fields.get("data", "")) or {}
+            leaked = sorted(PII_IN_FEED_KEYS & {str(key).lower() for key in payload})
+            if leaked:
+                return abandon(f"the change feed put {', '.join(leaked)} in a frame — the signal is an "
+                               "id and a timestamp; broadcasting the inquiry text leaks customer data "
+                               "to every open dashboard", "pii-in-feed")
+            if str(payload.get("id")) != row_id:
+                continue
+            latency_ms = int((time.perf_counter() - write_done) * 1000)
+            cleaned = _post_json(f"{api}/records/{row_id}", None, token=token, method="DELETE")
+            if not cleaned.ok:
+                return outcome("cleanup-failed", row_id=row_id, leftovers=[row_id],
+                               detail=f"the feed fired but the probe row could not be removed "
+                                      f"({cleaned.error or f'HTTP {cleaned.status}'}) — the delivery "
+                                      "would leave demo data behind")
+            events.append("cleaned")
+            return outcome("verified", ok=True, row_id=row_id)
+        return abandon("no `record:changed` frame for the row written while the stream was open "
+                       f"(budget {int(event_timeout * 1000)} ms, saw: "
+                       f"{', '.join(events) or 'nothing'})", "no-event")
+    finally:
+        _abort_stream(response)
+
+
 class _PostResult:
     __slots__ = ("ok", "status", "error", "record_id")
 
@@ -627,4 +1111,6 @@ def save_report(report: Dict[str, Any], path: str) -> None:
     target.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-__all__ = ["verify_site", "expected_routes", "normalize_url", "save_report"]
+__all__ = ["verify_site", "expected_routes", "normalize_url", "save_report",
+           "verify_api_health", "verify_contact_write", "verify_api_surface",
+           "verify_realtime_feed", "probe_email_for"]
