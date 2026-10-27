@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from config.settings import PROJECT_ROOT, GENERATED_PROJECTS_DIR
+from agent.schema_guards import write_migration_guards
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
 
@@ -1094,9 +1095,11 @@ module.exports = { User, RefreshSession, ContactSubmission };
         migrations_dir = target_dir / "migrations"
         migrations_dir.mkdir(parents=True, exist_ok=True)
 
-        core_migration = """module.exports = {
+        core_migration = """const { createTableIfMissing, dropTableIfExists } = require('./_guards.js');
+
+module.exports = {
   up: async ({ queryInterface, Sequelize, transaction }) => {
-    await queryInterface.createTable('users', {
+    await createTableIfMissing(queryInterface, 'users', {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
       email: { type: Sequelize.STRING(254), allowNull: false, unique: true },
       password_hash: { type: Sequelize.STRING(255), allowNull: false },
@@ -1106,7 +1109,7 @@ module.exports = { User, RefreshSession, ContactSubmission };
       updated_at: { type: Sequelize.DATE, allowNull: false },
     }, { transaction });
 
-    await queryInterface.createTable('refresh_sessions', {
+    await createTableIfMissing(queryInterface, 'refresh_sessions', {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
       user_id: {
         type: Sequelize.UUID,
@@ -1121,7 +1124,7 @@ module.exports = { User, RefreshSession, ContactSubmission };
       updated_at: { type: Sequelize.DATE, allowNull: false },
     }, { transaction });
 
-    await queryInterface.createTable('contact_submissions', {
+    await createTableIfMissing(queryInterface, 'contact_submissions', {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true, allowNull: false },
       name: { type: Sequelize.STRING(100), allowNull: false },
       email: { type: Sequelize.STRING(254), allowNull: false },
@@ -1131,9 +1134,9 @@ module.exports = { User, RefreshSession, ContactSubmission };
     }, { transaction });
   },
   down: async ({ queryInterface, transaction }) => {
-    await queryInterface.dropTable('contact_submissions', { transaction });
-    await queryInterface.dropTable('refresh_sessions', { transaction });
-    await queryInterface.dropTable('users', { transaction });
+    await dropTableIfExists(queryInterface, 'contact_submissions', { transaction });
+    await dropTableIfExists(queryInterface, 'refresh_sessions', { transaction });
+    await dropTableIfExists(queryInterface, 'users', { transaction });
   },
 };
 """
@@ -1147,6 +1150,11 @@ const path = require('path');
 const { Sequelize } = require('sequelize');
 const { sequelize } = require('../config/database');
 
+/* One JSON line on stdout is what the delivery pipeline gates on — an exit code
+ * alone cannot tell "applied three migrations" from "applied none". Progress
+ * goes to stderr so a human at a terminal still reads the story. */
+const report = (payload) => process.stdout.write(JSON.stringify(payload) + '\\n');
+
 const runMigrations = async () => {
   const queryInterface = sequelize.getQueryInterface();
   const migrationDir = __dirname;
@@ -1154,6 +1162,7 @@ const runMigrations = async () => {
     .filter((name) => /^\\d+_.*\\.js$/.test(name))
     .sort();
 
+  const applied = [];
   await sequelize.transaction(async (transaction) => {
     await sequelize.query('SELECT pg_advisory_xact_lock(724941)', { transaction });
     await sequelize.query(
@@ -1164,33 +1173,46 @@ const runMigrations = async () => {
       'SELECT name FROM schema_migrations',
       { transaction }
     );
-    const applied = new Set(appliedRows.map((row) => row.name));
+    const recorded = new Set(appliedRows.map((row) => row.name));
 
     for (const name of migrationFiles) {
-      if (applied.has(name)) continue;
+      if (recorded.has(name)) continue;
+      process.stderr.write(`applying ${name}\\n`);
       const migration = require(path.join(migrationDir, name));
       await migration.up({ queryInterface, Sequelize, transaction });
       await sequelize.query(
         'INSERT INTO schema_migrations (name) VALUES (?)',
         { replacements: [name], transaction }
       );
+      applied.push(name);
     }
   });
+
+  return {
+    ok: true,
+    applied: applied.length,
+    names: applied,
+    pending: migrationFiles.filter((name) => !applied.includes(name)),
+  };
 };
 
 if (require.main === module) {
   runMigrations()
-    .then(() => sequelize.close())
+    .then((result) => {
+      report(result);
+      return sequelize.close();
+    })
     .catch(async (error) => {
-      console.error('Database migration failed:', error.message);
-      await sequelize.close();
+      report({ ok: false, error: String((error && error.message) || error) });
       process.exitCode = 1;
+      return sequelize.close().catch(() => {});
     });
 }
 
 module.exports = { runMigrations };
 """
         FileManager.write_file(str(migrations_dir / "run.js"), migration_runner)
+        write_migration_guards(migrations_dir)
 
     def _generate_test_suite(self, target_dir: Path) -> None:
         """Generate integration tests that require an explicitly named test database."""

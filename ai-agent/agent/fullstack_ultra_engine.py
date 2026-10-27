@@ -18,6 +18,7 @@ from agent.hyper_unique_site_engine import HyperUniqueSiteEngine
 from agent.omni_repair_engine import OmniRepairEngine
 from agent.generation_contract import resolve_generation_contract
 from agent.design_forge import build_design
+from agent.schema_guards import MIGRATION_GUARDS_JS
 
 
 # ── Generated-project production assets ────────────────────────────────────
@@ -78,10 +79,11 @@ module.exports = router;
 
 _CONTACT_MIGRATION_JS = """/** 003: contact_messages — persisted submissions from the public contact form. */
 const { DataTypes } = require('sequelize');
+const { createTableIfMissing, addIndexIfMissing, dropTableIfExists } = require('./_guards.js');
 
 module.exports = {
   async up({ context: queryInterface }) {
-    await queryInterface.createTable('contact_messages', {
+    await createTableIfMissing(queryInterface, 'contact_messages', {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING(120), allowNull: false },
       email: { type: DataTypes.STRING(254), allowNull: false },
@@ -89,10 +91,10 @@ module.exports = {
       created_at: { type: DataTypes.DATE, allowNull: false },
       updated_at: { type: DataTypes.DATE, allowNull: false },
     });
-    await queryInterface.addIndex('contact_messages', ['created_at']);
+    await addIndexIfMissing(queryInterface, 'contact_messages', ['created_at']);
   },
   async down({ context: queryInterface }) {
-    await queryInterface.dropTable('contact_messages');
+    await dropTableIfExists(queryInterface, 'contact_messages');
   },
 };
 """
@@ -906,10 +908,11 @@ module.exports = { sequelize, User };
     @staticmethod
     def _postgres_migration() -> str:
         return """const { DataTypes } = require('sequelize');
+const { createTableIfMissing, dropTableIfExists } = require('./_guards.js');
 
 module.exports = {
   async up({ context: queryInterface }) {
-    await queryInterface.createTable('users', {
+    await createTableIfMissing(queryInterface, 'users', {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -920,7 +923,7 @@ module.exports = {
     });
   },
   async down({ context: queryInterface }) {
-    await queryInterface.dropTable('users');
+    await dropTableIfExists(queryInterface, 'users');
   },
 };
 """
@@ -1751,30 +1754,56 @@ volumes:
         fmap["backend/migrations/run.js"] = """const { Umzug, SequelizeStorage } = require('umzug');
 const { sequelize } = require('../models');
 
+// Umzug logs to the injected logger; stderr keeps it out of the report line so a
+// pipeline can read the last stdout line as JSON while a human still sees progress.
+const logger = {
+  info: (message) => process.stderr.write(`${message}\\n`),
+  warn: (message) => process.stderr.write(`${message}\\n`),
+  error: (message) => process.stderr.write(`${message}\\n`),
+};
+
 const umzug = new Umzug({
   migrations: { glob: 'migrations/00*.js' },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
-  logger: console,
+  logger,
 });
+
+const report = (payload) => process.stdout.write(JSON.stringify(payload) + '\\n');
+
+async function main() {
+  const pendingBefore = (await umzug.pending()).map((migration) => migration.name);
+  const applied = (await umzug.up()).map((migration) => migration.name);
+  report({
+    ok: true,
+    applied: applied.length,
+    names: applied,
+    pending: pendingBefore.filter((name) => !applied.includes(name)),
+  });
+}
 
 module.exports = umzug;
 if (require.main === module) {
-  umzug.up().then(() => sequelize.close()).catch((error) => {
-    console.error('Migration failed:', error.message);
-    process.exitCode = 1;
-  });
+  main()
+    .then(() => sequelize.close())
+    .catch((error) => {
+      report({ ok: false, error: String((error && error.message) || error) });
+      process.exitCode = 1;
+      return sequelize.close().catch(() => {});
+    });
 }
 """
         fmap["backend/package.json"] = json.dumps({
             **json.loads(fmap["backend/package.json"]),
             "dependencies": {**json.loads(fmap["backend/package.json"])["dependencies"], "umzug": "^3.8.2"},
         }, indent=2)
+        fmap["backend/migrations/_guards.js"] = MIGRATION_GUARDS_JS
         fmap["backend/migrations/001_create_core_tables.js"] = """const { DataTypes } = require('sequelize');
+const { createTableIfMissing, dropTableIfExists } = require('./_guards.js');
 
 module.exports = {
   async up({ context: queryInterface }) {
-    await queryInterface.createTable('users', {
+    await createTableIfMissing(queryInterface, 'users', {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -1785,7 +1814,7 @@ module.exports = {
     });
   },
   async down({ context: queryInterface }) {
-    await queryInterface.dropTable('users');
+    await dropTableIfExists(queryInterface, 'users');
   },
 };
 """

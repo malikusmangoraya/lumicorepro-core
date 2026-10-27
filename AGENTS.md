@@ -114,7 +114,7 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 |------|------|----------|--------|------------------------|
 | Frontend | Vitest 5 | `src/**/__tests__/` | 80%+ | **62.74% stmts (honest full-tree) — 1020 tests / 128 files, ratchet gate active** |
 | Backend | Jest | `backend/__tests__/`, `backend/tests/` | 80%+ | **74.8% statements (5158/6895) — 82 suites / 1903 tests, ratchet gate active** |
-| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1570 tests + 121 subtests green** (2026-10-27; incl. factory / live-verify / deploy / demo-video / design suites) |
+| AI agent | pytest/unittest | `ai-agent/tests/` | 80%+ | **1616 tests + 123 subtests green** (2026-10-27; incl. factory / live-verify / deploy / schema / demo-video / design suites) |
 | E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
@@ -452,11 +452,15 @@ deploys → that origin is baked as `VITE_API_URL` and the frontend is deployed 
   into `report.json`/`report.md` (`test_the_session_the_probe_signed_with_never_reaches_the_report`).
 - **A health payload with no `db` field is no evidence** (`db-not-proven`): the retired
   static `{status: healthy}` is exactly what an unreachable-database deployment reported as live.
-- **`NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env` is the one credential the owner supplies.**
-  Without it a backend run stops as `database not provisioned` *before* invoking any CLI —
-  it never deploys an API that cannot connect, and never silently reuses one shared
-  database for every product. `ai-agent/.env` is read directly because `config/settings.py`
-  stops at the first `.env` it finds (repo root).
+- **`FACTORY_DATABASE_TEMPLATE_URL` in `ai-agent/.env` is the one credential the owner supplies**
+  (`NEON_TEMPLATE_DATABASE_URL` is still read as its legacy spelling; the new name wins, and
+  every blocking message names both plus the two server requirements: a role that can
+  `CREATE DATABASE`, and TLS). The runner shells out to `pg`, so Neon, Supabase, Render,
+  Railway, any managed Postgres or a self-hosted cluster works — nothing in the factory is
+  provider-specific. Without it a backend run stops as `database not provisioned` *before*
+  invoking any CLI — it never deploys an API that cannot connect, and never silently reuses
+  one shared database for every product. `ai-agent/.env` is read directly because
+  `config/settings.py` stops at the first `.env` it finds (repo root).
 - **Secrets travel by stdin or env, never argv**, are CR-stripped, are generated once and
   persisted into `backend/.env` so a redeploy never rotates `JWT_SECRET` mid-demo, and never
   appear in `report.json`/`report.md` — those carry env **names** and a `db@host`, not a
@@ -531,6 +535,27 @@ deploys → that origin is baked as `VITE_API_URL` and the frontend is deployed 
   (2026-10-27: `shipsignal`). Every stage dict carries `ok`; the missing-flag direction stays
   loud on purpose, because an unproven stage must never render as a pass
   (`test_a_delivered_report_never_labels_a_stage_as_failed`).
+- **The product's own migrations run inside the pipeline, and they are idempotent — or
+  `delivered` is a lie.** Creating the database left it empty, so the only thing that ever
+  made tables was `sequelize.sync()` on the API's first cold request. The buyer's
+  `npm run db:migrate` then died on `relation already exists`, and a redeploy shipped a
+  product that could not migrate its own schema (2026-10-27: `fieldpulse` failed live on
+  `records_user_id`, an *index* name — Postgres gives tables and indexes one namespace, so
+  both surface as 42P07). Two gates now:
+  `factory_pipeline._apply_schema()` runs `backend/migrations/run.js` right after
+  provisioning and refuses `delivered` as `schema-incomplete` when it fails — never deploys
+  an API against an empty schema (a `missing` runner is a warning, because the live health,
+  write, surface and feed proofs all require real tables); and every generated `up()`/`down()`
+  goes through `agent/schema_guards.py`'s `_guards.js` (`createTableIfMissing`,
+  `addIndexIfMissing`, `dropTableIfExists`), which asks Postgres what exists — inside the
+  migration's own transaction when there is one — and creates only the gap. The helper is
+  named `_guards.js` because the umzug runner globs `00*.js`; a digit-leading name would run
+  as a migration. The runner answers one machine-readable JSON line on stdout (`ok`,
+  `applied`, `names`, `pending`) with progress on stderr, and `db_provision.run_migrations()`
+  refuses `ok: true` from a process that exited non-zero — an exit code alone is not proof.
+  Proved on a real Neon database: old runner exits 1 on `already exists`, guarded runner
+  reports `applied: 3` then `uptodate` (`test_no_generator_module_writes_a_migration_that_is_not_guarded`
+  fails any generator template that emits a bare `queryInterface.createTable(`/`dropTable(`/`addIndex(`).
 
 **Reverse-engineering policy:** `repo_reverse_engineer.py` is a clean-room ANALYSER — it never executes, imports, copies or network-calls the target code, and its output is a plan (structure only). Only run it on repositories you own or are licensed to analyse; rebuilding is behaviour-porting, not source copying.
 
@@ -576,6 +601,7 @@ truncated its final sections (this one included).
 
 | Date | Ver | Summary |
 |------|-----|---------|
+| 2026-10-27 | 8.33 | **Factory v5 — the product's own migrations run inside delivery, guarded and idempotent; provider-neutral database credential**: `agent/schema_guards.py` ships `_guards.js` (`createTableIfMissing`/`addIndexIfMissing`/`dropTableIfExists`) into every generator, `_apply_schema()` runs `migrations/run.js` after provisioning and blocks `delivered` as `schema-incomplete` on failure, runners answer one machine-readable JSON line, and `FACTORY_DATABASE_TEMPLATE_URL` replaces `NEON_TEMPLATE_DATABASE_URL` (legacy still resolves) |
 | 2026-10-27 | 8.32 | **Factory v4 — `delivered` proves the client journey and the live push**: `verify_api_surface()` walks register → login → list → create → read-back → update → blank-title rejection → second-tenant isolation → anonymous-denied → delete-then-404 over the live origin; `verify_realtime_feed()` requires a `record:changed` frame for a row written while the stream was open and rejects frames carrying customer PII; both probes delete their own rows even when they fail, and the session token they mint never enters the report |
 | 2026-10-27 | 8.31 | **Factory v3 — one prompt leaves the whole stack live**: auto-provisioned Postgres (`db_provision.py`), auto-hosted Express API with `db: connected` proof, Vercel Deployment Protection opened for demo (`deployed-protected` when it survives), only the `Aliased` domain baked, Windows native-bundler policy block self-repaired, provisioned `DATABASE_URL` persisted into the delivered `backend/.env`, and the report can no longer label a passing stage as failed. Proven end to end by ShipSignal in 551 s with zero manual steps |
 | 2026-10-24 | 8.30 | **Factory v2**: one-prompt delivery (`--deliver`), SSE progress, brand-derived design system (4 archetypes/fonts/radius), Groq/xAI providers with custom base URLs, free gTTS narration fallback, CSS-processing deploy gate, in-place regeneration; generated apps get a real contact API, schema, backend tests, PostCSS config |

@@ -187,14 +187,52 @@ def _backend_env_value(backend_dir: Path, key: str) -> str:
         return ""
 
 
+def _apply_schema(evidence: Dict[str, Any], database_url: str, project: Path, progress=None) -> str:
+    """Migrate the database that was just created, and fold the result into the
+    stage evidence. Returns the URL to deploy against, or "" when the schema is
+    not there — an API booted against an empty database is not a product.
+
+    A missing runner is only a warning: an existing repository may keep its
+    migrations elsewhere, and the live probes (health proves the database, the
+    contact write and the CRUD journey need real tables) cover what this step
+    would have proven. An *error* from the project's own runner is never waived.
+    """
+    from agent.db_provision import _scrub, run_migrations
+
+    _emit(progress, "database", "running", step="schema", database=evidence.get("database"))
+    migrations = run_migrations(project / "backend", database_url)
+    summary = {key: migrations[key] for key in ("ok", "status", "applied", "names", "message")
+               if key in migrations}
+    # The runner scrubs its own messages, and this is the stage that holds the
+    # credential, so the URL is stripped again on the way into the report.
+    if summary.get("message"):
+        summary["message"] = _scrub(str(summary["message"]), database_url)
+    evidence["migrations"] = summary
+    if migrations.get("status") == "missing":
+        evidence.setdefault("warnings", []).append(summary.get("message", ""))
+        _emit(progress, "database", "done", schema="absent", message=summary.get("message"))
+        return database_url
+    if migrations.get("ok"):
+        _emit(progress, "database", "done", schema=migrations.get("status"),
+              applied=migrations.get("applied"))
+        return database_url
+    evidence["ok"] = False
+    evidence["status"] = "schema-incomplete"
+    evidence["message"] = (f"database {evidence.get('database', '')} exists but its schema did not "
+                           f"apply ({migrations.get('status')}: {summary.get('message', '')})")
+    _emit(progress, "database", "schema-incomplete", message=evidence["message"])
+    return ""
+
+
 def _host_database(project: Path, progress=None):
-    """Create the project's own Postgres database and hand back its URL.
+    """Create the project's own Postgres database, migrate it, hand back its URL.
 
     Returns ``(evidence, connection_string)``. The connection string is kept out
     of ``evidence`` on purpose: evidence goes into report.json, and a Neon
     credential in a report is a credential in a git tree.
     """
-    from agent.db_provision import database_url_for, provision_database, redact, template_url
+    from agent.db_provision import (database_url_for, missing_credential_message,
+                                    provision_database, redact, template_url)
 
     _emit(progress, "database", "running", project=project.name)
     template = template_url()
@@ -203,13 +241,11 @@ def _host_database(project: Path, progress=None):
         evidence = {"ok": True, "status": "reused", "host": redact(fallback)["host"],
                     "database": (urllib.parse.urlsplit(fallback).path or "").lstrip("/"),
                     "message": "provisioned from the connection string already configured in backend/.env"}
-        _emit(progress, "database", "done", provisioned="reused", database=evidence["database"])
-        return evidence, fallback
+        return evidence, _apply_schema(evidence, fallback, project, progress)
     if not template:
         evidence = {"ok": False, "status": "blocked",
-                    "message": "no database server is configured: set NEON_TEMPLATE_DATABASE_URL in "
-                               "ai-agent/.env to a connection string for any database on the target "
-                               "server, or put a DATABASE_URL in backend/.env"}
+                    "message": missing_credential_message() + ", or put a DATABASE_URL "
+                               "in the project's backend/.env"}
         _emit(progress, "database", "blocked", message=evidence["message"])
         return evidence, ""
 
@@ -222,7 +258,8 @@ def _host_database(project: Path, progress=None):
                 if key in result}
     _emit(progress, "database", "done", provisioned=result.get("status"),
           database=result.get("database"), host=result.get("host"))
-    return evidence, database_url_for(template, result["database"])
+    return evidence, _apply_schema(evidence, database_url_for(template, result["database"]),
+                                   project, progress)
 
 
 def _host_api(project: Path, database_url: str, progress=None) -> Dict[str, Any]:
@@ -666,8 +703,9 @@ def run_factory(
                     "verified": False,
                     "api_deployed": False,
                     "message": "Frontend is live, but the Express API is not deployed; "
-                               "the factory hosts it with deploy_backend() once a database is "
-                               "configured (NEON_TEMPLATE_DATABASE_URL), or pass --factory-api-url "
+                               "the factory hosts it with deploy_backend() once a database "
+                               "server is configured (FACTORY_DATABASE_TEMPLATE_URL, or the "
+                               "legacy NEON_TEMPLATE_DATABASE_URL), or pass --factory-api-url "
                                "for an API hosted elsewhere",
                 }
             else:
@@ -748,7 +786,13 @@ def run_factory(
         # A client demo needs all three tiers live: a page that loads but cannot
         # save is not a product, and that is exactly what used to be shipped.
         if auto_host:
-            if database_stage.get("status") in {"blocked", "failed"}:
+            if database_stage.get("status") == "schema-incomplete":
+                # The database exists and the API could still boot against an
+                # empty schema — which is exactly the "live" claim that used to be
+                # printed while every form 500'd on a missing table.
+                failures.append("the product's own migrations never applied, so its database "
+                                f"has no schema ({database_stage.get('message', '')})")
+            elif database_stage.get("status") in {"blocked", "failed"}:
                 failures.append(f"database not provisioned ({database_stage.get('status')}: "
                                 f"{database_stage.get('message', '')})")
             if api_stage.get("status") != "live":
@@ -822,6 +866,16 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
     for label, value in rows:
         if value:
             lines.append(f"- **{label}:** `{value}`")
+    migrations = database.get("migrations") or {}
+    if migrations.get("status") == "applied":
+        lines.append(f"- **Schema:** {migrations.get('applied')} migration(s) applied "
+                     f"({', '.join(migrations.get('names') or [])}) before the API was deployed")
+    elif migrations.get("status") == "uptodate":
+        lines.append("- **Schema:** at the head — every migration was already recorded, so "
+                     "nothing was re-applied")
+    elif migrations.get("status") == "missing":
+        lines.append("- **Schema:** this project keeps no `backend/migrations/run.js`, so its "
+                     "tables are proven by the live journey below rather than by a migration run")
     if api.get("env", {}).get("published"):
         lines.append(f"- **API runtime variables set:** {', '.join(api['env']['published'])} "
                      "(values are stored on the hosting platform, never in this report)")

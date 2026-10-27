@@ -1156,8 +1156,9 @@ def deploy_backend(project_dir: str, database_url: str = "", cors_origin: str = 
         return {
             "status": "blocked", "verified": False, "project_dir": str(project_dir),
             "message": "the API has no database to connect to: provision one (agent.db_provision) "
-                       "and pass its connection string, or set NEON_TEMPLATE_DATABASE_URL in "
-                       "ai-agent/.env so the factory can create it",
+                       "and pass its connection string, or set FACTORY_DATABASE_TEMPLATE_URL in "
+                       "ai-agent/.env (NEON_TEMPLATE_DATABASE_URL is still read) so the factory "
+                       "can create it",
         }
 
     base = _vercel_cli()

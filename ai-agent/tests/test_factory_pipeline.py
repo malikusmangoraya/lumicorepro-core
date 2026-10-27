@@ -284,6 +284,9 @@ class FullStackHostingTests(unittest.TestCase):
                   "leftovers": [], "url": "https://site-api.vercel.app"}
     FEED_OK = {"ok": True, "status": "verified", "latency_ms": 412, "id": "row-7",
                "events": ["ready", "record:changed", "cleaned"], "leftovers": []}
+    SCHEMA_OK = {"ok": True, "status": "applied", "applied": 3,
+                 "names": ["001_create_core_tables.js", "002_create_records_table.js",
+                           "003_create_contact_messages.js"], "message": ""}
 
     def _project_with_backend(self, tmp: str) -> Path:
         project = _project(Path(tmp) / "site")
@@ -292,7 +295,8 @@ class FullStackHostingTests(unittest.TestCase):
         return project
 
     def _stages(self, project, result, *, api_deploy=None, provision=None, write=None,
-                surface=None, feed=None, verify_site_result=None, deploy_result=None, build=None):
+                surface=None, feed=None, schema=None, verify_site_result=None,
+                deploy_result=None, build=None, template=TEMPLATE_FOR_TEST):
         """Run the factory with every external boundary stubbed."""
         site_evidence = verify_site_result or self.VERIFIED_SITE
         frontend = deploy_result or {"status": "live", "verified": True,
@@ -301,7 +305,9 @@ class FullStackHostingTests(unittest.TestCase):
         with patch.object(factory, "build_project", builds), \
                  patch.object(factory, "test_backend", return_value={"ok": True}), \
                  patch.object(factory, "run_qa", return_value={"ok": True, "status": "passed"}), \
-                 patch("agent.db_provision.template_url", return_value=TEMPLATE_FOR_TEST), \
+                 patch("agent.db_provision.template_url", return_value=template), \
+                 patch("agent.db_provision.run_migrations",
+                       schema or Mock(return_value=self.SCHEMA_OK)) as schema_mock, \
                  patch("agent.db_provision.provision_database",
                        provision or Mock(return_value=self.PROVISIONED)) as db_mock, \
                  patch("agent.deploy_engine.deploy_backend",
@@ -321,7 +327,7 @@ class FullStackHostingTests(unittest.TestCase):
             out = factory.run_factory(str(project), deploy="vercel", video=False, name="Acme")
         return out, {"db": db_mock, "api": api_mock, "frontend": front_mock,
                      "write": write_mock, "surface": surface_mock, "feed": feed_mock,
-                     "build": builds}
+                     "schema": schema_mock, "build": builds}
 
     def test_the_database_is_provisioned_before_the_api_is_deployed(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -329,11 +335,63 @@ class FullStackHostingTests(unittest.TestCase):
             order = []
             db = Mock(side_effect=lambda *a, **k: (order.append("db"), self.PROVISIONED)[1])
             api = Mock(side_effect=lambda *a, **k: (order.append("api"), self.LIVE_API)[1])
-            out, _ = self._stages(project, "x", api_deploy=api, provision=db)
+            schema = Mock(side_effect=lambda *a, **k: (order.append("schema"), self.SCHEMA_OK)[1])
+            out, _ = self._stages(project, "x", api_deploy=api, provision=db, schema=schema)
             # The API is deployed twice (the second pass locks CORS), but the
-            # database always comes first — sync() on the first request needs it.
-            self.assertEqual(order[:2], ["db", "api"], out["stages"])
+            # database is created and migrated before either — a cold serverless
+            # request must never be the thing that discovers the schema is absent.
+            self.assertEqual(order[:3], ["db", "schema", "api"], out["stages"])
             self.assertEqual(out["status"], "delivered", out.get("failures"))
+
+    def test_the_schema_is_applied_to_the_database_this_run_created(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            schema = Mock(return_value=self.SCHEMA_OK)
+            out, _ = self._stages(project, "x", schema=schema)
+            backend_dir, handed_url = schema.call_args[0]
+            # resolve(): Windows hands out both the long and the 8.3 form of the
+            # same temp directory, and only the pipeline's resolved path matters.
+            self.assertEqual(Path(str(backend_dir)).resolve(), (project / "backend").resolve())
+            self.assertIn("/site", handed_url)
+            self.assertNotIn("npg_", json.dumps(out["stages"]["database"]))
+            self.assertEqual(out["stages"]["database"]["migrations"]["applied"], 3)
+
+    def test_a_database_that_could_not_be_migrated_is_never_delivered(self):
+        """An empty database is not a product: the API boots, /health can even say
+        `connected`, and every form then dies on a missing table."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            broken = Mock(return_value={"ok": False, "status": "failed",
+                                        "message": "relation \"users\" already exists"})
+            out, mocks = self._stages(project, "x", schema=broken)
+            self.assertEqual(out["status"], "partial", out["stages"])
+            self.assertEqual(out["stages"]["database"]["status"], "schema-incomplete")
+            self.assertTrue([f for f in out["failures"] if "migrations never applied" in f],
+                            out["failures"])
+            mocks["api"].assert_not_called()
+
+    def test_a_migration_error_never_reaches_the_client_as_a_url(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            leaked = {"ok": False, "status": "failed",
+                      "message": "connect failed for postgres://owner:npg_real@ep-x.neon.tech/db"}
+            out, _ = self._stages(project, "x", schema=Mock(return_value=leaked))
+            markdown = (project / ".factory" / "report.md").read_text(encoding="utf-8")
+            self.assertNotIn("npg_real", markdown)
+            self.assertNotIn("npg_real", json.dumps(out["stages"]))
+
+    def test_a_project_that_keeps_its_migrations_elsewhere_is_still_delivered(self):
+        """`missing` is a warning, not a block: the live journey below proves the
+        tables exist. `failed` — the project's own runner erroring — never is."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            absent = {"ok": False, "status": "missing",
+                      "message": "backend/migrations/run.js is absent"}
+            out, mocks = self._stages(project, "x", schema=Mock(return_value=absent))
+            self.assertEqual(out["status"], "delivered", out["failures"])
+            self.assertEqual(out["stages"]["database"]["migrations"]["status"], "missing")
+            self.assertIn("run.js", (project / ".factory" / "report.md").read_text(encoding="utf-8"))
+            mocks["api"].assert_called()
 
     def test_the_hosted_api_origin_is_what_the_frontend_is_deployed_against(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -407,16 +465,36 @@ class FullStackHostingTests(unittest.TestCase):
             self.assertTrue(any("contact" in f.lower() for f in out["failures"]), out["failures"])
 
     def test_a_blocked_database_stops_the_full_stack_claim(self):
+        from agent.db_provision import LEGACY_TEMPLATE_ENV_VAR, TEMPLATE_ENV_VAR
+        from agent.db_provision import missing_credential_message as block_message
+
         with tempfile.TemporaryDirectory() as tmp:
             project = self._project_with_backend(tmp)
+            # The real wording, so this cannot drift away from what a buyer reads.
             db = Mock(return_value={"ok": False, "status": "blocked", "database": "site",
-                                    "message": "no database server is configured; set NEON_TEMPLATE_DATABASE_URL"})
+                                    "message": block_message()})
             api = Mock(return_value={"status": "blocked", "verified": False,
                                      "message": "the API has no database to connect to"})
             out, _ = self._stages(project, "x", api_deploy=api, provision=db)
             self.assertEqual(out["status"], "partial")
-            self.assertTrue(any("NEON_TEMPLATE_DATABASE_URL" in f for f in out["failures"]),
-                            out["failures"])
+            self.assertTrue(any(TEMPLATE_ENV_VAR in f for f in out["failures"]), out["failures"])
+            self.assertTrue(any(LEGACY_TEMPLATE_ENV_VAR in f for f in out["failures"]),
+                            "an owner with the old spelling configured must recognise it")
+
+    def test_a_run_with_no_server_configured_names_both_spellings(self):
+        """The pipeline's own blocked branch, before any provisioner is called."""
+        from agent.db_provision import LEGACY_TEMPLATE_ENV_VAR, TEMPLATE_ENV_VAR
+
+        with tempfile.TemporaryDirectory() as tmp:
+            project = self._project_with_backend(tmp)
+            out, mocks = self._stages(project, "x", template="")
+            stage = out["stages"]["database"]
+            self.assertEqual(stage["status"], "blocked")
+            for name in (TEMPLATE_ENV_VAR, LEGACY_TEMPLATE_ENV_VAR, "CREATE DATABASE", "TLS"):
+                self.assertIn(name, stage["message"])
+            self.assertEqual(mocks["db"].call_count, 0, "a blocked run never reaches the runner")
+            self.assertEqual(mocks["api"].call_count, 0)
+            self.assertNotEqual(out["status"], "delivered")
 
     def test_an_operator_hosted_api_is_not_hosted_a_second_time(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -521,6 +599,8 @@ class FullStackHostingTests(unittest.TestCase):
             self.assertIn("Live updates", text)
             self.assertIn("412 ms", text)
             self.assertIn("row `3f9a`", text)
+            self.assertIn("3 migration(s) applied", text)
+            self.assertIn("003_create_contact_messages.js", text)
 
     def test_a_sub_millisecond_push_is_still_reported_as_live(self):
         """The live run measured 0 ms (the frame beat the latency floor) and the

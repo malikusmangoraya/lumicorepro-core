@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from utils.logger import agent_logger
+from agent.schema_guards import GUARD_FILENAME, write_migration_guards
 
 
 _INTENTS_ROUTE = """const express = require('express');
@@ -183,9 +184,11 @@ async function handleStripeWebhook(rawBody, signature) {
 module.exports = { createCheckoutSession, getOrderStatus, handleStripeWebhook };
 """
 
-_PAYMENT_MIGRATION = """module.exports = {
+_PAYMENT_MIGRATION = """const { createTableIfMissing, dropTableIfExists } = require('./_guards.js');
+
+module.exports = {
   up: async ({ queryInterface, Sequelize, transaction }) => {
-    await queryInterface.createTable('orders', {
+    await createTableIfMissing(queryInterface, 'orders', {
       id: { type: Sequelize.UUID, primaryKey: true, allowNull: false },
       user_id: { type: Sequelize.UUID, allowNull: false },
       status: { type: Sequelize.STRING(24), allowNull: false, defaultValue: 'pending' },
@@ -195,15 +198,15 @@ _PAYMENT_MIGRATION = """module.exports = {
       created_at: { type: Sequelize.DATE, allowNull: false },
       updated_at: { type: Sequelize.DATE, allowNull: false },
     }, { transaction });
-    await queryInterface.createTable('payment_events', {
+    await createTableIfMissing(queryInterface, 'payment_events', {
       event_id: { type: Sequelize.STRING(255), primaryKey: true, allowNull: false },
       event_type: { type: Sequelize.STRING(100), allowNull: false },
       created_at: { type: Sequelize.DATE, allowNull: false },
     }, { transaction });
   },
   down: async ({ queryInterface, transaction }) => {
-    await queryInterface.dropTable('payment_events', { transaction });
-    await queryInterface.dropTable('orders', { transaction });
+    await dropTableIfExists(queryInterface, 'payment_events', { transaction });
+    await dropTableIfExists(queryInterface, 'orders', { transaction });
   },
 };
 """
@@ -274,6 +277,12 @@ class CheckoutScaffolder:
             routes / "stripeRoutes.js": _INTENTS_ROUTE,
             migrations / "002_payment_events.js": _PAYMENT_MIGRATION,
         }
+        write_migration_guards(migrations)
+        payment_migration = migrations / "002_payment_events.js"
+        # A project that already shipped the unguarded version of this file would
+        # otherwise keep it: the loop below only writes what is missing.
+        if payment_migration.is_file() and "_guards.js" not in payment_migration.read_text(encoding="utf-8"):
+            payment_migration.write_text(_PAYMENT_MIGRATION, encoding="utf-8")
         for path, content in generated_files.items():
             if not path.is_file():
                 path.write_text(content, encoding="utf-8")

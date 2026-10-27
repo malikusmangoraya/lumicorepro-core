@@ -3,9 +3,14 @@
 Delivery used to stop at the frontend: hosting ``backend/`` and creating its
 database were manual steps done outside the pipeline, so a fresh prompt could
 never honestly claim a working full-stack product. This module automates the
-database half using credentials the owner already has — ``NEON_TEMPLATE_DATABASE_URL``
-points at any database on the target server, and the new project database is
-created alongside it.
+database half using credentials the owner already has —
+``FACTORY_DATABASE_TEMPLATE_URL`` points at any database on the target server,
+and the new project database is created alongside it.
+
+The name is provider-neutral on purpose: the runner speaks plain PostgreSQL, so
+Neon, Supabase, Render, Railway, a self-hosted cluster or a managed instance from
+any other vendor all work. ``NEON_TEMPLATE_DATABASE_URL`` is still read, as the
+legacy spelling of the same credential.
 
 The runner is Node, executed inside the generated ``backend/`` directory: that
 package already depends on ``pg``, so provisioning installs nothing new and uses
@@ -23,7 +28,10 @@ from pathlib import Path
 from typing import Any, Dict
 
 DATABASE_NAME_RE = re.compile(r"^[a-z][a-z0-9_]{1,30}$")
-TEMPLATE_ENV_VAR = "NEON_TEMPLATE_DATABASE_URL"
+TEMPLATE_ENV_VAR = "FACTORY_DATABASE_TEMPLATE_URL"
+LEGACY_TEMPLATE_ENV_VAR = "NEON_TEMPLATE_DATABASE_URL"
+TEMPLATE_ENV_VARS = (TEMPLATE_ENV_VAR, LEGACY_TEMPLATE_ENV_VAR)
+MIGRATIONS_ENTRY = "migrations/run.js"
 _TIMEOUT_SECONDS = 120
 
 # The database name is the one part of CREATE DATABASE that PostgreSQL will not
@@ -84,10 +92,29 @@ def _from_env_files(name: str) -> str:
 
 
 def template_url(env_value: str | None = None) -> str:
-    """The configured server-wide credential, or "" when the owner has not set one."""
+    """The configured server-wide credential, or "" when the owner has not set one.
+
+    The provider-neutral name wins; the legacy Neon spelling is the fallback. Each
+    is looked up in the process environment first, then in the agent's env files.
+    """
     if env_value is not None:
         return (env_value or "").strip()
-    return (os.getenv(TEMPLATE_ENV_VAR, "") or "").strip() or _from_env_files(TEMPLATE_ENV_VAR)
+    for name in TEMPLATE_ENV_VARS:
+        value = (os.getenv(name, "") or "").strip() or _from_env_files(name)
+        if value:
+            return value
+    return ""
+
+
+def missing_credential_message(action: str = "create the project's database") -> str:
+    """One wording for "the owner has not given the factory a server", everywhere.
+
+    Naming both spellings keeps existing `ai-agent/.env` files working while the
+    provider-neutral name is the one documented first.
+    """
+    return (f"no database server is configured: set {TEMPLATE_ENV_VAR} in ai-agent/.env "
+            f"(or the legacy {LEGACY_TEMPLATE_ENV_VAR}) to a PostgreSQL connection string "
+            f"whose role can CREATE DATABASE and that accepts TLS, so the factory can {action}")
 
 
 def database_name(slug: str) -> str:
@@ -112,16 +139,81 @@ def _run_create(name: str, url: str, backend_dir: str | Path) -> Dict[str, Any]:
     except (subprocess.TimeoutExpired, OSError) as exc:
         # TimeoutExpired carries the command list; the name is safe, the URL is not.
         return {"ok": False, "message": _scrub(f"database creation did not complete: {type(exc).__name__}", url)}
-    lines = [line for line in (proc.stdout or "").splitlines() if line.strip()]
+    return _machine_payload(proc.stdout, proc.stderr, url, "the database runner")
+
+
+def _machine_payload(stdout: str, stderr: str, url: str, runner: str) -> Dict[str, Any]:
+    """Read the one machine-readable line a Node runner prints.
+
+    A runner that prints nothing parseable is reported as a failure naming its
+    output — never as a silent success, which is how a stage used to read `done`
+    while the database stayed empty.
+    """
+    lines = [line for line in (stdout or "").splitlines() if line.strip()]
     try:
         payload = json.loads(lines[-1]) if lines else {}
     except ValueError:
         payload = {}
     if not isinstance(payload, dict) or "ok" not in payload:
-        tail = ((proc.stderr or "") + " ".join(lines)).strip()[-240:]
-        return {"ok": False, "message": _scrub(f"the database runner returned no machine-readable result: {tail}", url)}
-    payload["message"] = _scrub(str(payload.get("message", "")), url)
+        tail = ((stderr or "") + " ".join(lines)).strip()[-240:]
+        return {"ok": False, "message": _scrub(f"{runner} returned no machine-readable result: {tail}", url)}
+    payload["message"] = _scrub(str(payload.get("message", "") or payload.get("error", "")), url)
     return payload
+
+
+def run_migrations(backend_dir: str | Path, database_url: str,
+                   timeout: int = _TIMEOUT_SECONDS) -> Dict[str, Any]:
+    """Apply the project's own schema to the database it was just given.
+
+    Creating the database leaves it empty. Without this step the delivered product
+    has a hosted API whose tables only appear as a side effect of ``sync()`` on
+    the first request — and ``npm run db:migrate`` in the buyer's folder then dies
+    on ``relation already exists``. So the pipeline runs the same entry point the
+    buyer runs, against the URL it just provisioned, before anything is deployed.
+
+    The credential travels in the child's environment only: argv is echoed by
+    ``subprocess`` exceptions and by a shell's job listing.
+    """
+    if not (database_url or "").strip():
+        return {"ok": False, "status": "blocked",
+                "message": "no database connection string, so there is nothing to migrate"}
+    entry = Path(backend_dir) / MIGRATIONS_ENTRY
+    if not entry.is_file():
+        return {"ok": False, "status": "missing",
+                "message": f"backend/{MIGRATIONS_ENTRY} is absent, so this project's schema "
+                           "cannot be applied"}
+    node = shutil.which("node")
+    if not node:
+        return {"ok": False, "status": "failed",
+                "message": "node is unavailable, so the migrations cannot run"}
+    # DATABASE_URL overrides backend/.env in the child process (dotenv never
+    # replaces a variable already in the environment), so the migrations land on
+    # the database this run provisioned rather than whatever the file last held.
+    env = dict(os.environ, DATABASE_URL=database_url.strip())
+    try:
+        proc = subprocess.run([node, MIGRATIONS_ENTRY], cwd=str(entry.parent.parent), env=env,
+                              capture_output=True, text=True, timeout=timeout,
+                              encoding="utf-8", errors="replace")
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "status": "failed",
+                "message": _scrub(f"the migrations did not complete within {timeout} s", database_url)}
+    except OSError as exc:
+        return {"ok": False, "status": "failed",
+                "message": _scrub(f"the migration runner could not start: {type(exc).__name__}", database_url)}
+    payload = _machine_payload(proc.stdout, proc.stderr, database_url, "the migration runner")
+    if not payload.get("ok"):
+        return {"ok": False, "status": "failed", "exit_code": proc.returncode,
+                "message": payload.get("message") or "the migrations failed"}
+    if proc.returncode != 0:
+        # A report that says "ok" while the process exited non-zero is a runner
+        # that caught its own failure and lied about it.
+        return {"ok": False, "status": "failed", "exit_code": proc.returncode,
+                "message": _scrub(f"the migration runner reported success but exited "
+                                  f"{proc.returncode}", database_url)}
+    applied = int(payload.get("applied") or 0)
+    return {"ok": True, "status": "applied" if applied else "uptodate", "applied": applied,
+            "names": [str(name) for name in (payload.get("names") or [])][:12],
+            "message": "" if applied else "every migration was already recorded, nothing to apply"}
 
 
 def _scrub(text: str, secret: str) -> str:
@@ -137,6 +229,11 @@ def _scrub(text: str, secret: str) -> str:
              if len(p) >= 4]
     for part in sorted(parts, key=len, reverse=True):
         masked = masked.replace(part, "[credentials]")
+    # A driver re-formats the URL it was handed (Sequelize prints its own config),
+    # so the exact string above never matches. Any scheme-bearing URL in the
+    # message is treated as a credential, because none of our messages carry one.
+    masked = re.sub(r"(?i)\b(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis)://\S+",
+                    "[connection string]", masked)
     return masked
 
 
@@ -156,8 +253,7 @@ def provision_database(slug: str, template: str = "", backend_dir: str | Path = 
                            "2-31 characters)"}
     if not url:
         return {"ok": False, "status": "blocked", "database": name,
-                "message": f"no database server is configured; set {TEMPLATE_ENV_VAR} in ai-agent/.env "
-                           "to a connection string for any database on the target server"}
+                "message": missing_credential_message()}
     result = _run_create(name, url, backend_dir)
     if not result.get("ok"):
         return {"ok": False, "status": "failed", "database": name,

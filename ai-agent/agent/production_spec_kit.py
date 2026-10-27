@@ -32,6 +32,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+from agent.schema_guards import write_migration_guards
+
 _FRONTEND_DOCKERFILE = """\
 # ── Stage 1: Build ─────────────────────────────────
 FROM node:20-alpine AS builder
@@ -1022,6 +1024,12 @@ npm install
 npm run dev                   # http://localhost:5173
 ```
 
+`npm run db:migrate` is safe to re-run as often as you like: each migration asks
+Postgres what already exists and applies only the gap, so a database that arrived
+via the API's first-request `sync()`, a partially applied deploy, or a second
+`npm run db:migrate` all converge on the same schema instead of aborting with
+`relation "already exists"`.
+
 ## 3. One-Command Docker Run
 
 ```bash
@@ -1197,13 +1205,17 @@ def _merge_backend_pkg(backend: Path) -> List[str]:
 
 def _ensure_records_table(migrations: Path) -> Path:
     path = migrations / "002_create_records_table.js"
-    if path.exists():
+    if path.exists() and "_guards.js" in path.read_text(encoding="utf-8", errors="ignore"):
         return path
+    # Rewritten when absent *or* when an older run shipped the unguarded version:
+    # a product already delivered would otherwise keep a migration that crashes
+    # on the tables its own deployed API created with sync().
     path.write_text("""const { DataTypes } = require('sequelize');
+const { createTableIfMissing, addIndexIfMissing, dropTableIfExists } = require('./_guards.js');
 
 module.exports = {
   async up({ context: queryInterface }) {
-    await queryInterface.createTable('records', {
+    await createTableIfMissing(queryInterface, 'records', {
       id: { type: DataTypes.UUID, primaryKey: true },
       title: { type: DataTypes.STRING(160), allowNull: false },
       body: { type: DataTypes.TEXT },
@@ -1215,11 +1227,11 @@ module.exports = {
       createdAt: { type: DataTypes.DATE, allowNull: false },
       updatedAt: { type: DataTypes.DATE, allowNull: false },
     });
-    await queryInterface.addIndex('records', ['userId']);
-    await queryInterface.addIndex('records', ['status']);
+    await addIndexIfMissing(queryInterface, 'records', ['userId']);
+    await addIndexIfMissing(queryInterface, 'records', ['status']);
   },
   async down({ context: queryInterface }) {
-    await queryInterface.dropTable('records');
+    await dropTableIfExists(queryInterface, 'records');
   },
 };
 """, encoding="utf-8")
@@ -1265,6 +1277,7 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
 
     # 5. Live CRUD (records entity + migration)
     _write(backend / "routes" / "records.routes.js", _RECORDS_JS)
+    write_migration_guards(backend / "migrations")
     _ensure_records_table(backend / "migrations")
 
     # 5b. Live push: the change bus and its SSE feed ship with every product,

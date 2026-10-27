@@ -107,7 +107,8 @@ class ProvisionDatabaseTests(unittest.TestCase):
             evidence = dbp.provision_database("acme_desk", "", backend_dir=".")
         self.assertFalse(evidence["ok"])
         self.assertEqual(evidence["status"], "blocked")
-        self.assertIn("NEON_TEMPLATE_DATABASE_URL", evidence["message"])
+        self.assertIn(dbp.TEMPLATE_ENV_VAR, evidence["message"])
+        self.assertIn(dbp.LEGACY_TEMPLATE_ENV_VAR, evidence["message"])
         runner.assert_not_called()
 
     def test_no_template_configured_yields_the_actionable_reason(self):
@@ -117,7 +118,8 @@ class ProvisionDatabaseTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True), \
              patch.object(dbp, "_ENV_CANDIDATES", lambda: []):
             self.assertEqual(dbp.template_url(), "")
-        with patch.dict(os.environ, {"NEON_TEMPLATE_DATABASE_URL": "  postgres://h/db  "}):
+        with patch.dict(os.environ, {dbp.LEGACY_TEMPLATE_ENV_VAR: "  postgres://h/db  "}), \
+             patch.object(dbp, "_ENV_CANDIDATES", lambda: []):
             self.assertEqual(dbp.template_url(), "postgres://h/db")
 
 
@@ -254,8 +256,43 @@ class TemplateUrlTests(unittest.TestCase):
     agent-only credential has to be readable from `ai-agent/.env` as well."""
 
     def test_an_environment_value_wins(self):
-        with patch.dict(os.environ, {dbp.TEMPLATE_ENV_VAR: TEMPLATE}):
+        with patch.dict(os.environ, {dbp.TEMPLATE_ENV_VAR: TEMPLATE}), \
+             patch.object(dbp, "_ENV_CANDIDATES", lambda: []):
             self.assertEqual(dbp.template_url(), TEMPLATE)
+
+    def test_the_legacy_neon_spelling_still_resolves(self):
+        """Renaming the credential may not brick a server an owner already configured."""
+        with patch.dict(os.environ, {}, clear=True), \
+             patch.object(dbp, "_ENV_CANDIDATES", lambda: []), \
+             patch.dict(os.environ, {dbp.LEGACY_TEMPLATE_ENV_VAR: TEMPLATE}):
+            self.assertEqual(dbp.template_url(), TEMPLATE)
+
+    def test_the_provider_neutral_name_wins_when_both_are_set(self):
+        with patch.dict(os.environ, {}, clear=True), \
+             patch.object(dbp, "_ENV_CANDIDATES", lambda: []), \
+             patch.dict(os.environ, {dbp.TEMPLATE_ENV_VAR: TEMPLATE,
+                                     dbp.LEGACY_TEMPLATE_ENV_VAR: "postgres://legacy:pw@h/db"}):
+            self.assertEqual(dbp.template_url(), TEMPLATE)
+
+    def test_the_env_file_is_read_for_either_spelling(self):
+        for name in (dbp.TEMPLATE_ENV_VAR, dbp.LEGACY_TEMPLATE_ENV_VAR):
+            with self.subTest(var=name), tempfile.TemporaryDirectory() as tmp:
+                env_file = Path(tmp) / ".env"
+                env_file.write_text(f"{name}={TEMPLATE}\n", encoding="utf-8")
+                with patch.dict(os.environ, {}, clear=True), \
+                     patch.object(dbp, "_ENV_CANDIDATES", lambda: [env_file]):
+                    self.assertEqual(dbp.template_url(), TEMPLATE)
+
+    def test_the_block_message_tells_the_owner_both_names_and_the_server_need(self):
+        """A rename that hides the old spelling, or a message that never says what
+        the role must be able to do, turns one config gap into a support thread."""
+        message = dbp.missing_credential_message()
+        self.assertIn(dbp.TEMPLATE_ENV_VAR, message)
+        self.assertIn(dbp.LEGACY_TEMPLATE_ENV_VAR, message)
+        self.assertLess(message.index(dbp.TEMPLATE_ENV_VAR), message.index(dbp.LEGACY_TEMPLATE_ENV_VAR),
+                        "the provider-neutral name is documented first")
+        for requirement in ("CREATE DATABASE", "TLS", "ai-agent/.env"):
+            self.assertIn(requirement, message)
 
     def test_the_agent_env_file_is_read_when_the_environment_is_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -299,6 +336,142 @@ class ClearedEnvironmentIsolationTests(unittest.TestCase):
             offenders, [],
             "add `patch.object(dbp, \"_ENV_CANDIDATES\", lambda: [])` — clearing os.environ "
             "still lets template_url() open ai-agent/.env and leak a real credential into the log")
+
+
+class RunMigrationsTests(unittest.TestCase):
+    """Creating a database leaves it empty: the product's own schema still has
+    to be applied before anything is deployed against it."""
+
+    def _backend(self, root: str, runner: bool = True) -> Path:
+        backend = Path(root)
+        (backend / "migrations").mkdir(parents=True, exist_ok=True)
+        if runner:
+            (backend / "migrations" / "run.js").write_text("// generated runner\n", encoding="utf-8")
+        return backend
+
+    def _completed(self, returncode=0, stdout="", stderr=""):
+        return Mock(return_value=Mock(returncode=returncode, stdout=stdout, stderr=stderr))
+
+    def test_the_url_reaches_the_runner_through_the_environment_only(self):
+        """Same rule as creation: subprocess echoes argv, and a re-formatted URL in
+        an error message is a credential in a log."""
+        run = self._completed(stdout=json.dumps({"ok": True, "applied": 3, "names": ["001.js"]}))
+        with tempfile.TemporaryDirectory() as tmp:
+            backend = self._backend(tmp)
+            with patch.object(subprocess, "run", run):
+                dbp.run_migrations(backend, TEMPLATE)
+        command = run.call_args[0][0]
+        self.assertNotIn(TEMPLATE, " ".join(command))
+        self.assertEqual(command[1:], [dbp.MIGRATIONS_ENTRY])
+        self.assertEqual(run.call_args[1]["env"]["DATABASE_URL"], TEMPLATE)
+        self.assertEqual(run.call_args[1]["cwd"], str(backend))
+
+    def test_the_provisioned_url_overrides_the_file_the_project_ships(self):
+        """`backend/.env` may still name an older database; the migrations must land
+        on the one this run created, or the delivered product points at a schema
+        that was never migrated."""
+        run = self._completed(stdout=json.dumps({"ok": True, "applied": 1, "names": ["001.js"]}))
+        url = dbp.database_url_for(TEMPLATE, "acme_desk")
+        with tempfile.TemporaryDirectory() as tmp:
+            backend = self._backend(tmp)
+            (backend / ".env").write_text(f"DATABASE_URL={TEMPLATE}\n", encoding="utf-8")
+            with patch.object(subprocess, "run", run):
+                dbp.run_migrations(backend, url)
+        self.assertEqual(run.call_args[1]["env"]["DATABASE_URL"], url)
+
+    def test_nothing_is_spawned_without_a_connection_string(self):
+        run = self._completed()
+        with tempfile.TemporaryDirectory() as tmp:
+            backend = self._backend(tmp)
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(backend, "")
+        self.assertEqual(result["status"], "blocked")
+        self.assertFalse(result["ok"])
+        run.assert_not_called()
+
+    def test_a_project_with_no_migration_entry_point_is_named_not_guessed(self):
+        run = self._completed()
+        with tempfile.TemporaryDirectory() as tmp:
+            backend = self._backend(tmp, runner=False)
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(backend, TEMPLATE)
+        self.assertEqual(result["status"], "missing")
+        self.assertIn("migrations/run.js", result["message"])
+        run.assert_not_called()
+
+    def test_a_database_already_at_the_head_is_success(self):
+        """applied: 0 means the schema is current — a redeploy must not read that
+        as a failure, or every re-delivery reports a broken database."""
+        run = self._completed(stdout=json.dumps({"ok": True, "applied": 0, "names": []}))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["status"], "uptodate")
+        self.assertEqual(result["applied"], 0)
+
+    def test_the_applied_migrations_are_counted_from_the_report(self):
+        run = self._completed(stdout=json.dumps(
+            {"ok": True, "applied": 2, "names": ["001_create_core_tables.js", "002_create_records_table.js"]}))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertEqual((result["status"], result["applied"]), ("applied", 2))
+        self.assertEqual(len(result["names"]), 2)
+
+    def test_a_runner_that_exits_nonzero_after_reporting_success_is_a_failure(self):
+        run = self._completed(returncode=1, stdout=json.dumps({"ok": True, "applied": 1, "names": ["001.js"]}))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("exited 1", result["message"])
+
+    def test_a_migration_error_naming_the_url_loses_the_url(self):
+        leaked = json.dumps({"ok": False, "error": f"syntax error near {TEMPLATE}"})
+        run = self._completed(returncode=1, stdout=leaked)
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertFalse(result["ok"])
+        blob = json.dumps(result)
+        self.assertNotIn("npg_synthetic", blob)
+        self.assertNotIn("neondb_owner", blob)
+
+    def test_a_runner_that_prints_prose_is_not_a_pass(self):
+        run = self._completed(stdout="== migrations complete ==\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertFalse(result["ok"])
+        self.assertIn("no machine-readable result", result["message"])
+
+    def test_a_timeout_is_reported_without_echoing_the_command(self):
+        run = Mock(side_effect=subprocess.TimeoutExpired(cmd=["node", "migrations/run.js", TEMPLATE], timeout=1))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(subprocess, "run", run):
+                result = dbp.run_migrations(self._backend(tmp), TEMPLATE)
+        self.assertFalse(result["ok"])
+        self.assertNotIn("npg_synthetic", json.dumps(result))
+
+    def test_a_missing_node_is_reported_not_raised(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            backend = self._backend(tmp)
+            with patch.object(dbp.shutil, "which", return_value=None):
+                result = dbp.run_migrations(backend, TEMPLATE)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "failed")
+
+
+class ScrubbedUrlShapeTests(unittest.TestCase):
+    def test_a_url_the_driver_reformatted_is_still_masked(self):
+        """Sequelize prints its own connection config, so the exact string we handed
+        it never appears in the message — the scheme is what identifies it."""
+        message = "connection rejected: postgres://someone:totally-other-secret@other-host:5432/db"
+        clean = dbp._scrub(message, TEMPLATE)
+        self.assertNotIn("totally-other-secret", clean)
+        self.assertIn("connection rejected", clean)
 
 
 if __name__ == "__main__":

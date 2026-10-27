@@ -205,7 +205,9 @@ class BackendDeployGateTests(unittest.TestCase):
             captured = {}
             result = _run_deploy(project, captured)
             self.assertEqual(result["status"], "blocked")
-            self.assertIn("NEON_TEMPLATE_DATABASE_URL", result["message"])
+            self.assertIn("FACTORY_DATABASE_TEMPLATE_URL", result["message"])
+            self.assertIn("NEON_TEMPLATE_DATABASE_URL", result["message"],
+                          "the message must still recognise the spelling an owner may already have")
             self.assertEqual(captured.get("calls", []), [], "the CLI must not run at all")
 
     def test_live_is_refused_when_the_hosted_database_is_unreachable(self):

@@ -42,6 +42,7 @@ The report is written to `<project>/.factory/report.json` and `.factory/report.m
 | `backend_tests` | `npm install` in `backend/` succeeds, the project owns at least one `*.test.js`, and `npm test` exits 0 | install + test tails, cwd |
 | `qa` | browser QA reports `passed` at 375/768/1024/1440 | screenshots, console errors, overflow |
 | `database` | a per-product Postgres database exists, its URL was handed to the API **and** written into the delivered `backend/.env` | database name, host (never the credential) |
+| `schema` | `node backend/migrations/run.js` answers one JSON line with `ok: true` against the URL just provisioned, **before** anything is deployed — and it may be run twice: every `up()`/`down()` goes through `_guards.js`, which creates only what Postgres does not already have | `applied` count, migration names, `uptodate`/`missing` status |
 | `api` | `backend/` is deployed and its hosted `/api/v1/health` answers 200 with `db: connected` | API URL, health URL, deployment id |
 | `deploy` | the platform CLI prints a URL **and** `verify_site` passes against it — an exit code alone is not a delivery | deployment id, URL, per-check evidence |
 | live verify | HTTP 200, real `<title>`, app shell, every referenced JS/CSS asset, every expected SPA route, optional marker + API health | status codes, failures, timings |
@@ -56,8 +57,12 @@ then calls the API a success. `delivered` additionally requires the handshake st
 health endpoint alone proves the process started, not that a client can save data, that the
 dashboard's own routes answer, or that the change feed pushes. Each probe deletes the rows it
 created, and the session token it signed with never enters the report. This
-needs `NEON_TEMPLATE_DATABASE_URL` in `ai-agent/.env`; without it the run stops as
-`database not provisioned` instead of shipping a form that cannot write.
+needs `FACTORY_DATABASE_TEMPLATE_URL` in `ai-agent/.env` (the legacy
+`NEON_TEMPLATE_DATABASE_URL` still resolves); without it the run stops as
+`database not provisioned` instead of shipping a form that cannot write. The
+server may be from any provider — the runner speaks plain PostgreSQL over `pg`,
+so Neon, Supabase, Render, Railway or your own cluster all work. Two
+requirements: the role must be able to `CREATE DATABASE`, and it must accept TLS.
 
 **API hosting is a separate stage by design.** Vercel/Netlify/GitHub Pages serve the
 frontend only. When the project contains `backend/`, a run with a hosted API must pass
@@ -305,13 +310,17 @@ sources; `/api/v1/ai/generate` streams with SSE.
 | Needed | Why | Where |
 |--------|-----|-------|
 | A real LLM key (`GROQ_API_KEY`/`GROK_API_KEY`, `XAI_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`) | chat/generate endpoints; placeholders return 401 | `.env` / hosting env |
-| `NEON_TEMPLATE_DATABASE_URL` | the factory creates one database per product and the API must reach it | `ai-agent/.env` (git-ignored) |
+| `FACTORY_DATABASE_TEMPLATE_URL` (or the legacy `NEON_TEMPLATE_DATABASE_URL`) | the factory creates one database per product, migrates it, and the API must reach it — any Postgres provider whose role can `CREATE DATABASE` over TLS | `ai-agent/.env` (git-ignored) |
 | A PostgreSQL URL | auth, records, contact, RAG | issued per product by `agent/db_provision.py`, or your own Railway/Render/Neon |
 | Vercel CLI login (present on this machine) or `VERCEL_TOKEN` | frontend **and** `backend/` deploy | already configured |
 | Railway token + public domain, or Render account | self-hosted API + health verification | Railway/Render dashboard |
 
-Without `NEON_TEMPLATE_DATABASE_URL` a backend run stops at `database not provisioned`
-rather than deploying an API that cannot connect — and it says so in the report.
+Without `FACTORY_DATABASE_TEMPLATE_URL` a backend run stops at `database not provisioned`
+rather than deploying an API that cannot connect — and it says so in the report, naming
+both spellings and what the server must allow. The same run then refuses to host an API
+over a database it could not migrate: `schema-incomplete` blocks `delivered`, because an
+empty schema and a live-looking process is exactly how a product ships whose buyer cannot
+run `npm run db:migrate`.
 
 ## HTTP API
 
