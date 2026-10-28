@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /orbitboard/
+Disallow: /orbitboard/login
+Disallow: /orbitboard/register
+Disallow: /orbitboard/admin
+Disallow: /orbitboard/checkout
+
+Sitemap: https://malikusmangoraya.github.io/lumicorepro-core/orbitboard/sitemap.xml
