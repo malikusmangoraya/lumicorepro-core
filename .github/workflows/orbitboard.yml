@@ -1,0 +1,103 @@
+name: Orbitboard CI and Pages deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'delivery/orbitboard/app/**'
+      - '.github/workflows/orbitboard.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'delivery/orbitboard/app/**'
+      - '.github/workflows/orbitboard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orbitboard-gh-pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify Orbitboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: delivery/orbitboard/app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefix delivery/orbitboard/app
+
+      - name: Run unit tests
+        run: npm --prefix delivery/orbitboard/app run test
+
+      - name: Install Chromium
+        run: npx --prefix delivery/orbitboard/app playwright install --with-deps chromium
+
+      - name: Run public-route browser tests
+        run: npm --prefix delivery/orbitboard/app run test:e2e
+
+      - name: Run mocked authentication browser tests
+        run: npm --prefix delivery/orbitboard/app run test:e2e:auth
+        env:
+          ORBITBOARD_AUTH_TESTS: '1'
+          VITE_SUPABASE_URL: https://auth.test.local
+          VITE_SUPABASE_ANON_KEY: test-public-anon-key
+
+      - name: Build Orbitboard
+        run: npm --prefix delivery/orbitboard/app run build
+        env:
+          VITE_BASE_PATH: /lumicorepro-core/orbitboard/
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Upload verified site
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbitboard-site
+          path: delivery/orbitboard/app/dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Publish Orbitboard subdirectory
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Download verified site
+        uses: actions/download-artifact@v4
+        with:
+          name: orbitboard-site
+          path: orbitboard-build
+
+      - name: Replace Orbitboard subdirectory only
+        run: |
+          mkdir -p gh-pages/orbitboard
+          rsync -a --delete orbitboard-build/ gh-pages/orbitboard/
+
+      - name: Commit and publish
+        run: |
+          git -C gh-pages config user.name "github-actions[bot]"
+          git -C gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C gh-pages add -- orbitboard
+          if git -C gh-pages diff --cached --quiet; then
+            echo "Orbitboard Pages artifact is already current."
+            exit 0
+          fi
+          git -C gh-pages commit -m "deploy: publish Orbitboard"
+          git -C gh-pages push origin gh-pages
