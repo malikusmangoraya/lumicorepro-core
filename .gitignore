@@ -81,6 +81,8 @@ venv/
 delivery/*
 !delivery/DELIVERY_MANIFEST.md
 !delivery/README.md
+# Orbitboard is maintained application source, not a generated delivery artifact.
+!delivery/orbitboard/
 
 # Superseded / duplicate delivery + archive trees
 delivery-new/
