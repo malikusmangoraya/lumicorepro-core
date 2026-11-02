@@ -47,7 +47,7 @@ jobs:
     name: Dump production database
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Require DATABASE_URL
         env:
@@ -96,7 +96,7 @@ jobs:
           echo "OK: archive verified"
 
       - name: Upload backup artifact (retained 14 days)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lumicorepro-db-${{ github.run_id }}
           path: backups/*.tar.gz
@@ -135,7 +135,7 @@ jobs:
           sudo apt-get install -y -qq postgresql-client > /dev/null
 
       - name: Download backup artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: lumicorepro-db-${{ github.run_id }}
           path: ./restore-src
