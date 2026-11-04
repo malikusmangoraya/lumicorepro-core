@@ -241,6 +241,22 @@ Each of these is a deliberate boundary, not a missing feature that fails silentl
 
 ---
 
+## Demo imagery
+
+The six vehicle photos in `public/vehicles/` are **AI-generated demo renders**, not
+photographs of real cars and not stock licensed from a third party. They exist so the
+template looks finished out of the box and ships with clean rights.
+
+Before launch:
+
+1. Replace each file in `public/vehicles/` with your own photography (keep the filename).
+2. Update the `media` array for each vehicle in `prisma/seed.ts` if the filenames differ.
+3. Re-run `npm run db:seed`.
+
+The social card `public/og.jpg` is composed from the Porsche render — regenerate it from
+your own hero shot.
+
 ## License
 
-MIT — see [LICENSE.md](./LICENSE.md).
+MIT — see [LICENSE.md](./LICENSE.md). The demo imagery is generated specifically for this
+template and carries the same MIT grant.

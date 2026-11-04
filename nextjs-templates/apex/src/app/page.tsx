@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ArrowRight, BadgeCheck, Gauge, Handshake, ShieldCheck, Truck } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/button';
 import { Section, SectionHeading } from '@/components/ui/section';
@@ -80,23 +81,48 @@ export default async function HomePage() {
             </dl>
           </div>
 
-          <div className="rounded-panel border border-line bg-surface/70 p-6 shadow-panel backdrop-blur">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-600 text-heading">What you get</h2>
-              <Badge tone="primary">Every car</Badge>
+          <div className="relative">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.4rem] border border-line bg-surface shadow-[0_30px_80px_-40px_rgb(183_92_246/0.65)] sm:aspect-[5/4] lg:aspect-[4/5]">
+              <Image
+                src="/vehicles/2022-porsche-911-gt3.webp"
+                alt="2022 Porsche 911 GT3 in GT Silver, parked on wet asphalt at dusk"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/20 to-transparent"
+                aria-hidden="true"
+              />
+
+              <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/10 bg-canvas/80 p-4 backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-accent">
+                      Just listed
+                    </p>
+                    <p className="mt-1 font-display text-base font-600 text-heading">
+                      2022 Porsche 911 GT3
+                    </p>
+                  </div>
+                  <Badge tone="primary">Every car</Badge>
+                </div>
+                <ul className="mt-3 grid gap-1.5">
+                  {checklist.slice(0, 3).map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-xs text-body/80">
+                      <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <ul className="mt-5 space-y-3">
-              {checklist.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-body/85">
-                  <BadgeCheck className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 border-t border-line/70 pt-4 text-xs leading-relaxed text-muted">
-              Listed prices are the price you pay. Taxes and registration are shown separately at
-              checkout, never buried.
-            </p>
+
+            <div className="absolute -left-3 top-6 hidden rounded-full border border-line bg-canvas/90 px-3 py-1.5 text-xs font-medium text-heading backdrop-blur sm:flex sm:items-center sm:gap-2">
+              <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
+              Provenance verified
+            </div>
           </div>
         </div>
       </section>

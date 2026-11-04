@@ -22,7 +22,7 @@ const vehicles = [
     locationCountry: 'United States',
     locationRegion: 'California',
     status: 'active',
-    media: JSON.stringify([{ url: '/vehicles/2022-porsche-911-gt3.svg', alt: '2022 Porsche 911 GT3' }]),
+    media: JSON.stringify([{ url: '/vehicles/2022-porsche-911-gt3.webp', alt: '2022 Porsche 911 GT3' }]),
     inspectionReferences: JSON.stringify([
       '180-point inspection, 14 March 2026 — no findings',
       'Paint depth: original on all panels',
@@ -51,7 +51,7 @@ const vehicles = [
     locationCountry: 'United States',
     locationRegion: 'Florida',
     status: 'active',
-    media: JSON.stringify([{ url: '/vehicles/2019-ferrari-488-pista.svg', alt: '2019 Ferrari 488 Pista' }]),
+    media: JSON.stringify([{ url: '/vehicles/2019-ferrari-488-pista.webp', alt: '2019 Ferrari 488 Pista' }]),
     inspectionReferences: JSON.stringify([
       'Ferrari dealer major service, January 2026',
       'Classiche certification folder present',
@@ -80,7 +80,7 @@ const vehicles = [
     locationCountry: 'United States',
     locationRegion: 'New York',
     status: 'active',
-    media: JSON.stringify([{ url: '/vehicles/2021-mclaren-720s.svg', alt: '2021 McLaren 720S' }]),
+    media: JSON.stringify([{ url: '/vehicles/2021-mclaren-720s.webp', alt: '2021 McLaren 720S' }]),
     inspectionReferences: JSON.stringify([
       'McLaren service history, three stamps',
       'Active aero and suspension verified on ramp',
@@ -110,7 +110,7 @@ const vehicles = [
     locationRegion: 'Texas',
     status: 'active',
     media: JSON.stringify([
-      { url: '/vehicles/2018-lamborghini-huracan-performante.svg', alt: '2018 Lamborghini Huracán' },
+      { url: '/vehicles/2018-lamborghini-huracan-performante.webp', alt: '2018 Lamborghini Huracán' },
     ]),
     inspectionReferences: JSON.stringify([
       'Lamborghini service history, four stamps',
@@ -140,7 +140,7 @@ const vehicles = [
     locationCountry: 'United States',
     locationRegion: 'Washington',
     status: 'active',
-    media: JSON.stringify([{ url: '/vehicles/2020-aston-martin-vantage.svg', alt: '2020 Aston Martin Vantage' }]),
+    media: JSON.stringify([{ url: '/vehicles/2020-aston-martin-vantage.webp', alt: '2020 Aston Martin Vantage' }]),
     inspectionReferences: JSON.stringify([
       'Aston Martin main-dealer service history',
       'Powertrain inspection, no faults stored',
@@ -169,7 +169,7 @@ const vehicles = [
     locationCountry: 'United States',
     locationRegion: 'Illinois',
     status: 'active',
-    media: JSON.stringify([{ url: '/vehicles/2017-audi-r8-v10-plus.svg', alt: '2017 Audi R8 V10 Plus' }]),
+    media: JSON.stringify([{ url: '/vehicles/2017-audi-r8-v10-plus.webp', alt: '2017 Audi R8 V10 Plus' }]),
     inspectionReferences: JSON.stringify([
       'Audi service history, six stamps',
       'Carbon clean completed February 2026',

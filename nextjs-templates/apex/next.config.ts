@@ -16,11 +16,9 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
     formats: ['image/avif', 'image/webp'],
-    // The seeded vehicle artwork is local SVG. Only enable this because the
-    // files are ours and served from /public; never for user uploads.
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // SVG is deliberately NOT allowed through next/image: the only SVG in the
+    // project is the favicon, which Next serves directly. Enabling it would let
+    // an uploaded SVG execute script on the image host.
   },
   async headers() {
     return [

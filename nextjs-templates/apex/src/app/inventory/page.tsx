@@ -80,7 +80,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
               </span>
             )}
           </p>
-          <p className="text-xs">Photos are of the actual car, not stock imagery.</p>
+          <p className="text-xs">Demo imagery — swap in your own photography before launch.</p>
         </div>
 
         {!result.databaseReady ? (

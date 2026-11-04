@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     description:
       'Your next car, found faster. A curated inventory with provenance verification and private viewings.',
     url: siteUrl,
-    images: [{ url: '/og.svg', width: 1200, height: 630, alt: 'Apex Motor Collective' }],
+    images: [{ url: '/og.jpg', width: 1200, height: 630, alt: 'Apex Motor Collective' }],
   },
   twitter: {
     card: 'summary_large_image',
