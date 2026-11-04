@@ -22,6 +22,12 @@ jobs:
         # commit deletes it. Fail before installing anything.
         run: node scripts/check-tracked-secrets.mjs
 
+      - name: Workflow if-context guard
+        # A job-level `if:` cannot read `secrets.*`; GitHub rejects the whole
+        # workflow file and reports "workflow file issue" with no log, so the
+        # gate that should catch a bad release never runs at all.
+        run: node scripts/check-workflows.mjs
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

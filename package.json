@@ -16,6 +16,7 @@
     "size": "node scripts/check-bundle-budget.mjs",
     "check:budget": "node scripts/check-bundle-budget.mjs",
     "check:secrets": "node scripts/check-tracked-secrets.mjs",
+    "check:workflows": "node scripts/check-workflows.mjs",
     "test:perf": "node scripts/lighthouse.mjs",
     "preview": "vite preview",
     "test": "vitest run",
