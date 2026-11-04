@@ -19,7 +19,7 @@
     "seed": "node scripts/seed.js"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.17.0",
+    "@elastic/elasticsearch": "^9.5.1",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@sentry/node": "^8.47.0",
