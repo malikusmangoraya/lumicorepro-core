@@ -75,7 +75,10 @@ jobs:
         run: pip install -r ai-agent/requirements.txt
 
       - name: Test AI agent
-        run: python -m unittest discover -s tests -t . -v
+        # unittest collects only TestCase subclasses, so 59 of 113 test files
+        # (1336 tests, every engine added since 2026-10-28) never ran here.
+        # pytest is already pinned in ai-agent/requirements.txt.
+        run: python -m pytest tests -q --ignore=tests/test_cli_e2e_progress.py
         working-directory: ai-agent
 
       - name: Install generated project dependencies (backend)
