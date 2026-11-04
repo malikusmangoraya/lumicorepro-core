@@ -45,12 +45,12 @@ jobs:
     name: Audit generated projects
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Autopilot needs the real generated projects, not just the tip.
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: pip
@@ -65,7 +65,7 @@ jobs:
       # Generated projects carry their own node_modules only locally; CI
       # installs the frontend toolchain so the self-heal stage can actually
       # lint/build what it scans.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload autopilot reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: autopilot-reports
           path: ai-agent/logs/autopilot/
@@ -106,9 +106,9 @@ jobs:
     name: Weekly test matrix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
@@ -124,7 +124,7 @@ jobs:
           npm ci
           npm run test:ci
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: pip
