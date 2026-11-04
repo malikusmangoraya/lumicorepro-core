@@ -37,6 +37,12 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      - name: Guard against committed credentials
+        # First gate in the job: a tracked .env holds a secret in every clone
+        # forever, and .gitignore cannot protect a file that is already in the
+        # index. Runs before anything is installed so it is never skipped.
+        run: node scripts/check-tracked-secrets.mjs
+
       - name: Install root dependencies
         run: npm ci
 

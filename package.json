@@ -12,6 +12,7 @@
     "build:backend": "cd backend && npm ci --production",
     "start": "cd backend && npm start",
     "lint": "eslint .",
+    "check:secrets": "node scripts/check-tracked-secrets.mjs",
     "format": "prettier --write src/",
     "size": "node scripts/check-bundle-budget.mjs",
     "check:budget": "node scripts/check-bundle-budget.mjs",

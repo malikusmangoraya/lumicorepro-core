@@ -61,6 +61,20 @@ def test_ci_workflow_parses_as_yaml():
     assert isinstance(parsed, dict) and "jobs" in parsed
 
 
+def test_ci_guards_against_committed_credentials():
+    """A tracked .env leaks in every clone; the guard must run before install."""
+    commands = _run_commands()
+    assert any("check-tracked-secrets.mjs" in command for command in commands), (
+        "no CI step runs scripts/check-tracked-secrets.mjs"
+    )
+    assert (ROOT / "scripts" / "check-tracked-secrets.mjs").is_file()
+    # It must be the first thing the job does, so a later step cannot run
+    # first and report success against a leaked tree.
+    assert "check-tracked-secrets.mjs" in commands[0], (
+        "the credential guard must be the first command in the workflow"
+    )
+
+
 FIXTURE = ROOT / "generated-projects" / "blogforge"
 
 
