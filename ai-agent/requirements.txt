@@ -78,7 +78,7 @@ pytest-asyncio==0.23.7
 replicate>=0.25.1
 
 # GitPython for version control
-gitpython>=3.1.41
+gitpython>=3.2.0
 
 # Playwright for browser automation & screenshots
 playwright>=1.42.0
