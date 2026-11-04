@@ -3080,16 +3080,19 @@ class ExternalAgentRequest(BaseModel):
 
 
 @app.get("/api/external-agents/status", tags=["Extensions"])
-async def external_agents_status(_auth: bool = Depends(_verify_api_key)):
+def external_agents_status(_auth: bool = Depends(_verify_api_key)):
     """Availability probe for the open-source coding-agent bridges (opencode, freebuff)."""
     from agent import external_agents
     return {"success": True, "data": external_agents.tool_status()}
 
 
 @app.post("/api/external-agents/opencode", tags=["Extensions"])
-async def external_agent_opencode(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+def external_agent_opencode(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
     """Delegate a task to the open source opencode CLI (github.com/anomalyco/opencode)
-    running in the generated project's directory: `opencode run <task> --auto`."""
+    running in the generated project's directory: `opencode run <task> --auto`.
+
+    Declared `def` on purpose: FastAPI runs sync endpoints in its worker
+    threadpool, so a multi-minute agent run cannot block the event loop."""
     if not _check_rate_limit(_get_client_ip(request)):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
     project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
@@ -3112,8 +3115,13 @@ async def external_agent_opencode(req: ExternalAgentRequest, request: Request, _
 
 
 @app.post("/api/external-agents/freebuff", tags=["Extensions"])
-async def external_agent_freebuff(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
-    """Delegate a task to the open source freebuff CLI (github.com/CodebuffAI/freebuff)."""
+def external_agent_freebuff(req: ExternalAgentRequest, request: Request, _auth: bool = Depends(_verify_api_key)):
+    """Delegate a task to the open source freebuff CLI (github.com/CodebuffAI/freebuff).
+
+    Sync `def` keeps a long run off the event loop. When the installed CLI has
+    no headless flag the bridge answers `unsupported` (HTTP 501) instead of
+    starting a terminal UI that would wait for input until the timeout.
+    """
     if not _check_rate_limit(_get_client_ip(request)):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
     project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
@@ -3128,6 +3136,8 @@ async def external_agent_freebuff(req: ExternalAgentRequest, request: Request, _
     )
     if outcome.get("status") == "not_available":
         raise HTTPException(status_code=503, detail=outcome.get("message", "freebuff CLI not installed"))
+    if outcome.get("status") == "unsupported":
+        raise HTTPException(status_code=501, detail=outcome.get("message", "freebuff has no headless mode"))
     if outcome.get("status") == "failed":
         return {"success": False, "data": outcome}
     return {"success": True, "data": outcome}
