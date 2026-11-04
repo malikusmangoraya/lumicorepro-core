@@ -42,7 +42,7 @@ def project(tmp_path):
     nm = backend / "node_modules"
     for name, exports in {
         "express": "const chain = { use(){return chain;}, get(){return chain;}, post(){return chain;}, listen(){return chain;} }; module.exports = () => chain; module.exports.json = () => (r, e, n) => n(); module.exports.Router = () => ({ use(){}, get(){}, post(){}, put(){}, delete(){} }); module.exports.static = () => (r, e, n) => n();",
-        "multer": "module.exports = () => ({ single: () => (r, e, n) => n(), array: () => (r, e, n) => n() });",
+        "multer": "const m = () => ({ single: () => (r, e, n) => n(), array: () => (r, e, n) => n() }); m.memoryStorage = () => ({}); module.exports = m;",
         "pdf-parse": "module.exports = async () => ({ text: '' });",
         "docx": "module.exports = { Document: class {}, Packer: {} };",
         "jsonwebtoken": "module.exports = { sign: () => 't', verify: () => ({ id: 'u1' }) };",

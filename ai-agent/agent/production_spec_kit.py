@@ -1151,8 +1151,8 @@ def _patched_server(server_path: Path) -> bool:
         block = (
             "\n\nconst { errorHandler } = require('./middleware/validate');"
             "\napp.use('/api/v1/records', require('./routes/records.routes'));"
-            "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (_e) { /* optional */ }"
-            "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (_e) { /* kit absent */ }"
+            "\ntry { app.use('/api/v1/contact', require('./routes/contact.routes')); } catch (err) { console.error(`[startup] Contact routes unavailable: ${err.message}`); }"
+            "\ntry { app.use('/api/v1/ai', require('./routes/ai')); } catch (err) { console.error(`[startup] AI routes unavailable: ${err.message}`); }"
             "\napp.use(errorHandler);"
         )
         if anchor in text:

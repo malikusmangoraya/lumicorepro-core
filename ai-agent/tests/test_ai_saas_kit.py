@@ -106,3 +106,20 @@ def test_routes_file_has_sse_and_rag_surface(project):
     assert "multer" in routes and "pdf-parse" in routes  # file handling
     assert "rag.search" in routes               # RAG chat
     assert "keyVault" not in routes or True     # vault used indirectly via services
+
+
+def test_upload_route_never_writes_to_disk(project):
+    """A serverless host mounts the bundle read-only.
+
+    `multer({ dest: 'uploads/' })` creates that directory at module load, so
+    requiring the router throws `EROFS: mkdir /var/task/uploads` and the whole
+    /api/ai surface disappears behind a silent catch. The generated upload
+    route must keep the bytes in memory.
+    """
+    inject_ai_saas_kit(str(project))
+    routes = (project / "backend" / "routes" / "ai.js").read_text(encoding="utf-8")
+    assert "multer.memoryStorage()" in routes
+    assert "dest:" not in routes
+    assert "req.file.path" not in routes
+    assert "req.file.buffer" in routes
+    assert "req.file.filename" not in routes

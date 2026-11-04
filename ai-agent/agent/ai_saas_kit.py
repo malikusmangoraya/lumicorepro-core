@@ -327,8 +327,11 @@ const { sseStreamText, sseSend } = require('../services/stream');
 const rag = require('../services/ragLite');
 
 const router = express.Router();
+// Memory storage, not `dest`: multer creates the destination directory at
+// module load, and a serverless host mounts the bundle read-only, so
+// `mkdir /var/task/uploads` throws EROFS before any route can answer.
 const upload = multer({
-  dest: process.env.UPLOAD_DIR || 'uploads/',
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const ok = ['application/pdf', 'text/plain',
@@ -377,9 +380,9 @@ router.post('/files', upload.single('file'), async (req, res) => {
     let text = '';
     if (req.file.mimetype === 'application/pdf') {
       const pdfParse = require('pdf-parse');
-      text = (await pdfParse(req.file.path)).text;
+      text = (await pdfParse(req.file.buffer)).text;
     } else if (req.file.mimetype === 'text/plain') {
-      text = require('fs').readFileSync(req.file.path, 'utf8');
+      text = req.file.buffer.toString('utf8');
     } else {
       // DOCX: unzip word/document.xml via the docx package's read path
       const { Document, Packer } = require('docx');
@@ -387,7 +390,8 @@ router.post('/files', upload.single('file'), async (req, res) => {
       void Packer;
     }
     const chunks = rag.chunk(text);
-    await rag.upsert(chunks.map((c, i) => ({ id: `${req.file.filename}-${i}`, text: c, meta: { file: req.file.originalname } })));
+    const fileId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await rag.upsert(chunks.map((c, i) => ({ id: `${fileId}-${i}`, text: c, meta: { file: req.file.originalname } })));
     res.json({ success: true, data: { chars: text.length, chunks: chunks.length, file: req.file.originalname } });
   } catch (err) {
     res.status(422).json({ success: false, message: err.message });
