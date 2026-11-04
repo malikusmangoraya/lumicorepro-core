@@ -19,7 +19,7 @@ API run as **one deployable Next.js application** — no separate Express proces
 | **Polish** | Toast notifications, scroll reveal (reduced-motion safe), loading skeletons, back-to-top, newsletter capture |
 | **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries` |
 | **Auth API** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/account/export`, `DELETE /api/auth/account` |
-| **Admin** | `/admin` overview, `/admin/vehicles` (list, create, edit, withdraw), `/admin/inquiries` (status pipeline + internal notes), `/admin/newsletter` (subscriber list + unsubscribe). Admin-only at the layout and at every mutating route. |
+| **Admin** | `/admin` overview, `/admin/vehicles` (list, create, edit, withdraw), `/admin/orders` (list, detail, status pipeline, tracking, notes, manual order), `/admin/inquiries` (status pipeline + internal notes), `/admin/newsletter` (subscriber list + unsubscribe). Admin-only at the layout and at every mutating route. |
 | **Auth** | JWT access token (15 min) + refresh token (30 day) in HttpOnly cookies, bcrypt (12 rounds), admin role gate |
 | **Data** | Prisma schema with 17 models: users, vehicles, enquiries, products, carts, orders, payments, coupons, plans, subscriptions, addresses, notifications, audit log |
 | **Validation** | Zod schemas on every write, shared shape between client and server |

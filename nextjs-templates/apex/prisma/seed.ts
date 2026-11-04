@@ -309,11 +309,106 @@ async function main() {
     },
   });
 
+  // Demo orders across the lifecycle, so the admin Orders screen has something
+  // to manage on a fresh install.
+  const demoOrders = [
+    {
+      orderNumber: 'APX-2026-00001',
+      customerEmail: 'customer@apex.com',
+      vehicleSlug: '2022-porsche-911-gt3',
+      status: 'pending',
+      isPaid: false,
+      isDelivered: false,
+    },
+    {
+      orderNumber: 'APX-2026-00002',
+      customerEmail: 'buyer.two@example.com',
+      vehicleSlug: '2019-ferrari-488-pista',
+      status: 'paid',
+      isPaid: true,
+      isDelivered: false,
+    },
+    {
+      orderNumber: 'APX-2026-00003',
+      customerEmail: 'buyer.three@example.com',
+      vehicleSlug: '2021-mclaren-720s',
+      status: 'shipped',
+      isPaid: true,
+      isDelivered: false,
+      carrier: 'Enclosed Auto Transport',
+      trackingNumber: 'EAT-889120',
+    },
+    {
+      orderNumber: 'APX-2026-00004',
+      customerEmail: 'buyer.four@example.com',
+      vehicleSlug: '2017-audi-r8-v10-plus',
+      status: 'delivered',
+      isPaid: true,
+      isDelivered: true,
+      carrier: 'Enclosed Auto Transport',
+      trackingNumber: 'EAT-771003',
+    },
+  ] as const;
+
+  for (const demo of demoOrders) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { slug: demo.vehicleSlug } });
+    if (!vehicle) continue;
+
+    const existing = await prisma.order.findUnique({ where: { orderNumber: demo.orderNumber } });
+    if (existing) continue;
+
+    const total = Math.round(vehicle.price * 100) / 100;
+    const order = await prisma.order.create({
+      data: {
+        orderNumber: demo.orderNumber,
+        userId: demo.customerEmail === 'customer@apex.com' ? customer.id : null,
+        customerEmail: demo.customerEmail,
+        subtotal: total,
+        tax: 0,
+        shipping: 0,
+        discount: 0,
+        total,
+        currency: vehicle.currency,
+        status: demo.status,
+        paymentMethod: demo.isPaid ? 'bank-transfer' : null,
+        isPaid: demo.isPaid,
+        isDelivered: demo.isDelivered,
+        ...(('carrier' in demo) && demo.carrier ? { carrier: demo.carrier } : {}),
+        ...(('trackingNumber' in demo) && demo.trackingNumber
+          ? { trackingNumber: demo.trackingNumber }
+          : {}),
+        items: {
+          create: [
+            {
+              title: vehicle.title,
+              unitPrice: vehicle.price,
+              quantity: 1,
+              lineTotal: total,
+            },
+          ],
+        },
+      },
+    });
+
+    if (demo.isPaid) {
+      await prisma.payment.create({
+        data: {
+          orderId: order.id,
+          provider: 'bank-transfer',
+          providerRef: `SEED-${demo.orderNumber}`,
+          amount: total,
+          currency: vehicle.currency,
+          status: 'succeeded',
+        },
+      });
+    }
+  }
+
   await prisma.notification.create({
     data: {
       userId: admin.id,
       title: 'Seed complete',
-      body: 'Demo vehicles, plans and one enquiry are ready.',
+      body: 'Demo vehicles, plans, orders and one enquiry are ready.',
       type: 'success',
     },
   });

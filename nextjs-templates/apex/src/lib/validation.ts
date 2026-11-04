@@ -49,6 +49,48 @@ export const vehicleQuerySchema = z.object({
   slugs: z.string().trim().max(600).optional(),
 });
 
+export const orderStatusSchema = z.enum([
+  'pending',
+  'paid',
+  'processing',
+  'shipped',
+  'delivered',
+  'cancelled',
+  'refunded',
+]);
+
+export const orderQuerySchema = z.object({
+  scope: z.enum(['mine', 'all']).default('mine'),
+  status: orderStatusSchema.optional(),
+  q: z.string().trim().max(120).optional(),
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  perPage: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const orderUpdateSchema = z.object({
+  status: orderStatusSchema.optional(),
+  carrier: z.string().trim().max(60).optional(),
+  trackingNumber: z.string().trim().max(80).optional(),
+  notes: z.string().trim().max(2000).optional(),
+});
+
+/** A phone/manual order: one vehicle or one shop product, not a cart. */
+export const orderCreateSchema = z
+  .object({
+    customerEmail: z.email('Enter a valid email address').max(160).toLowerCase(),
+    vehicleSlug: z.string().trim().max(180).optional(),
+    productSlug: z.string().trim().max(180).optional(),
+    quantity: z.coerce.number().int().min(1).max(99).default(1),
+    unitPrice: z.coerce.number().positive().max(100_000_000).optional(),
+    shipping: z.coerce.number().nonnegative().max(100_000).default(0),
+    discount: z.coerce.number().nonnegative().max(100_000_000).default(0),
+    notes: z.string().trim().max(2000).optional(),
+  })
+  .refine((value) => Boolean(value.vehicleSlug) !== Boolean(value.productSlug), {
+    message: 'Provide exactly one of vehicleSlug or productSlug',
+    path: ['vehicleSlug'],
+  });
+
 export const newsletterSchema = z.object({
   email: z.email('Enter a valid email address').max(160).toLowerCase(),
   source: z.string().trim().max(40).default('footer'),
@@ -122,4 +164,8 @@ export type InquiryStatus = z.infer<typeof inquiryStatusSchema>;
 export type InquiryUpdateInput = z.infer<typeof inquiryUpdateSchema>;
 export type InquiryQuery = z.infer<typeof inquiryQuerySchema>;
 export type NewsletterInput = z.infer<typeof newsletterSchema>;
+export type OrderStatusValue = z.infer<typeof orderStatusSchema>;
+export type OrderQuery = z.infer<typeof orderQuerySchema>;
+export type OrderUpdateInput = z.infer<typeof orderUpdateSchema>;
+export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;

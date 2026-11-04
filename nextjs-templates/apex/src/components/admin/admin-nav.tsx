@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, Mail, MessageSquare } from 'lucide-react';
+import { Car, LayoutDashboard, Mail, MessageSquare, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/vehicles', label: 'Vehicles', icon: Car },
+  { href: '/admin/orders', label: 'Orders', icon: Package },
   { href: '/admin/inquiries', label: 'Enquiries', icon: MessageSquare },
   { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
 ];
