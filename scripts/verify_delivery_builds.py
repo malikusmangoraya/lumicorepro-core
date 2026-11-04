@@ -123,18 +123,29 @@ def check_seo(index_html: str) -> dict[str, bool]:
     }
 
 
-def verify_site(site: pathlib.Path, timeout: int, keep_modules: bool) -> dict:
-    slug = site.name
+BUILD_FILES = ("package.json", "vite.config.js", "index.html", "tailwind.config.js",
+               "postcss.config.js")
+PRODUCT_DOCS = (".env.example", "README.md", "LICENSE.md")
+
+
+def verify_site(
+    site: pathlib.Path,
+    timeout: int,
+    keep_modules: bool,
+    slug: str | None = None,
+    docs_root: pathlib.Path | None = None,
+) -> dict:
+    slug = slug or site.name
+    docs_root = docs_root or site
     dist = site / "dist"
     started = time.time()
+    had_lockfile = (site / "package-lock.json").exists()
     result: dict = {"slug": slug, "verifiedAt": datetime.now(timezone.utc).isoformat()}
 
-    missing = [
-        f
-        for f in ("package.json", "vite.config.js", "index.html", "tailwind.config.js",
-                  "postcss.config.js", ".env.example", "README.md", "LICENSE.md")
-        if not (site / f).exists()
-    ]
+    # Build config belongs to the build root; buyer docs may sit at the product
+    # root (products/sell-today/<slug>/README.md) one level above frontend/.
+    missing = [f for f in BUILD_FILES if not (site / f).exists()]
+    missing += [f for f in PRODUCT_DOCS if not (site / f).exists() and not (docs_root / f).exists()]
     if missing:
         result.update({"status": "FAIL", "reason": f"missing build config: {missing}"})
         return result
@@ -235,7 +246,11 @@ def verify_site(site: pathlib.Path, timeout: int, keep_modules: bool) -> dict:
 
     if not keep_modules:
         shutil.rmtree(site / "node_modules", ignore_errors=True)
-        (site / "package-lock.json").unlink(missing_ok=True)
+        # Only remove a lockfile this run created. A tracked lockfile is part
+        # of the product's source; deleting it makes a read-only verification
+        # mutate the tree it was asked to measure.
+        if not had_lockfile:
+            (site / "package-lock.json").unlink(missing_ok=True)
     return result
 
 
@@ -246,12 +261,50 @@ def main() -> int:
     ap.add_argument("--resume", action="store_true", help="skip sites already proven PASS")
     ap.add_argument("--timeout", type=int, default=900, help="per-command timeout in seconds")
     ap.add_argument("--keep-node-modules", action="store_true")
+    ap.add_argument(
+        "--root",
+        default=str(DELIVERY),
+        help="directory holding the products to verify (default: delivery/)",
+    )
+    ap.add_argument(
+        "--json",
+        dest="json_path",
+        default=None,
+        help="also write the results to this path (CI uploads it as evidence)",
+    )
+    ap.add_argument(
+        "--layout",
+        choices=("root", "frontend"),
+        default="root",
+        help=(
+            "root: each child is a site (delivery/ layout); "
+            "frontend: each child is a product whose build lives in frontend/ "
+            "(products/sell-today layout)"
+        ),
+    )
     args = ap.parse_args()
 
-    sites = sorted(p for p in DELIVERY.iterdir() if p.is_dir() and (p / "package.json").exists())
+    root = pathlib.Path(args.root).resolve()
+    if not root.is_dir():
+        print(f"verify_delivery_builds: no such root: {root}", file=sys.stderr)
+        return 2
+
+    if args.layout == "frontend":
+        sites = [
+            (p.name, p / "frontend")
+            for p in sorted(root.iterdir())
+            if p.is_dir() and (p / "frontend" / "package.json").exists()
+        ]
+    else:
+        sites = [
+            (p.name, p)
+            for p in sorted(root.iterdir())
+            if p.is_dir() and (p / "package.json").exists()
+        ]
+
     if args.sites:
         wanted = set(args.sites)
-        sites = [p for p in sites if p.name in wanted]
+        sites = [(slug, path) for slug, path in sites if slug in wanted]
 
     ledger: dict = {}
     if args.resume and LEDGER.exists():
@@ -263,7 +316,7 @@ def main() -> int:
 
     if args.resume:
         before = len(sites)
-        sites = [p for p in sites if p.name not in proven]
+        sites = [(slug, path) for slug, path in sites if slug not in proven]
         print(f"resuming: {before - len(sites)} already proven, {len(sites)} to verify")
 
     if args.limit:
@@ -272,39 +325,50 @@ def main() -> int:
     results: list[dict] = ledger.get("results", [])
     by_slug = {r["slug"]: r for r in results}
 
-    for i, site in enumerate(sites, 1):
-        print(f"[{i}/{len(sites)}] {site.name} ...", flush=True)
-        res = verify_site(site, args.timeout, args.keep_node_modules)
+    for i, (slug, site) in enumerate(sites, 1):
+        print(f"[{i}/{len(sites)}] {slug} ...", flush=True)
+        res = verify_site(
+            site,
+            args.timeout,
+            args.keep_node_modules,
+            slug=slug,
+            docs_root=(root / slug) if args.layout == "frontend" else None,
+        )
         by_slug[res["slug"]] = res
         print(f"      -> {res['status']} {res.get('reason', '')} "
               f"firstPaint={res.get('firstPaintKb', '-')}KB "
               f"({res.get('seconds', '-')}s)", flush=True)
 
     merged = sorted(by_slug.values(), key=lambda r: r["slug"])
+    payload = {
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "root": str(root),
+        "targets": len(merged),
+        "pass": sum(1 for r in merged if r["status"] == "PASS"),
+        "warn": sum(1 for r in merged if r["status"] == "WARN"),
+        "fail": sum(1 for r in merged if r["status"] == "FAIL"),
+        "unverified": len(sites) - len(merged) if args.resume else 0,
+        "results": merged,
+    }
     LEDGER.parent.mkdir(parents=True, exist_ok=True)
-    LEDGER.write_text(
-        json.dumps(
-            {
-                "generatedAt": datetime.now(timezone.utc).isoformat(),
-                "targets": len(merged),
-                "pass": sum(1 for r in merged if r["status"] == "PASS"),
-                "warn": sum(1 for r in merged if r["status"] == "WARN"),
-                "fail": sum(1 for r in merged if r["status"] == "FAIL"),
-                "unverified": len(sites) - len(merged) if args.resume else 0,
-                "results": merged,
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    LEDGER.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    if args.json_path:
+        target = pathlib.Path(args.json_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     total = len(merged)
     print(f"\nverified {total} : "
-          f"{sum(1 for r in merged if r['status'] == 'PASS')} PASS / "
-          f"{sum(1 for r in merged if r['status'] == 'WARN')} WARN / "
-          f"{sum(1 for r in merged if r['status'] == 'FAIL')} FAIL")
+          f"{payload['pass']} PASS / {payload['warn']} WARN / {payload['fail']} FAIL")
     print(f"ledger: {LEDGER.relative_to(ROOT)}")
+    # A gate that always exits 0 cannot fail, so it certifies nothing. A FAIL
+    # is a product that does not build; WARN is a measured non-fatal deviation.
+    if payload["fail"]:
+        print(f"verify_delivery_builds: {payload['fail']} product(s) FAILED", file=sys.stderr)
+        return 1
+    if not total:
+        print(f"verify_delivery_builds: no products found under {root}", file=sys.stderr)
+        return 2
     return 0
 
 

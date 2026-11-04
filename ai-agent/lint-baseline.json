@@ -1,0 +1,5 @@
+{
+ "ruff": 300,
+ "bandit_high": 11,
+ "bandit_medium": 38
+}

@@ -73,6 +73,11 @@ msgpack>=1.0.7                  # Fast serialization
 pytest==8.2.0
 pytest-asyncio==0.23.7
 
+# ── Static analysis (scripts/lint_ratchet.py) ──────────────────
+# bandit and pylint are already declared above; ruff is the fast
+# correctness checker the ratchet counts. The gate is in CI, not optional.
+ruff==0.6.9
+
 # ── Advanced Integrations ──────────────────────────────────────
 # Replicate for advanced models
 replicate>=0.25.1

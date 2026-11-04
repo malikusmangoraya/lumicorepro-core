@@ -97,6 +97,18 @@ def test_ci_fixture_leg_uses_scripts_that_exist():
         assert script in scripts, f"{prefix}/package.json defines no {script} script"
 
 
+def test_ci_verifies_delivered_products():
+    """A verification script nothing invokes is documentation, not a gate."""
+    commands = "\n".join(_run_commands())
+    assert "verify_delivery_builds.py" in commands, (
+        "no workflow invokes scripts/verify_delivery_builds.py"
+    )
+    assert "products/sell-today" in commands, (
+        "delivery verification must run on the products that carry real source"
+    )
+    assert (ROOT / "scripts" / "verify_delivery_builds.py").is_file()
+
+
 def test_ci_provides_a_database_for_the_fixture():
     """db:migrate needs a reachable Postgres; a job without one cannot pass."""
     yaml = pytest.importorskip("yaml")

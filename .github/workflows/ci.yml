@@ -95,6 +95,13 @@ jobs:
         run: python -m pytest tests -q --ignore=tests/test_cli_e2e_progress.py
         working-directory: ai-agent
 
+      - name: Python static analysis (ratchet)
+        # ruff and bandit both carry a measured backlog; the baseline in
+        # ai-agent/lint-baseline.json may only fall. A tool that is not
+        # installed reports "not measured" and fails the step rather than
+        # passing silently.
+        run: python scripts/lint_ratchet.py
+
       - name: Install generated project dependencies (backend)
         run: npm ci --prefix generated-projects/blogforge/backend
 
@@ -142,3 +149,37 @@ jobs:
           if not result.get('passed'):
               raise SystemExit('Quality gate failed')
           PY
+
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify every sell-today product builds
+        # delivery/ holds build output only; products/sell-today is the source
+        # of truth for the eleven products that ship. The script exits non-zero
+        # on any FAIL, so a product that stops building turns CI red.
+        run: |
+          python scripts/verify_delivery_builds.py \
+            --root products/sell-today \
+            --layout frontend \
+            --json delivery-evidence.json
+
+      - name: Upload delivery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-evidence
+          path: delivery-evidence.json
