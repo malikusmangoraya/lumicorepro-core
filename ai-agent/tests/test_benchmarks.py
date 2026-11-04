@@ -11,8 +11,6 @@ a real pytest subprocess.
 
 import difflib
 import json
-import os
-import shutil
 import subprocess
 import sys
 import tarfile
@@ -32,12 +30,37 @@ from agent.benchmarks.grader import TestGrader, TestRun
 from agent.benchmarks.packaging import build_kaggle_bundle
 from agent.benchmarks.report import build_report, render_markdown, write_report
 from agent.benchmarks.runner import BenchmarkRunner
-from agent.benchmarks.snapshots import GitRepo, SnapshotStore, UnsafeArchiveError, safe_extract
+from agent.benchmarks.snapshots import (
+    GitRepo,
+    SnapshotStore,
+    UnsafeArchiveError,
+    git_binary,
+    safe_extract,
+)
 from agent.benchmarks.solvers import AiPatchSolver, NoOpSolver, ScriptedSolver
 from agent.benchmarks.workspace import TaskWorkspace, WorkspaceError, WorkspaceManager
 
-HAVE_GIT = shutil.which("git") is not None
-needs_git = pytest.mark.skipif(not HAVE_GIT, reason="git is required for snapshot grading")
+
+def _git_runs() -> bool:
+    """`shutil.which` only proves a file exists, not that it may execute.
+
+    An application-control policy can refuse the git on PATH by hash, which made
+    this suite report 14 code failures that were really one environment block.
+    """
+    try:
+        probe = subprocess.run(
+            [git_binary(), "--version"], capture_output=True, timeout=15
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return probe.returncode == 0
+
+
+HAVE_GIT = _git_runs()
+needs_git = pytest.mark.skipif(
+    not HAVE_GIT,
+    reason="git is not runnable (set GIT_BIN if a policy blocks the one on PATH)",
+)
 
 BUGGY_CALC = "def add(a, b):\n    return a - b\n"
 FIXED_CALC = "def add(a, b):\n    return a + b\n"
@@ -226,6 +249,18 @@ def test_dataset_skips_malformed_jsonl_lines(tmp_path):
 
 
 # ── snapshots ───────────────────────────────────────────────────────────────
+def test_git_binary_honours_the_override(tmp_path, monkeypatch):
+    fake = tmp_path / "git.exe"
+    fake.write_text("", encoding="utf-8")
+    monkeypatch.setenv("GIT_BIN", str(fake))
+    assert git_binary() == str(fake)
+
+
+def test_git_binary_ignores_a_missing_override(monkeypatch):
+    monkeypatch.setenv("GIT_BIN", "does/not/exist/git")
+    assert git_binary() != "does/not/exist/git"
+
+
 @needs_git
 def test_safe_extract_then_git_lifecycle(corpus, tmp_path):
     dest = tmp_path / "unpacked"

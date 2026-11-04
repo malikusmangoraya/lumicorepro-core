@@ -183,6 +183,20 @@ def normalise_extracted_root(dest: Path) -> Path:
     return dest
 
 
+def git_binary() -> str:
+    """Resolve the git executable, honouring `GIT_BIN`.
+
+    Some Windows machines enforce an application-control policy that refuses the
+    git on PATH by file hash while a bundled copy (GitHub Desktop, VS Code,
+    PortableGit) still runs. The override lets the benchmark grade snapshots
+    there instead of reporting 14 failures that are really one policy block.
+    """
+    override = os.environ.get("GIT_BIN", "").strip()
+    if override and Path(override).is_file():
+        return override
+    return shutil.which("git") or "git"
+
+
 def _git_config_args() -> List[str]:
     # Extraction already normalises text to LF (see `_normalise_newlines`), so git
     # must not convert anything: any CRLF rewrite here would make `git apply`
@@ -208,7 +222,7 @@ class GitRepo:
         self.timeout = timeout
 
     def run(self, *args: str, timeout: Optional[int] = None) -> GitResult:
-        cmd = ["git", "-C", str(self.root), *_git_config_args(), *args]
+        cmd = [git_binary(), "-C", str(self.root), *_git_config_args(), *args]
         try:
             proc = subprocess.run(
                 cmd,
@@ -290,7 +304,7 @@ class GitRepo:
         return last
 
     def _run_bytes(self, args: List[str], payload: bytes) -> GitResult:
-        cmd = ["git", "-C", str(self.root), *_git_config_args(), *args]
+        cmd = [git_binary(), "-C", str(self.root), *_git_config_args(), *args]
         try:
             proc = subprocess.run(cmd, input=payload, capture_output=True, timeout=self.timeout)
         except FileNotFoundError:

@@ -28,7 +28,10 @@ HEADERS = {"X-API-KEY": "test-agent-key"}
 
 
 @pytest.fixture()
-def project_dir(tmp_path):
+def project_dir(tmp_path, monkeypatch):
+    # The endpoints only accept a project inside GENERATED_PROJECTS_DIR: an
+    # external agent with --auto must never be pointed at this repository.
+    monkeypatch.setattr(server_mod, "GENERATED_PROJECTS_DIR", str(tmp_path))
     path = tmp_path / "project"
     path.mkdir()
     return path
@@ -101,3 +104,49 @@ def test_invalid_project_dir_is_422_before_any_spawn(client):
         )
     assert response.status_code == 422
     run.assert_not_called()
+
+
+def test_project_dir_outside_the_generated_root_is_refused(client, project_dir, tmp_path_factory):
+    """`opencode run --auto` edits without asking, so a caller must not be able
+    to aim it at this repository (or any other writable directory)."""
+    outside = tmp_path_factory.mktemp("outside")
+    with mock.patch.object(external_agents, "run_opencode") as run:
+        response = client.post(
+            "/api/external-agents/opencode",
+            json={"task": "delete everything", "project_dir": str(outside)},
+            headers=HEADERS,
+        )
+    assert response.status_code == 400
+    assert response.json()["detail"]["reason"] == "path_outside_allowed_root"
+    run.assert_not_called()
+
+
+def test_freebuff_project_dir_outside_the_generated_root_is_refused(client, project_dir, tmp_path_factory):
+    outside = tmp_path_factory.mktemp("outside-freebuff")
+    with mock.patch.object(external_agents, "run_freebuff") as run:
+        response = client.post(
+            "/api/external-agents/freebuff",
+            json={"task": "delete everything", "project_dir": str(outside)},
+            headers=HEADERS,
+        )
+    assert response.status_code == 400
+    assert response.json()["detail"]["reason"] == "path_outside_allowed_root"
+    run.assert_not_called()
+
+
+def test_write_endpoints_share_the_same_containment(client, project_dir, tmp_path_factory):
+    """The extension endpoints write files, so they must apply the same rule.
+
+    `/api/built-with` injects a badge into every page; pointed at this
+    repository it would rewrite the product's own source tree.
+    """
+    outside = tmp_path_factory.mktemp("outside-built-with")
+    with mock.patch("agent.extensions.built_with_badge.inject_built_with") as fn:
+        response = client.post(
+            "/api/built-with",
+            json={"project_dir": str(outside)},
+            headers=HEADERS,
+        )
+    assert response.status_code == 400
+    assert response.json()["detail"]["reason"] == "path_outside_allowed_root"
+    fn.assert_not_called()

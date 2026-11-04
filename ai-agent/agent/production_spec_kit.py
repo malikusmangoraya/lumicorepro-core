@@ -1087,15 +1087,18 @@ Rebuild from scratch: `docker compose down -v && docker compose up --build`
 | `/api/v1/records` | GET/POST | list/create — JWT required |
 | `/api/v1/records/:id` | GET/PUT/DELETE | owner-scoped |
 | `/api/v1/events` | GET (SSE) | live change feed — `?token=<JWT>` (EventSource cannot send headers) |
-| `/api/v1/ai/generate` | POST | JSON or SSE stream (`stream:true`) |
-| `/api/v1/ai/chat` | POST | RAG w/ sources |
-| `/api/v1/ai/files` | POST | pdf/docx/txt upload -> indexed for RAG |
+| `/api/v1/ai/generate` | POST | JWT required — JSON or SSE stream (`stream:true`) |
+| `/api/v1/ai/chat` | POST | JWT required — RAG w/ sources |
+| `/api/v1/ai/files` | POST | JWT required — pdf/docx/txt upload -> indexed for RAG |
 | `/api/v1/ai/health` | GET | provider + key status |
 | `/api/v1/health` | GET | uptime probe (Docker HEALTHCHECK) |
 
 ## 6. Security Notes
 
 - Passwords: bcrypt (10 rounds). Tokens: JWT (verify `JWT_SECRET` in prod).
+- The AI surface spends your provider key on every call, so `/api/v1/ai/*` is
+  JWT-gated (`middleware/aiAuth.js`). With no `JWT_SECRET` it answers 503 rather
+  than running unauthenticated — a missing secret must never mean "open".
 - All DB writes: Sequelize parameterized queries (SQLi-safe).
 - All request bodies: schema-validated + XSS-escaped (`middleware/validate.js`).
 - Rate limiting on auth; helmet security headers on every response.

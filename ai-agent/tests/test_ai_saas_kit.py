@@ -1,5 +1,8 @@
 """Tests for the AI micro-SaaS kit injection (keyVault, aiClient, SSE, prompts, RAG, routes)."""
 import json
+import os
+import re
+import subprocess
 
 import pytest
 
@@ -8,7 +11,8 @@ from agent.ai_saas_kit import inject_ai_saas_kit, _backend_dir
 
 EXPECTED_FILES = [
     "services/keyVault.js", "services/aiClient.js", "services/stream.js",
-    "services/prompts.js", "services/ragLite.js", "routes/ai.js",
+    "services/prompts.js", "services/ragLite.js", "middleware/aiAuth.js",
+    "routes/ai.js",
 ]
 
 
@@ -48,6 +52,8 @@ def test_deps_merged_without_duplicates(project):
     assert "openai" in pkg["dependencies"]
     assert "pdf-parse" in pkg["dependencies"]
     assert "docx" in pkg["dependencies"]
+    # aiAuth.js requires it; a missing dep would kill the whole router at load.
+    assert "jsonwebtoken" in pkg["dependencies"]
     assert pkg["dependencies"]["express"] == "^4.19.0"  # untouched
     assert any(d.startswith("openai@") for d in out["deps_added"])
     # second run: nothing new
@@ -57,10 +63,23 @@ def test_deps_merged_without_duplicates(project):
 def test_env_example_gets_ai_keys(project):
     inject_ai_saas_kit(str(project))
     env = (project / ".env.example").read_text(encoding="utf-8")
-    for key in ("AI_PROVIDER", "OPENAI_API_KEY", "ENCRYPTION_KEY", "PGVECTOR_URL"):
+    for key in ("AI_PROVIDER", "OPENAI_API_KEY", "ENCRYPTION_KEY", "PGVECTOR_URL", "JWT_SECRET"):
         assert f"{key}=" in env
     # idempotent
     assert inject_ai_saas_kit(str(project))["env_added"] == []
+
+
+def test_no_retired_provider_model_is_shipped(project):
+    """Groq retired `llama-3.3-70b-versatile`; a generated project that defaults
+    to it fails its first AI call with model_not_found, minutes after deploy."""
+    inject_ai_saas_kit(str(project))
+    client = (project / "backend" / "services" / "aiClient.js").read_text(encoding="utf-8")
+    env = (project / ".env.example").read_text(encoding="utf-8")
+    for text in (client, env):
+        assert "llama-3.3-70b-versatile" not in text
+        assert "llama-3.2-11b-vision" not in text
+    assert "openai/gpt-oss-120b" in client
+    assert "GROQ_MODEL=openai/gpt-oss-120b" in env
 
 
 def test_keyvault_node_roundtrip(project):
@@ -123,3 +142,64 @@ def test_upload_route_never_writes_to_disk(project):
     assert "req.file.path" not in routes
     assert "req.file.buffer" in routes
     assert "req.file.filename" not in routes
+
+
+def test_every_ai_route_is_auth_gated(project):
+    """The AI surface spends the owner's provider key on every call.
+
+    Shipping it anonymously means anyone who finds the URL can drain the
+    account. All three cost-bearing routes must sit behind the same JWT check
+    the project's own auth routes mint tokens with.
+    """
+    inject_ai_saas_kit(str(project))
+    routes = (project / "backend" / "routes" / "ai.js").read_text(encoding="utf-8")
+    for route in ("/generate", "/chat", "/files"):
+        assert re.search(rf"router\.post\('{route}', aiAuth,", routes), route
+    assert "require('../middleware/aiAuth')" in routes
+    # /health stays open: a load balancer cannot present a user token.
+    assert re.search(r"router\.get\('/health',\s*\(_?req", routes)
+    assert (project / "backend" / "middleware" / "aiAuth.js").exists()
+
+
+def test_ai_auth_fails_closed_in_node(project):
+    """Real Node run: no token -> 401, bad token -> 401, weak secret -> 503.
+
+    A missing JWT_SECRET must never degrade to "allow": that turns a
+    misconfigured deployment into an open proxy for the owner's API key.
+    """
+    inject_ai_saas_kit(str(project))
+    stub = project / "backend" / "node_modules" / "jsonwebtoken"
+    stub.mkdir(parents=True)
+    (stub / "package.json").write_text(
+        json.dumps({"name": "jsonwebtoken", "main": "index.js"}), encoding="utf-8")
+    (stub / "index.js").write_text(
+        "module.exports = { verify: (token, secret) => {"
+        "  if (token === 'good' && typeof secret === 'string' && secret.length >= 32) return { id: 'u1' };"
+        "  throw new Error('bad token');"
+        "} };", encoding="utf-8")
+
+    probe = project / "_auth_probe.cjs"
+    probe.write_text(
+        "const aiAuth = require('./backend/middleware/aiAuth');"
+        "const call = (headers, secret) => {"
+        "  process.env.JWT_SECRET = secret;"
+        "  let status = 200;"
+        "  const res = { status(c) { status = c; return { json() {} }; } };"
+        "  let nexted = false;"
+        "  aiAuth({ headers }, res, () => { nexted = true; });"
+        "  return nexted ? 'next' : status;"
+        "};"
+        "const s = 'x'.repeat(32);"
+        "if (call({}, s) !== 401) process.exit(2);"
+        "if (call({ authorization: 'Bearer nope' }, s) !== 401) process.exit(3);"
+        "if (call({ authorization: 'Bearer good' }, 'short') !== 503) process.exit(4);"
+        "if (call({}, 'short') !== 503) process.exit(5);"
+        "if (call({ authorization: 'Bearer good' }, s) !== 'next') process.exit(6);"
+        "console.log('AUTH_OK');", encoding="utf-8")
+    env = {"PATH": os.environ["PATH"], "SystemRoot": os.environ.get("SystemRoot", "")}
+    try:
+        res = subprocess.run(["node", str(probe)], cwd=str(project),
+                             capture_output=True, text=True, timeout=60, env=env)
+    finally:
+        probe.unlink(missing_ok=True)
+    assert "AUTH_OK" in res.stdout, res.stderr or res.stdout

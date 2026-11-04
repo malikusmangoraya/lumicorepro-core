@@ -126,6 +126,9 @@ def test_instructions_covers_all_sections(project):
                     "Troubleshooting", "TypeScript", "Security"):
         assert section in doc, section
     assert "INSTRUCTIONS — SpecApp" in doc
+    # A buyer reading the API table must not be surprised by a 401.
+    assert "JWT required" in doc
+    assert "middleware/aiAuth.js" in doc
 
 
 def _run_node_script(project, snippet):

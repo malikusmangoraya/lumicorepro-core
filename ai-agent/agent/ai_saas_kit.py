@@ -26,6 +26,10 @@ _DEPS = {
     "pdf-parse": "^1.1.1",
     "docx": "^9.0.2",
     "bcryptjs": "^2.4.3",
+    # middleware/aiAuth.js verifies the project's own tokens. Without this the
+    # router throws MODULE_NOT_FOUND at require time and /api/ai vanishes behind
+    # the optional-mount catch - the same failure mode as the read-only-disk bug.
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
 }
 
@@ -86,13 +90,13 @@ const keyVault = require('./keyVault');
 
 /** Accept either a base URL or a full .../chat/completions URL. */
 function _endpoint(base) {
-  const value = String(base || '').replace(/\/+$/, '');
+  const value = String(base || '').replace(/\\/+$/, '');
   return value.endsWith('/chat/completions') ? value : `${value}/chat/completions`;
 }
 
 const ENDPOINTS = {
   openai: { url: _endpoint(process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'), keys: ['OPENAI_API_KEY'], model: process.env.OPENAI_MODEL || 'gpt-4o-mini' },
-  groq: { url: _endpoint(process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1'), keys: ['GROQ_API_KEY', 'GROK_API_KEY'], model: process.env.GROQ_MODEL || process.env.GROK_MODEL || 'llama-3.3-70b-versatile' },
+  groq: { url: _endpoint(process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1'), keys: ['GROQ_API_KEY', 'GROK_API_KEY'], model: process.env.GROQ_MODEL || process.env.GROK_MODEL || 'openai/gpt-oss-120b' },
   grok: { url: _endpoint(process.env.XAI_BASE_URL || 'https://api.x.ai/v1'), keys: ['XAI_API_KEY', 'GROK_API_KEY'], model: process.env.XAI_MODEL || 'grok-3-mini' },
   deepseek: { url: _endpoint(process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com'), keys: ['DEEPSEEK_API_KEY'], model: process.env.DEEPSEEK_MODEL || 'deepseek-chat' },
   openrouter: { url: _endpoint(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'), keys: ['OPENROUTER_API_KEY'], model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini' },
@@ -313,6 +317,36 @@ async function _searchPg(query, topK) {
 module.exports = { chunk, embed, upsert, search };
 """
 
+_AI_AUTH_JS = """/** middleware/aiAuth - the AI surface spends the owner's provider key on every
+ * call, so it must never be reachable anonymously. Fail-closed: with no
+ * JWT_SECRET the surface answers 503 instead of running unauthenticated.
+ *
+ * The secret is read from process.env, the same source as utils/jwtSecret.js,
+ * so tokens minted by the project's auth routes verify here unchanged.
+ */
+const jwt = require('jsonwebtoken');
+
+const MIN_LENGTH = 32;
+
+module.exports = function aiAuth(req, res, next) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < MIN_LENGTH) {
+    return res.status(503).json({ success: false, message: 'AI surface is not configured' });
+  }
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization required' });
+  }
+  try {
+    req.user = jwt.verify(token, secret);
+    return next();
+  } catch (_e) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+};
+"""
+
 _AI_ROUTES_JS = """/** routes/ai — the whole Category-1 surface in one router.
  * POST /api/ai/generate  {template, vars, stream?} -> JSON or SSE typewriter
  * POST /api/ai/chat      {question}                 -> RAG answer with sources
@@ -325,6 +359,7 @@ const aiClient = require('../services/aiClient');
 const prompts = require('../services/prompts');
 const { sseStreamText, sseSend } = require('../services/stream');
 const rag = require('../services/ragLite');
+const aiAuth = require('../middleware/aiAuth');
 
 const router = express.Router();
 // Memory storage, not `dest`: multer creates the destination directory at
@@ -340,7 +375,7 @@ const upload = multer({
   },
 });
 
-router.post('/generate', async (req, res) => {
+router.post('/generate', aiAuth, async (req, res) => {
   try {
     const { template, vars = {}, stream, provider } = req.body || {};
     const filled = prompts.render(template, vars);
@@ -357,7 +392,7 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-router.post('/chat', async (req, res) => {
+router.post('/chat', aiAuth, async (req, res) => {
   try {
     const { question } = req.body || {};
     if (!question) return res.status(422).json({ success: false, message: 'question required' });
@@ -374,7 +409,7 @@ router.post('/chat', async (req, res) => {
   }
 });
 
-router.post('/files', upload.single('file'), async (req, res) => {
+router.post('/files', aiAuth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(422).json({ success: false, message: 'file required' });
     let text = '';
@@ -421,8 +456,10 @@ def inject_ai_saas_kit(project_dir: str, force: bool = False) -> Dict[str, Any]:
     backend = _backend_dir(project_dir)
     services = backend / "services"
     routes = backend / "routes"
+    middleware = backend / "middleware"
     services.mkdir(parents=True, exist_ok=True)
     routes.mkdir(parents=True, exist_ok=True)
+    middleware.mkdir(parents=True, exist_ok=True)
 
     files: Dict[Path, str] = {
         services / "keyVault.js": _KEY_VAULT_JS,
@@ -430,6 +467,7 @@ def inject_ai_saas_kit(project_dir: str, force: bool = False) -> Dict[str, Any]:
         services / "stream.js": _STREAM_JS,
         services / "prompts.js": _PROMPTS_JS,
         services / "ragLite.js": _RAG_LITE_JS,
+        middleware / "aiAuth.js": _AI_AUTH_JS,
         routes / "ai.js": _AI_ROUTES_JS,
     }
     written: List[str] = []
@@ -449,8 +487,6 @@ def inject_ai_saas_kit(project_dir: str, force: bool = False) -> Dict[str, Any]:
 
 
 def _merge_deps(pkg_path: Path, force: bool = False) -> List[str]:
-    import re as _re
-
     added: List[str] = []
     if not pkg_path.exists():
         return added
@@ -471,7 +507,7 @@ def _merge_deps(pkg_path: Path, force: bool = False) -> List[str]:
 _ENV_KEYS = {
     "AI_PROVIDER": "groq",
     "GROQ_API_KEY": "",
-    "GROQ_MODEL": "llama-3.3-70b-versatile",
+    "GROQ_MODEL": "openai/gpt-oss-120b",
     "XAI_API_KEY": "",
     "XAI_MODEL": "grok-3-mini",
     "OPENAI_API_KEY": "sk-...  (or leave empty and store via keyVault at runtime)",
@@ -481,6 +517,7 @@ _ENV_KEYS = {
     "GEMINI_API_KEY": "",
     "ENCRYPTION_KEY": "64-char hex — openssl rand -hex 32 (encrypts stored API keys)",
     "PGVECTOR_URL": "postgresql://user:pass@localhost:5432/db (optional; in-memory RAG without it)",
+    "JWT_SECRET": "32+ chars — openssl rand -hex 32 (middleware/aiAuth.js refuses to run without it)",
     "BRAND_NAME": "YourBrand",
 }
 

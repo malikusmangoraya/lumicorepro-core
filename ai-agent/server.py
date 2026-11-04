@@ -3052,6 +3052,7 @@ async def project_quality(req: ProjectQualityRequest, request: Request, _auth: b
         raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
     if not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=404, detail="Generated project directory not found")
+    project_dir = _resolve_project_target(str(project_dir))
     from agent import oss_power_tools as opt
 
     data: Dict[str, Any] = {"secrets": opt.secrets_scan(str(project_dir))}
@@ -3098,6 +3099,10 @@ def external_agent_opencode(req: ExternalAgentRequest, request: Request, _auth: 
     project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
     if not project_dir or not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=422, detail="Provide a valid run_id or project_dir")
+    # `opencode run --auto` approves its own edits. Without containment a caller
+    # can point it at this repository (or any writable directory) and have an
+    # external agent rewrite the product itself.
+    project_dir = _resolve_project_target(str(project_dir))
     from agent import external_agents
     outcome = external_agents.run_opencode(
         str(project_dir),
@@ -3127,6 +3132,7 @@ def external_agent_freebuff(req: ExternalAgentRequest, request: Request, _auth: 
     project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
     if not project_dir or not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=422, detail="Provide a valid run_id or project_dir")
+    project_dir = _resolve_project_target(str(project_dir))
     from agent import external_agents
     outcome = external_agents.run_freebuff(
         str(project_dir),
@@ -3194,6 +3200,7 @@ async def built_with(req: BuiltWithRequest, _auth: bool = Depends(_verify_api_ke
         raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
     if not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=404, detail="Generated project directory not found")
+    project_dir = _resolve_project_target(str(project_dir))
     from agent.extensions.built_with_badge import inject_built_with, update_live_link
     if req.live_url:
         outcome = update_live_link(str(project_dir), req.live_url)
@@ -3377,13 +3384,17 @@ async def image_gen(req: ImageGenRequest, request: Request, _auth: bool = Depend
         project_dir = req.project_dir or (_project_dir_for_run(req.run_id) if req.run_id else None)
         if not project_dir or not os.path.isdir(str(project_dir)):
             raise HTTPException(status_code=422, detail="Provide run_id or valid project_dir")
+        project_dir = _resolve_project_target(str(project_dir))
         outcome = asset_gen.gen_project_images(str(project_dir))
         return {"success": True, "data": outcome}
 
     stamp = str(int(time.time()))
-    out_dir = (os.path.join(str(req.project_dir), "public", "images", "generated")
-               if req.project_dir and os.path.isdir(str(req.project_dir))
-               else os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "generated-images"))
+    if req.project_dir:
+        # A caller-supplied directory is still contained: this endpoint writes files.
+        out_dir = os.path.join(_resolve_project_target(str(req.project_dir)),
+                               "public", "images", "generated")
+    else:
+        out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "generated-images")
     outcome = asset_gen.generate_image(req.prompt, os.path.join(out_dir, f"img-{stamp}.jpg"),
                                        req.width, req.height)
     if outcome.get("status") != "ok":
@@ -3407,6 +3418,7 @@ async def asset_wire_endpoint(req: AssetWireRequest, _auth: bool = Depends(_veri
         raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
     if not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=404, detail="Generated project directory not found")
+    project_dir = _resolve_project_target(str(project_dir))
     from agent.extensions.asset_wire import wire_assets
 
     outcome = wire_assets(str(project_dir), timeout=req.timeout)
@@ -3432,6 +3444,7 @@ async def store_gate(req: StoreGateRequest, _auth: bool = Depends(_verify_api_ke
         raise HTTPException(status_code=422, detail="Provide run_id or project_dir")
     if not os.path.isdir(str(project_dir)):
         raise HTTPException(status_code=404, detail="Generated project directory not found")
+    project_dir = _resolve_project_target(str(project_dir))
     from agent.extensions.store_gate import run_store_gate
 
     outcome = run_store_gate(str(project_dir), base_url=req.base_url, apply_fixes=req.apply_fixes)

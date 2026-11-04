@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -16,6 +17,7 @@ from .grader import TestGrader
 from .packaging import build_kaggle_bundle
 from .report import build_report, load_report, summarise, write_report
 from .runner import BenchmarkRunner
+from .snapshots import git_binary
 from .solvers import AiPatchSolver, NoOpSolver, ScriptedSolver
 from .workspace import WorkspaceManager
 
@@ -61,7 +63,12 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     _log(quiet, "== environment ==")
     _log(quiet, f"python           : {sys.version.split()[0]} ({sys.executable})")
     _log(quiet, f"pytest           : {'yes' if shutil.which('pytest') or _pytest_importable() else 'NO'}")
-    _log(quiet, f"git              : {shutil.which('git') or 'NOT FOUND (required for status/log/diff)'}")
+    git = git_binary()
+    try:
+        runs = subprocess.run([git, "--version"], capture_output=True, text=True, timeout=15).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        runs = False
+    _log(quiet, f"git              : {git} ({'runnable' if runs else 'NOT RUNNABLE - set GIT_BIN'})")
     _log(quiet, f"dataset root     : {stats['root']} ({'exists' if stats['root_exists'] else 'MISSING'})")
     _log(quiet, f"workspaces       : {settings['workspaces_dir']}")
 
@@ -91,8 +98,15 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     if not stats["tasks"]:
         _log(quiet, "\nRESULT: no tasks.jsonl found - set BENCH_DATA_DIR or pass --data <dir>")
         return EXIT_MISSING_DATA
-    if not shutil.which("git"):
-        _log(quiet, "\nRESULT: git not on PATH - snapshots cannot be graded")
+    git = git_binary()
+    try:
+        probe = subprocess.run([git, "--version"], capture_output=True, text=True, timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        probe = None
+    if probe is None or probe.returncode != 0:
+        _log(quiet, "\nRESULT: git is not runnable - snapshots cannot be graded")
+        _log(quiet, f"  tried: {git}")
+        _log(quiet, "  a policy may block that binary; set GIT_BIN to a working git executable")
         return EXIT_MISSING_DATA
     _log(quiet, "\nRESULT: ready")
     return EXIT_OK
