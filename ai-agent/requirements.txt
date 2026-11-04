@@ -62,7 +62,7 @@ pylint>=3.0.3                   # Code quality analysis
 black>=24.2.0                   # Code formatter
 
 # Voice & Speech
-SpeechRecognition>=3.10.1       # Voice to text
+SpeechRecognition>=3.17.0       # Voice to text
 pyttsx3>=2.90                   # Text to speech
 
 # Performance & Caching
