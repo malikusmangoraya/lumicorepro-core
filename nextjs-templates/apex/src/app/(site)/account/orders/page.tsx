@@ -93,6 +93,7 @@ export default async function AccountOrdersPage() {
                     <th scope="col" className="px-5 py-3 font-medium">Status</th>
                     <th scope="col" className="px-5 py-3 font-medium">Total</th>
                     <th scope="col" className="px-5 py-3 font-medium">Placed</th>
+                    <th scope="col" className="px-5 py-3 text-right font-medium">Open</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line/50">
@@ -106,6 +107,14 @@ export default async function AccountOrdersPage() {
                         {formatCurrency(order.total, order.currency)}
                       </td>
                       <td className="px-5 py-3 text-muted">{formatDate(order.createdAt)}</td>
+                      <td className="px-5 py-3 text-right">
+                        <Link
+                          href={`/account/orders/${order.id}`}
+                          className="text-xs font-semibold text-accent hover:underline"
+                        >
+                          Track
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

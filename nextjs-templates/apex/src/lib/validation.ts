@@ -110,8 +110,37 @@ export const checkoutSchema = z.object({
     country: z.string().trim().min(2, 'Country is required').max(60),
   }),
   notes: z.string().trim().max(2000).optional(),
+  couponCode: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .transform((value) => value.toUpperCase())
+    .optional()
+    .or(z.literal('')),
   items: z.array(checkoutItemSchema).min(1, 'Your cart is empty').max(20),
 });
+
+export const leadTypeSchema = z.enum(['general', 'test_drive', 'finance', 'trade_in']);
+
+export const leadSchema = z.object({
+  type: leadTypeSchema.default('general'),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
+  email: z.email('Enter a valid email address').max(160).toLowerCase(),
+  phone: z.string().trim().max(40).optional().or(z.literal('')),
+  message: z.string().trim().min(5, 'Tell us a little more').max(2000),
+  vehicleSlug: z.string().trim().max(180).optional().or(z.literal('')),
+  metadata: z.record(z.string(), z.string().max(300)).default({}),
+  consentGiven: z.literal(true, { message: 'Consent is required' }),
+  idempotencyKey: z.string().min(8).max(120),
+});
+
+export const couponCodeSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(40)
+  .transform((value) => value.toUpperCase());
 
 export const reviewSchema = z
   .object({
@@ -211,4 +240,6 @@ export type OrderUpdateInput = z.infer<typeof orderUpdateSchema>;
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
+export type LeadInput = z.infer<typeof leadSchema>;
+export type LeadType = z.infer<typeof leadTypeSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;

@@ -432,6 +432,36 @@ async function main() {
     }
   }
 
+  // Coupons: one percentage code with a cap, one fixed code with a minimum.
+  const coupons = [
+    {
+      code: 'APEX10',
+      type: 'percent',
+      value: 10,
+      minSubtotal: 0,
+      maxDiscount: 100,
+      usageLimit: 500,
+      isActive: true,
+    },
+    {
+      code: 'WELCOME25',
+      type: 'fixed',
+      value: 25,
+      minSubtotal: 150,
+      maxDiscount: null,
+      usageLimit: 1000,
+      isActive: true,
+    },
+  ];
+
+  for (const coupon of coupons) {
+    await prisma.coupon.upsert({
+      where: { code: coupon.code },
+      update: { value: coupon.value, minSubtotal: coupon.minSubtotal, maxDiscount: coupon.maxDiscount },
+      create: coupon,
+    });
+  }
+
   // Reviews: two approved and one waiting, so both the storefront and the
   // moderation queue have something to show on a fresh install.
   const reviewSeeds = [

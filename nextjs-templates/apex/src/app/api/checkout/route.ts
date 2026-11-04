@@ -5,6 +5,7 @@ import { checkoutSchema } from '@/lib/validation';
 import { calculateTotals } from '@/lib/orders';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
 import { orderNumber } from '@/lib/utils';
+import { discountFor } from '@/lib/coupons';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,8 +86,23 @@ export async function POST(request: Request) {
       });
     }
 
+    // A coupon is re-validated here against the server's own subtotal: the
+    // browser only names the code, it never sends a discount amount.
+    let discount = 0;
+    let couponCode: string | null = null;
+    if (input.couponCode) {
+      const subtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+      const coupon = await prisma.coupon.findUnique({ where: { code: input.couponCode } });
+      if (!coupon) return fail('COUPON_NOT_FOUND', 'That discount code does not exist', 404);
+      const result = discountFor(coupon, subtotal);
+      if (!result.ok) return fail('COUPON_INVALID', result.reason, 409);
+      discount = result.discount;
+      couponCode = coupon.code;
+    }
+
     const totals = calculateTotals(
       lines.map((line) => ({ unitPrice: line.unitPrice, quantity: line.quantity })),
+      { discount },
     );
 
     const currency = lines.length > 0 ? 'USD' : 'USD';
@@ -115,6 +131,7 @@ export async function POST(request: Request) {
             currency,
             status: 'pending',
             notes: input.notes,
+            couponCode,
             items: {
               create: lines.map((line) => ({
                 productId: line.productId,
@@ -148,11 +165,19 @@ export async function POST(request: Request) {
       }
     }
 
+    if (couponCode) {
+      await prisma.coupon.update({
+        where: { code: couponCode },
+        data: { usedCount: { increment: 1 } },
+      });
+    }
+
     return created(
       {
         id: order.id,
         orderNumber: order.orderNumber,
         total: order.total,
+        discount: order.discount,
         currency: order.currency,
         email: order.customerEmail,
       },

@@ -69,6 +69,9 @@ export function CheckoutForm() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<Confirmation | null>(null);
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponPending, setCouponPending] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +87,7 @@ export function CheckoutForm() {
       name: text('name'),
       phone: text('phone'),
       notes: text('notes') || undefined,
+      couponCode: coupon?.code ?? '',
       address: {
         line1: text('line1'),
         line2: text('line2'),
@@ -128,6 +132,37 @@ export function CheckoutForm() {
     } catch {
       setError('Network error. Please try again.');
       setPending(false);
+    }
+  }
+
+  async function applyCoupon(raw: string) {
+    const code = raw.trim();
+    if (!code) {
+      setCoupon(null);
+      setCouponError(null);
+      return;
+    }
+    setCouponPending(true);
+    setCouponError(null);
+    try {
+      const response = await fetch(
+        `/api/coupons/validate?code=${encodeURIComponent(code)}&subtotal=${cartSubtotal}`,
+      );
+      const body = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+        data?: { code: string; discount: number };
+      };
+      if (!response.ok || !body.success || !body.data) {
+        setCoupon(null);
+        setCouponError(body.message ?? 'That code cannot be used');
+        return;
+      }
+      setCoupon({ code: body.data.code, discount: body.data.discount });
+    } catch {
+      setCouponError('Network error. Please try again.');
+    } finally {
+      setCouponPending(false);
     }
   }
 
@@ -264,18 +299,68 @@ export function CheckoutForm() {
             </li>
           ))}
         </ul>
+        <div className="mt-4 border-t border-line/60 pt-3">
+          <label htmlFor="coupon" className="block text-xs font-medium text-muted">
+            Discount code
+          </label>
+          <div className="mt-1.5 flex gap-2">
+            <input
+              id="coupon"
+              defaultValue={coupon?.code ?? ''}
+              placeholder="APEX10"
+              className="w-full rounded-control border border-line bg-canvas/70 px-3 py-2 text-sm uppercase text-heading placeholder:normal-case placeholder:text-muted/70 focus:border-primary focus:outline-none"
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  void applyCoupon((event.target as HTMLInputElement).value);
+                }
+              }}
+            />
+            <button
+              type="button"
+              disabled={couponPending}
+              onClick={(event) => {
+                const input = (event.currentTarget.parentElement?.querySelector('#coupon') ??
+                  null) as HTMLInputElement | null;
+                void applyCoupon(input?.value ?? '');
+              }}
+              className="shrink-0 rounded-control border border-line px-3 py-2 text-xs font-semibold text-heading transition-colors hover:border-primary/60 disabled:opacity-60"
+            >
+              {couponPending ? '…' : 'Apply'}
+            </button>
+          </div>
+          {coupon && (
+            <p className="mt-2 text-xs text-emerald-300">
+              {coupon.code} applied · −{formatCurrency(coupon.discount, 'USD')}
+            </p>
+          )}
+          {couponError && (
+            <p role="alert" className="mt-2 text-xs text-red-400">
+              {couponError}
+            </p>
+          )}
+        </div>
+
         <dl className="mt-4 space-y-2 border-t border-line/60 pt-3 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted">Items</dt>
             <dd className="text-heading">{cartCount}</dd>
           </div>
+          {coupon && (
+            <div className="flex justify-between">
+              <dt className="text-muted">Discount</dt>
+              <dd className="text-emerald-300">−{formatCurrency(coupon.discount, 'USD')}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-muted">{t('cart.shipping')}</dt>
             <dd className="text-muted">Quoted after order</dd>
           </div>
           <div className="flex justify-between border-t border-line/60 pt-2 text-base">
             <dt className="font-600 text-heading">{t('cart.total')}</dt>
-            <dd className="font-700 text-accent">{formatCurrency(cartSubtotal, 'USD')}</dd>
+            <dd className="font-700 text-accent">
+              {formatCurrency(Math.max(0, cartSubtotal - (coupon?.discount ?? 0)), 'USD')}
+            </dd>
           </div>
         </dl>
         <p className="mt-4 text-xs leading-relaxed text-muted">

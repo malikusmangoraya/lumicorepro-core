@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BrandMark } from '@/components/brand/brand-mark';
 import { NewsletterForm } from '@/components/layout/newsletter-form';
+import { site } from '@/lib/site-config';
 
 const columns = [
   {
@@ -19,6 +20,7 @@ const columns = [
       { href: '/services', label: 'Provenance research' },
       { href: '/services', label: 'Private viewings' },
       { href: '/services', label: 'Enclosed delivery' },
+      { href: '/trade-in', label: 'Value a part-exchange' },
     ],
   },
   {
@@ -55,15 +57,30 @@ export function SiteFooter() {
               A curated collective of performance and collector cars. Every listing is inspected,
               documented and delivered by people who drive them.
             </p>
-            <p className="mt-4 text-sm text-body/70">
-              <a href="mailto:hello@apex.com" className="hover:text-heading">
-                hello@apex.com
-              </a>
-              <span aria-hidden="true"> · </span>
-              <a href="tel:+15550192834" className="hover:text-heading">
-                +1 (555) 019-2834
-              </a>
-            </p>
+            <div className="mt-4 space-y-1 text-sm text-body/70">
+              <p>
+                <a href={`mailto:${site.email}`} className="hover:text-heading">
+                  {site.email}
+                </a>
+                <span aria-hidden="true"> · </span>
+                <a href={site.phoneHref} className="hover:text-heading">
+                  {site.phone}
+                </a>
+              </p>
+              <p className="text-xs leading-relaxed text-muted">
+                {site.address.street}, {site.address.city} {site.address.region}{' '}
+                {site.address.postalCode}
+              </p>
+            </div>
+
+            <dl className="mt-4 space-y-1 text-xs text-muted">
+              {site.hours.map((row) => (
+                <div key={row.days} className="flex justify-between gap-4">
+                  <dt>{row.days}</dt>
+                  <dd className="text-body/70">{row.time}</dd>
+                </div>
+              ))}
+            </dl>
 
             <div className="mt-6 max-w-xs">
               <NewsletterForm />

@@ -12,9 +12,9 @@ import { SaveButton } from '@/components/vehicle/save-button';
 import { CompareButton } from '@/components/vehicle/compare-button';
 import { ShareButton } from '@/components/vehicle/share-button';
 import { ReserveVehicleButton } from '@/components/vehicle/reserve-vehicle-button';
-import { InquiryForm } from '@/components/vehicle/inquiry-form';
+import { VehicleLeadPanel } from '@/components/vehicle/vehicle-lead-panel';
 import { RecentlyViewed } from '@/components/vehicle/recently-viewed';
-import { VehicleReviews } from '@/components/vehicle/vehicle-reviews';
+import { ReviewsSection } from '@/components/reviews/reviews-section';
 import { RecentlyViewedTracker } from '@/components/vehicle/recently-viewed-tracker';
 import { getVehicleBySlug } from '@/lib/vehicles';
 import { formatCurrency, formatMileage } from '@/lib/utils';
@@ -186,7 +186,7 @@ export default async function VehicleDetailPage({ params }: { params: Params }) 
               <FinanceCalculator price={vehicle.price} currency={vehicle.currency} />
             </div>
 
-            <VehicleReviews vehicleId={vehicle.id} vehicleSlug={vehicle.slug} />
+            <ReviewsSection target={{ kind: 'vehicle', id: vehicle.id, slug: vehicle.slug }} />
           </div>
 
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
@@ -224,9 +224,10 @@ export default async function VehicleDetailPage({ params }: { params: Params }) 
             <Panel className="p-6">
               <h2 className="font-display text-lg font-600 text-heading">Enquire about this car</h2>
               <p className="mt-1 mb-5 text-sm leading-relaxed text-muted">
-                A specialist replies within one business day. No obligation, no sales calls.
+                Enquire, book a test drive or ask about finance. A specialist replies within one
+                business day.
               </p>
-              <InquiryForm vehicleId={vehicle.id} vehicleTitle={vehicle.title} />
+              <VehicleLeadPanel vehicleSlug={vehicle.slug} vehicleTitle={vehicle.title} />
             </Panel>
           </aside>
         </div>

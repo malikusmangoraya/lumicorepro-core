@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { AddToCartButton } from '@/components/shop/add-to-cart-button';
@@ -37,7 +38,11 @@ export function ProductCard({ product }: { product: ShopProduct }) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-base font-600 text-heading">{product.title}</h3>
+        <h3 className="font-display text-base font-600 text-heading">
+          <Link href={`/shop/${product.slug}`} className="hover:text-accent">
+            {product.title}
+          </Link>
+        </h3>
         <p className="mt-1 flex-1 text-sm leading-relaxed text-muted">{product.description}</p>
 
         <div className="mt-3 flex items-center justify-between gap-3">

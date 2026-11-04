@@ -95,6 +95,8 @@ model Inquiry {
   locale         String   @default("en")
   consentGiven   Boolean  @default(false)
   consentAt      DateTime?
+  type           String   @default("general") // general | test_drive | finance | trade_in
+  metadata       String   @default("{}") // type-specific fields (JSON)
   status         String   @default("new") // new | contacted | viewing_scheduled | closed | spam
   idempotencyKey String   @unique
   adminNotes     String?
@@ -102,6 +104,7 @@ model Inquiry {
   updatedAt      DateTime @updatedAt
 
   @@index([status])
+  @@index([type])
   @@index([vehicleId])
 }
 

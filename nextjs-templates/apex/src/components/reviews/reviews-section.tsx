@@ -4,7 +4,19 @@ import { ReviewForm } from '@/components/vehicle/review-form';
 import { prisma } from '@/lib/prisma';
 import { formatDate } from '@/lib/utils';
 
-export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: string; vehicleSlug: string }) {
+type Target = {
+  kind: 'vehicle' | 'product';
+  id: string;
+  slug: string;
+};
+
+/** Approved reviews plus the form, for either a vehicle or a shop product. */
+export async function ReviewsSection({ target }: { target: Target }) {
+  const where = {
+    status: 'approved',
+    ...(target.kind === 'vehicle' ? { vehicleId: target.id } : { productId: target.id }),
+  };
+
   let reviews: {
     id: string;
     authorName: string;
@@ -19,7 +31,7 @@ export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: st
   try {
     const [rows, aggregate] = await Promise.all([
       prisma.review.findMany({
-        where: { vehicleId, status: 'approved' },
+        where,
         orderBy: { createdAt: 'desc' },
         take: 20,
         select: {
@@ -32,10 +44,7 @@ export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: st
           createdAt: true,
         },
       }),
-      prisma.review.aggregate({
-        where: { vehicleId, status: 'approved' },
-        _avg: { rating: true },
-      }),
+      prisma.review.aggregate({ where, _avg: { rating: true } }),
     ]);
     reviews = rows;
     average = aggregate._avg.rating ? Math.round(aggregate._avg.rating * 10) / 10 : null;
@@ -47,7 +56,7 @@ export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: st
     <section aria-labelledby="reviews-heading" className="mt-8">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="reviews-heading" className="font-display text-lg font-600 text-heading">
-          Owner reviews
+          Reviews
         </h2>
         {average !== null ? (
           <span className="flex items-center gap-2 text-sm text-muted">
@@ -69,9 +78,7 @@ export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: st
                 {review.verifiedPurchase && <Badge tone="success">Verified purchase</Badge>}
                 <span className="text-xs text-muted">{formatDate(review.createdAt)}</span>
               </div>
-              {review.title && (
-                <p className="mt-2 font-medium text-heading">{review.title}</p>
-              )}
+              {review.title && <p className="mt-2 font-medium text-heading">{review.title}</p>}
               <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-body/85">
                 {review.comment}
               </p>
@@ -81,7 +88,11 @@ export async function VehicleReviews({ vehicleId, vehicleSlug }: { vehicleId: st
       )}
 
       <div className="mt-5">
-        <ReviewForm vehicleSlug={vehicleSlug} />
+        <ReviewForm
+          {...(target.kind === 'vehicle'
+            ? { vehicleSlug: target.slug }
+            : { productSlug: target.slug })}
+        />
       </div>
     </section>
   );

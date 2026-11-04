@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { useSite } from '@/components/providers/site-provider';
 
-export function ReviewForm({ vehicleSlug }: { vehicleSlug: string }) {
+export function ReviewForm({ vehicleSlug, productSlug }: { vehicleSlug?: string; productSlug?: string }) {
   const { notify } = useSite();
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
@@ -38,7 +38,7 @@ export function ReviewForm({ vehicleSlug }: { vehicleSlug: string }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          vehicleSlug,
+          ...(vehicleSlug ? { vehicleSlug } : { productSlug }),
           authorName: text('authorName'),
           authorEmail: text('authorEmail'),
           rating,

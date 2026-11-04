@@ -13,11 +13,12 @@ API run as **one deployable Next.js application** — no separate Express proces
 
 | Area | Detail |
 |------|--------|
-| **Pages** | Home, Inventory, Vehicle detail, Shop, Cart, Checkout, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Account orders, Admin, 404 |
+| **Pages** | Home, Inventory, Vehicle detail, Shop, Product detail, Cart, Checkout, Order tracking, Trade-in, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Account orders, Admin, 404 |
+| **Leads** | One endpoint, four intents: enquiry, test drive with a date, finance quote with a deposit, and part-exchange valuation. Type-specific fields are required, not optional |
 | **Discovery** | Favourites, 3-way compare with a spec table, eight-way filtering (search, make, body, fuel, gearbox, year, mileage, price), five sort orders, pagination, recently viewed |
 | **Vehicle detail** | Multi-photo gallery with a keyboard-driven lightbox, finance estimator, share (Web Share + clipboard), `Car` JSON-LD, breadcrumbs with `BreadcrumbList` schema |
 | **Polish** | Toast notifications, scroll reveal (reduced-motion safe), loading skeletons, back-to-top, newsletter capture |
-| **Commerce** | Shop with stock, cart persisted in the browser, guest or signed-in checkout, server-side price and stock recomputation, customer order history |
+| **Commerce** | Shop with stock, product detail pages with reviews, cart persisted in the browser, guest or signed-in checkout, discount codes validated server-side, server-side price and stock recomputation, customer order history with a status timeline |
 | **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries`, `POST /api/checkout`, `GET /api/media/[id]` |
 | **Auth API** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/account/export`, `DELETE /api/auth/account` |
 | **Admin** | `/admin` overview, `/admin/analytics`, `/admin/vehicles` (list, create, edit, upload, withdraw), `/admin/orders` (list, detail, status pipeline, tracking, notes, manual order), `/admin/reviews` (moderation), `/admin/inquiries` (status pipeline + notes), `/admin/newsletter`. Admin-only at the layout and at every mutating route. |
@@ -31,9 +32,11 @@ API run as **one deployable Next.js application** — no separate Express proces
 | **Uploads** | Admin image upload stored in Postgres (`MediaAsset`) and served from `/api/media/[id]` — no writable disk needed |
 | **Theming** | Dark and light palettes from the same tokens, persisted, applied before first paint |
 | **i18n** | English, Urdu and Arabic UI with RTL. Navigation, cart, checkout and shared actions are translated; listing content stays as the operator wrote it |
-| **Safety** | Per-IP rate limits on login, register, enquiries, checkout and newsletter; idempotent enquiry submission; no account enumeration; conditional stock claim |
-| **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals, analytics bucketing, Stripe signature verification and template integrity (80 tests) |
-| **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml`, `robots.txt`, security headers |
+| **Consent** | Analytics is consent-gated: no tag is loaded until the visitor accepts, and rejecting is as easy as accepting |
+| **Conversion** | Click-to-call and WhatsApp floats, business hours in the footer, optional promo strip driven by `NEXT_PUBLIC_PROMO` |
+| **Safety** | Per-IP rate limits on login, register, leads, checkout, reviews, coupons and newsletter; idempotent lead submission; no account enumeration; conditional stock claim |
+| **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals, analytics bucketing, coupon maths, Stripe signature verification and template integrity (88 tests) |
+| **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml` covering every vehicle, `robots.txt`, `AutoDealer` + `Car` + `Product` + `BreadcrumbList` JSON-LD, security headers |
 
 ### Design system
 

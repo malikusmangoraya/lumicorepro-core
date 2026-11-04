@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Syne } from 'next/font/google';
+import { site } from '@/lib/site-config';
 import './globals.css';
 
 const syne = Syne({
@@ -78,7 +79,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="min-h-dvh bg-canvas text-body antialiased">{children}</body>
+      <body className="min-h-dvh bg-canvas text-body antialiased">
+        {children}
+        <script
+          type="application/ld+json"
+          // Business facts come from site-config; no user input reaches this.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'AutoDealer',
+              name: site.name,
+              legalName: site.legalName,
+              url: site.url,
+              telephone: site.phone,
+              email: site.email,
+              image: `${site.url}/og.jpg`,
+              priceRange: '$$$',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: site.address.street,
+                addressLocality: site.address.city,
+                addressRegion: site.address.region,
+                postalCode: site.address.postalCode,
+                addressCountry: site.address.country,
+              },
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: site.geo.latitude,
+                longitude: site.geo.longitude,
+              },
+              openingHoursSpecification: [
+                {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                  opens: '09:00',
+                  closes: '18:00',
+                },
+              ],
+            }),
+          }}
+        />
+      </body>
     </html>
   );
 }

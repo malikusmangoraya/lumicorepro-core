@@ -4,7 +4,7 @@ import { Panel } from '@/components/ui/card';
 import { InquiryRowControl } from '@/components/admin/inquiry-row-control';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { formatDate } from '@/lib/utils';
+import { formatDate, parseJson } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,6 +100,9 @@ export default async function AdminInquiriesPage({
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-medium text-heading">{inquiry.name}</h3>
                     <Badge tone={TONES[inquiry.status] ?? 'neutral'}>{inquiry.status}</Badge>
+                    <Badge tone={inquiry.type === 'general' ? 'neutral' : 'primary'}>
+                      {inquiry.type.replace('_', ' ')}
+                    </Badge>
                     <span className="text-xs text-muted">{formatDate(inquiry.createdAt)}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted">
@@ -112,6 +115,19 @@ export default async function AdminInquiriesPage({
                       </Link>
                     )}
                   </p>
+                  {Object.keys(parseJson<Record<string, string>>(inquiry.metadata, {})).length >
+                    0 && (
+                    <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                      {Object.entries(parseJson<Record<string, string>>(inquiry.metadata, {}))
+                        .filter(([, value]) => value)
+                        .map(([key, value]) => (
+                          <div key={key} className="flex gap-1">
+                            <dt className="capitalize">{key.replace(/([A-Z])/g, ' $1')}:</dt>
+                            <dd className="text-heading">{value}</dd>
+                          </div>
+                        ))}
+                    </dl>
+                  )}
                   <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-body/85">
                     {inquiry.message}
                   </p>
