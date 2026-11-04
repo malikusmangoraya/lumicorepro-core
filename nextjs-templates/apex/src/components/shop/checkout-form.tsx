@@ -9,7 +9,59 @@ import { Field, Input, Textarea } from '@/components/ui/field';
 import { useSite } from '@/components/providers/site-provider';
 import { formatCurrency } from '@/lib/utils';
 
-type Confirmation = { orderNumber: string; total: number; email: string };
+type Confirmation = { id: string; orderNumber: string; total: number; email: string };
+
+function PayNowButton({ orderId, email }: { orderId: string; email: string }) {
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  return (
+    <div className="mt-4">
+      <Button
+        disabled={pending}
+        onClick={async () => {
+          setPending(true);
+          setMessage(null);
+          try {
+            const response = await fetch('/api/payments/checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId, email }),
+            });
+            const body = (await response.json().catch(() => ({}))) as {
+              success?: boolean;
+              message?: string;
+              data?: { url?: string };
+            };
+            if (!response.ok || !body.success || !body.data?.url) {
+              setMessage(body.message ?? 'Card payment is unavailable right now.');
+              setPending(false);
+              return;
+            }
+            window.location.href = body.data.url;
+          } catch {
+            setMessage('Network error. Please try again.');
+            setPending(false);
+          }
+        }}
+      >
+        {pending ? (
+          <>
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Opening Stripe…
+          </>
+        ) : (
+          'Pay by card'
+        )}
+      </Button>
+      {message && (
+        <p className="mt-2 text-xs leading-relaxed text-muted" role="status">
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -56,7 +108,7 @@ export function CheckoutForm() {
       const body = (await response.json().catch(() => ({}))) as {
         success?: boolean;
         message?: string;
-        data?: { orderNumber: string; total: number; email: string };
+        data?: { id: string; orderNumber: string; total: number; email: string };
         details?: { fieldErrors?: Record<string, string[]> };
       };
 
@@ -89,9 +141,10 @@ export function CheckoutForm() {
           {formatCurrency(done.total, 'USD')}. We emailed a copy to {done.email}.
         </p>
         <p className="mt-2 text-xs leading-relaxed text-muted">
-          This template does not send email or take payment — a specialist would contact you with a
-          payment link.
+          No email is sent by this template — a specialist would confirm the order and arrange
+          delivery.
         </p>
+        <PayNowButton orderId={done.id} email={done.email} />
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/shop">Back to the shop</ButtonLink>
           <ButtonLink href="/inventory" variant="outline">

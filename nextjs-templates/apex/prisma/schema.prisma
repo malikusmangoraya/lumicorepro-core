@@ -39,6 +39,7 @@ model User {
   addresses     Address[]
   subscriptions Subscription[]
   notifications Notification[]
+  reviews       Review[]
   auditLogs     AuditLog[]
 
   @@index([role])
@@ -73,6 +74,7 @@ model Vehicle {
   updatedAt            DateTime @updatedAt
 
   inquiries            Inquiry[]
+  reviews              Review[]
 
   @@index([make])
   @@index([status])
@@ -135,6 +137,7 @@ model Product {
   cartItems   CartItem[]
   wishlist    Wishlist[]
   orderItems  OrderItem[]
+  reviews     Review[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -302,6 +305,31 @@ model Notification {
   @@index([userId, isRead])
 }
 
+/// A review of a vehicle or a shop product. Guest reviews are allowed, so the
+/// author is stored on the row as well as being linked to an account when one
+/// exists. Nothing is public until an admin approves it.
+model Review {
+  id               String   @id @default(cuid())
+  vehicleId        String?
+  vehicle          Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  productId        String?
+  product          Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName       String
+  authorEmail      String
+  rating           Int
+  title            String?
+  comment          String
+  status           String   @default("pending") // pending | approved | rejected
+  verifiedPurchase Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@index([status])
+  @@index([vehicleId, status])
+  @@index([productId, status])
+}
+
 /// Uploaded images live in the database because a serverless deployment has no
 /// writable disk. Bytes are served back by /api/media/[id] with a long cache.
 model MediaAsset {
@@ -315,6 +343,19 @@ model MediaAsset {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+/// One row per delivered webhook, so a Stripe retry is not applied twice.
+model WebhookEvent {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  eventType String
+  gateway   String   @default("stripe")
+  payload   String   @default("{}")
+  status    String   @default("received") // received | processed | failed
+  createdAt DateTime @default(now())
+
+  @@index([gateway, status])
 }
 
 model NewsletterSubscriber {

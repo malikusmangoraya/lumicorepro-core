@@ -14,6 +14,7 @@ import { ShareButton } from '@/components/vehicle/share-button';
 import { ReserveVehicleButton } from '@/components/vehicle/reserve-vehicle-button';
 import { InquiryForm } from '@/components/vehicle/inquiry-form';
 import { RecentlyViewed } from '@/components/vehicle/recently-viewed';
+import { VehicleReviews } from '@/components/vehicle/vehicle-reviews';
 import { RecentlyViewedTracker } from '@/components/vehicle/recently-viewed-tracker';
 import { getVehicleBySlug } from '@/lib/vehicles';
 import { formatCurrency, formatMileage } from '@/lib/utils';
@@ -184,6 +185,8 @@ export default async function VehicleDetailPage({ params }: { params: Params }) 
             <div className="mt-8">
               <FinanceCalculator price={vehicle.price} currency={vehicle.currency} />
             </div>
+
+            <VehicleReviews vehicleId={vehicle.id} vehicleSlug={vehicle.slug} />
           </div>
 
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">

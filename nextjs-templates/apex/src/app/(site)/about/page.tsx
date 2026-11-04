@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Section, SectionHeading } from '@/components/ui/section';
 import { ButtonLink } from '@/components/ui/button';
 import { Stat } from '@/components/ui/card';
@@ -57,13 +58,24 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="rounded-panel border border-line bg-surface/60 p-8">
-            <h2 className="font-display text-lg font-600 text-heading">The collective in numbers</h2>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <Stat value="12 yrs" label="Trading" />
-              <Stat value="1,900+" label="Cars placed" />
-              <Stat value="48 hrs" label="Inspection" />
-              <Stat value="4.9/5" label="Owner rating" />
+          <div className="space-y-4">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-panel border border-line bg-canvas">
+              <Image
+                src="/editorial/workshop.webp"
+                alt="Two Apex specialists inspecting a car raised on a workshop lift"
+                fill
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="rounded-panel border border-line bg-surface/60 p-6">
+              <h2 className="font-display text-lg font-600 text-heading">The collective in numbers</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <Stat value="12 yrs" label="Trading" />
+                <Stat value="1,900+" label="Cars placed" />
+                <Stat value="48 hrs" label="Inspection" />
+                <Stat value="4.9/5" label="Owner rating" />
+              </div>
             </div>
           </div>
         </div>

@@ -20,16 +20,19 @@ API run as **one deployable Next.js application** — no separate Express proces
 | **Commerce** | Shop with stock, cart persisted in the browser, guest or signed-in checkout, server-side price and stock recomputation, customer order history |
 | **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries`, `POST /api/checkout`, `GET /api/media/[id]` |
 | **Auth API** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/account/export`, `DELETE /api/auth/account` |
-| **Admin** | `/admin` overview, `/admin/vehicles` (list, create, edit, withdraw), `/admin/orders` (list, detail, status pipeline, tracking, notes, manual order), `/admin/inquiries` (status pipeline + internal notes), `/admin/newsletter` (subscriber list + unsubscribe). Admin-only at the layout and at every mutating route. |
+| **Admin** | `/admin` overview, `/admin/analytics`, `/admin/vehicles` (list, create, edit, upload, withdraw), `/admin/orders` (list, detail, status pipeline, tracking, notes, manual order), `/admin/reviews` (moderation), `/admin/inquiries` (status pipeline + notes), `/admin/newsletter`. Admin-only at the layout and at every mutating route. |
 | **Auth** | JWT access token (15 min) + refresh token (30 day) in HttpOnly cookies, bcrypt (12 rounds), admin role gate |
-| **Data** | Prisma schema with 17 models: users, vehicles, enquiries, products, carts, orders, payments, coupons, plans, subscriptions, addresses, notifications, audit log |
+| **Data** | Prisma schema with 20 models: users, vehicles, reviews, enquiries, products, carts, orders, payments, coupons, plans, subscriptions, addresses, notifications, media assets, webhook events, audit log |
 | **Validation** | Zod schemas on every write, shared shape between client and server |
 | **Responses** | One envelope everywhere: `{ success, status, message, data, timestamp }` |
+| **Payments** | Stripe Checkout created over the REST API (no SDK), webhook verified against the raw body with a timestamp tolerance. No keys means 503, never a silently accepted event |
+| **Reviews** | Guest or signed-in reviews with a verified-purchase flag derived from delivered orders; nothing is public until an admin approves it |
+| **Analytics** | `/admin/analytics`: revenue and order trend, average order, orders by status, most enquired vehicles, best selling products, trust signals |
 | **Uploads** | Admin image upload stored in Postgres (`MediaAsset`) and served from `/api/media/[id]` — no writable disk needed |
 | **Theming** | Dark and light palettes from the same tokens, persisted, applied before first paint |
 | **i18n** | English, Urdu and Arabic UI with RTL. Navigation, cart, checkout and shared actions are translated; listing content stays as the operator wrote it |
 | **Safety** | Per-IP rate limits on login, register, enquiries, checkout and newsletter; idempotent enquiry submission; no account enumeration; conditional stock claim |
-| **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals and template integrity (63 tests) |
+| **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals, analytics bucketing, Stripe signature verification and template integrity (80 tests) |
 | **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml`, `robots.txt`, security headers |
 
 ### Design system
@@ -259,6 +262,17 @@ CMD ["npm", "start"]
 Each of these is a deliberate boundary, not a missing feature that fails silently.
 
 ---
+
+## Payments
+
+Card payment is optional and off by default. Set `STRIPE_SECRET_KEY` and
+`STRIPE_WEBHOOK_SECRET`, then point a Stripe webhook at
+`https://<your-host>/api/webhooks/stripe` for `checkout.session.completed`.
+
+Without the keys, checkout still records the order and the confirmation panel
+says card payment is unavailable — it never pretends a button worked. The
+webhook answers **503** when the secret is missing and **400** when the
+signature does not match the raw body or is older than five minutes.
 
 ## Demo imagery
 

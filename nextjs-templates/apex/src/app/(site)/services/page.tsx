@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Check } from 'lucide-react';
 import { Section, SectionHeading } from '@/components/ui/section';
 import { ButtonLink } from '@/components/ui/button';
@@ -74,6 +75,22 @@ export default function ServicesPage() {
               </ul>
             </article>
           ))}
+        </div>
+      </Section>
+
+      <Section className="pt-0">
+        <div className="relative aspect-[21/9] overflow-hidden rounded-panel border border-line bg-canvas">
+          <Image
+            src="/editorial/handover.webp"
+            alt="A car being handed over to its new owner at dusk"
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-canvas/80 to-transparent" aria-hidden="true" />
+          <p className="absolute bottom-4 left-5 right-5 text-sm text-heading sm:bottom-6 sm:left-8">
+            The handover: keys, paperwork and a specialist who answers the phone afterwards too.
+          </p>
         </div>
       </Section>
 

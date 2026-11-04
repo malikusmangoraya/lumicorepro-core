@@ -113,6 +113,25 @@ export const checkoutSchema = z.object({
   items: z.array(checkoutItemSchema).min(1, 'Your cart is empty').max(20),
 });
 
+export const reviewSchema = z
+  .object({
+    vehicleSlug: z.string().trim().max(180).optional(),
+    productSlug: z.string().trim().max(180).optional(),
+    authorName: z.string().trim().min(2, 'Name must be at least 2 characters').max(80),
+    authorEmail: z.email('Enter a valid email address').max(160).toLowerCase(),
+    rating: z.coerce.number().int().min(1).max(5),
+    title: z.string().trim().max(120).optional().or(z.literal('')),
+    comment: z.string().trim().min(10, 'Say a little more').max(2000),
+  })
+  .refine((value) => Boolean(value.vehicleSlug) !== Boolean(value.productSlug), {
+    message: 'Review either a vehicle or a product',
+    path: ['vehicleSlug'],
+  });
+
+export const reviewModerationSchema = z.object({
+  status: z.enum(['approved', 'rejected', 'pending']),
+});
+
 export const newsletterSchema = z.object({
   email: z.email('Enter a valid email address').max(160).toLowerCase(),
   source: z.string().trim().max(40).default('footer'),
@@ -191,4 +210,5 @@ export type OrderQuery = z.infer<typeof orderQuerySchema>;
 export type OrderUpdateInput = z.infer<typeof orderUpdateSchema>;
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+export type ReviewInput = z.infer<typeof reviewSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;

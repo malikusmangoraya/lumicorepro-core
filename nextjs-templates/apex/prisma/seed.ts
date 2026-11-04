@@ -432,6 +432,69 @@ async function main() {
     }
   }
 
+  // Reviews: two approved and one waiting, so both the storefront and the
+  // moderation queue have something to show on a fresh install.
+  const reviewSeeds = [
+    {
+      key: 'seed-review-1',
+      vehicleSlug: '2022-porsche-911-gt3',
+      authorName: 'Daniel R.',
+      authorEmail: 'customer@apex.com',
+      rating: 5,
+      title: 'Exactly as described',
+      comment:
+        'The inspection notes matched the car to the panel. Handover was unhurried and the paperwork was already done.',
+      status: 'approved',
+      verifiedPurchase: true,
+    },
+    {
+      key: 'seed-review-2',
+      vehicleSlug: '2022-porsche-911-gt3',
+      authorName: 'Priya S.',
+      authorEmail: 'priya@example.com',
+      rating: 4,
+      title: 'Good, with one caveat',
+      comment:
+        'Lovely car and honest description. The delivery window slipped by two days, which was communicated but still annoying.',
+      status: 'approved',
+      verifiedPurchase: false,
+    },
+    {
+      key: 'seed-review-3',
+      vehicleSlug: '2019-ferrari-488-pista',
+      authorName: 'M. Khan',
+      authorEmail: 'mk@example.com',
+      rating: 5,
+      title: 'Waiting for approval',
+      comment:
+        'This one is pending on purpose so the admin moderation queue is not empty on a fresh install.',
+      status: 'pending',
+      verifiedPurchase: false,
+    },
+  ] as const;
+
+  for (const review of reviewSeeds) {
+    const vehicle = await prisma.vehicle.findUnique({ where: { slug: review.vehicleSlug } });
+    if (!vehicle) continue;
+    const exists = await prisma.review.findFirst({
+      where: { vehicleId: vehicle.id, authorEmail: review.authorEmail },
+    });
+    if (exists) continue;
+
+    await prisma.review.create({
+      data: {
+        vehicleId: vehicle.id,
+        authorName: review.authorName,
+        authorEmail: review.authorEmail,
+        rating: review.rating,
+        title: review.title,
+        comment: review.comment,
+        status: review.status,
+        verifiedPurchase: review.verifiedPurchase,
+      },
+    });
+  }
+
   await prisma.notification.create({
     data: {
       userId: admin.id,

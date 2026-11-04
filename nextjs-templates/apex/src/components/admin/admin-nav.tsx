@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, Mail, MessageSquare, Package } from 'lucide-react';
+import { BarChart3, Car, LayoutDashboard, Mail, MessageSquare, Package, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/vehicles', label: 'Vehicles', icon: Car },
   { href: '/admin/orders', label: 'Orders', icon: Package },
+  { href: '/admin/reviews', label: 'Reviews', icon: Star },
   { href: '/admin/inquiries', label: 'Enquiries', icon: MessageSquare },
   { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
 ];
