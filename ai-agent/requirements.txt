@@ -57,7 +57,7 @@ beautifulsoup4>=4.12.3          # HTML parsing
 # Code Analysis & Intelligence
 tree-sitter>=0.21.0             # AST parsing for code analysis
 radon>=6.0.1                    # Code complexity metrics
-bandit>=1.7.7                   # Security vulnerability scanner
+bandit>=1.9.4                   # Security vulnerability scanner
 pylint>=3.0.3                   # Code quality analysis
 black>=24.2.0                   # Code formatter
 
