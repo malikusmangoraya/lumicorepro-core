@@ -1,0 +1,151 @@
+@import 'tailwindcss';
+
+/*
+ * Apex Motor Collective — design tokens
+ * These are the values the original Vite build actually rendered
+ * (frontend/src/index.css :root). Other brand files in that repo claimed a
+ * cyan palette; this file is the one the pages used.
+ */
+@theme {
+  --color-primary: #b75cf6;
+  --color-secondary: #9f28d9;
+  --color-accent: #e284fc;
+  --color-heading: #e0f2fe;
+  --color-canvas: #070913;
+  --color-surface: #121b2f;
+  --color-body: #e0f2fe;
+  --color-muted: #94a3b8;
+  --color-line: #1e293b;
+  --color-footer: #020617;
+
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-panel: 1rem;
+  --radius-control: 0.6rem;
+
+  --shadow-panel: 0 6px 18px rgb(224 242 254 / 0.06);
+  --shadow-glow: 0 0 0 1px rgb(183 92 246 / 0.35), 0 18px 50px -20px rgb(183 92 246 / 0.55);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-heading);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: rgb(183 92 246 / 0.35);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /*
+   * The aurora is the one signature decoration on the site: two large radial
+   * washes behind the hero. It is static (no animation) so it costs nothing on
+   * a reduced-motion device and cannot compete with the headline.
+   */
+  .hero-aurora {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .hero-aurora::before {
+    content: '';
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 90%;
+    z-index: -1;
+    background:
+      radial-gradient(50% 55% at 22% 30%, rgb(183 92 246 / 0.18), transparent 70%),
+      radial-gradient(45% 50% at 78% 18%, rgb(226 132 252 / 0.16), transparent 72%);
+    pointer-events: none;
+  }
+
+  .surface-grid {
+    background-image:
+      linear-gradient(to right, rgb(30 41 59 / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(30 41 59 / 0.55) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 60% at 50% 30%, #000 45%, transparent 100%);
+  }
+
+  .section-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-primary);
+    color: #0b0616;
+    border-radius: 0 0 var(--radius-control) 0;
+    font-weight: 600;
+  }
+
+  .skip-link:focus {
+    left: 0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 800px;
+  }
+}
