@@ -1,6 +1,9 @@
 # Environment files
 # Only *.example templates are tracked. Every real environment file (which will
 # eventually hold credentials) stays local.
+# A file already in the index ignores these rules forever, so `npm run
+# check:secrets` (CI: "Tracked secret guard") fails the build when one is
+# committed. Untrack with `git rm --cached`, then rotate the credential.
 .env
 .env.*
 !.env.example
@@ -9,6 +12,8 @@
 !.env.staging.example
 !.env.development.example
 .env.local
+backend/.env.production
+backend/.env.staging
 
 # Logs
 logs
