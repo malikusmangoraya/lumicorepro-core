@@ -85,7 +85,7 @@ class OmniRepairEngine:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
         except OSError:
-            return 0, []
+            raise OSError("Omni repair file read failed") from None
 
         original = content
         repairs = 0
@@ -104,15 +104,34 @@ class OmniRepairEngine:
             if "<Suspense" not in content:
                 # Wrap Canvas with Suspense
                 if "import React" in content and "Suspense" not in content:
-                    content = re.sub(r"import React,?\s*\{?([^}]*)\}?\s*from\s*['\"]react['\"];",
-                                     r"import React, { Suspense, \1 } from 'react';", content, count=1)
-                content = re.sub(
-                    r"(<Canvas[^>]*>)",
-                    r"<Suspense fallback={<div className=\"w-full h-full flex items-center justify-center text-slate-400 font-mono text-xs\">Loading 3D Scene...</div>}>\n\1",
-                    content,
-                    count=1
-                )
-                content = re.sub(r"(</Canvas>)", r"\1\n</Suspense>", content, count=1)
+                    react_import = re.search(
+                        r"import React(?:,\s*\{([^}]*)\})?\s*from\s*['\"]react['\"];",
+                        content,
+                    )
+                    if react_import:
+                        names = [name.strip() for name in (react_import.group(1) or '').split(',')
+                                 if name.strip() and name.strip() != 'Suspense']
+                        replacement = "import React, { Suspense" + (
+                            ", " + ", ".join(names) if names else "") + " } from 'react';"
+                        content = (content[:react_import.start()] + replacement
+                                   + content[react_import.end():])
+                # Emit real JSX quotes: backslash-escaped attributes inside a JSX
+                # text replacement produce `className=\"...\"`, which esbuild
+                # rejects ("Expected { but found \") on the next production build.
+                fallback = ('<Suspense fallback={<div className="w-full h-full flex '
+                            'items-center justify-center text-slate-400 font-mono '
+                            'text-xs">Loading 3D Scene</div>}>')
+                # `[^>]*` stops at the `>` in an arrow prop (`onCreated={() =>`),
+                # turning a self-closing Canvas into an unmatched boundary. Treat
+                # `=>` as one unit so the real tag end is found.
+                canvas_tag = r"<Canvas\b(?:(?:=>)|[^>])*"
+                if re.search(canvas_tag + r"/\s*>", content):
+                    content = re.sub(r"(" + canvas_tag + r"/\s*>)",
+                                     fallback + "\n\\1\n</Suspense>", content, count=1)
+                else:
+                    content = re.sub(r"(" + canvas_tag + r">)",
+                                     fallback + "\n\\1", content, count=1)
+                    content = re.sub(r"(</Canvas>)", r"\1\n</Suspense>", content, count=1)
                 repairs += 1
                 logs.append(f"[{fname}] Added Suspense fallback boundary around 3D Canvas")
 
@@ -171,8 +190,7 @@ class OmniRepairEngine:
             try:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-            except OSError as err:
-                agent_logger.warning(f"Could not write repaired file {file_path}: {err}")
-                return 0, []
+            except OSError:
+                raise OSError("Omni repair file write failed") from None
 
         return repairs, logs

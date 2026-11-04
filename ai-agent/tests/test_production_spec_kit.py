@@ -128,6 +128,163 @@ def test_instructions_covers_all_sections(project):
     assert "INSTRUCTIONS — SpecApp" in doc
 
 
+def test_records_route_is_idempotent_for_a_client_uuid(tmp_path):
+    project = tmp_path / "project"
+    (project / "backend").mkdir(parents=True)
+    result = apply_production_spec(str(project), brand="North")
+    assert result["status"] == "ok"
+    route = (project / "backend/routes/records.routes.js").read_text(encoding="utf-8")
+    assert "isUuidV4" in route
+    assert "duplicateRecordId" in route
+    assert "findByPk(clientId)" in route
+    assert "status(409)" in route
+    assert "status(200)" in route
+    # The insert is wrapped so losing the findByPk/create race is replayed
+    # as a 200 instead of surfacing the primary-key conflict as a 500.
+    assert "!isUniqueViolation(error)" in route
+    assert route.count("Record.findByPk(clientId)") >= 2
+    helper = (project / "backend/utils/recordIdentity.js").read_text(encoding="utf-8")
+    assert "function isUniqueViolation(error)" in helper
+    assert "module.exports = { isUuidV4, duplicateRecordId, isUniqueViolation };" in helper
+    test_file = (project / "backend/test/record-identity.test.js").read_text(encoding="utf-8")
+    assert "node:test" in test_file
+    assert "isUniqueViolation" in test_file
+
+
+def test_generated_record_identity_test_passes_under_node(project):
+    """The generated suite must be runnable by `node --test` with no database."""
+    apply_production_spec(str(project), brand="SpecApp")
+    env = {"PATH": os.environ["PATH"], "SystemRoot": os.environ.get("SystemRoot", "")}
+    res = subprocess.run(
+        ["node", "--test", "backend/test/record-identity.test.js"],
+        cwd=str(project), capture_output=True, text=True, timeout=60, env=env,
+    )
+    assert res.returncode == 0, res.stderr or res.stdout
+
+
+_ROUTE_HARNESS_MODELS = """\
+const express = require('./backend/node_modules/express');
+const { Record } = require('./backend/models');
+require('./backend/routes/records.routes.js');
+const chain = express.__routes['post /'];
+
+async function call(body, userId) {
+  const req = { body, user: { id: userId } };
+  let status = 200;
+  let payload = null;
+  let error = null;
+  const res = {
+    status(code) { status = code; return res; },
+    json(body) { payload = body; return res; },
+  };
+  for (const fn of chain) {
+    if (error) break;
+    const out = fn(req, res, (e) => { if (e) error = e; });
+    if (out && typeof out.then === 'function') await out;
+    if (payload !== null) break;
+  }
+  if (error) throw error;
+  return { status, payload };
+}
+
+const UUID = '123e4567-e89b-42d3-a456-426614174000';
+
+(async () => {
+  let res = await call({ title: 'No id' }, 7);
+  if (res.status !== 201 || !res.payload.success || !res.payload.data.id) process.exit(2);
+  if (res.payload.data.id === UUID) process.exit(3);
+
+  res = await call({ id: UUID, title: 'Client id' }, 7);
+  if (res.status !== 201 || res.payload.data.id !== UUID) process.exit(4);
+  if (Record.__rows.length !== 2) process.exit(5);
+
+  res = await call({ id: UUID, title: 'Retry' }, 7);
+  if (res.status !== 200 || res.payload.data.title !== 'Client id') process.exit(6);
+  if (Record.__rows.length !== 2) process.exit(7);
+
+  res = await call({ id: UUID, title: 'Other tenant' }, 8);
+  if (res.status !== 409 || 'data' in res.payload) process.exit(8);
+  if (JSON.stringify(res.payload).includes('Client id')) process.exit(9);
+  if (Record.__rows.length !== 2) process.exit(10);
+
+  res = await call({ id: 'not-a-uuid', title: 'Bad' }, 7);
+  if (res.status !== 422 || !res.payload.message.includes('id')) process.exit(11);
+  if (Record.__rows.length !== 2) process.exit(12);
+
+  // Simulate the TOCTOU loser: findByPk misses once, the insert hits the PK.
+  Record.__missOnce = true;
+  res = await call({ id: UUID, title: 'Concurrent retry' }, 7);
+  if (res.status !== 200 || res.payload.data.title !== 'Client id') process.exit(14);
+  if (Record.__rows.length !== 2) process.exit(15);
+
+  Record.__missOnce = true;
+  res = await call({ id: UUID, title: 'Concurrent other tenant' }, 8);
+  if (res.status !== 409 || 'data' in res.payload) process.exit(16);
+  if (JSON.stringify(res.payload).includes('Client id')) process.exit(17);
+  if (Record.__rows.length !== 2) process.exit(18);
+
+  // A unique violation with no winner behind it is still a real failure.
+  Record.__missOnce = true;
+  Record.__throwOnce = true;
+  let rethrown = null;
+  try { await call({ id: '223e4567-e89b-42d3-a456-426614174001', title: 'Ghost' }, 7); }
+  catch (e) { rethrown = e; }
+  if (!rethrown || rethrown.name !== 'SequelizeUniqueConstraintError') process.exit(19);
+  if (Record.__rows.length !== 2) process.exit(20);
+
+  console.log('IDENTITY_ROUTE_OK');
+})().catch((e) => { console.error(e); process.exit(13); });
+"""
+
+
+def test_records_route_returns_201_200_409_and_422(project):
+    """Same-user retry returns the row; another tenant gets 409 with no row,
+    including when a concurrent request loses the insert race."""
+    apply_production_spec(str(project), brand="SpecApp")
+    (project / "backend" / "models" / "index.js").write_text(
+        "const rows = [];\n"
+        "function uniqueViolation() {\n"
+        "  const error = new Error('Validation error');\n"
+        "  error.name = 'SequelizeUniqueConstraintError';\n"
+        "  error.parent = { code: '23505' };\n"
+        "  return error;\n"
+        "}\n"
+        "const Record = {\n"
+        "  __rows: rows,\n"
+        "  __missOnce: false,\n"
+        "  __throwOnce: false,\n"
+        "  async findByPk(id) {\n"
+        "    if (this.__missOnce) { this.__missOnce = false; return null; }\n"
+        "    return rows.find((r) => String(r.id) === String(id)) || null;\n"
+        "  },\n"
+        "  async create(attrs) {\n"
+        "    if (this.__throwOnce) { this.__throwOnce = false; throw uniqueViolation(); }\n"
+        "    if (rows.some((r) => String(r.id) === String(attrs.id))) throw uniqueViolation();\n"
+        "    const row = { ...attrs, id: attrs.id || `server-${rows.length + 1}` };\n"
+        "    rows.push(row);\n"
+        "    return row;\n"
+        "  },\n"
+        "  async findAll() { return rows; },\n"
+        "  async findOne() { return null; },\n"
+        "  async destroy() { return 0; },\n"
+        "};\n"
+        "module.exports = { sequelize: { define: () => Record }, Record };\n",
+        encoding="utf-8")
+    (project / "backend" / "node_modules" / "express" / "index.js").write_text(
+        "const routes = {};\n"
+        "const router = {\n"
+        "  use() {},\n"
+        "  get(path, ...handlers) { routes[`get ${path}`] = handlers; },\n"
+        "  post(path, ...handlers) { routes[`post ${path}`] = handlers; },\n"
+        "  put(path, ...handlers) { routes[`put ${path}`] = handlers; },\n"
+        "  delete(path, ...handlers) { routes[`delete ${path}`] = handlers; },\n"
+        "};\n"
+        "module.exports = { Router: () => router, __routes: routes };\n",
+        encoding="utf-8")
+    res = _run_node_script(project, _ROUTE_HARNESS_MODELS)
+    assert "IDENTITY_ROUTE_OK" in res.stdout, res.stderr or res.stdout
+
+
 def _run_node_script(project, snippet):
     """Write a temp entry script INSIDE the project so relative requires resolve."""
     p = project / "_node_probe.cjs"

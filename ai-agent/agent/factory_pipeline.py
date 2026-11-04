@@ -1,15 +1,11 @@
-"""Website Factory — one pipeline from generated project to delivered product.
+"""Factory delivery pipeline for legacy websites and contract-selected app surfaces.
 
 Stages, each with evidence and a hard gate:
 
-  1. ``build``      npm install (if needed) + npm run build; the frontend must
-                    produce ``frontend/dist/index.html``.
-  2. ``backend``    the generated backend test suite must pass (``npm test``).
-  3. ``qa``         browser QA on the built site (console errors, overflow,
-                    screenshots at four widths).
-  4. ``deploy``     deploy_engine (Vercel/Netlify/Railway/GitHub Pages) and the
-                    live URL must pass :func:`agent.live_verify.verify_site`.
-  5. ``video``      demo_video builds and ffprobe-verifies the ~2-minute tour.
+  Web requests build, run backend tests and browser QA, then deploy/verify the
+  frontend. App-only requests skip those web stages but retain backend/API/DB
+  proof; requested mobile apps additionally export, build an APK and verify on
+  an emulator. Requested PWA evidence is gated separately from browser QA.
 
 ``status: "delivered"`` is returned only when every requested stage passed.
 Anything else is ``failed`` or ``partial`` with the failing evidence attached.
@@ -24,6 +20,7 @@ import shutil
 import subprocess
 import time
 import urllib.parse
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -35,7 +32,78 @@ from agent.live_verify import LOCAL_PATH_RE as _LOCAL_PATH_RE
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
+
+def read_app_contract(project_dir: str) -> Optional[Dict[str, Any]]:
+    """Read the generated delivery surfaces, or return ``None`` for legacy sites."""
+    path = Path(project_dir) / "app-contract.json"
+    if not path.exists():
+        return None
+    if not path.is_file():
+        raise ValueError("Invalid app contract: expected a regular file")
+    try:
+        contract = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        raise ValueError("Invalid app contract: file is not valid JSON") from None
+
+    if not isinstance(contract, dict):
+        raise ValueError("Invalid app contract: expected a JSON object")
+    if not {"version", "web", "pwa", "mobile"}.issubset(contract):
+        raise ValueError(
+            "Invalid app contract: version, web, pwa and mobile are all required"
+        )
+    if type(contract.get("version")) is not int or contract.get("version") != 1:
+        raise ValueError("Invalid app contract: unsupported or missing version")
+    web = contract.get("web")
+    pwa = contract.get("pwa")
+    mobile = contract.get("mobile")
+    if not isinstance(web, str) or web not in {"website", "web_app", "none"}:
+        raise ValueError("Invalid app contract: unsupported web surface")
+    if not isinstance(pwa, bool) or (pwa and web == "none"):
+        raise ValueError("Invalid app contract: PWA requires a web surface")
+
+    normalized_mobile = None
+    if mobile is not None:
+        if not isinstance(mobile, dict):
+            raise ValueError("Invalid app contract: mobile surface must be an object")
+        if not {"platforms", "verification"}.issubset(mobile):
+            raise ValueError("Invalid app contract: incomplete mobile surface")
+        platforms = mobile["platforms"]
+        verification = mobile["verification"]
+        if (not isinstance(platforms, list) or not platforms
+                or any(not isinstance(platform, str) or platform not in {"android", "ios"}
+                       for platform in platforms)
+                or len(set(platforms)) != len(platforms)):
+            raise ValueError("Invalid app contract: unsupported mobile platforms")
+        if not isinstance(verification, str) or verification not in {"apk_emulator", "none"}:
+            raise ValueError("Invalid app contract: unsupported mobile verification")
+        normalized_mobile = {"platforms": platforms, "verification": verification}
+    if web == "none" and normalized_mobile is None:
+        raise ValueError(
+            "Invalid app contract: at least one client surface (web or mobile) "
+            "must be requested"
+        )
+    return {"web": web, "pwa": pwa, "mobile": normalized_mobile}
+
+
 DEFAULT_PLATFORM = "vercel"
+
+# The mobile stages consume the path-shaped toolchain() contract; a readiness
+# report would silently degrade to booleans, so name the gaps for the handoff.
+_TOOLCHAIN_PATH_KEYS = (
+    "java_home", "sdk", "adb", "emulator", "avd", "avd_home", "maestro", "gradle_home",
+    "cmake",
+)
+_TOOLCHAIN_LABELS = {
+    "java_home": "JDK 17",
+    "sdk": "Android SDK",
+    "adb": "adb",
+    "emulator": "Android emulator",
+    "avd": "AVD image",
+    "avd_home": "AVD home",
+    "maestro": "Maestro",
+    "gradle_home": "Gradle home",
+    "cmake": "CMake with a long-path-aware ninja",
+}
 
 # backend/ emitted by fullstack_ultra_engine mounts its health route here, so a
 # delivery that names an API host proves it without the operator restating the path.
@@ -176,6 +244,76 @@ def api_health_target(api_url: str, api_health: str = "") -> str:
     if not path:
         path = GENERATED_API_HEALTH_PATH
     return urllib.parse.urljoin(f"{parts.scheme}://{parts.netloc}/", path.lstrip("/"))
+
+
+def _emulator_fixture_api_url(base_url: str) -> str:
+    """Translate the host-only loopback fixture to Android's emulator gateway."""
+    parsed = urllib.parse.urlsplit(base_url)
+    if (
+        parsed.scheme != "http"
+        or parsed.hostname != "127.0.0.1"
+        or not parsed.port
+        or parsed.path not in ("", "/")
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("fixture API must bind to an ephemeral 127.0.0.1 port")
+    return f"http://10.0.2.2:{parsed.port}/api/v1"
+
+
+def _probe_mobile_fixture_api(base_url: str) -> Dict[str, Any]:
+    """Prove the app-runs fixture is serving on its loopback port before APK build."""
+    parsed = urllib.parse.urlsplit(base_url)
+    if (
+        parsed.scheme != "http"
+        or parsed.hostname != "127.0.0.1"
+        or not parsed.port
+        or parsed.path not in ("", "/")
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+    ):
+        return {
+            "ok": False,
+            "status": "failed",
+            "message": "fixture API health probe requires a loopback origin",
+        }
+    health_url = f"{base_url.rstrip('/')}/api/v1/health"
+    try:
+        with urllib.request.urlopen(health_url, timeout=5) as response:
+            payload = json.loads(response.read())
+            data = payload.get("data") if isinstance(payload, dict) else None
+            valid = (
+                response.status == 200
+                and isinstance(payload, dict)
+                and payload.get("success") is True
+                and isinstance(data, dict)
+                and data.get("fixture") is True
+                and data.get("status") == "ok"
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        return {
+            "ok": False,
+            "status": "failed",
+            "url": health_url,
+            "message": f"fixture API health probe failed ({type(exc).__name__})",
+        }
+    if not valid:
+        return {
+            "ok": False,
+            "status": "failed",
+            "url": health_url,
+            "message": "fixture API returned invalid health evidence",
+        }
+    return {
+        "ok": True,
+        "status": "passed",
+        "url": health_url,
+        "body": {"status": "ok", "fixture": True},
+    }
 
 
 def _backend_env_value(backend_dir: Path, key: str) -> str:
@@ -364,16 +502,38 @@ def deliver_from_prompt(
     api_health: str = "",
     progress=None,
     reuse_existing: bool = False,
+    scene: Optional[Dict[str, Any]] = None,
+    app: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """One prompt → generated project → build/tests/QA/deploy/verify/video.
 
     ``reuse_existing`` regenerates into ``<dest_root>/<slug>`` in place (for
     shipping an update of the same product); the default never overwrites an
     existing directory and picks ``<slug>-2``, ``<slug>-3`` instead.
+    ``app`` names the requested surfaces; when omitted the prompt decides and
+    a plain website request keeps the existing lane (no ``app`` block).
     """
     plan = parse_delivery_prompt(prompt)
     deploy = (platform or plan["deploy"]).strip().lower()
     want_video = plan["video"] if video is None else bool(video)
+    from agent.generation_contract import resolve_app_request, resolve_generation_contract
+
+    # Surface validation is pure and must precede the provider gate: an invalid
+    # app request must not call a provider or create the destination directory.
+    try:
+        resolve_app_request({"prompt": prompt, "app": app})
+    except ValueError as exc:
+        message = f"Invalid app request: {exc}"
+        _emit(progress, "generate", "failed", message=message)
+        return {"status": "failed", "verified": False, "message": message, "plan": plan}
+
+    try:
+        contract = resolve_generation_contract({"prompt": prompt, "scene": scene, "app": app})
+    except ValueError:
+        message = ("Invalid 3D request: choose a supported scene and supply a valid local "
+                   "GLB/GLTF model for product_viewer.")
+        _emit(progress, "generate", "failed", message=message)
+        return {"status": "failed", "verified": False, "message": message, "plan": plan}
 
     health = provider_health()
     if not health["usable"]:
@@ -392,14 +552,13 @@ def deliver_from_prompt(
 
     _emit(progress, "generate", "running", name=plan["name"], industry=plan["industry"])
     from agent.fullstack_ultra_engine import FullStackUltraEngine
-    from agent.generation_contract import resolve_generation_contract
 
     generated = FullStackUltraEngine().generate_project(
         str(destination),
         prompt=plan["prompt"],
         brand_name=plan["name"],
         industry=plan["industry"],
-        generation_contract=resolve_generation_contract({}),
+        generation_contract=contract,
     )
     if not generated.get("success"):
         _emit(progress, "generate", "failed", errors=generated.get("errors"))
@@ -482,14 +641,20 @@ def build_project(project_dir: str, *, install: bool = True, api_url: str = "",
             return {"ok": True, "dist": str(root / "dist"), "skipped": "no frontend/package.json"}
         return {"ok": False, "message": "No frontend/package.json and no prebuilt dist/"}
 
+    package_json = json.loads((frontend / "package.json").read_text(encoding="utf-8"))
+    modules = frontend / "node_modules"
+    missing = [name for name in (package_json.get("dependencies") or {})
+               if not (modules / name.replace("/", os.sep)).exists()]
     steps: Dict[str, Any] = {}
-    if install and not (frontend / "node_modules").is_dir():
+    # An existing node_modules is not proof the manifest is installed: reuse after
+    # adding a scene leaves three/@react-three missing and the build fails.
+    if install and (not modules.is_dir() or missing):
         steps["install"] = _run([_npm(), "install", "--no-audit", "--no-fund"], frontend, timeout=timeout)
+        steps["install"]["missing_before"] = missing[:20]
         if not steps["install"]["ok"]:
             return {"ok": False, "dist": "", "steps": steps,
                     "message": "npm install failed", "stderr": steps["install"]["stderr_tail"]}
 
-    package_json = json.loads((frontend / "package.json").read_text(encoding="utf-8"))
     if "build" not in (package_json.get("scripts") or {}):
         return {"ok": False, "dist": "", "steps": steps, "message": "frontend package has no build script"}
     build_env = {"VITE_API_URL": api_url} if api_url else None
@@ -558,21 +723,30 @@ def test_backend(project_dir: str, timeout: int = 300) -> Dict[str, Any]:
     return {**result, "command": "npm test", "cwd": str(backend), "steps": steps}
 
 
-def run_qa(project_dir: str) -> Dict[str, Any]:
-    result = {"ok": False, "message": "QA not run"}
+def run_qa(project_dir: str, base_url: Optional[str] = None) -> Dict[str, Any]:
     try:
-        from agent.extensions.browser_qa import run_browser_qa
+        from agent.extensions.browser_qa import evidence_passes, run_browser_qa
 
-        qa = run_browser_qa(str(project_dir))
-        result = {
-            "ok": qa.get("status") == "passed",
-            "status": qa.get("status"),
-            "results": qa.get("results") or qa.get("viewports") or qa,
-            "message": "" if qa.get("status") == "passed" else "browser QA did not pass",
+        qa = run_browser_qa(str(project_dir), base_url=base_url)
+        passed = evidence_passes(qa)
+        failures = list(qa.get("failures") or [])[:20]
+        return {
+            "ok": passed,
+            "status": qa.get("status") if passed else "failed",
+            "measurement_status": qa.get("status"),
+            "results": qa.get("results") or [],
+            "failures": failures,
+            "report_path": qa.get("report_path"),
+            "evidence": qa.get("evidence") or {},
+            "scene": qa.get("scene"),
+            "pwa": qa.get("pwa"),
+            "requested_pwa": qa.get("requested_pwa", False),
+            "message": "" if passed else "browser QA did not pass: " +
+                       ("; ".join(str(f) for f in failures[:3]) or "incomplete evidence"),
         }
-    except Exception as exc:  # noqa: BLE001 — QA failure is reported, not hidden
-        result = {"ok": False, "message": f"browser QA crashed: {exc}"}
-    return result
+    except Exception as exc:
+        return {"ok": False, "status": "failed",
+                "message": f"browser QA crashed ({type(exc).__name__})"}
 
 
 def run_factory(
@@ -592,7 +766,7 @@ def run_factory(
     progress=None,
     generation_meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Run build → backend tests → QA → deploy → live verify → demo video."""
+    """Run only the contract-requested surfaces, with backend and delivery gates."""
     started = time.perf_counter()
     project = Path(project_dir).resolve()
     if not project.is_dir():
@@ -614,23 +788,67 @@ def run_factory(
     }
     if generation_meta:
         report["generation"] = generation_meta
+    try:
+        app_contract = read_app_contract(str(project))
+    except ValueError as exc:
+        report.update(status="failed", message=str(exc), failures=[str(exc)])
+        return _write_report(project, report_dir, report)
+
+    web_surface = app_contract.get("web", "website") if app_contract else "website"
+    web_requested = web_surface != "none"
+    pwa_requested = bool(app_contract and app_contract.get("pwa"))
+    mobile_request = app_contract.get("mobile") if app_contract else None
+    report["requested_surfaces"] = {
+        "web": web_surface,
+        "pwa": pwa_requested,
+        "mobile": mobile_request,
+    }
+    report["mobile_tier"] = "not_requested" if not mobile_request else "not_run"
+    skipped_surfaces = {}
+    if not web_requested:
+        skipped_surfaces.update({
+            "web_build": "web surface is none in app-contract.json",
+            "browser_qa": "web surface is none in app-contract.json",
+            "frontend_deploy": "web surface is none in app-contract.json",
+        })
+    if not pwa_requested:
+        skipped_surfaces["pwa"] = "PWA was not requested"
+    if not mobile_request:
+        skipped_surfaces["mobile"] = "mobile was not requested"
+    report["skipped_surfaces"] = skipped_surfaces
+
+    def mark_unrun_surfaces(reason: str) -> None:
+        if pwa_requested and "pwa" not in report["stages"]:
+            report["stages"]["pwa"] = {"status": "skipped", "reason": reason}
+            skipped_surfaces["pwa"] = reason
+        if mobile_request:
+            for stage in ("mobile_export", "mobile_apk", "mobile_emulator"):
+                report["stages"].setdefault(
+                    stage, {"status": "skipped", "reason": reason}
+                )
+            skipped_surfaces["mobile"] = reason
 
     # 1 — build -----------------------------------------------------------------
-    if skip_build:
-        dist = project / "frontend" / "dist"
-        build = {"ok": (dist / "index.html").is_file(), "dist": str(dist), "skipped": True}
-        if not build["ok"]:
-            build["message"] = "--skip-build was set but no dist/index.html exists"
+    build = {}
+    if web_requested:
+        if skip_build:
+            dist = project / "frontend" / "dist"
+            build = {"ok": (dist / "index.html").is_file(), "dist": str(dist), "skipped": True}
+            if not build["ok"]:
+                build["message"] = "--skip-build was set but no dist/index.html exists"
+        else:
+            _emit(progress, "build", "running")
+            build = build_project(str(project), install=install, api_url=api_url)
+        report["stages"]["build"] = build
+        _emit(progress, "build", "done" if build.get("ok") else "failed",
+              dist=build.get("dist"), message=build.get("message"))
+        if not build.get("ok"):
+            mark_unrun_surfaces("web build failed")
+            report.update(status="failed", message=build.get("message", "build failed"),
+                          elapsed_ms=int((time.perf_counter() - started) * 1000))
+            return _write_report(project, report_dir, report)
     else:
-        _emit(progress, "build", "running")
-        build = build_project(str(project), install=install, api_url=api_url)
-    report["stages"]["build"] = build
-    _emit(progress, "build", "done" if build.get("ok") else "failed",
-          dist=build.get("dist"), message=build.get("message"))
-    if not build.get("ok"):
-        report.update(status="failed", message=build.get("message", "build failed"),
-                      elapsed_ms=int((time.perf_counter() - started) * 1000))
-        return _write_report(project, report_dir, report)
+        _emit(progress, "build", "skipped", reason=skipped_surfaces["web_build"])
 
     # 2 — backend tests ---------------------------------------------------------
     _emit(progress, "backend_tests", "running")
@@ -638,16 +856,35 @@ def run_factory(
     report["stages"]["backend_tests"] = backend
     _emit(progress, "backend_tests", "done" if backend.get("ok") else "failed")
     if not backend.get("ok"):
+        mark_unrun_surfaces("backend tests failed")
         report.update(status="failed", message=backend.get("message", "backend tests failed"),
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
         return _write_report(project, report_dir, report)
 
     # 3 — QA --------------------------------------------------------------------
-    _emit(progress, "qa", "running")
-    qa = run_qa(str(project))
-    report["stages"]["qa"] = qa
-    _emit(progress, "qa", "done" if qa.get("ok") else "failed", detail=qa.get("status"))
-    if not qa.get("ok") and not allow_qa_fail:
+    qa = {"ok": True, "status": "skipped", "reason": skipped_surfaces.get("browser_qa", "")}
+    if web_requested:
+        _emit(progress, "qa", "running")
+        qa = run_qa(str(project))
+        report["stages"]["qa"] = qa
+        _emit(progress, "qa", "done" if qa.get("ok") else "failed", detail=qa.get("status"))
+    else:
+        _emit(progress, "qa", "skipped", reason=skipped_surfaces["browser_qa"])
+
+    if pwa_requested:
+        pwa = qa.get("pwa")
+        if not isinstance(pwa, dict):
+            pwa = {"ok": False, "status": "not-proven",
+                   "message": "requested PWA evidence is missing"}
+        else:
+            pwa = dict(pwa)
+            pwa.setdefault("status", "passed" if pwa.get("ok") is True else "failed")
+        report["stages"]["pwa"] = pwa
+        _emit(progress, "pwa", "done" if pwa.get("ok") is True else "failed",
+              message=pwa.get("message"))
+
+    if web_requested and not qa.get("ok") and not allow_qa_fail:
+        mark_unrun_surfaces("browser QA failed")
         report.update(status="failed", message=qa.get("message", "QA failed"),
                       elapsed_ms=int((time.perf_counter() - started) * 1000))
         return _write_report(project, report_dir, report)
@@ -670,7 +907,7 @@ def run_factory(
                          "message": database_stage.get("message", "no database, so no API host")}
 
     baked = str((((build.get("steps") or {}).get("build") or {}).get("api_url")) or "")
-    if api_url and api_url != baked:
+    if web_requested and api_url and api_url != baked:
         # Stage 1 built before the API origin existed. Hosts that publish the local dist
         # (Netlify, Pages, Railway) would ship a bundle still calling localhost, so the
         # frontend is rebuilt against the origin it is about to be deployed with.
@@ -680,6 +917,7 @@ def run_factory(
         _emit(progress, "build", "done" if build.get("ok") else "failed",
               dist=build.get("dist"), message=build.get("message"))
         if not build.get("ok"):
+            mark_unrun_surfaces("rebuild with the hosted API origin failed")
             report.update(status="failed",
                           message="rebuild with the hosted API origin failed: "
                                   + str(build.get("message", "")),
@@ -687,7 +925,7 @@ def run_factory(
             return _write_report(project, report_dir, report)
 
     deployment: Dict[str, Any] = {"status": "skipped", "verified": False}
-    if platform != "none":
+    if platform != "none" and web_requested:
         from agent.deploy_engine import deploy_project
 
         _emit(progress, "deploy", "running", platform=platform)
@@ -722,8 +960,8 @@ def run_factory(
                     "api_health_url": health_target,
                 }
 
-    if (auto_host and database_url and api_stage.get("url") and deployment.get("url")
-            and api_health_target(api_url, api_health)):
+    if (web_requested and auto_host and database_url and api_stage.get("url")
+            and deployment.get("url") and api_health_target(api_url, api_health)):
         # The site now has a real origin, so lock the API to it and prove the
         # whole path end to end: health, then an actual form submission.
         api_stage["cors"] = _lock_api_cors(project, database_url, deployment["url"], progress)
@@ -737,16 +975,48 @@ def run_factory(
     elif api_url and backend_present:
         handshake = _prove_api(api_url, api_health_target(api_url, api_health), progress)
 
+    if api_url and backend_present and handshake.get("ok") is True \
+            and api_stage.get("status") == "skipped":
+        api_stage = {
+            "status": "live",
+            "url": api_url,
+            "health_url": api_health_target(api_url, api_health),
+            "verified": True,
+            "source": "provided",
+        }
     report["stages"]["database"] = database_stage
     report["stages"]["api"] = api_stage
     report["stages"]["handshake"] = handshake
+    hosted_database = bool(
+        database_url
+        and database_stage.get("status") in {"created", "reused"}
+        and database_stage.get("ok") is not False
+    )
+    hosted_api = bool(
+        api_stage.get("status") == "live"
+        and api_stage.get("verified") is not False
+        and api_stage.get("url")
+    )
+    full_stack_verified = bool(hosted_database and hosted_api and handshake.get("ok") is True)
+    if not web_requested:
+        deployment = {
+            "status": "api-only",
+            "url": api_url or api_stage.get("url", ""),
+            "verified": full_stack_verified,
+            "api_deployed": hosted_api,
+            "reason": "web surface is none in app-contract.json",
+        }
     report["stages"]["deploy"] = {
         key: deployment.get(key)
         for key in ("status", "url", "platform", "verified", "deployment_id", "message",
-                    "verification", "api_deployed", "api_env", "api_health_url")
+                    "verification", "api_deployed", "api_env", "api_health_url", "reason")
         if key in deployment
     }
-    if platform == "none":
+    if deployment.get("status") == "api-only":
+        _emit(progress, "deploy", "done" if deployment.get("verified") else "partial",
+              url=deployment.get("url"), verified=deployment.get("verified"),
+              reason=deployment.get("reason"))
+    elif platform == "none":
         _emit(progress, "deploy", "skipped")
     elif deployment.get("verified"):
         _emit(progress, "deploy", "done", url=deployment.get("url"), verified=True)
@@ -758,8 +1028,353 @@ def run_factory(
         _emit(progress, "deploy", "failed", url=deployment.get("url"),
               message=deployment.get("message"))
 
+    live_qa = {"ok": False, "status": "skipped", "reason": "no hosted frontend"}
+    if web_requested and platform != "none" and deployment.get("url"):
+        _emit(progress, "live_qa", "running")
+        live_qa = run_qa(str(project), base_url=deployment["url"])
+        _emit(progress, "live_qa", "done" if live_qa.get("ok") else "failed",
+              detail=live_qa.get("status"), message=live_qa.get("message"))
+    if web_requested:
+        report["stages"]["live_qa"] = live_qa
+
+    mobile_failures = []
+    if mobile_request:
+        from agent import mobile_verify
+
+        _emit(progress, "mobile_export", "running")
+        try:
+            mobile_export = mobile_verify.export_mobile(str(project))
+        except Exception as exc:
+            mobile_export = {
+                "ok": False,
+                "status": "failed",
+                "message": f"mobile export raised {type(exc).__name__}",
+            }
+        if not isinstance(mobile_export, dict):
+            mobile_export = {
+                "ok": False,
+                "status": "failed",
+                "message": "mobile export returned invalid evidence",
+            }
+        report["stages"]["mobile_export"] = mobile_export
+        _emit(progress, "mobile_export", "done" if mobile_export.get("ok") else "failed",
+              message=mobile_export.get("message"))
+        if mobile_export.get("ok") is not True:
+            export_error = mobile_export.get("message") or mobile_export.get("status")
+            mobile_failures.append(
+                f"mobile export failed ({export_error})"
+            )
+
+        verification = mobile_request.get("verification", "apk_emulator")
+        if verification == "none":
+            report["mobile_tier"] = "not_verified"
+            report["stages"]["mobile_apk"] = {
+                "status": "skipped",
+                "reason": "mobile.verification is none",
+            }
+            report["stages"]["mobile_emulator"] = {
+                "status": "skipped",
+                "reason": "mobile.verification is none",
+            }
+            skipped_surfaces["mobile_verification"] = "mobile.verification is none"
+            mobile_failures.append(
+                "mobile verification was not requested; this run cannot be delivered"
+            )
+        elif mobile_export.get("ok") is not True:
+            report["stages"]["mobile_apk"] = {
+                "status": "skipped",
+                "reason": "mobile export did not pass",
+            }
+            report["stages"]["mobile_emulator"] = {
+                "status": "skipped",
+                "reason": "mobile export did not pass",
+            }
+            report["mobile_tier"] = "failed"
+        elif mobile_export.get("ok") is True:
+            platforms = mobile_request.get("platforms", []) or []
+            unsupported_platforms = [
+                platform_name for platform_name in platforms
+                if platform_name != "android"
+            ]
+            if unsupported_platforms:
+                report["stages"]["mobile_ios"] = {
+                    "status": "not_measured",
+                    "platforms": unsupported_platforms,
+                    "reason": (
+                        "iOS export is checked, but signing, store submission, and "
+                        "iOS device verification are not delivered by this pipeline"
+                    ),
+                }
+            no_android = "android" not in platforms
+            toolchain = {"ready": False, "missing": []}
+            if not no_android:
+                try:
+                    from agent.android_toolchain import toolchain as resolve_toolchain
+
+                    resolved = resolve_toolchain()
+                except Exception as exc:
+                    resolved = {
+                        "ready": False,
+                        "missing": [f"toolchain check raised {type(exc).__name__}"],
+                    }
+                if isinstance(resolved, dict):
+                    toolchain = resolved
+                else:
+                    toolchain = {
+                        "ready": False,
+                        "missing": ["invalid toolchain evidence"],
+                    }
+
+            if no_android or not toolchain.get("ready"):
+                if no_android:
+                    message = (
+                        "no Android target was requested, so APK and emulator "
+                        "verification have nothing to build or install"
+                    )
+                else:
+                    detail = ", ".join(
+                        str(item) for item in toolchain.get("missing") or []
+                    ) or ", ".join(
+                        _TOOLCHAIN_LABELS[name]
+                        for name in _TOOLCHAIN_PATH_KEYS
+                        if not toolchain.get(name)
+                    )
+                    message = "Android toolchain is not ready" + (
+                        f": {detail}" if detail else ""
+                    )
+                    # A named gap is the only way a blocked delivery turns into a
+                    # fixed machine, so the remedy rides along with the label.
+                    remedy = str(toolchain.get("cmake_gap") or "").strip()
+                    if remedy:
+                        message += f" ({remedy})"
+                report["stages"]["mobile_apk"] = {
+                    "ok": False,
+                    "status": "blocked",
+                    "message": message,
+                    "toolchain": toolchain,
+                }
+                report["stages"]["mobile_emulator"] = {
+                    "status": "skipped",
+                    "reason": message,
+                }
+                report["mobile_tier"] = "blocked"
+                skipped_surfaces["mobile_verification"] = message
+                mobile_failures.append(message)
+            else:
+                tier = "full_stack" if full_stack_verified else "app_runs"
+                mobile_api_url = api_url or api_stage.get("url", "")
+                fixture_server = None
+                if tier == "app_runs":
+                    try:
+                        from agent.mobile_fixture_api import start_fixture_api
+
+                        fixture_server, fixture_base_url = start_fixture_api(port=0)
+                        mobile_api_url = _emulator_fixture_api_url(fixture_base_url)
+                        fixture_health = _probe_mobile_fixture_api(fixture_base_url)
+                        health_path = report_dir / "mobile" / "health.json"
+                        if fixture_health.get("ok"):
+                            health_path.parent.mkdir(parents=True, exist_ok=True)
+                            health_path.write_text(
+                                json.dumps({
+                                    "status": "ok",
+                                    "fixture": True,
+                                    "url": fixture_health["url"],
+                                }, indent=2) + "\n",
+                                encoding="utf-8",
+                            )
+                            fixture_health["report_path"] = str(health_path)
+                        report["stages"]["mobile_fixture_api"] = fixture_health
+                        if fixture_health.get("ok") is not True:
+                            mobile_api_url = ""
+                            report["mobile_tier"] = "blocked"
+                            mobile_failures.append(
+                                fixture_health.get("message", "fixture API health check failed")
+                            )
+                        elif not health_path.is_file():
+                            mobile_api_url = ""
+                            report["stages"]["mobile_fixture_api"] = {
+                                **fixture_health,
+                                "ok": False,
+                                "status": "failed",
+                                "message": "fixture API health evidence was not persisted",
+                            }
+                            report["mobile_tier"] = "blocked"
+                            mobile_failures.append(
+                                report["stages"]["mobile_fixture_api"]["message"]
+                            )
+                    except OSError as exc:
+                        mobile_api_url = ""
+                        report["stages"]["mobile_fixture_api"] = {
+                            "ok": False,
+                            "status": "failed",
+                            "message": f"fixture API health evidence failed ({type(exc).__name__})",
+                        }
+                        report["mobile_tier"] = "blocked"
+                        mobile_failures.append(
+                            report["stages"]["mobile_fixture_api"]["message"]
+                        )
+                    except Exception as exc:
+                        mobile_api_url = ""
+                        report["stages"]["mobile_apk"] = {
+                            "ok": False,
+                            "status": "blocked",
+                            "message": f"fixture API failed to start ({type(exc).__name__})",
+                        }
+                        report["stages"]["mobile_emulator"] = {
+                            "status": "skipped",
+                            "reason": "fixture API was unavailable",
+                        }
+                        report["mobile_tier"] = "blocked"
+                        mobile_failures.append(report["stages"]["mobile_apk"]["message"])
+
+                if tier == "app_runs" and not mobile_api_url:
+                    fixture_failure = (
+                        report.get("stages", {}).get("mobile_fixture_api") or {}
+                    ).get("message", "fixture API was unavailable")
+                    report["stages"].setdefault("mobile_apk", {
+                        "ok": False,
+                        "status": "blocked",
+                        "message": fixture_failure,
+                    })
+                    report["stages"].setdefault("mobile_emulator", {
+                        "status": "skipped",
+                        "reason": fixture_failure,
+                    })
+
+                if mobile_api_url:
+                    apk_result = {}
+                    try:
+                        apk_result = mobile_verify.build_apk(
+                            str(project),
+                            toolchain,
+                            api_url=mobile_api_url,
+                            evidence_dir=str(report_dir / "mobile"),
+                        )
+                    except Exception as exc:
+                        apk_result = {
+                            "ok": False,
+                            "status": "failed",
+                            "message": f"APK build raised {type(exc).__name__}",
+                        }
+                    if not isinstance(apk_result, dict):
+                        apk_result = {
+                            "ok": False,
+                            "status": "failed",
+                            "message": "APK build returned invalid evidence",
+                        }
+                    report["stages"]["mobile_apk"] = apk_result
+                    _emit(progress, "mobile_apk",
+                          "done" if apk_result.get("ok") is True and apk_result.get("apk")
+                          else ("failed" if apk_result.get("ok") is True
+                                else apk_result.get("status", "failed")),
+                          message=apk_result.get("message") or (
+                              "APK build returned no APK path"
+                              if apk_result.get("ok") is True and not apk_result.get("apk")
+                              else None
+                          ))
+                    if apk_result.get("ok") is not True:
+                        mobile_failures.append(
+                            "mobile APK build failed "
+                            f"({apk_result.get('message') or apk_result.get('status')})"
+                        )
+                        report["stages"]["mobile_emulator"] = {
+                            "status": "skipped",
+                            "reason": "mobile APK build did not pass",
+                        }
+                        report["mobile_tier"] = "failed"
+                    elif not apk_result.get("apk"):
+                        apk_result["ok"] = False
+                        apk_result["status"] = "failed"
+                        apk_result["message"] = "APK build returned no APK path"
+                        mobile_failures.append(apk_result["message"])
+                        report["stages"]["mobile_apk"] = apk_result
+                        report["stages"]["mobile_emulator"] = {
+                            "status": "skipped",
+                            "reason": "APK build returned no APK path",
+                        }
+                        report["mobile_tier"] = "failed"
+                    else:
+                        try:
+                            emulator = mobile_verify.verify_emulator(
+                                str(project),
+                                apk_result.get("apk", ""),
+                                toolchain=toolchain,
+                                api_url=mobile_api_url,
+                                tier=tier,
+                                evidence_dir=str(report_dir / "mobile"),
+                            )
+                        except Exception as exc:
+                            emulator = {
+                                "ok": False,
+                                "status": "failed",
+                                "message": (
+                                    "mobile emulator verification raised "
+                                    f"{type(exc).__name__}"
+                                ),
+                            }
+                        if not isinstance(emulator, dict):
+                            emulator = {
+                                "ok": False,
+                                "status": "failed",
+                                "message": "mobile emulator returned invalid evidence",
+                            }
+                        else:
+                            emulator = dict(emulator)
+                        reported_tier = emulator.get("tier")
+                        emulator["tier"] = tier
+                        if emulator.get("ok") is True and reported_tier != tier:
+                            if reported_tier:
+                                emulator["reported_tier"] = reported_tier
+                            emulator["ok"] = False
+                            emulator["message"] = (
+                                f"emulator reported tier "
+                                f"{reported_tier or 'missing'}, expected {tier}"
+                            )
+                        report["stages"]["mobile_emulator"] = emulator
+                        _emit(progress, "mobile_emulator",
+                              "done" if emulator.get("ok") is True else "failed",
+                              tier=tier, message=emulator.get("message"))
+                        if emulator.get("ok") is not True:
+                            mobile_failures.append(
+                                "mobile emulator verification failed "
+                                f"({emulator.get('message') or emulator.get('status')})"
+                            )
+                            report["mobile_tier"] = "app_runs" if tier == "app_runs" else "failed"
+                        else:
+                            report["mobile_tier"] = tier
+                            if tier != "full_stack":
+                                mobile_failures.append(
+                                    "mobile verification only proved app_runs against a fixture API"
+                                )
+                try:
+                    if fixture_server is not None:
+                        fixture_server.shutdown()
+                except Exception as exc:
+                    mobile_failures.append(
+                        f"fixture API shutdown failed ({type(exc).__name__})"
+                    )
+                finally:
+                    if fixture_server is not None:
+                        try:
+                            fixture_server.server_close()
+                        except Exception as exc:
+                            mobile_failures.append(
+                                f"fixture API close failed ({type(exc).__name__})"
+                            )
+
     # 5 — demo video ------------------------------------------------------------
-    if video:
+    if video and not web_requested:
+        # A mobile-app delivery has no public page to film; recording the API host
+        # would produce a "demo" of a health endpoint and nothing else.
+        report["stages"]["video"] = {
+            "status": "skipped",
+            "verified": False,
+            "reason": "no web surface to film; app-contract.json requests mobile only",
+        }
+        skipped_surfaces["video"] = "no web surface to film"
+        _emit(progress, "video", "skipped",
+              reason="app-contract.json requests no web surface")
+    elif video:
         from agent.demo_video import generate_demo_video
 
         _emit(progress, "video", "running")
@@ -782,6 +1397,8 @@ def run_factory(
     failures = []
     if platform != "none" and not deployment.get("verified"):
         failures.append(f"deployment not verified ({deployment.get('status')}: {deployment.get('message', '')})")
+    if not web_requested and platform == "none":
+        failures.append("API-only app delivery has no hosted API, database, or frontend")
     if backend_present and platform != "none":
         # A client demo needs all three tiers live: a page that loads but cannot
         # save is not a product, and that is exactly what used to be shipped.
@@ -819,10 +1436,22 @@ def run_factory(
             failures.append(
                 f"{_PROOF_LABELS[first_failed]} ({(handshake.get(first_failed) or {}).get('status')}: "
                 f"{'; '.join(str(f) for f in handshake.get('failures') or [])})")
-    if video and not report["stages"].get("video", {}).get("verified"):
+    if pwa_requested and report["stages"].get("pwa", {}).get("ok") is not True:
+        pwa = report["stages"].get("pwa") or {}
+        detail = "; ".join(str(item) for item in (pwa.get("failures") or [])[:3])
+        failures.append("PWA verification failed: " +
+                        (detail or pwa.get("message") or "incomplete PWA evidence"))
+    failures.extend(mobile_failures)
+    # An app-only run records `video` as skipped, so this gate must not read that
+    # skip as a failure — otherwise every mobile delivery caps at `partial`.
+    if video and web_requested and not report["stages"].get("video", {}).get("verified"):
         failures.append("demo video not verified")
-    if not qa.get("ok"):
+    if web_requested and not qa.get("ok"):
         failures.append("QA failed (allowed by caller)")
+    if web_requested and platform != "none" and not live_qa.get("ok"):
+        detail = "; ".join(str(item) for item in (live_qa.get("failures") or [])[:3])
+        failures.append("live browser QA failed: " +
+                        (detail or live_qa.get("message") or "no complete hosted evidence"))
 
     # `delivered` claims a hosted, verified product, so it requires a hosting
     # stage that actually passed. A local-only run reports `built`.
@@ -853,19 +1482,71 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
     database = stages.get("database") or {}
     handshake = stages.get("handshake") or {}
     video = stages.get("video") or {}
+    mobile_apk = stages.get("mobile_apk") or {}
+    mobile_emulator = stages.get("mobile_emulator") or {}
+    surfaces = report.get("requested_surfaces") or {}
 
     lines = ["## Client handoff", ""]
     rows = [
-        ("Frontend (live)", deploy.get("url")),
+        ("Frontend (live)", deploy.get("url") if surfaces.get("web") != "none" else None),
         ("API (live)", api.get("url") or deploy.get("api_health_url")),
         ("API health", api.get("health_url")),
         ("Database", f"{database.get('database', '')}@{database.get('host', '')}"
                      if database.get("database") else None),
         ("Demo video", video.get("video")),
+        ("Local browser evidence", (stages.get("qa") or {}).get("report_path")),
+        ("Hosted browser evidence", (stages.get("live_qa") or {}).get("report_path")),
     ]
     for label, value in rows:
         if value:
             lines.append(f"- **{label}:** `{value}`")
+    if surfaces:
+        mobile = surfaces.get("mobile")
+        requested_mobile = (", ".join(mobile.get("platforms") or [])
+                            if isinstance(mobile, dict) else "not requested")
+        lines.append(
+            f"- **Requested surfaces:** web `{surfaces.get('web', 'website')}`, "
+            f"PWA `{'yes' if surfaces.get('pwa') else 'no'}`, mobile `{requested_mobile}`"
+        )
+    if mobile_apk.get("apk"):
+        lines.append(f"- **APK:** `{mobile_apk['apk']}`")
+    if mobile_apk.get("sha256"):
+        lines.append(f"- **APK SHA-256:** `{mobile_apk['sha256']}`")
+    if report.get("mobile_tier") not in (None, "", "not_requested"):
+        lines.append(f"- **Mobile verification tier:** `{report['mobile_tier']}`")
+    maestro = mobile_emulator.get("maestro")
+    if isinstance(maestro, dict) and maestro:
+        flow_results = sorted(
+            f"{name} {'passed' if (result or {}).get('ok') is True else 'failed'}"
+            for name, result in maestro.items()
+            if isinstance(result, dict)
+        )
+        overall = ("passed" if flow_results and all(
+            (result or {}).get("ok") is True
+            for result in maestro.values() if isinstance(result, dict)
+        ) else "failed")
+        lines.append(f"- **Maestro result:** `{overall}` ({'; '.join(flow_results)})")
+    elif isinstance(maestro, dict):
+        lines.append("- **Maestro result:** `no flow evidence produced`")
+    elif maestro is not None:
+        lines.append(f"- **Maestro result:** `{maestro}`")
+    test_account = mobile_emulator.get("test_account")
+    if test_account:
+        if mobile_emulator.get("tier") == "full_stack":
+            lines.append(
+                f"- **Test account:** `{test_account}` signed up against the live API. "
+                "Its password was never written to this report, so reset it in the app "
+                "before signing in; delete the rows it created if you want an empty table."
+            )
+        else:
+            lines.append(
+                f"- **Test account:** `{test_account}` signed up against a throwaway "
+                "fixture API that this run shut down; it proves the app runs, not the "
+                "hosted backend."
+            )
+    elif surfaces.get("mobile"):
+        lines.append("- **Test account:** use app-owner supplied credentials; credentials are not "
+                     "stored in this report")
     migrations = database.get("migrations") or {}
     if migrations.get("status") == "applied":
         lines.append(f"- **Schema:** {migrations.get('applied')} migration(s) applied "
@@ -896,6 +1577,12 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
         took = f"{latency} ms" if latency else "under 1 ms"
         lines.append(f"- **Live updates:** a write reached an open dashboard in {took} "
                      f"(frames seen: {', '.join(feed.get('events') or [])})")
+    scene = (stages.get("live_qa") or {}).get("scene") or {}
+    if scene.get("ok"):
+        lines.append(
+            f"- **3D scene:** rendered in the hosted browser "
+            f"({scene.get('frames', 0)} frames, {scene.get('draw_calls', 0)} draw calls; "
+            "canvas pixels changed after a rotate action; mobile stayed static until activated)")
     stray = list(surface.get("leftovers") or []) + list(feed.get("leftovers") or [])
     if stray:
         lines.append(f"- **Clean-up owed:** the run could not remove its own probe rows "
@@ -904,17 +1591,36 @@ def _handoff_lines(report: Dict[str, Any]) -> list:
                  "hosting platform. Rotate them if either is shared.")
 
     not_proven = [f for f in report.get("failures") or []]
+    for name in ("qa", "live_qa"):
+        stage = stages.get(name) or {}
+        if stage.get("status") not in {None, "skipped"} and stage.get("ok") is not True:
+            not_proven.extend(f"{name}: {failure}" for failure in (
+                stage.get("failures") or [stage.get("message") or "incomplete browser evidence"]
+            )[:5])
+    if not report.get("verified"):
+        not_proven.append("Hosted delivery was not verified.")
     skipped = [name for name, stage in stages.items()
                if stage.get("status") in {"skipped", "blocked"} and name != "video"]
+    unmeasured = [name for name, stage in stages.items()
+                  if stage.get("status") == "not_measured"]
+    skipped_surfaces = report.get("skipped_surfaces") or {}
     lines.append("")
     lines.append("## Not proven")
-    if not not_proven and not skipped:
+    if not not_proven and not skipped and not unmeasured and not skipped_surfaces:
         lines.append("Nothing — every stage above was verified against the live deployment.")
     else:
         for failure in not_proven:
             lines.append(f"- not proven: {failure}")
         for name in skipped:
-            lines.append(f"- skipped stage: `{name}` ({(stages.get(name) or {}).get('reason', '')})")
+            stage = stages.get(name) or {}
+            reason = stage.get("reason") or stage.get("message") or ""
+            lines.append(f"- skipped stage: `{name}` ({reason})")
+        for name in unmeasured:
+            stage = stages.get(name) or {}
+            lines.append(f"- not measured: `{name}` "
+                         f"({stage.get('reason') or 'this pipeline never measured it'})")
+        for surface, reason in skipped_surfaces.items():
+            lines.append(f"- skipped surface: `{surface}` ({reason})")
     lines.append("")
     return lines
 
@@ -937,12 +1643,23 @@ def _write_report(project: Path, report_dir: Path, report: Dict[str, Any]) -> Di
         "",
     ]
     for stage_name, stage in (report.get("stages") or {}).items():
-        ok = stage.get("ok", stage.get("verified", stage.get("status") in {"live", "skipped"}))
-        lines.append(f"## {stage_name} — {'PASS' if ok else 'FAIL/UNVERIFIED'}")
+        status = stage.get("status")
+        # `skipped` used to fall into the same bucket as `live`, so a stage that
+        # proved nothing printed as a pass in the report a buyer reads.
+        if status in {"skipped", "not_requested", "not_measured"}:
+            verdict = status.upper().replace("_", " ")
+        elif status == "api-only":
+            verdict = "PASS" if stage.get("verified") is True else "FAIL/UNVERIFIED"
+        else:
+            ok = stage.get("ok", stage.get("verified", status == "live"))
+            verdict = "PASS" if ok else "FAIL/UNVERIFIED"
+        lines.append(f"## {stage_name} — {verdict}")
         for key in ("url", "status", "duration_seconds", "resolution", "message", "dist",
-                    "database", "host", "health_url"):
+                    "database", "host", "health_url", "report_path", "reason"):
             if stage.get(key):
                 lines.append(f"- {key}: `{stage[key]}`")
+        for failure in (stage.get("failures") or [])[:5]:
+            lines.append(f"- failure: {failure}")
         for warning in stage.get("warnings") or []:
             lines.append(f"- warning: {warning}")
         lines.append("")

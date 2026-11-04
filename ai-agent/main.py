@@ -95,7 +95,9 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable detailed debug logging")
     parser.add_argument("--inspect-site", type=str, help="Inspect international website or domain to replicate (e.g. stripe.com, apple.com, linear.app)")
     parser.add_argument("--generate-3d", action="store_true", help="Generate modern Three.js 3D interactive scene")
-    parser.add_argument("--archetype", type=str, default="floating_crystal", help="3D Archetype (floating_crystal, cyber_grid, particle_cosmos, product_viewer, holographic_bento)")
+    parser.add_argument("--archetype", type=str, default="floating_crystal",
+                        choices=("floating_crystal", "cyber_grid", "particle_cosmos", "product_viewer"),
+                        help="Genuine 3D archetype (CSS-only effects are not a scene)")
     parser.add_argument("--omni-repair", type=str, help="Run deep self-healing omni-repair on target project directory")
     parser.add_argument("--turbo", action="store_true", help="Enable Turbo Accelerator Engine for parallel high-speed execution")
     parser.add_argument("--update-system", action="store_true", help="Run automated system update, registry verification, and environment maintenance")
@@ -118,17 +120,62 @@ def main():
     parser.add_argument("--factory-api-url", type=str, default="", help="Already-hosted API base URL to bake into the build (VITE_API_URL). Leave empty and the factory provisions its own Neon database and deploys backend/ to <slug>-api on Vercel")
     parser.add_argument("--factory-api-health", type=str, default="", help="API health path/URL verified after deploy. Leave empty to use the generated contract (api/v1/health). Write it without a leading slash: Git Bash rewrites /api/v1/health into a local D:/ path")
     parser.add_argument("--factory-json", action="store_true", help="Print the full JSON evidence")
+    parser.add_argument("--android-toolchain", choices=("check", "install"),
+                        help="Check or install the Android verification toolchain")
+    parser.add_argument("--accept-licenses", action="store_true",
+                        help="Accept Android SDK package licenses for --android-toolchain install")
     parser.add_argument("--deliver", type=str, metavar="PROMPT", help="One prompt → generate + build + test + QA + database + hosted API + deploy + verify + demo video")
     parser.add_argument("--deliver-root", type=str,
                         default=str(Path(__file__).resolve().parent.parent / "generated-projects"),
                         help="Directory that receives the generated project")
     parser.add_argument("--deliver-reuse", action="store_true", help="Regenerate into <root>/<slug> in place instead of creating a -2 copy")
+    parser.add_argument("--deliver-scene", choices=("floating_crystal", "cyber_grid", "particle_cosmos", "product_viewer"),
+                        help="Request a genuine lazy Three.js scene; product_viewer needs --deliver-model")
+    parser.add_argument("--deliver-model", type=str, default="",
+                        help="Trusted local GLB/GLTF 2.0 model for --deliver-scene product_viewer (owner-supplied, bundled locally)")
     parser.add_argument("--deliver-deploy", type=str, default=None,
                         choices=("vercel", "netlify", "railway", "github-pages", "none"),
                         help="Override the deploy target inferred from the prompt")
+    parser.add_argument("--deliver-web", choices=("website", "web-app", "none"),
+                        help="Explicit web surface for --deliver (website | web-app | none)")
+    parser.add_argument("--deliver-mobile", choices=("android", "none"),
+                        help="Explicit mobile surface for --deliver")
+    parser.add_argument("--deliver-pwa", action="store_true",
+                        help="Build a PWA for the requested web surface (requires --deliver-web)")
+    parser.add_argument("--deliver-mobile-verify", choices=("apk-emulator", "none"),
+                        default=None,
+                        help="Override mobile verification (requires --deliver-mobile android; default: apk-emulator)")
     parser.add_argument("--verify-url", type=str, help="Verify a deployed URL (assets, SPA routes, optional API health)")
     parser.add_argument("--verify-api", type=str, default="", help="API health path for --verify-url, e.g. api/v1/health (no leading slash under Git Bash, which rewrites it to a local path)")
     args = parser.parse_args()
+    if args.accept_licenses and args.android_toolchain != "install":
+        parser.error("--accept-licenses requires --android-toolchain install")
+    if args.android_toolchain:
+        from agent import android_toolchain
+
+        if args.android_toolchain == "install" and not args.accept_licenses:
+            result = {
+                "ok": False,
+                "error": "Installation requires explicit license acceptance; rerun with --accept-licenses.",
+            }
+        elif args.android_toolchain == "check":
+            result = android_toolchain.check_environment()
+            result["ok"] = result["ready"]
+        else:
+            result = android_toolchain.install_toolchain(accept_licenses=True)
+        if args.factory_json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(f"Android toolchain: {'ready' if result.get('ok') else 'not ready'}")
+            if result.get("missing"):
+                print(f"Missing: {', '.join(result['missing'])}")
+            if result.get("error"):
+                print(result["error"])
+        sys.exit(0 if result.get("ok") else 1)
+    # An explicit verification override is an orphan unless the mobile surface
+    # it verifies was requested too; fail closed instead of silently dropping it.
+    if args.deliver_mobile_verify is not None and args.deliver_mobile != "android":
+        parser.error("--deliver-mobile-verify requires --deliver-mobile android")
     if not args.factory_json:
         print_banner()
     else:
@@ -156,6 +203,29 @@ def main():
         def _progress(event):
             print(f"[{event.get('stage')}] {event.get('status')}", file=sys.stderr)
 
+        scene = None
+        if args.deliver_scene:
+            scene = {"archetype": args.deliver_scene}
+            if args.deliver_model:
+                if args.deliver_scene != "product_viewer":
+                    parser.error("--deliver-model is only valid with --deliver-scene product_viewer")
+                scene["model_path"] = args.deliver_model
+        elif args.deliver_model:
+            parser.error("--deliver-model requires --deliver-scene product_viewer")
+
+        app = None
+        if args.deliver_web or args.deliver_mobile or args.deliver_pwa:
+            if args.deliver_pwa and not args.deliver_web:
+                parser.error("--deliver-pwa requires --deliver-web website|web-app")
+            app = {
+                "web": (args.deliver_web or "none").replace("web-app", "web_app"),
+                "pwa": args.deliver_pwa,
+                "mobile": ({"platforms": ["android"],
+                            "verification": (args.deliver_mobile_verify or "apk-emulator")
+                            .replace("-", "_")}
+                           if args.deliver_mobile == "android" else None),
+            }
+
         result = deliver_from_prompt(
             args.deliver,
             dest_root=args.deliver_root,
@@ -165,6 +235,8 @@ def main():
             api_health=args.factory_api_health,
             progress=_progress,
             reuse_existing=args.deliver_reuse,
+            scene=scene,
+            app=app,
         )
         print(json.dumps(result, indent=2) if args.factory_json
               else f"status={result.get('status')} verified={result.get('verified')} "
@@ -269,6 +341,10 @@ def main():
         print(f"Target Directory: {dest_dir}")
         engine = Benchmark3DFactory()
         res = engine.generate_full_3d_website(destination_dir=dest_dir, prompt=prompt_text)
+        if not res.get("success"):
+            print(f"Vertical        : {res.get('vertical', 'unknown')}")
+            print(f"Generation failed: {res.get('error') or res.get('message') or 'unknown error'}")
+            sys.exit(1)
         print(f"Vertical        : {res['vertical']}")
         print(f"Brand Identity  : {res['brand']}")
         print(f"Benchmark Brands: {', '.join(res.get('benchmark_leaders', []))}")
@@ -313,6 +389,9 @@ def main():
         target_dir = args.prompt or "."
         print(f"\n[Modern3DWebsiteEngine] Generating {args.archetype} 3D scene...")
         res = engine.inject_3d_experience(target_dir, archetype=args.archetype)
+        if not res.get("success"):
+            print(f"3D injection failed: {res.get('error') or 'unknown error'}")
+            sys.exit(1)
         print(f"Archetype       : {res['archetype']}")
         print(f"Injected File   : {res['injected_file']}")
         print("\n3D Modern experience injected successfully.\n")
@@ -441,4 +520,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -2769,6 +2769,10 @@ class FactoryDeliverRequest(BaseModel):
     api_health: str = Field("", description="API health path/URL to verify after deploy")
     dest_root: str = Field("generated-projects", description="Directory that receives the generated project")
     reuse_existing: bool = Field(False, description="Regenerate in <dest_root>/<slug> instead of a -2 copy")
+    app: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Surfaces: {'web':'website|web_app|none','pwa':bool,"
+                    "'mobile':{'platforms':['android'],'verification':'apk_emulator'}}")
 
 
 class FactoryVerifyRequest(BaseModel):
@@ -2923,6 +2927,7 @@ async def factory_deliver(req: FactoryDeliverRequest, request: Request,
         "api_url": req.api_url,
         "api_health": req.api_health,
         "reuse_existing": req.reuse_existing,
+        "app": req.app,
     }
     with _FACTORY_LOCK:
         if len(_FACTORY_JOBS) >= _FACTORY_MAX_JOBS:
@@ -4227,7 +4232,7 @@ class InspectReplicateRequest(BaseModel):
 
 class Generate3DRequest(BaseModel):
     project_dir: str = Field(..., description="Target project directory")
-    archetype: str = Field(default="floating_crystal", description="3D Archetype: floating_crystal, cyber_grid, particle_cosmos, product_viewer, holographic_bento")
+    archetype: str = Field(default="floating_crystal", description="Genuine 3D archetype: floating_crystal, cyber_grid, particle_cosmos, product_viewer (CSS-only effects are not a scene)")
     brand_name: str = Field(default="Lumicore", description="Brand name for 3D experience")
     primary_color: str = Field(default="#3b82f6", description="Primary accent color in hex")
 

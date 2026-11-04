@@ -1,4 +1,5 @@
 """Tests — one-prompt delivery: parse intent, generate, then run the factory."""
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -119,6 +120,114 @@ class DeliverFromPromptTests(unittest.TestCase):
                 result = factory.deliver_from_prompt('Build "Broken" a tool', dest_root=tmp)
             self.assertEqual(result["status"], "failed")
             run.assert_not_called()
+
+    def test_explicit_scene_reaches_the_fullstack_generation_contract(self):
+        contracts = []
+
+        def generate(destination, **kwargs):
+            contracts.append(kwargs['generation_contract'])
+            return {'success': True, 'total_files': 1}
+
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch('agent.fullstack_ultra_engine.FullStackUltraEngine.generate_project',
+                   side_effect=generate), \
+             patch.object(factory, 'run_factory', return_value={'status': 'built', 'verified': False}):
+            result = factory.deliver_from_prompt(
+                'Build "Prism" a records workspace', dest_root=tmp,
+                scene={'archetype': 'cyber_grid'}, platform='none', video=False,
+            )
+        self.assertEqual(result['status'], 'built')
+        self.assertEqual(contracts[0]['scene'], {'archetype': 'cyber_grid'})
+        self.assertEqual(contracts[0]['database'], 'postgresql')
+        self.assertTrue(contracts[0]['auth'])
+
+    def test_prompt_3d_intent_reaches_the_same_fullstack_lane(self):
+        contracts = []
+
+        def generate(destination, **kwargs):
+            contracts.append(kwargs['generation_contract'])
+            return {'success': True, 'total_files': 1}
+
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch('agent.fullstack_ultra_engine.FullStackUltraEngine.generate_project',
+                   side_effect=generate), \
+             patch.object(factory, 'run_factory', return_value={'status': 'built', 'verified': False}):
+            factory.deliver_from_prompt('Build "Prism" a 3D records workspace', dest_root=tmp)
+        self.assertEqual(contracts[0]['scene']['archetype'], 'floating_crystal')
+
+    def test_product_viewer_without_model_stops_before_provider_or_files(self):
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(factory, 'provider_health') as health, \
+             patch.object(factory, 'run_factory') as run:
+            result = factory.deliver_from_prompt(
+                'Build "Prism" a product showroom', dest_root=tmp,
+                scene={'archetype': 'product_viewer'},
+            )
+            self.assertEqual(result['status'], 'failed')
+            self.assertIn('model', result['message'])
+            self.assertEqual(list(Path(tmp).iterdir()), [])
+            health.assert_not_called()
+            run.assert_not_called()
+
+    def test_app_surfaces_reach_the_generation_contract(self):
+        seen = []
+
+        def generate(destination, **kwargs):
+            seen.append(kwargs["generation_contract"]["app"])
+            return {"success": True, "total_files": 1}
+
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch("agent.fullstack_ultra_engine.FullStackUltraEngine.generate_project",
+                   side_effect=generate), \
+             patch.object(factory, "run_factory", return_value={"status": "built"}):
+            factory.deliver_from_prompt("Build a records app", dest_root=tmp,
+                                        platform="none", video=False)
+        self.assertEqual(seen[0]["web"], "none")
+        self.assertEqual(seen[0]["mobile"]["platforms"], ["android"])
+
+    def test_pwa_without_web_surface_fails_before_provider_or_files(self):
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(factory, "provider_health") as health:
+            result = factory.deliver_from_prompt(
+                "Build a records app", dest_root=tmp,
+                app={"web": "none", "pwa": True})
+            self.assertEqual(result["status"], "failed")
+            self.assertEqual(list(Path(tmp).iterdir()), [])
+            health.assert_not_called()
+
+
+class DeliverCliSurfaceFlagTests(unittest.TestCase):
+    def test_orphan_mobile_verify_flag_exits_non_zero_and_never_generates(self):
+        import main
+
+        with patch.object(sys, "argv", [
+            "main.py", "--deliver", "Build a records app",
+            "--deliver-mobile-verify", "none",
+        ]), patch("agent.factory_pipeline.deliver_from_prompt") as deliver, \
+             patch("builtins.print"):
+            with self.assertRaises(SystemExit) as caught:
+                main.main()
+        self.assertNotEqual(caught.exception.code, 0)
+        deliver.assert_not_called()
+
+    def test_normal_mobile_flag_keeps_the_apk_emulator_default(self):
+        import main
+
+        seen = {}
+
+        def fake_deliver(prompt, **kwargs):
+            seen.update(kwargs)
+            return {"status": "built", "verified": False}
+
+        with patch.object(sys, "argv", [
+            "main.py", "--deliver", "Build a records app",
+            "--deliver-mobile", "android",
+        ]), patch("agent.factory_pipeline.deliver_from_prompt",
+                  side_effect=fake_deliver), patch("builtins.print"):
+            with self.assertRaises(SystemExit) as caught:
+                main.main()
+        self.assertEqual(caught.exception.code, 0)
+        self.assertEqual(seen["app"]["mobile"]["verification"], "apk_emulator")
 
 
 class ProgressEventTests(unittest.TestCase):

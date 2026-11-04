@@ -140,5 +140,50 @@ class TestBenchmark3DFactory(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(dest, "backend/server.js")))
 
 
+def test_unsupported_vertical_does_not_create_destination(tmp_path):
+    for prompt in ['SaaS dashboard', 'fintech payments', 'electric supercar']:
+        destination = tmp_path / prompt
+        result = Benchmark3DFactory().generate_full_3d_website(str(destination), prompt)
+        assert result['success'] is False
+        assert result['failed_stage'] == 'unsupported_vertical'
+        assert not destination.exists()
+
+
+def test_internal_concurrent_write_error_blocks_success_and_repair(tmp_path, monkeypatch):
+    import builtins
+
+    original_open = builtins.open
+    factory = Benchmark3DFactory()
+    repairs = []
+
+    def fail_one_file(path, *args, **kwargs):
+        if str(path).replace('\\', '/').endswith('/frontend/src/App.jsx'):
+            raise OSError('private-secret-write-path')
+        return original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, 'open', fail_one_file)
+    monkeypatch.setattr(factory.repair_engine, 'scan_and_repair_project',
+                        lambda path: repairs.append(path))
+    result = factory.generate_full_3d_website(str(tmp_path), 'realestate villa')
+    assert result['success'] is False
+    assert result['failed_stage'] == 'file_write'
+    assert 'private-secret' not in str(result)
+    assert repairs == []
+
+
+def test_repair_exception_and_explicit_failure_are_sanitized(tmp_path, monkeypatch):
+    factory = Benchmark3DFactory()
+
+    def failure(path):
+        raise OSError('private-secret-repair-path')
+
+    for repair in [failure, lambda path: {'success': False, 'error': 'private-secret'}]:
+        monkeypatch.setattr(factory.repair_engine, 'scan_and_repair_project', repair)
+        result = factory.generate_full_3d_website(str(tmp_path), 'realestate villa')
+        assert result['success'] is False
+        assert result['failed_stage'] == 'repair'
+        assert 'private-secret' not in str(result)
+
+
 if __name__ == "__main__":
     unittest.main()

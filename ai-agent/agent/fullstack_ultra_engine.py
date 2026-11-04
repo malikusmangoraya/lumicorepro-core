@@ -18,6 +18,12 @@ from agent.hyper_unique_site_engine import HyperUniqueSiteEngine
 from agent.omni_repair_engine import OmniRepairEngine
 from agent.generation_contract import resolve_generation_contract
 from agent.design_forge import build_design
+from agent.mobile_app_engine import (
+    MOBILE_DEPENDENCIES, MOBILE_DEV_DEPENDENCIES, generate_mobile_app,
+)
+from agent.app_layouts import app_route_expectations, render_app_files
+from agent.premium_layouts import render_public_files, route_expectations
+from agent.pwa_kit import pwa_files
 from agent.schema_guards import MIGRATION_GUARDS_JS
 
 
@@ -694,6 +700,17 @@ def _prune_renumbered_migrations(dest: str, files_map: Dict[str, str]) -> List[s
     return removed
 
 
+def _stage_reason(exc: Exception) -> str:
+    """Preserve the message this generator wrote for the operator.
+
+    Only ``ValueError`` carries text authored here (the surface contract). Other
+    exception types embed absolute filesystem paths, which must not reach a
+    report or an API response, so they keep reporting just their type name.
+    """
+    message = str(exc).strip() if isinstance(exc, ValueError) else ""
+    return f"{message} ({type(exc).__name__})" if message else type(exc).__name__
+
+
 class FullStackUltraEngine:
     """Generates complete, clean, professional full-stack web applications at maximum velocity."""
 
@@ -716,108 +733,221 @@ class FullStackUltraEngine:
         contract = generation_contract or resolve_generation_contract({})
         if contract.get("layout_mode") != "enterprise":
             raise ValueError("FullStackUltraEngine currently supports enterprise full-stack delivery only")
-        brand = brand_name or prompt.split()[0].capitalize()
-        blueprint = self.unique_engine.synthesize_hyper_unique_blueprint(prompt, brand)
-        color = primary_color or blueprint["palette"]["primary"]
-        accent = blueprint["palette"]["accent"]
-        palette = blueprint["palette"]
-
         dest = os.path.abspath(destination_dir)
-        os.makedirs(dest, exist_ok=True)
-
-        # Plan all files to write concurrently
-        files_map: Dict[str, str] = {}
-
-        # ── 1. Frontend Files ─────────────────────────────────────────────
-        self._build_frontend_files(files_map, brand, color, accent, palette, industry)
-
-        # ── 2. Backend Files ──────────────────────────────────────────────
-        self._build_backend_files(files_map, brand)
-        self._configure_postgresql_backend(files_map, brand)
-
-        # ── 3. DevOps & Documentation Files ───────────────────────────────
-        self._build_devops_files(files_map, brand, prompt)
-        files_map["backend/migrations/001_create_core_tables.js"] = self._postgres_migration()
-        files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
-        files_map["backend/routes/contact.routes.js"] = _CONTACT_ROUTE_JS
-        files_map["backend/migrations/003_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
-        files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE.replace("__BRAND__", brand)
-        files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
-        files_map["frontend/postcss.config.cjs"] = "module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };\n"
-        files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
-        files_map["backend/test/smoke.test.js"] = _BACKEND_SMOKE_TEST_JS
-        files_map["backend/api/index.js"] = _VERCEL_API_JS
-        files_map["backend/vercel.json"] = _VERCEL_API_JSON
-        files_map["backend/.vercelignore"] = _VERCEL_API_IGNORE
-        files_map["LICENSE.md"] = self._generated_license(brand)
-
-        # ── Concurrent Parallel File Writing ──────────────────────────────
-        write_errors = []
-        def _write_single_file(rel_path: str, content: str):
-            full_path = os.path.join(dest, rel_path)
-            try:
-                os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                with open(full_path, "w", encoding="utf-8") as fh:
-                    fh.write(content)
-            except Exception as exc:
-                write_errors.append(f"{rel_path}: {exc}")
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-            futures = [executor.submit(_write_single_file, rel_p, content) for rel_p, content in files_map.items()]
-            concurrent.futures.wait(futures)
-
-        # ── AI Micro-SaaS Kit (Category-1): keyVault, aiClient, SSE stream,
-        #    prompt engine, RAG, file routes — every generated project ships it
+        brand = brand_name or (prompt.split()[0].capitalize() if prompt.split() else "Workspace")
+        app_request = contract.get("app") if isinstance(contract.get("app"), dict) else None
+        web_surface = str((app_request or {}).get("web") or "website")
+        # A 3D hero is a web surface; an app-only build must not gain a frontend
+        # tree just because the prompt mentioned 3D.
+        requested_scene = (
+            contract.get("scene")
+            if web_surface != "none" and isinstance(contract.get("scene"), dict)
+            else None
+        )
+        if web_surface not in ("website", "web_app", "none"):
+            raise ValueError("Unsupported web surface")
+        pwa_enabled = bool((app_request or {}).get("pwa", False)) and web_surface != "none"
+        files_map: Dict[str, Any] = {}
         try:
+            blueprint = self.unique_engine.synthesize_hyper_unique_blueprint(prompt, brand)
+            color = primary_color or blueprint["palette"]["primary"]
+            accent = blueprint["palette"]["accent"]
+            palette = blueprint["palette"]
+            os.makedirs(dest, exist_ok=True)
+            if web_surface == "website":
+                self._build_frontend_files(
+                    files_map, brand, color, accent, palette, industry,
+                    scene_enabled=bool(requested_scene),
+                    scene_archetype=(requested_scene or {}).get("archetype"),
+                )
+            elif web_surface == "web_app":
+                self._build_app_frontend_files(
+                    files_map, brand, color, accent, palette, industry)
+            # web_surface == "none": app-only builds own no frontend files.
+            if pwa_enabled:
+                pwa_design = build_design(brand, industry, color, accent)
+                files_map.update(pwa_files(
+                    brand, pwa_design, web_app=web_surface == "web_app"))
+                files_map["frontend/src/main.jsx"] = self._inject_pwa_registration(
+                    files_map["frontend/src/main.jsx"],
+                    banner=web_surface == "web_app",
+                )
+                files_map["frontend/index.html"] = self._inject_pwa_head(
+                    files_map["frontend/index.html"])
+            self._build_backend_files(files_map, brand)
+            self._configure_postgresql_backend(files_map, brand)
+            self._build_devops_files(
+                files_map, brand, prompt, web_surface=web_surface,
+                mobile=bool((app_request or {}).get("mobile")),
+            )
+            files_map["backend/migrations/001_create_core_tables.js"] = self._postgres_migration()
+            files_map["backend/package.json"] = self._fullstack_backend_package(files_map["backend/package.json"])
+            files_map["backend/routes/contact.routes.js"] = _CONTACT_ROUTE_JS
+            files_map["backend/migrations/003_create_contact_messages.js"] = _CONTACT_MIGRATION_JS
+            files_map["backend/.env.example"] = _BACKEND_ENV_EXAMPLE.replace("__BRAND__", brand)
+            if web_surface != "none":
+                files_map["frontend/.gitignore"] = "node_modules/\ndist/\n.env*\n"
+                files_map["frontend/postcss.config.cjs"] = "module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };\n"
+            files_map["backend/.gitignore"] = "node_modules/\n.env*\n*.log\n"
+            files_map["backend/test/smoke.test.js"] = _BACKEND_SMOKE_TEST_JS
+            files_map["backend/api/index.js"] = _VERCEL_API_JS
+            files_map["backend/vercel.json"] = _VERCEL_API_JSON
+            files_map["backend/.vercelignore"] = _VERCEL_API_IGNORE
+            files_map["LICENSE.md"] = self._generated_license(brand)
+            files_map["app-contract.json"] = json.dumps({
+                "version": 1,
+                "web": web_surface,
+                "pwa": pwa_enabled,
+                "mobile": (app_request or {}).get("mobile"),
+            }, indent=2) + "\n"
+        except Exception as exc:
+            return {
+                "success": False, "failed_stage": "prepare", "brand": brand,
+                "industry": industry, "destination": dest, "total_files": 0,
+                "elapsed_ms": round((time.perf_counter() - start_time) * 1000, 2),
+                "errors": [f"prepare: {_stage_reason(exc)}"],
+                "generation_steps": [{"name": "prepare", "ok": False}],
+            }
+
+        errors = []
+        steps = [{"name": "prepare", "ok": True}]
+        stage = "file_write"
+        superseded_migrations = []
+        repair_report = {}
+        failed_stage = None
+        scene_report = None
+        mobile_report = {}
+
+        def _write_single_file(rel_path: str, content: Any):
+            try:
+                full_path = os.path.join(dest, rel_path)
+                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                if isinstance(content, bytes):
+                    with open(full_path, "wb") as fh:
+                        fh.write(content)
+                else:
+                    with open(full_path, "w", encoding="utf-8") as fh:
+                        fh.write(content)
+            except Exception as exc:
+                errors.append(f"{rel_path}: {type(exc).__name__}")
+
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+                futures = [executor.submit(_write_single_file, path, text)
+                           for path, text in files_map.items()]
+                for future in futures:
+                    future.result()
+            if errors:
+                raise RuntimeError("File write failed")
+            steps.append({"name": stage, "ok": True})
+
+            if app_request and app_request.get("mobile"):
+                stage = "mobile_generate"
+                # No release API base is baked at generation time: the surface
+                # contract forbids unknown app keys, and build_apk injects
+                # EXPO_PUBLIC_API_URL with the origin the run actually proved.
+                mobile_result = generate_mobile_app(
+                    dest,
+                    brand,
+                    industry,
+                    build_design(brand, industry, color, accent),
+                    app_request,
+                )
+                if mobile_result.get("success") is not True:
+                    errors.extend(mobile_result.get("errors") or [
+                        "Mobile app generation failed.",
+                    ])
+                    raise RuntimeError("Requested mobile app failed")
+                files_map.update({
+                    path.replace("\\", "/"): ""
+                    for path in mobile_result.get("files", [])
+                })
+                mobile_report = mobile_result.get("mobile") or {}
+                steps.append({"name": stage, "ok": True})
+
+            if requested_scene:
+                stage = "scene"
+                from agent.modern_3d_engine import Modern3DWebsiteEngine
+
+                injected = Modern3DWebsiteEngine().inject_3d_experience(
+                    dest, requested_scene["archetype"], brand_name=brand,
+                    primary_color=color, model_path=requested_scene.get("model_path"),
+                )
+                if injected.get("success") is not True or not injected.get("scene"):
+                    raise RuntimeError("Requested 3D scene failed")
+                scene_report = injected["scene"]
+                files_map.update({path: "" for path in injected.get("files") or []})
+                steps.append({"name": stage, "ok": True})
+
+            stage = "ai_saas_kit"
             from agent.ai_saas_kit import inject_ai_saas_kit
 
             kit = inject_ai_saas_kit(dest)
-            files_map.update({rel.replace("\\", "/"): "" for rel in kit.get("written", [])})
-        except Exception as kit_exc:
-            agent_logger.warning(f"AI SaaS kit injection skipped: {kit_exc}")
+            if kit.get("status") != "ok" or kit.get("success") is False:
+                raise RuntimeError("Required kit failed")
+            files_map.update({"backend/" + rel.replace("\\", "/"): ""
+                              for rel in kit.get("written", [])})
+            steps.append({"name": stage, "ok": True})
 
-        # ── Production Spec: multi-stage Docker, INSTRUCTIONS.md, TS-ready
-        #    types, validation middleware, live CRUD records, real dashboard
-        try:
+            stage = "production_spec"
             from agent.production_spec_kit import apply_production_spec
 
             spec = apply_production_spec(dest, brand=brand_name or brand)
-            files_map.update({
-                rel.replace("\\", "/"): ""
-                for rel in list(spec.get("created", [])) + list(spec.get("updated", []))
-            })
-        except Exception as spec_exc:
-            agent_logger.warning(f"Production spec kit skipped: {spec_exc}")
+            if spec.get("status") != "ok" or spec.get("success") is False:
+                raise RuntimeError("Required production spec failed")
+            spec_files = list(spec.get("created", [])) + list(spec.get("updated", []))
+            files_map.update({rel.replace("\\", "/"): "" for rel in spec_files})
+            steps.append({"name": stage, "ok": True})
 
-        superseded_migrations = _prune_renumbered_migrations(dest, files_map)
-        if superseded_migrations:
-            agent_logger.info(
-                f"FullStackUltraEngine: removed renumbered migrations {superseded_migrations}"
-            )
+            stage = "schema_mirror"
+            superseded_migrations = _prune_renumbered_migrations(dest, files_map)
+            schema_result = self._write_database_schema(dest)
+            if schema_result is False or (isinstance(schema_result, dict) and (
+                schema_result.get("success") is False or schema_result.get("status") == "failed"
+            )):
+                raise RuntimeError("Required schema mirror failed")
+            steps.append({"name": stage, "ok": True})
 
-        # DDL mirror for the deployment-readiness gate and DBAs (the runtime
-        # path is the Umzug migrations above; this file must stay in sync).
-        try:
-            self._write_database_schema(dest)
-        except Exception as schema_exc:
-            agent_logger.warning(f"database/schema.sql skipped: {schema_exc}")
+            stage = "repair"
+            if web_surface == "none":
+                # The repair pass only owns frontend source; app-only builds have
+                # no frontend tree. Mobile source arrives with its own stage.
+                repair_report = {"repairs_applied": 0}
+                steps.append({"name": stage, "ok": True})
+            else:
+                repaired = self.repair_engine.scan_and_repair_project(dest)
+                if not isinstance(repaired, dict) or repaired.get("success") is not True:
+                    raise RuntimeError("Required repair pass failed")
+                repair_report = repaired
+                steps.append({"name": stage, "ok": True})
 
-        # ── Self-Healing Omni-Repair Pass ─────────────────────────────────
-        repair_report = self.repair_engine.scan_and_repair_project(dest)
+            stage = "artifacts"
+            errors.extend(self._validate_generation_artifacts(
+                Path(dest), scene=requested_scene, web_surface=web_surface,
+                pwa=pwa_enabled, mobile=(app_request or {}).get("mobile")))
+            if errors:
+                raise RuntimeError("Required artifacts missing or disconnected")
+            steps.append({"name": stage, "ok": True})
+        except Exception as exc:
+            failed_stage = stage
+            steps.append({"name": stage, "ok": False})
+            if not errors:
+                errors.append(f"{stage}: {_stage_reason(exc)}")
+            agent_logger.warning("FullStackUltraEngine generation stopped at %s (%s)",
+                                 stage, type(exc).__name__)
 
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
-        agent_logger.info(
-            f"FullStackUltraEngine: Generated {len(files_map)} full-stack files in {elapsed_ms}ms"
-        )
-
-        return {
-            "success": len(write_errors) == 0,
+        result = {
+            "success": failed_stage is None,
             "brand": brand,
             "industry": industry,
             "destination": dest,
             "total_files": len(files_map),
             "elapsed_ms": elapsed_ms,
-            "errors": write_errors,
+            "errors": sorted(errors),
+            "generation_steps": steps,
+            "scene": scene_report,
+            "mobile": mobile_report,
             "palette": palette,
             "superseded_migrations": superseded_migrations,
             "omni_repairs": repair_report.get("repairs_applied", 0),
@@ -828,6 +958,311 @@ class FullStackUltraEngine:
                 "devops": "Docker + docker-compose + Nginx reverse proxy",
             },
         }
+        if failed_stage:
+            result["failed_stage"] = failed_stage
+        return result
+
+    @staticmethod
+    def _inject_pwa_registration(main_js: str, *, banner: bool) -> str:
+        """Import the registered worker, update prompt and (app-only) queue banner.
+
+        `pwaUpdate.js` owns registration and the explicit update prompt for every
+        PWA surface. The authenticated app shell additionally imports `pwa.js`
+        for the owner-scoped IndexedDB queue.
+        """
+        if "pwaUpdate.js" in main_js:
+            return main_js
+        import_line = "import App from './App.jsx';\nimport './pwaUpdate.js';\n"
+        if banner and "import './pwa.js';" not in main_js:
+            import_line += "import './pwa.js';\n"
+        return main_js.replace("import App from './App.jsx';\n", import_line, 1)
+
+    @staticmethod
+    def _inject_pwa_head(html: str) -> str:
+        if 'rel="manifest"' in html:
+            return html
+        return html.replace(
+            "</head>",
+            '    <link rel="manifest" href="/manifest.webmanifest">\n'
+            '    <link rel="apple-touch-icon" href="/icons/icon-192.png">\n'
+            "  </head>",
+        )
+
+    @staticmethod
+    def _validate_generation_artifacts(root: Path, *,
+                                       scene: Optional[Dict[str, Any]] = None,
+                                       web_surface: str = "website",
+                                       pwa: bool = False,
+                                       mobile: Optional[Dict[str, Any]] = None) -> List[str]:
+        """Check structural delivery contracts, not JavaScript execution or runtime health.
+
+        The web surface decides the frontend contract: the marketing website keeps
+        its existing pages, a web app requires the authenticated shell, and an
+        app-only build requires no frontend file at all.
+        """
+        migration_contract = (
+            "module.exports = {", "async up({ context: queryInterface })",
+            "async down({ context: queryInterface })", "require('./_guards.js')",
+            "await createTableIfMissing(", "await dropTableIfExists(",
+        )
+        required = {
+            "backend/server.js": (
+                "const authRoutes = require('./routes/auth.routes');",
+                "const healthRoutes = require('./routes/health.routes');",
+                "const { sequelize } = require('./models');",
+                "const { errorHandler } = require('./middleware/validate');",
+                "app.use('/api/v1/auth', authRoutes);",
+                "app.use('/api/v1/health', healthRoutes);",
+                "app.use('/api/v1/records', require('./routes/records.routes'));",
+                "app.use('/api/v1/events', require('./routes/events.routes'));",
+                "app.use('/api/v1/contact', require('./routes/contact.routes'));",
+                "app.use('/api/v1/ai', require('./routes/ai'));",
+                "app.use(errorHandler);", "module.exports = app;",
+            ),
+            "backend/routes/auth.routes.js": (
+                "router.post('/login'", "router.post('/register'", "bcrypt",
+                "const { User } = require('../models');",
+                "const { jwtSecret } = require('../utils/jwtSecret');",
+                "express.Router()", "module.exports = router;",
+            ),
+            "backend/routes/health.routes.js": (
+                "router.get(", "const { sequelize } = require('../models');",
+                "express.Router()", "module.exports = router;",
+            ),
+            "backend/routes/records.routes.js": (
+                "router.get(", "router.post(", "notify(",
+                "const { sequelize } = require('../models');",
+                "const { jwtSecret } = require('../utils/jwtSecret');",
+                "const { validate } = require('../middleware/validate');",
+                "const { notify } = require('../services/changeBus');",
+                "express.Router()", "module.exports = router;",
+            ),
+            "backend/routes/events.routes.js": (
+                "text/event-stream", "router.get(",
+                "const { sequelize } = require('../models');",
+                "const { jwtSecret } = require('../utils/jwtSecret');",
+                "const { subscribe } = require('../services/changeBus');",
+                "express.Router()", "module.exports = router;",
+            ),
+            "backend/routes/contact.routes.js": (
+                "router.post(", "validate(",
+                "const { sequelize } = require('../models');",
+                "const { validate } = require('../middleware/validate');",
+                "express.Router()", "module.exports = router;",
+            ),
+            "backend/middleware/validate.js": (
+                "function validate(", "function sanitize(", "function errorHandler(",
+                "module.exports = { validate, sanitize, errorHandler };",
+            ),
+            "backend/models/index.js": (
+                "const sequelize =", "sequelize.define('User'",
+                "module.exports = { sequelize, User };",
+            ),
+            "backend/utils/jwtSecret.js": (
+                "const jwtSecret =", "resolveJwtSecret(process.env)",
+                "module.exports = { jwtSecret, MIN_LENGTH };",
+            ),
+            "backend/services/changeBus.js": (
+                "function notify(", "function subscribe(",
+                "module.exports = { notify, subscribe, CHANNEL };",
+            ),
+            "backend/routes/ai.js": (
+                "express.Router()", "module.exports = router;",
+                "router.post('/generate'", "router.post('/chat'",
+                "router.post('/files'", "router.get('/health'",
+                "const aiClient = require('../services/aiClient');",
+                "const prompts = require('../services/prompts');",
+                "const { sseStreamText, sseSend } = require('../services/stream');",
+                "const rag = require('../services/ragLite');",
+                "const keyVault = require('../services/keyVault');",
+            ),
+            "backend/services/aiClient.js": (
+                "const keyVault = require('./keyVault');",
+                "function complete(", "function* completeStream(",
+                "module.exports = { complete, completeStream };",
+            ),
+            "backend/services/keyVault.js": (
+                "function setKey(", "function getKey(", "function hasKey(",
+                "module.exports = { setKey, getKey, hasKey };",
+            ),
+            "backend/services/stream.js": (
+                "function sseInit(", "function sseSend(", "function sseStreamText(",
+                "module.exports = { sseInit, sseSend, sseStreamText };",
+            ),
+            "backend/services/prompts.js": (
+                "function render(", "function list(", "const TEMPLATES =",
+                "module.exports = { render, list, TEMPLATES };",
+            ),
+            "backend/services/ragLite.js": (
+                "const { complete } = require('./aiClient');",
+                "function chunk(", "function embed(", "function upsert(", "function search(",
+                "module.exports = { chunk, embed, upsert, search };",
+            ),
+            "backend/migrations/run.js": ("Umzug",),
+            "backend/migrations/_guards.js": (
+                "async function createTableIfMissing(", "async function addIndexIfMissing(",
+                "async function dropTableIfExists(",
+                "module.exports = {\n  tableExists,\n  indexExists,\n  indexNameFor,\n"
+                "  createTableIfMissing,\n  addIndexIfMissing,\n  dropTableIfExists,\n};",
+            ),
+            "backend/migrations/001_create_core_tables.js": ("users",) + migration_contract,
+            "backend/migrations/002_create_records_table.js": ("records",) + migration_contract,
+            "backend/migrations/003_create_contact_messages.js": ("contact_messages",) + migration_contract,
+            "database/schema.sql": ("CREATE TABLE", "users", "records", "contact_messages"),
+        }
+        if web_surface == "website":
+            required.update({
+                "frontend/src/main.jsx": ("createRoot",),
+                "frontend/src/App.jsx": ("/login", "/register", "/dashboard"),
+                "frontend/src/pages/Login.jsx": ("/auth/login", "fetch("),
+                "frontend/src/pages/Register.jsx": ("/auth/register", "fetch("),
+                "frontend/src/pages/Dashboard.jsx": ("/records", "fetch(", "useRealtime"),
+                "frontend/src/pages/Contact.jsx": ("/contact", "fetch("),
+                "frontend/src/hooks/useRealtime.js": ("/events", "EventSource"),
+                "qa-contract.json": ('"version": 1', '"/login"', '"heading": "Sign in"'),
+            })
+        elif web_surface == "web_app":
+            required.update({
+                "frontend/src/main.jsx": ("createRoot", "BrowserRouter"),
+                "frontend/src/App.jsx": (
+                    "AuthGuard", "localStorage.getItem('token')",
+                    'path="/records"', 'path="/settings"',
+                ),
+                "frontend/src/auth.js": (
+                    "localStorage.getItem('token')", "Authorization",
+                    "VITE_API_URL", "signOut",
+                ),
+                "frontend/src/components/AppShell.jsx": ("Outlet", "signOut"),
+                "frontend/src/pages/Login.jsx": ("/auth/login",),
+                "frontend/src/pages/Register.jsx": ("/auth/register",),
+                "frontend/src/pages/Dashboard.jsx": ("request('/records')", "Your workspace"),
+                "frontend/src/pages/Records.jsx": (
+                    "request('/records')", "crypto.randomUUID()", 'type="search"',
+                ),
+                "frontend/src/pages/Settings.jsx": ("readOnly", "signOut"),
+                "frontend/src/app.css": ("focus-visible",),
+                "qa-contract.json": (
+                    '"version": 1', '"/login"', '"heading": "Sign in"',
+                    '"/register"', '"heading": "Create your account"',
+                    '"/dashboard"', '"heading": "Your workspace"',
+                    '"/records"', '"heading": "All records"',
+                    '"/settings"', '"heading": "Account settings"',
+                ),
+            })
+        elif web_surface != "none":
+            return [f"Unsupported web surface: {web_surface}"]
+        if pwa:
+            if web_surface == "none":
+                return ["PWA requires a web surface"]
+            required.update({
+                "frontend/public/manifest.webmanifest": (
+                    '"display": "standalone"', '"192x192"', '"512x512"',
+                    '"/icons/icon-192.png"', '"/icons/icon-512.png"',
+                ),
+                "frontend/public/sw.js": (
+                    "VERSION", "network-first", "cache-first", "no-store",
+                    "/offline.html", "caches.delete", "request.method !== 'GET'",
+                ),
+                "frontend/public/offline.html": (
+                    "You're offline", "location.reload()",
+                ),
+                "frontend/public/icons/icon-192.png": (),
+                "frontend/public/icons/icon-512.png": (),
+                "frontend/src/pwaUpdate.js": (
+                    "serviceWorker", "updatefound", "SKIP_WAITING",
+                    "controllerchange", "location.reload()",
+                ),
+            })
+            if web_surface == "web_app":
+                required.update({
+                    "frontend/src/offlineQueue.js": (
+                        "lumicore-queue", "MAX_RECORDS = 50",
+                        "currentUserId", "clearQueue", "FLUSH_ATTEMPTS",
+                    ),
+                    "frontend/src/pwa.js": (
+                        "pwa-connection-banner", "clearQueue", "navigator.onLine",
+                    ),
+                })
+        required["app-contract.json"] = (
+            '"version": 1', f'"web": "{web_surface}"',
+        )
+        if mobile:
+            required.update({
+                "app-contract.json": (
+                    '"version": 1', f'"web": "{web_surface}"', '"mobile": {',
+                ),
+                "mobile/app.json": (
+                    '"orientation": "portrait"', '"scheme":',
+                    '"package": "com.lumicore.',
+                ),
+                "mobile/package.json": tuple(
+                    f'"{name}": "{version}"'
+                    for name, version in {
+                        **MOBILE_DEPENDENCIES,
+                        **MOBILE_DEV_DEPENDENCIES,
+                    }.items()
+                ),
+                "mobile/tsconfig.json": ('"strict": true',),
+                "mobile/app/_layout.tsx": ("AuthProvider", "expo-router"),
+                "mobile/app/(auth)/sign-in.tsx": ("Sign in", "useAuth"),
+                "mobile/app/(auth)/register.tsx": ("Create your account", "useAuth"),
+                "mobile/app/(tabs)/_layout.tsx": ("<Tabs",),
+                "mobile/app/(tabs)/index.tsx": ("Your workspace",),
+                "mobile/app/(tabs)/records.tsx": ("All records", "Retry", "No records yet"),
+                "mobile/app/(tabs)/settings.tsx": ("Account settings", "signOut"),
+                "mobile/app/record/[id].tsx": ("Save changes", "Delete record"),
+                "mobile/app/record/new.tsx": ("Create record", "Queued offline"),
+                "mobile/src/api/client.ts": ("EXPO_PUBLIC_API_URL", "expo-secure-store"),
+                "mobile/src/api/auth.ts": ("'/auth/login'", "'/auth/register'"),
+                "mobile/src/api/records.ts": ("Crypto.randomUUID()", "flushQueue"),
+                "mobile/src/auth/AuthContext.tsx": ("SecureStore", "signOut"),
+                "mobile/src/realtime/useRecordFeed.ts": (
+                    "react-native-sse", "15000", "AppState",
+                ),
+                "mobile/src/offline/queue.ts": (
+                    "MAX_QUEUE_SIZE = 50", "AsyncStorage", "Sequential flush",
+                ),
+                "mobile/src/theme.ts": ("export const theme",),
+                "mobile/assets/icon.png": (),
+                "mobile/assets/adaptive-icon.png": (),
+                "mobile/assets/splash.png": (),
+                "mobile/.maestro/smoke.yaml": ("Sign in", "Create your account"),
+                "mobile/.maestro/records.yaml": (
+                    "register", "Create record", "Save changes", "takeScreenshot",
+                ),
+                "mobile/README.md": ("EXPO_PUBLIC_API_URL", "10.0.2.2"),
+            })
+        if scene:
+            required.update({
+                "frontend/src/components/motion/Modern3DScene.jsx": (
+                    "data-scene-state", "Enable 3D", "Rotate left", "Zoom in", "Reset view",
+                ),
+                "frontend/src/components/motion/SceneCanvas.jsx": (
+                    "@react-three/fiber", "OrbitControls", "webglcontextlost",
+                ),
+                "frontend/src/components/motion/modern-3d-scene.css": (".modern-scene",),
+                "frontend/package.json": (
+                    '"three"', '"@react-three/fiber"', '"@react-three/drei"',
+                ),
+            })
+        errors = []
+        for relative, markers in required.items():
+            path = root / relative
+            if not path.is_file() or not path.stat().st_size:
+                errors.append(f"Missing required artifact: {relative}")
+                continue
+            if path.suffix == ".png":
+                if path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
+                    errors.append(f"Disconnected required artifact: {relative}")
+                continue
+            content = path.read_text(encoding="utf-8")
+            missing_markers = [marker for marker in markers if marker not in content]
+            if missing_markers:
+                errors.append(
+                    f"Disconnected required artifact: {relative} "
+                    f"(missing {', '.join(missing_markers)})"
+                )
+        return errors
 
     @staticmethod
     def _fullstack_backend_package(package_text: str) -> str:
@@ -936,7 +1371,93 @@ module.exports = {
             "Redistribution as a competing template is not permitted.\n"
         )
 
-    def _build_frontend_files(self, fmap: Dict[str, str], brand: str, color: str, accent: str, palette: Dict[str, str], industry: str):
+    def _build_app_frontend_files(self, fmap: Dict[str, str], brand: str, color: str,
+                                  accent: str, palette: Dict[str, str], industry: str):
+        """Emit the build shell around the authenticated app emitter.
+
+        Marketing pages are deliberately absent: `render_app_files` owns every
+        route, and `qa-contract.json` carries its independent headings.
+        """
+        design = build_design(brand, industry, color, accent)
+        fmap["frontend/package.json"] = json.dumps({
+            "name": f"{brand.lower()}-frontend",
+            "private": True,
+            "version": "1.0.0",
+            "type": "module",
+            "scripts": {
+                "dev": "vite",
+                "build": "vite build",
+                "preview": "vite preview"
+            },
+            "dependencies": {
+                "react": "^19.0.0",
+                "react-dom": "^19.0.0",
+                "react-router-dom": "^6.28.0"
+            },
+            "devDependencies": {
+                "@vitejs/plugin-react": "^4.3.4",
+                "vite": "^6.0.0",
+                "tailwindcss": "^3.4.17",
+                "postcss": "^8.4.49",
+                "autoprefixer": "^10.4.20"
+            }
+        }, indent=2)
+        fmap["frontend/vite.config.js"] = """import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173, host: true },
+});
+"""
+        fmap["frontend/tailwind.config.js"] = design["tailwind_config"]
+        fmap["frontend/src/index.css"] = design["index_css"]
+        fmap["frontend/index.html"] = f"""<!doctype html>
+<html lang="en" {design["html_attrs"]}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="{color}" />
+    <title>{brand} — Workspace</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?{design["google_fonts"]}&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+"""
+        fmap["frontend/src/main.jsx"] = """import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App.jsx';
+import './index.css';
+import './app.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
+"""
+        fmap.update(render_app_files(brand, industry, design))
+        fmap["qa-contract.json"] = json.dumps(
+            {"version": 1, "routes": app_route_expectations(brand)}, indent=2) + "\n"
+        fmap["frontend/public/favicon.svg"] = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+            f'<rect width="64" height="64" rx="14" fill="{design["slate"]["950"]}"/>'
+            f'<path d="M18 44V20l14 16 14-16v24" fill="none" stroke="{design["accent"]}" '
+            'stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+        )
+
+    def _build_frontend_files(self, fmap: Dict[str, str], brand: str, color: str, accent: str,
+                              palette: Dict[str, str], industry: str, *, scene_enabled: bool = False,
+                              scene_archetype: Optional[str] = None):
         # package.json
         fmap["frontend/package.json"] = json.dumps({
             "name": f"{brand.lower()}-frontend",
@@ -989,6 +1510,7 @@ export default defineConfig({
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="{color}" />
     <title>{brand} — Professional Global Platform</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?{design["google_fonts"]}&display=swap" rel="stylesheet">
@@ -1437,6 +1959,21 @@ export default function Dashboard() {{
                 .replace("__SLUG__", slug or "example")
             )
 
+        # Premium public shell supersedes the legacy marketing templates: four
+        # composition archetypes, truthful capability copy and real routes. Auth,
+        # dashboard and backend behavior stay with production_spec_kit.
+        fmap.update(render_public_files(brand, industry, design, scene_enabled=scene_enabled))
+        qa_contract: Dict[str, Any] = {"version": 1, "routes": route_expectations(brand)}
+        if scene_archetype:
+            qa_contract["scene"] = {"archetype": scene_archetype}
+        fmap["qa-contract.json"] = json.dumps(qa_contract, indent=2) + "\n"
+        fmap["frontend/public/favicon.svg"] = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+            f'<rect width="64" height="64" rx="14" fill="{design["slate"]["950"]}"/>'
+            f'<path d="M18 44V20l14 16 14-16v24" fill="none" stroke="{design["accent"]}" '
+            'stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+        )
+
     def _write_database_schema(self, dest: str) -> None:
         """Write database/schema.sql as the DDL mirror of the migrations.
 
@@ -1702,7 +2239,22 @@ router.get('/', async (req, res) => {
 module.exports = router;
 """
 
-    def _build_devops_files(self, fmap: Dict[str, str], brand: str, prompt: str):
+    def _build_devops_files(self, fmap: Dict[str, str], brand: str, prompt: str, *,
+                            web_surface: str = "website", mobile: bool = False):
+        # App-only products have no frontend tree; a compose service pointing at
+        # a missing ./frontend build context would make `docker compose up` fail.
+        frontend_service = ""
+        if web_surface != "none":
+            frontend_service = """
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+"""
         fmap["docker-compose.yml"] = f"""version: '3.8'
 
 services:
@@ -1719,16 +2271,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
+{frontend_service}
   backend:
     build:
       context: ./backend
@@ -1833,35 +2376,54 @@ DB_PASSWORD=
 JWT_SECRET=
 NODE_ENV=production
 """
-        fmap["frontend/.env.example"] = "VITE_API_URL=http://localhost:5000/api/v1\n"
+        if web_surface != "none":
+            fmap["frontend/.env.example"] = "VITE_API_URL=http://localhost:5000/api/v1\n"
 
-        fmap["README.md"] = f"""# {brand} — Full-Stack Application
+        frontend_feature = (
+            "- **Frontend**: React 19, Tailwind CSS, Lucide Icons, GlassNavbar, "
+            "BentoGrid, ModernFooter.\n"
+            if web_surface != "none" else ""
+        )
+        mobile_feature = (
+            "- **Mobile**: Expo + TypeScript app with auth, records, realtime and "
+            "an offline queue.\n"
+            if mobile else ""
+        )
+        setup_sections = []
+        if web_surface != "none":
+            setup_sections.append((
+                "Frontend",
+                "```bash\ncd frontend\nnpm install\nnpm run dev\n```",
+            ))
+        setup_sections.append((
+            "Backend",
+            "```bash\ncd backend\nnpm install\nnpm run dev\n```",
+        ))
+        if mobile:
+            setup_sections.append((
+                "Mobile",
+                "```bash\ncd mobile\nnpm install\nnpx expo start\n```\n"
+                "The Android emulator reaches the host API at "
+                "`http://10.0.2.2:5000/api/v1`.",
+            ))
+        setup_text = "\n".join(
+            f"### {number}. {title}\n{body}\n"
+            for number, (title, body) in enumerate(setup_sections, start=1)
+        )
+        docker_step = len(setup_sections) + 1
+        fmap["README.md"] = f"""# {brand} — {'App' if web_surface == 'none' else 'Full-Stack Application'}
 
 Generated autonomously by **LumicorePro AI Agent**.
 
 ## Features
 - **Database**: PostgreSQL with versioned Sequelize migrations.
-- **Frontend**: React 19, Tailwind CSS, Lucide Icons, GlassNavbar, BentoGrid, ModernFooter.
-- **Backend**: Express.js REST API, Sequelize ORM, JWT Authentication, Helmet security headers.
+{frontend_feature}{mobile_feature}- **Backend**: Express.js REST API, Sequelize ORM, JWT Authentication, Helmet security headers.
 - **Infrastructure**: Docker containerization & production reverse-proxy support.
 
 ## Getting Started
 
-### 1. Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### 2. Backend
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-### 3. Docker Deploy
+{setup_text}
+### {docker_step}. Docker Deploy
 ```bash
 cp .env.example .env  # set POSTGRES_PASSWORD and JWT_SECRET first
 docker compose up --build

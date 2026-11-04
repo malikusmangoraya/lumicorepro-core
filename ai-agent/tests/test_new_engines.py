@@ -8,6 +8,7 @@ Tests:
   5. Orchestrator Integration (access & invocation from AgentOrchestrator)
 """
 
+import json
 import os
 import sys
 import shutil
@@ -72,19 +73,27 @@ class TestNextGenEngines(unittest.TestCase):
         self.assertIn("cyber_grid", archetypes)
         self.assertIn("particle_cosmos", archetypes)
         self.assertIn("product_viewer", archetypes)
-        self.assertIn("holographic_bento", archetypes)
+        # CSS-only effects are not genuine WebGL scenes and are not advertised.
+        self.assertNotIn("holographic_bento", archetypes)
 
         for arch in archetypes:
-            code = engine.generate_component_code(arch, brand_name="Apex3D", primary_color="#6366f1")
+            kwargs = {"model_url": "/assets/models/" + "a" * 20 + "/model.glb"} \
+                if arch == "product_viewer" else {}
+            code = engine.generate_component_code(
+                arch, brand_name="Apex3D", primary_color="#6366f1", **kwargs)
             self.assertIsInstance(code, str)
             self.assertTrue(len(code) > 200)
 
-        # Test injection into directory
-        src_dir = os.path.join(self.temp_dir, "src", "components", "motion")
-        os.makedirs(src_dir, exist_ok=True)
+        # Test injection into a real frontend shape
+        frontend = os.path.join(self.temp_dir, "frontend")
+        os.makedirs(os.path.join(frontend, "src"), exist_ok=True)
+        with open(os.path.join(frontend, "package.json"), "w", encoding="utf-8") as handle:
+            json.dump({"dependencies": {"react": "^19.0.0", "react-dom": "^19.0.0"}}, handle)
         inject_res = engine.inject_3d_experience(self.temp_dir, archetype="floating_crystal", brand_name="Apex3D")
-        self.assertTrue(inject_res["success"])
-        self.assertTrue(os.path.exists(inject_res["injected_file"]))
+        self.assertTrue(inject_res["success"], inject_res)
+        self.assertTrue(os.path.exists(os.path.join(self.temp_dir, inject_res["injected_file"])))
+        with open(os.path.join(frontend, "package.json"), encoding="utf-8") as handle:
+            self.assertIn("three", json.load(handle)["dependencies"])
 
     def test_omni_repair_engine(self):
         """Test auto-repair of broken 3D canvas, unclosed JSX text, missing alt, and non-canonical icons."""

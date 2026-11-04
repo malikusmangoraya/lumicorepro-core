@@ -22,13 +22,12 @@
 
 ## 3. Brand Identity & Header / Footer Architecture
 - **Dynamic Brand Logo (`UniqueLogo`)**: Never use plain text for logos. Use `UniqueLogo` to render deterministic SVG vector marks (Quantum, Hexagon, Shield, Infinity, Vortex, Diamond, Neural, Nova) with brand dual-color gradients.
-- **Professional Footer (`ModernFooter`)**: Never use a single plain line for footers. Every website must have a rich multi-column footer featuring:
-  - Brand identity & unique SVG logo & mission statement
-  - Live system status badge (`🟢 99.99% Operational`)
-  - Categorized links (Product, Solutions, Resources, Company, Legal) with feature badges
-  - Interactive newsletter subscription with instant validation
-  - Bottom bar with Copyright, React 19 + Vite badge, Language/Currency selector, and Back to Top button.
-- **Header & Navigation (`GlassNavbar` / `Navbar`)**: Glassmorphism backdrop blur, active link styling, Command Palette (`Cmd+K`) integration, responsive mobile drawer, and glowing CTA buttons.
+- **Professional Footer (`ModernFooter`)**: Use a composed multi-column footer featuring:
+  - Brand identity, unique SVG logo and truthful mission statement.
+  - Categorized links to implemented routes; no dead `#` links or invented legal pages.
+  - Newsletter, social, language/currency and status controls only when functional and supported by owner-supplied evidence.
+  - Copyright and a working Back to Top action; never fabricated uptime, certification, testimonials, prices or payment claims.
+- **Header & Navigation (`GlassNavbar` / `Navbar`)**: Use design-system tokens, active link styling and real CTA destinations. Mobile navigation needs labeled controls, `aria-expanded`/`aria-controls`, Escape close with focus return, and close-on-navigation. Add a command palette only when implemented.
 - **Authentication routes**: Login, registration, password-reset, and other identity-flow screens use a focused auth layout; do not render marketing navigation, promotional banners, or the marketing footer on these routes. Keep auth-specific branding and required navigation links within the auth form/layout.
 
 ---

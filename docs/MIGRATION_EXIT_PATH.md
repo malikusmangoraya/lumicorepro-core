@@ -12,7 +12,7 @@ project:
 <site>/
 ├── frontend/        # React 19 + Vite + Tailwind (standard, npm-runnable)
 ├── backend/         # Express + Postgres (optional, standard npm-run)
-├── mobile/          # (optional) React Native scaffold
+├── mobile/          # (optional) Expo + React Native app
 └── *.md             # COMPLIANCE.md, SECURITY-CHECKLIST.md, docs, deploy guides
 ```
 
@@ -37,7 +37,24 @@ cd backend && npm install && npm run dev         # Express + Postgres
 
 # Databases
 postgres  # schema is exported SQL in database/migrations (if included)
+
+# Mobile (when the project includes mobile/)
+cd mobile
+npm install
+npx expo start
 ```
+
+Create a bundle from another terminal after dependencies are installed:
+
+```bash
+cd mobile
+npx expo export --platform android
+```
+
+The optional Expo app includes the generated authentication, records, live-update,
+and offline-queue flows and remains ordinary project source. Android APK and
+emulator verification are factory checks, not a requirement to use the project.
+Expo export is not iOS signing, device verification, or store submission.
 
 Hosting: the included deploy recipes (Vercel, Railway, Render, AWS, GCP)
 require no LumicorePro account. `gh repo create` + push works.

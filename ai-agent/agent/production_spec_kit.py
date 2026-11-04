@@ -241,6 +241,32 @@ function errorHandler(err, _req, res, _next) {
 module.exports = { validate, sanitize, errorHandler };
 """
 
+_RECORD_IDENTITY_JS = """/** utils/recordIdentity — the client-generated record id contract.
+ *
+ * Offline queues mint the id on the device, so a retry after an ambiguous
+ * network failure must recognise the row it already created. The id is a
+ * canonical UUID v4, and ownership decides whether a collision is this user's
+ * retry or another tenant's row (which is a conflict, never a disclosure).
+ */
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isUuidV4(value) { return typeof value === 'string' && UUID_V4.test(value); }
+
+function duplicateRecordId(existing, userId) {
+  if (!existing) return 'create';
+  return String(existing.userId) === String(userId) ? 'retry' : 'conflict';
+}
+
+/** A primary-key collision from Sequelize or from the PostgreSQL driver. */
+function isUniqueViolation(error) {
+  if (!error) return false;
+  if (error.name === 'SequelizeUniqueConstraintError') return true;
+  return Boolean(error.parent && error.parent.code === '23505');
+}
+
+module.exports = { isUuidV4, duplicateRecordId, isUniqueViolation };
+"""
+
 _RECORDS_JS = """/** routes/records — live CRUD over PostgreSQL (FK: records.userId -> users.id).
  * Lists are user-scoped via req.user (set by auth). All queries run through
  * Sequelize = parameterized = SQLi-safe; bodies pass validate() = XSS-safe.
@@ -251,6 +277,7 @@ const { sequelize } = require('../models');
 const { jwtSecret } = require('../utils/jwtSecret');
 const { validate } = require('../middleware/validate');
 const { notify } = require('../services/changeBus');
+const { isUuidV4, duplicateRecordId, isUniqueViolation } = require('../utils/recordIdentity');
 
 const router = express.Router();
 
@@ -296,8 +323,44 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', validate(RULES), async (req, res, next) => {
   try {
+    // An offline client supplies the id so its retry after a timeout lands on
+    // the same row. No id keeps the server-generated UUID and the 201 path.
+    const clientId = req.body.id ? String(req.body.id) : null;
+    if (clientId && !isUuidV4(clientId)) {
+      return res.status(422).json({ success: false, message: 'Invalid record id' });
+    }
+    if (clientId) {
+      const existing = await Record.findByPk(clientId);
+      const decision = duplicateRecordId(existing, req.user.id);
+      if (decision === 'retry') return res.status(200).json({ success: true, data: existing });
+      if (decision === 'conflict') {
+        // Another tenant owns this id. Say nothing about the row itself.
+        return res.status(409).json({ success: false, message: 'Id unavailable' });
+      }
+    }
     const status = ['draft', 'published', 'archived'].includes(req.body.status) ? req.body.status : 'draft';
-    const row = await Record.create({ title: req.body.title, body: req.body.body || '', status, userId: req.user.id });
+    let row;
+    try {
+      row = await Record.create({
+        id: clientId || undefined,
+        title: req.body.title,
+        body: req.body.body || '',
+        status,
+        userId: req.user.id,
+      });
+    } catch (error) {
+      // A concurrent retry can slip past findByPk and lose the primary-key
+      // race. Re-read the winner: the same user gets its row back, another
+      // tenant gets the usual conflict, and anything else is a real error.
+      if (!clientId || !isUniqueViolation(error)) throw error;
+      const winner = await Record.findByPk(clientId);
+      const decision = duplicateRecordId(winner, req.user.id);
+      if (decision === 'retry') return res.status(200).json({ success: true, data: winner });
+      if (decision === 'conflict') {
+        return res.status(409).json({ success: false, message: 'Id unavailable' });
+      }
+      throw error;
+    }
     notify('records'); // wake every open change feed, including this client's
     res.status(201).json({ success: true, data: row });
   } catch (e) { next(e); }
@@ -327,6 +390,41 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 module.exports = router;
+"""
+
+_RECORD_IDENTITY_TEST_JS = """/** recordIdentity tests — run with `node --test`; no database or server needed. */
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { isUuidV4, duplicateRecordId, isUniqueViolation } = require('../utils/recordIdentity');
+
+test('accepts canonical v4 uuids only', () => {
+  assert.equal(isUuidV4('123e4567-e89b-42d3-a456-426614174000'), true);
+  assert.equal(isUuidV4('123e4567-e89b-12d3-a456-426614174000'), false);
+  assert.equal(isUuidV4('not-a-uuid'), false);
+  assert.equal(isUuidV4(''), false);
+  assert.equal(isUuidV4(null), false);
+});
+
+test('same user can retry the same id; another user cannot', () => {
+  assert.equal(duplicateRecordId({ userId: 7 }, 7), 'retry');
+  assert.equal(duplicateRecordId({ userId: 8 }, 7), 'conflict');
+  assert.equal(duplicateRecordId(null, 7), 'create');
+  // A JWT subject is a string; a numeric model id must still match it.
+  assert.equal(duplicateRecordId({ userId: 7 }, '7'), 'retry');
+});
+
+test('recognises unique violations and ignores ordinary errors', () => {
+  const sequelizeError = new Error('Validation error');
+  sequelizeError.name = 'SequelizeUniqueConstraintError';
+  assert.equal(isUniqueViolation(sequelizeError), true);
+
+  const postgresError = new Error('duplicate key value violates unique constraint');
+  postgresError.parent = { code: '23505' };
+  assert.equal(isUniqueViolation(postgresError), true);
+
+  assert.equal(isUniqueViolation(new Error('connection reset')), false);
+  assert.equal(isUniqueViolation(null), false);
+});
 """
 
 _CHANGE_BUS_JS = """/** services/changeBus — how a write tells every open stream to look again.
@@ -998,7 +1096,7 @@ export default function useRealtime({
 
 _INSTRUCTIONS = """# INSTRUCTIONS — {brand}
 
-Production-ready full-stack application (React 19 + Vite · Express · PostgreSQL · Docker).
+Production-ready application ({stack_label}).
 
 ## 1. Prerequisites
 
@@ -1010,19 +1108,7 @@ Production-ready full-stack application (React 19 + Vite · Express · PostgreSQ
 
 ## 2. Local Setup (no Docker)
 
-```bash
-# Backend
-cd backend
-cp .env.example .env          # set DATABASE_URL, JWT_SECRET
-npm install
-npm run db:migrate            # creates users + records tables
-npm run dev                   # http://localhost:5000
-
-# Frontend (second terminal)
-cd frontend
-npm install
-npm run dev                   # http://localhost:5173
-```
+{local_setup}
 
 `npm run db:migrate` is safe to re-run as often as you like: each migration asks
 Postgres what already exists and applies only the gap, so a database that arrived
@@ -1039,8 +1125,7 @@ docker compose up --build
 
 | Service | URL |
 |---------|-----|
-| Frontend | http://localhost:80 |
-| Backend API | http://localhost:5000/api/v1 |
+{service_rows}
 | PostgreSQL | internal (db:5432) |
 
 Rebuild from scratch: `docker compose down -v && docker compose up --build`
@@ -1072,11 +1157,7 @@ Rebuild from scratch: `docker compose down -v && docker compose up --build`
 | `REDIS_URL` | optional: pushes each change across instances instead of polling. Needs `npm i redis` in `backend/` |
 | `SSE_CHANNEL` | optional: pub/sub channel name (default `lumicore:changes`) |
 
-### Frontend (frontend/.env)
-
-| Key | Purpose |
-|-----|---------|
-| `VITE_API_URL` | default `http://localhost:5000/api/v1` |
+{frontend_env}
 
 ## 5. API Surface
 
@@ -1133,7 +1214,7 @@ def _backend_dir(project_dir: str) -> Path:
 
 def _frontend_dir(project_dir: str) -> Path:
     root = Path(project_dir)
-    return root / "frontend" if (root / "frontend").exists() else root
+    return root / "frontend"
 
 
 def _patched_server(server_path: Path) -> bool:
@@ -1238,6 +1319,76 @@ module.exports = {
     return path
 
 
+def _requests_mobile(root: Path) -> bool:
+    try:
+        contract = json.loads((root / "app-contract.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    mobile = contract.get("mobile") if isinstance(contract, dict) else None
+    return isinstance(mobile, dict) and bool(mobile.get("platforms"))
+
+
+def _instructions_text(root: Path, brand: str, has_frontend_source: bool) -> str:
+    """Render setup docs for the surfaces this project actually contains.
+
+    A web-app/website product documents the frontend; an app-only product must
+    not tell the reader to `cd frontend` when no frontend tree was generated.
+    """
+    mobile = _requests_mobile(root)
+    setup_blocks = ["""### Backend
+```bash
+cd backend
+cp .env.example .env          # set DATABASE_URL, JWT_SECRET
+npm install
+npm run db:migrate            # creates users + records tables
+npm run dev                   # http://localhost:5000
+```"""]
+    service_rows = ["| Backend API | http://localhost:5000/api/v1 |"]
+    env_blocks = []
+    stack = ["Express", "PostgreSQL"]
+    if has_frontend_source:
+        stack.insert(0, "React 19 + Vite")
+        setup_blocks.append("""### Frontend
+```bash
+cd frontend
+npm install
+npm run dev                   # http://localhost:5173
+```""")
+        service_rows.insert(0, "| Frontend | http://localhost:80 |")
+        env_blocks.append("""### Frontend (frontend/.env)
+
+| Key | Purpose |
+|-----|---------|
+| `VITE_API_URL` | default `http://localhost:5000/api/v1` |""")
+    if mobile:
+        stack.append("Expo")
+        setup_blocks.append("""### Mobile
+```bash
+cd mobile
+npm install
+npx expo start
+```
+
+The Android emulator reaches the host API at `http://10.0.2.2:5000/api/v1`.""")
+        env_blocks.append("""### Mobile (mobile/.env)
+
+| Key | Purpose |
+|-----|---------|
+| `EXPO_PUBLIC_API_URL` | API origin; debug default `http://10.0.2.2:5000/api/v1`, release requires HTTPS |""")
+    stack.append("Docker")
+    local_setup = "\n\n".join(setup_blocks)
+    surface_env = "\n\n".join(env_blocks)
+    service_rows = "\n".join(service_rows)
+    stack_label = " · ".join(stack)
+    return (
+        _INSTRUCTIONS.replace("{brand}", brand)
+        .replace("{stack_label}", stack_label)
+        .replace("{local_setup}", local_setup)
+        .replace("{service_rows}", service_rows)
+        .replace("{frontend_env}", surface_env)
+    )
+
+
 def apply_production_spec(project_dir: str, brand: str = "", force: bool = False) -> Dict[str, Any]:
     """Bring any generated project up to the mandatory production spec."""
     root = Path(project_dir)
@@ -1245,6 +1396,7 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
         return {"status": "failed", "message": "project dir missing"}
     backend = _backend_dir(project_dir)
     frontend = _frontend_dir(project_dir)
+    has_frontend_source = (frontend / "src").is_dir()
     created: List[str] = []
     updated: List[str] = []
 
@@ -1257,15 +1409,29 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
         created.append(str(rel.relative_to(root)))
 
     # 1. Docker: multi-stage files (compose already references them)
-    _write(frontend / "Dockerfile", _FRONTEND_DOCKERFILE)
-    _write(frontend / "nginx.conf", _NGINX_CONF)
+    if has_frontend_source:
+        _write(frontend / "Dockerfile", _FRONTEND_DOCKERFILE)
+        _write(frontend / "nginx.conf", _NGINX_CONF)
     _write(backend / "Dockerfile", _BACKEND_DOCKERFILE)
 
     # 2. INSTRUCTIONS.md
     if not brand:
         brand = root.name.replace("-", " ").replace("_", " ").title().split()[0] \
             if root.name else "App"
-    _write(root / "INSTRUCTIONS.md", _INSTRUCTIONS.replace("{brand}", brand))
+    instructions_path = root / "INSTRUCTIONS.md"
+    instructions = _instructions_text(root, brand, has_frontend_source)
+    stale_frontend_doc = (
+        instructions_path.exists() and not has_frontend_source
+        and "cd frontend" in instructions_path.read_text(
+            encoding="utf-8", errors="replace")
+    )
+    if stale_frontend_doc:
+        # A project regenerated from the older template still tells the reader
+        # to `cd frontend` even though this product has no frontend tree.
+        instructions_path.write_text(instructions, encoding="utf-8")
+        updated.append("INSTRUCTIONS.md")
+    else:
+        _write(instructions_path, instructions)
 
     # 3. TypeScript-ready backend
     _write(backend / "tsconfig.json", json.dumps(_TSCONFIG, indent=2) + "\n")
@@ -1277,6 +1443,8 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
 
     # 5. Live CRUD (records entity + migration)
     _write(backend / "routes" / "records.routes.js", _RECORDS_JS)
+    _write(backend / "utils" / "recordIdentity.js", _RECORD_IDENTITY_JS)
+    _write(backend / "test" / "record-identity.test.js", _RECORD_IDENTITY_TEST_JS)
     write_migration_guards(backend / "migrations")
     _ensure_records_table(backend / "migrations")
 
@@ -1286,19 +1454,20 @@ def apply_production_spec(project_dir: str, brand: str = "", force: bool = False
     _write(backend / "routes" / "events.routes.js", _EVENTS_JS)
 
     # 6. Real dashboard + real auth pages (replace static placeholders)
-    _write(frontend / "src" / "hooks" / "useRealtime.js", _USE_REALTIME_JS)
-    dash = frontend / "src" / "pages" / "Dashboard.jsx"
-    if dash.exists() and "Control Console" in dash.read_text(encoding="utf-8", errors="replace"):
-        dash.write_text(_DASHBOARD_JSX, encoding="utf-8")
-        created.append(str(dash.relative_to(root)))
-    login = frontend / "src" / "pages" / "Login.jsx"
-    if login.exists() and "auth/login" not in login.read_text(encoding="utf-8", errors="replace"):
-        login.write_text(_LOGIN_JSX, encoding="utf-8")
-        created.append(str(login.relative_to(root)))
-    register = frontend / "src" / "pages" / "Register.jsx"
-    if register.exists() and "auth/register" not in register.read_text(encoding="utf-8", errors="replace"):
-        register.write_text(_REGISTER_JSX, encoding="utf-8")
-        created.append(str(register.relative_to(root)))
+    if has_frontend_source:
+        _write(frontend / "src" / "hooks" / "useRealtime.js", _USE_REALTIME_JS)
+        dash = frontend / "src" / "pages" / "Dashboard.jsx"
+        if dash.exists() and "Control Console" in dash.read_text(encoding="utf-8", errors="replace"):
+            dash.write_text(_DASHBOARD_JSX, encoding="utf-8")
+            created.append(str(dash.relative_to(root)))
+        login = frontend / "src" / "pages" / "Login.jsx"
+        if login.exists() and "auth/login" not in login.read_text(encoding="utf-8", errors="replace"):
+            login.write_text(_LOGIN_JSX, encoding="utf-8")
+            created.append(str(login.relative_to(root)))
+        register = frontend / "src" / "pages" / "Register.jsx"
+        if register.exists() and "auth/register" not in register.read_text(encoding="utf-8", errors="replace"):
+            register.write_text(_REGISTER_JSX, encoding="utf-8")
+            created.append(str(register.relative_to(root)))
 
     # 7. server.js mounts
     server = backend / "server.js"

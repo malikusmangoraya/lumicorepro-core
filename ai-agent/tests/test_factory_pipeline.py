@@ -1,5 +1,6 @@
 """Tests — factory_pipeline: every stage is a gate, and the report is evidence."""
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -831,6 +832,253 @@ class BackendDependenciesTests(unittest.TestCase):
             report, calls = self._run_stage(backend, [{"ok": True, "code": 0}])
             self.assertFalse(report["ok"])
             self.assertEqual(calls, [])
+
+
+class LegacyCliFailureTests(unittest.TestCase):
+    def _run(self, argv, target, returned):
+        import main
+        with patch.object(sys, 'argv', argv), \
+             patch(target, return_value=returned), \
+             patch('builtins.print') as printed:
+            with self.assertRaises(SystemExit) as caught:
+                main.main()
+        self.assertEqual(caught.exception.code, 1)
+        self.assertTrue(any('failed' in str(call.args[0]).lower()
+                            for call in printed.call_args_list if call.args))
+
+    def test_generate_3d_failure_exits_cleanly_instead_of_keyerror(self):
+        self._run(['main.py', '--generate-3d', '--prompt', '.'],
+                  'agent.modern_3d_engine.Modern3DWebsiteEngine.inject_3d_experience',
+                  {'success': False, 'files': [], 'scene': None,
+                   'error': 'Scene requires an existing frontend package.json.'})
+
+    def test_benchmark_3d_unsupported_vertical_exits_cleanly(self):
+        self._run(['main.py', '--benchmark-3d', '--prompt', 'fintech app'],
+                  'agent.benchmark_3d_factory.Benchmark3DFactory.generate_full_3d_website',
+                  {'success': False, 'vertical': 'fintech',
+                   'failed_stage': 'unsupported_vertical',
+                   'error': 'This benchmark lane is not implemented; use the integrated factory.'})
+
+
+class FrontendInstallGateTests(unittest.TestCase):
+    def _frontend(self, root, dependencies, existing):
+        frontend = root / 'frontend'
+        (frontend / 'src').mkdir(parents=True)
+        modules = frontend / 'node_modules'
+        modules.mkdir()
+        for name in existing:
+            (modules / name.replace('/', '\\')).mkdir(parents=True)
+        (frontend / 'package.json').write_text(json.dumps({
+            'scripts': {'build': 'vite build'}, 'dependencies': dependencies,
+        }), encoding='utf-8')
+        return frontend
+
+    def _run_build(self, frontend):
+        calls = []
+
+        def fake_run(cmd, cwd, timeout=900, env=None):
+            calls.append(list(cmd))
+            if 'install' in cmd:
+                return {'ok': True, 'code': 0, 'stdout_tail': '', 'stderr_tail': '',
+                        'elapsed_ms': 1}
+            dist = Path(cwd) / 'dist'
+            dist.mkdir(parents=True, exist_ok=True)
+            (dist / 'index.html').write_text('<html></html>', encoding='utf-8')
+            return {'ok': True, 'code': 0, 'stdout_tail': 'built', 'stderr_tail': '',
+                    'elapsed_ms': 1}
+
+        with patch.object(factory, '_run', side_effect=fake_run):
+            return factory.build_project(str(frontend.parent)), calls
+
+    def test_scene_dependencies_added_to_an_existing_node_modules_are_installed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            frontend = self._frontend(
+                Path(tmp), {'react': '^19.0.0', 'three': '^0.180.0'}, ['react'])
+            report, calls = self._run_build(frontend)
+            self.assertTrue(report['ok'], report)
+            self.assertIn('install', calls[0])
+            self.assertEqual(report['steps']['install']['missing_before'], ['three'])
+
+    def test_a_complete_dependency_tree_skips_install(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            frontend = self._frontend(
+                Path(tmp), {'react': '^19.0.0', 'three': '^0.180.0'}, ['react', 'three'])
+            report, calls = self._run_build(frontend)
+            self.assertTrue(report['ok'], report)
+            self.assertNotIn('install', calls[0])
+            self.assertNotIn('install', report['steps'])
+
+
+class BrowserDeliveryGateTests(unittest.TestCase):
+    def test_real_complete_browser_matrix_passes_the_factory_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dist = Path(tmp) / 'frontend' / 'dist'
+            dist.mkdir(parents=True)
+            (dist / 'index.html').write_text(
+                '<!doctype html><html><head><meta name="viewport" '
+                'content="width=device-width,initial-scale=1">'
+                '<link rel="icon" href="data:,"></head><body>'
+                '<main><h1>Home</h1><p>Usable page content.</p></main></body></html>',
+                encoding='utf-8')
+            (Path(tmp) / 'qa-contract.json').write_text(
+                json.dumps({'version': 1, 'routes': {'/': {'heading': 'Home'}}}),
+                encoding='utf-8')
+            result = factory.run_qa(tmp)
+            self.assertTrue(result['ok'], result)
+            self.assertEqual(result['status'], 'passed')
+            report = Path(result['report_path'])
+            self.assertTrue(report.is_file())
+            evidence = json.loads(report.read_text(encoding='utf-8'))
+            self.assertEqual(len(evidence['results']), 5)
+            self.assertEqual({r['actual_viewport']['width'] for r in evidence['results']},
+                             {375, 768, 1024, 1440, 1920})
+            self.assertTrue(all(r['screenshot']['ok'] for r in evidence['results']))
+
+    def test_real_requested_scene_must_prove_rendering_through_the_factory_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dist = Path(tmp) / 'frontend' / 'dist'
+            dist.mkdir(parents=True)
+            (dist / 'index.html').write_text(
+                '<!doctype html><html><head><meta name="viewport" '
+                'content="width=device-width,initial-scale=1"><link rel="icon" href="data:,">'
+                '</head><body><main><h1>Home</h1><section data-scene-state="rendered" '
+                'data-scene-frames="2" data-scene-draw-calls="2"><button data-scene-enable>'
+                'Enable 3D</button><div data-scene-viewport><canvas width="300" height="200">'
+                '</canvas></div><button>Rotate right</button></section></main>'
+                '<script>const c=document.querySelector("canvas"),x=c.getContext("2d");'
+                'x.fillStyle="#123";x.fillRect(0,0,300,200);x.fillStyle="#e91";'
+                'x.fillRect(20,20,120,80);</script></body></html>',
+                encoding='utf-8')
+            (Path(tmp) / 'qa-contract.json').write_text(json.dumps({
+                'version': 1, 'routes': {'/': {'heading': 'Home'}},
+                'scene': {'archetype': 'floating_crystal'},
+            }), encoding='utf-8')
+            result = factory.run_qa(tmp)
+            self.assertFalse(result['ok'])
+            self.assertFalse(result['scene']['ok'])
+            self.assertIn('scene_interaction_not_visible', str(result['scene']['failures']))
+
+    def test_real_wrong_heading_page_fails_the_factory_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dist = Path(tmp) / 'frontend' / 'dist'
+            dist.mkdir(parents=True)
+            (dist / 'index.html').write_text(
+                '<!doctype html><html><head><meta name="viewport" '
+                'content="width=device-width,initial-scale=1">'
+                '<link rel="icon" href="data:,"></head><body>'
+                '<main><h1>Unrelated dashboard</h1></main></body></html>',
+                encoding='utf-8')
+            (Path(tmp) / 'qa-contract.json').write_text(
+                json.dumps({'version': 1, 'routes': {'/': {'heading': 'Home'}}}),
+                encoding='utf-8')
+            result = factory.run_qa(tmp)
+            self.assertFalse(result['ok'])
+            self.assertIn('route_identity', str(result['failures']))
+
+    def test_handoff_names_local_and_hosted_evidence_with_failed_samples(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            report = {
+                'status': 'partial', 'verified': False,
+                'stages': {
+                    'qa': {'ok': True, 'status': 'passed',
+                           'report_path': str(project / 'qa/qa-report.json')},
+                    'live_qa': {'ok': False, 'status': 'failed',
+                                'report_path': str(project / 'qa/live/qa-report.json'),
+                                'failures': ['/pricing at 375: wrong page']},
+                },
+            }
+            result = factory._write_report(project, project, report)
+            text = Path(result['report_md']).read_text(encoding='utf-8')
+            self.assertIn('qa/qa-report.json', text.replace('\\', '/'))
+            self.assertIn('qa/live/qa-report.json', text.replace('\\', '/'))
+            self.assertIn('/pricing at 375: wrong page', text)
+            self.assertNotIn('Nothing — every stage above was verified', text)
+
+    def test_local_only_handoff_does_not_claim_live_verification(self):
+        text = '\n'.join(factory._handoff_lines({
+            'status': 'built', 'verified': False,
+            'stages': {'qa': {'ok': True, 'status': 'passed'}},
+        }))
+        self.assertNotIn('Nothing — every stage above was verified', text)
+        self.assertIn('Hosted delivery was not verified', text)
+
+    def test_passed_text_without_measurements_is_not_a_qa_pass(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch('agent.extensions.browser_qa.run_browser_qa', return_value={
+                'ok': True, 'status': 'passed', 'results': []
+            }):
+                result = factory.run_qa(tmp)
+            self.assertFalse(result['ok'])
+
+    def test_hosted_qa_failure_blocks_delivery_even_when_allowed(self):
+        for status in ('failed', 'partial', 'not_measured'):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as tmp:
+                project = _project(Path(tmp) / 'site')
+                with patch.object(factory, 'build_project', return_value={'ok': True}), \
+                     patch.object(factory, 'test_backend', return_value={'ok': True}), \
+                     patch.object(factory, 'run_qa', side_effect=[
+                         {'ok': True, 'status': 'passed'},
+                         {'ok': False, 'status': status, 'failures': ['/pricing at 375: wrong page']},
+                     ]), \
+                     patch('agent.deploy_engine.deploy_project', return_value={
+                         'verified': True, 'status': 'live', 'url': 'https://site.example.test'
+                     }):
+                    result = factory.run_factory(str(project), video=False, allow_qa_fail=True)
+                self.assertEqual(result['status'], 'partial')
+                self.assertFalse(result['verified'])
+                self.assertFalse(result['stages']['live_qa']['ok'])
+                self.assertIn('/pricing at 375', str(result['failures']))
+
+    def test_live_browser_runs_after_rebuild_and_cors_against_final_origin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = _project(Path(tmp) / 'site')
+            (project / 'backend').mkdir()
+            (project / 'backend/package.json').write_text('{}')
+            order = []
+
+            def build(*args, **kwargs):
+                order.append('rebuild' if kwargs.get('api_url') else 'build')
+                return {'ok': True}
+
+            def qa(directory, base_url=None):
+                order.append(('live_qa', base_url) if base_url else 'local_qa')
+                return {'ok': True, 'status': 'passed'}
+
+            def cors(*args):
+                order.append('cors')
+                return {'ok': True, 'url': 'https://api.example.test'}
+
+            with patch.object(factory, 'build_project', side_effect=build), \
+                 patch.object(factory, 'test_backend', return_value={'ok': True}), \
+                 patch.object(factory, 'run_qa', side_effect=qa), \
+                 patch.object(factory, '_host_database', return_value=(
+                     {'status': 'created'}, 'postgres://test:test@localhost/test'
+                 )), \
+                 patch.object(factory, '_host_api', return_value={
+                     'status': 'live', 'url': 'https://api.example.test'
+                 }), \
+                 patch.object(factory, '_lock_api_cors', side_effect=cors), \
+                 patch.object(factory, '_prove_api', return_value={'ok': True}), \
+                 patch('agent.deploy_engine.deploy_project', return_value={
+                     'verified': True, 'status': 'live', 'url': 'https://site.example.test/app'
+                 }), \
+                 patch('agent.live_verify.verify_site', return_value={
+                     'verified': True, 'checks': {'api': {'ok': True}}
+                 }):
+                result = factory.run_factory(str(project), video=False)
+            self.assertEqual(result['status'], 'delivered', result.get('failures'))
+            self.assertEqual(order, ['build', 'local_qa', 'rebuild', 'cors',
+                                     ('live_qa', 'https://site.example.test/app')])
+
+    def test_browser_exception_does_not_expose_credentials(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch('agent.extensions.browser_qa.run_browser_qa', side_effect=RuntimeError(
+                'https://owner:secret-value@example.test/?token=secret-value'
+            )):
+                result = factory.run_qa(tmp)
+            self.assertFalse(result['ok'])
+            self.assertNotIn('secret-value', json.dumps(result))
 
 
 if __name__ == "__main__":

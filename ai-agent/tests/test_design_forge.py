@@ -65,6 +65,43 @@ class DesignForgeTests(unittest.TestCase):
         self.assertFalse(editorial["glow"])
         self.assertNotIn("radial-gradient", editorial["index_css"])
 
+    def test_four_compositions_drive_distinct_heroes_and_section_orders(self):
+        fixtures = [
+            ("Evergreen", "saas", "aurora", "split-asymmetric"),
+            ("Northstar", "legal", "editorial", "divided-reading"),
+            ("Meridian", "gaming", "kinetic", "stacked-stepped"),
+            ("Ledger", "finance", "precision", "compact-columns"),
+        ]
+        orders = set()
+        for brand, industry, archetype, hero in fixtures:
+            design = build_design(brand, industry, "#2563eb", "#0d9488")
+            self.assertEqual(design["archetype"], archetype)
+            composition = design["composition"]
+            self.assertEqual(composition["hero"], hero)
+            self.assertEqual(set(composition), {
+                "hero", "section_order", "content_width", "spacing", "surface", "motion",
+            })
+            orders.add(tuple(composition["section_order"]))
+            self.assertEqual(composition["motion"], "interaction-only")
+        self.assertEqual(len(orders), 4)
+
+    def test_composition_is_not_shared_mutable_state(self):
+        first = build_design("Evergreen", "saas", "#2563eb", "#0d9488")
+        first["composition"]["section_order"].clear()
+        second = build_design("Evergreen", "saas", "#2563eb", "#0d9488")
+        self.assertGreater(len(second["composition"]["section_order"]), 2)
+
+    def test_styles_supply_composition_tokens_and_accessible_responsive_controls(self):
+        css = build_design("Evergreen", "saas", "#2563eb", "#0d9488")["index_css"]
+        for token in ("--surface", "--content-width", "--section-space", "--action", "--on-action"):
+            self.assertIn(token, css)
+        for selector in (".hero-split", ".hero-editorial", ".hero-kinetic", ".hero-precision",
+                         ".capability-asymmetric", ".capability-divided", ".workflow-stepped",
+                         ":focus-visible", "prefers-reduced-motion", ".menu-toggle"):
+            self.assertIn(selector, css)
+        self.assertNotIn("overflow-x: hidden", css)
+        self.assertNotIn("@keyframes", css)
+
 
 if __name__ == "__main__":
     unittest.main()
