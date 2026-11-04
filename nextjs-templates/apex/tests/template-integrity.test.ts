@@ -40,6 +40,37 @@ describe('environment contract', () => {
   });
 });
 
+describe('layouts', () => {
+  const app = path.join(root, 'src', 'app');
+  const read = (relative: string) => readFileSync(path.join(app, relative), 'utf8');
+
+  it('keeps site chrome out of the auth screens', () => {
+    const auth = read(path.join('(auth)', 'layout.tsx'));
+    expect(auth).not.toContain('SiteHeader');
+    expect(auth).not.toContain('SiteFooter');
+  });
+
+  it('keeps site chrome out of the root layout', () => {
+    const rootLayout = read('layout.tsx');
+    expect(rootLayout).not.toContain('SiteHeader');
+    expect(rootLayout).not.toContain('SiteFooter');
+  });
+
+  it('renders site chrome for the storefront group', () => {
+    const site = read(path.join('(site)', 'layout.tsx'));
+    expect(site).toContain('SiteHeader');
+    expect(site).toContain('SiteFooter');
+    expect(site).toContain('skip-link');
+  });
+
+  it('leaves login and register in the auth group', () => {
+    for (const route of ['login', 'register']) {
+      expect(existsSync(path.join(app, '(auth)', route, 'page.tsx'))).toBe(true);
+      expect(existsSync(path.join(app, '(site)', route))).toBe(false);
+    }
+  });
+});
+
 describe('deployment config', () => {
   it('pins the Vercel framework preset so the build is not served as static output', () => {
     const config = JSON.parse(readFileSync(path.join(root, 'vercel.json'), 'utf8'));

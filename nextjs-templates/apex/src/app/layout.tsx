@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Syne } from 'next/font/google';
 import './globals.css';
-import { SiteHeader } from '@/components/layout/site-header';
-import { SiteFooter } from '@/components/layout/site-footer';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -60,19 +58,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+/**
+ * The root layout carries only the document shell. Chrome lives in the
+ * `(site)` group so that auth screens can render without a marketing header or
+ * footer, which is what a sign-up form should look like.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${syne.variable} ${inter.variable}`}>
-      <body className="min-h-dvh bg-canvas text-body antialiased">
-        <a href="#main" className="skip-link">
-          Skip to content
-        </a>
-        <SiteHeader />
-        <main id="main" className="min-h-[60dvh]">
-          {children}
-        </main>
-        <SiteFooter />
-      </body>
+      <body className="min-h-dvh bg-canvas text-body antialiased">{children}</body>
     </html>
   );
 }
