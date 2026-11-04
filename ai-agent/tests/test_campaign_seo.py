@@ -259,8 +259,37 @@ def test_campaign_list_matches_generator():
         generated |= {p.name for p in delivery.glob("*") if p.is_dir()}
     if not any(p.is_dir() for p in ipg.PROJECTS.glob("*")):
         pytest.skip("generated-projects/ wiped for fresh regeneration; parity restores on next generator run")
-    missing = set(fcs.CAMPAIGNS) - generated
+
+    # A campaign may ship as a built artifact with no source tree in this
+    # checkout. Those are declared by the tool, not inferred from whichever
+    # directories happen to exist locally -- otherwise the same suite passes
+    # on one machine and fails on another.
+    dist_only = getattr(fcs, "DIST_ONLY_CAMPAIGNS", set())
+    missing = set(fcs.CAMPAIGNS) - generated - dist_only
     assert not missing, f"campaigns with no generated project: {sorted(missing)}"
-    # Every campaign must resolve through the repair tool itself.
-    unresolvable = [s for s in fcs.CAMPAIGNS if fcs.resolve_project_dir(s) is None]
+
+    # Every campaign with a source tree must resolve through the repair tool.
+    unresolvable = [
+        s for s in fcs.CAMPAIGNS
+        if s not in dist_only and fcs.resolve_project_dir(s) is None
+    ]
     assert not unresolvable, f"campaigns the repair tool cannot resolve: {unresolvable}"
+
+
+def test_dist_only_campaigns_are_real_campaigns():
+    """A dist-only exception must not become a graveyard for typos."""
+    dist_only = getattr(fcs, "DIST_ONLY_CAMPAIGNS", set())
+    stray = dist_only - set(fcs.CAMPAIGNS)
+    assert not stray, f"dist-only entries that are not campaigns at all: {sorted(stray)}"
+
+
+def test_dist_only_campaigns_have_no_source_tree():
+    """If a campaign gains a source tree it must leave the exception list."""
+    dist_only = getattr(fcs, "DIST_ONLY_CAMPAIGNS", set())
+    sell_today = ROOT / "products" / "sell-today"
+    present = {p.name for p in sell_today.glob("*") if p.is_dir()} if sell_today.is_dir() else set()
+    shadowed = dist_only & present
+    assert not shadowed, (
+        "campaigns with source in products/sell-today must not stay dist-only: "
+        f"{sorted(shadowed)}"
+    )

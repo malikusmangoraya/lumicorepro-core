@@ -65,6 +65,19 @@ CAMPAIGNS = [
     "voltus-atelier",
 ]
 
+# Campaigns that ship as built artifacts only. Their dist/ output exists under
+# delivery/ or the Pages deployment, but they have no source tree in
+# products/sell-today, so a parity check cannot measure them. Declared here
+# rather than inferred from whichever directories a given checkout happens to
+# contain -- inferring made the same suite pass in one worktree and fail in
+# another. If one gains a source tree, remove it from this set;
+# test_dist_only_campaigns_have_no_source_tree enforces that.
+DIST_ONLY_CAMPAIGNS = {
+    "ember-salt",
+    "maison-noir",
+    "voltus-atelier",
+}
+
 # GitHub project Pages mount each campaign under /<slug>/, but the file lives at
 # the repo root, so the prefix has to come off before checking the filesystem.
 PROJECT_PREFIXES = set(CAMPAIGNS)
