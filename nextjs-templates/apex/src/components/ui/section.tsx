@@ -22,20 +22,23 @@ export function SectionHeading({
   title,
   description,
   align = 'left',
+  as: Heading = 'h2',
   className,
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
   align?: 'left' | 'center';
+  /** Use h1 for the title of a page; h2 for a section inside one. */
+  as?: 'h1' | 'h2' | 'h3';
   className?: string;
 }) {
   return (
     <div className={cn('max-w-2xl space-y-3', align === 'center' && 'mx-auto text-center', className)}>
       {eyebrow && <p className="section-eyebrow">{eyebrow}</p>}
-      <h2 className="text-balance text-3xl font-700 leading-tight text-heading sm:text-4xl">
+      <Heading className="text-balance text-3xl font-700 leading-tight text-heading sm:text-4xl">
         {title}
-      </h2>
+      </Heading>
       {description && (
         <p className="text-pretty text-base leading-relaxed text-muted">{description}</p>
       )}

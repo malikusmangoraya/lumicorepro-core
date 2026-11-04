@@ -36,7 +36,7 @@ const rows = [
 export default function InsightsPage() {
   return (
     <Section>
-      <SectionHeading
+      <SectionHeading as="h1"
         eyebrow="Market insights"
         title="Intent into forecast"
         description="A quarterly read of the collector market, based on our own transaction data and the listings we track."

@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -67,6 +67,41 @@ describe('layouts', () => {
     for (const route of ['login', 'register']) {
       expect(existsSync(path.join(app, '(auth)', route, 'page.tsx'))).toBe(true);
       expect(existsSync(path.join(app, '(site)', route))).toBe(false);
+    }
+  });
+});
+
+describe('navigation and headings', () => {
+  const app = path.join(root, 'src', 'app');
+
+  it('always offers a way back to the home page', async () => {
+    const nav = await import('../src/components/layout/nav-links');
+    const home = nav.NAV_LINKS.find((link) => link.href === '/');
+    expect(home, 'the primary nav must contain a Home link').toBeDefined();
+    expect(home?.label).toBe('Home');
+  });
+
+  it('renders every page with exactly one h1', () => {
+    const pages: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name === 'api') continue;
+          walk(full);
+        } else if (entry.name === 'page.tsx' || entry.name === 'not-found.tsx') {
+          pages.push(full);
+        }
+      }
+    };
+    walk(app);
+
+    expect(pages.length).toBeGreaterThan(10);
+    for (const page of pages) {
+      const source = readFileSync(page, 'utf8');
+      const hasH1 =
+        /<h1[\s>]/.test(source) || /as="h1"/.test(source) || /as=\{['"]h1['"]\}/.test(source);
+      expect(hasH1, `${path.relative(app, page)} has no h1`).toBe(true);
     }
   });
 });

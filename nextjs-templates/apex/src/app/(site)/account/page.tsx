@@ -44,7 +44,7 @@ export default async function AccountPage() {
   return (
     <Section>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeading
+        <SectionHeading as="h1"
           eyebrow="Account"
           title={user?.name ? `Hello, ${user.name.split(' ')[0]}` : 'Your account'}
           description="Your details, your enquiries, and the controls for exporting or deleting everything we hold."

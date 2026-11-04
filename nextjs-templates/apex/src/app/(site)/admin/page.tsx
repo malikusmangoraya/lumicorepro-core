@@ -91,7 +91,7 @@ export default async function AdminPage() {
   return (
     <Section>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeading
+        <SectionHeading as="h1"
           eyebrow="Control room"
           title="Apex operations"
           description="Live figures from the inventory and enquiry tables. Nothing here is a static mock-up."

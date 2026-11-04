@@ -17,15 +17,17 @@ export function SessionMenu() {
     let cancelled = false;
     fetch('/api/auth/me', { credentials: 'same-origin' })
       .then((response) => (response.ok ? response.json() : null))
-      .then((body: { data?: { user?: { name: string; role: string } } } | null) => {
-        if (cancelled) return;
-        const user = body?.data?.user;
-        setSession(
-          user
-            ? { name: user.name, role: user.role === 'admin' ? 'admin' : 'customer' }
-            : null,
-        );
-      })
+      .then(
+        (body: { data?: { user?: { name: string; role: string } | null } } | null) => {
+          if (cancelled) return;
+          const user = body?.data?.user;
+          setSession(
+            user
+              ? { name: user.name, role: user.role === 'admin' ? 'admin' : 'customer' }
+              : null,
+          );
+        },
+      )
       .catch(() => {
         if (!cancelled) setSession(null);
       });

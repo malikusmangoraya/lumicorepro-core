@@ -1,14 +1,6 @@
-import Link from 'next/link';
 import { BrandLockup } from '@/components/brand/brand-mark';
 import { SessionMenu } from '@/components/layout/session-menu';
-
-const links = [
-  { href: '/inventory', label: 'Inventory' },
-  { href: '/services', label: 'Services' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-];
+import { NavLinks } from '@/components/layout/nav-links';
 
 export function SiteHeader() {
   return (
@@ -17,33 +9,14 @@ export function SiteHeader() {
         <BrandLockup />
 
         <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-body/80 transition-colors hover:bg-white/5 hover:text-heading"
-            >
-              {link.label}
-            </Link>
-          ))}
+          <NavLinks variant="desktop" />
         </nav>
 
         <SessionMenu />
       </div>
 
       <nav aria-label="Primary mobile" className="border-t border-line/50 md:hidden">
-        <ul className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-2 py-2 text-sm">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-body/80 transition-colors hover:bg-white/5 hover:text-heading"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <NavLinks variant="mobile" />
       </nav>
     </header>
   );

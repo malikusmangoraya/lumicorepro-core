@@ -59,7 +59,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
 
   return (
     <Section>
-      <SectionHeading
+      <SectionHeading as="h1"
         eyebrow="Inventory"
         title="Every car, with its history attached"
         description="Filter by make, budget or mileage. Prices are shown in each listing's own currency and are never converted at display time."

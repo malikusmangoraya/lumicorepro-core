@@ -35,7 +35,7 @@ export default function PricingPage() {
   return (
     <>
       <Section>
-        <SectionHeading
+        <SectionHeading as="h1"
           align="center"
           eyebrow="Membership"
           title="Buy once, or buy often"

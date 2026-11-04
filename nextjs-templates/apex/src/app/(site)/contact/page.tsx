@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <Section>
-      <SectionHeading
+      <SectionHeading as="h1"
         eyebrow="Contact"
         title="Tell us what you are looking for"
         description="One message reaches a specialist, not a queue. We reply within one business day."

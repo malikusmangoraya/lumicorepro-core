@@ -53,7 +53,7 @@ export default function ServicesPage() {
   return (
     <>
       <Section>
-        <SectionHeading
+        <SectionHeading as="h1"
           eyebrow="Services"
           title="Everything between “I like that car” and the keys in your hand"
           description="Buying a performance car is a chain of small decisions. We run the whole chain, so nothing depends on a seller's goodwill."
