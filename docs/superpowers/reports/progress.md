@@ -36,15 +36,30 @@
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| 1. Consolidate work streams | in progress | |
-| 2. Campaign parity test | pending | |
-| 3. pytest in CI | pending | |
-| 4. BlogForge fixture | pending | |
-| 5. Delivery verification wiring | pending | |
-| 6. Python lint ratchet | pending | |
-| 7. AGENTS.md rules | pending | |
-| 8. Phase 1 report | pending | |
+| 1. Consolidate work streams | done | 4 commits: 0660fef9, 61b87384, bda78da9, 98de2051; tree clean; conflicts resolved keeping both features |
+| 2. Campaign parity test | done | 03bc6a3a; 24 tests pass; anti-gate fails on injected bogus entry |
+| 3. pytest in CI | done | 2e22a4de; unittest 774 vs pytest 2110; anti-gate fails when workflow mutated back to unittest |
+| 4. BlogForge fixture | done | 09842f6c; 88 files committed, secrets stripped, TEST_DATABASE_URL skip-gate found and closed |
+| 5. Delivery verification wiring | done | 2d837051; prestige-studio PASS firstPaint 75.6 KB in 53 s; script now exits 1 on FAIL |
+| 6. Python lint ratchet | done | 2d837051; baseline ruff=300, bandit_high=11, bandit_medium=38 |
+| 7. AGENTS.md rules | done | rules added to §6 and §13 |
+| 8. Phase 1 report | in progress | |
+
+## Environment findings (not code defects)
+
+- **Device Guard blocks `D:\Git\ucrt64\bin\git.exe`** (WinError 4551). 22 tests in
+  `test_benchmarks.py` shell out to git and therefore fail locally. CI is Ubuntu
+  and is unaffected. Workaround used: GitHub Desktop's bundled git 2.53.0 at
+  `C:\Users\...\GitHubDesktop\app-3.6.6\resources\app\git\cmd\git.exe`.
+- `D:\lumicorepro-core` (the original checkout) is being edited by another
+  session concurrently — its AGENTS.md changelog advanced to v8.35 during this
+  work. That checkout was never modified from here.
 
 ## Fix rounds
 
-(none yet)
+1. `test_ci_runs_pytest_not_unittest` initially matched its own explanatory
+   comment; the test now parses YAML `run:` values instead of raw text.
+2. `verify_delivery_builds.py` deleted a tracked `package-lock.json`; it now
+   removes only files the run created.
+3. The generated suite skipped every test because CI set `DATABASE_URL` while
+   the suite guards on `TEST_DATABASE_URL`; both are now set and asserted.

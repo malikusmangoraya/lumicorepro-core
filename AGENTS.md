@@ -118,6 +118,13 @@ Snake case. Foreign keys + constraints. Index queried columns. Versioned migrati
 | E2E | Playwright | `e2e/` | Key paths | **39 tests / 8 files green (2026-10-24, port 5199)** — nav, auth, a11y, products, routes, agent-control-center, generate flow, checkout/billing |
 | Mock | MSW | `src/test/` | As needed | In place |
 
+**The AI agent suite runs under pytest, and only pytest.** `unittest discover`
+collects only `TestCase` subclasses — measured 2026-10-29 it found 774 tests
+while pytest collected 2110, so 1336 tests (including every engine added after
+2026-10-28) silently never ran. `ai-agent/tests/test_ci_workflow.py` reads
+`.github/workflows/ci.yml` and fails if the runner regresses. Do not add a
+`unittest` collection command to any workflow, and do not disable that test.
+
 Targets are goals, **not** the current state. Measured on 2026-10-24:
 backend coverage is 74.79% statements (5155/6892 statements, 67.11% branches,
 69.29% functions, 75.48% lines; 1903 tests / 82 suites) against an 80% target —
@@ -243,6 +250,27 @@ Reconnect: exponential backoff 1-30s. Heartbeat 25s. Namespaced events (`order:c
 - Frontend → Backend: OpenAPI spec. Frontend → AI: REST (FastAPI). Backend → DB: schema-driven
 - API versioning: `/api/v1/`. Shared types. Gradual migration for breaking changes
 - `.env.example` = source of truth. Validate at startup. `VITE_` prefix frontend
+- **A CI step must exercise the behaviour it certifies.** A workflow leg that
+  runs `npm ci` against a gitignored path, or calls `npm run x` on a package
+  that does not define `x`, cannot pass on a clean checkout and proves nothing
+  until someone notices. `ai-agent/tests/test_ci_workflow.py` parses the
+  workflow and asserts every invoked script exists in the target package.
+- **A gate that always exits 0 is not a gate.** `verify_delivery_builds.py`
+  returned 0 unconditionally until 2026-10-29, so no product could ever fail
+  it. Verification scripts exit non-zero on FAIL, and report
+  `not measured` (never a silent pass) when the tool or environment needed to
+  measure is absent.
+- **Ratchet floors only fall.** `scripts/lint_ratchet.py` and
+  `ai-agent/lint-baseline.json` record the measured ruff and bandit backlog
+  (ruff 300, bandit_high 11, bandit_medium 38 at 2026-10-29). Raise a floor
+  only when the backlog genuinely grows for a reason recorded in the commit;
+  never raise one to make a run pass.
+- **`delivery/` is build output, `products/sell-today/` is source.** Delivery
+  verification runs on `products/sell-today/` with `--layout frontend`; a gate
+  that reads `delivery/` is measuring an artifact, not a product.
+- **A verification script must not mutate what it measures.** Cleanup removes
+  only files the run created (`node_modules/`, a lockfile that did not exist
+  before); a tracked `package-lock.json` is product source.
 
 ### Prompt-controlled app generation
 
