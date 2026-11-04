@@ -1,6 +1,7 @@
 import { BrandLockup } from '@/components/brand/brand-mark';
 import { SessionMenu } from '@/components/layout/session-menu';
 import { NavLinks } from '@/components/layout/nav-links';
+import { TrayLinks } from '@/components/layout/tray-links';
 
 export function SiteHeader() {
   return (
@@ -12,7 +13,10 @@ export function SiteHeader() {
           <NavLinks variant="desktop" />
         </nav>
 
-        <SessionMenu />
+        <div className="flex items-center gap-1">
+          <TrayLinks />
+          <SessionMenu />
+        </div>
       </div>
 
       <nav aria-label="Primary mobile" className="border-t border-line/50 md:hidden">

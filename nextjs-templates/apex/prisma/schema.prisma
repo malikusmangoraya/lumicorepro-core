@@ -302,6 +302,16 @@ model Notification {
   @@index([userId, isRead])
 }
 
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("footer")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?

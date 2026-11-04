@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth';
 import { vehicleCreateSchema, vehicleQuerySchema } from '@/lib/validation';
 import { slugify } from '@/lib/utils';
 import { parseJson } from '@/lib/utils';
+import { getVehiclesBySlugs } from '@/lib/vehicles';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,16 @@ export async function GET(request: Request) {
   const parsed = vehicleQuerySchema.safeParse(Object.fromEntries(searchParams));
   if (!parsed.success) return validate(parsed.error.flatten());
 
-  const { q, make, priceMax, sort, page, perPage } = parsed.data;
+  const { q, make, priceMax, sort, page, perPage, slugs } = parsed.data;
+
+  // Explicit slug lists back the saved and compare trays, which live in the
+  // browser's storage and therefore cannot be queried by the server.
+  if (slugs) {
+    const items = await getVehiclesBySlugs(
+      slugs.split(',').map((slug) => slug.trim()).filter(Boolean),
+    );
+    return ok({ items, total: items.length, page: 1, perPage: items.length, pages: 1 });
+  }
 
   const where = {
     status: 'active' as const,

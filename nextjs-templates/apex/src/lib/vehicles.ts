@@ -33,13 +33,20 @@ export type VehicleDetailData = VehicleCardData & {
   vin: string | null;
 };
 
+export type VehicleFacets = {
+  makes: string[];
+  bodyStyles: string[];
+  fuelTypes: string[];
+  transmissions: string[];
+};
+
 export type VehicleListResult = {
   items: VehicleCardData[];
   total: number;
   page: number;
   perPage: number;
   pages: number;
-  makes: string[];
+  facets: VehicleFacets;
   databaseReady: boolean;
 };
 
@@ -93,6 +100,8 @@ function orderBy(sort: VehicleQuery['sort']) {
       return { price: 'desc' as const };
     case 'mileage-asc':
       return { mileage: 'asc' as const };
+    case 'year-desc':
+      return { year: 'desc' as const };
     default:
       return { createdAt: 'desc' as const };
   }
@@ -110,7 +119,7 @@ export async function listVehicles(query: VehicleQuery): Promise<VehicleListResu
     page: 1,
     perPage: query.perPage,
     pages: 1,
-    makes: [],
+    facets: { makes: [], bodyStyles: [], fuelTypes: [], transmissions: [] },
     databaseReady: false,
   };
 
@@ -118,7 +127,19 @@ export async function listVehicles(query: VehicleQuery): Promise<VehicleListResu
     const where = {
       status: 'active' as const,
       ...(query.make ? { make: query.make } : {}),
-      ...(query.priceMax ? { price: { lte: query.priceMax } } : {}),
+      ...(query.bodyStyle ? { bodyStyle: query.bodyStyle } : {}),
+      ...(query.fuelType ? { fuelType: query.fuelType } : {}),
+      ...(query.transmission ? { transmission: query.transmission } : {}),
+      ...(query.yearMin ? { year: { gte: query.yearMin } } : {}),
+      ...(query.mileageMax !== undefined ? { mileage: { lte: query.mileageMax } } : {}),
+      ...(query.priceMin || query.priceMax
+        ? {
+            price: {
+              ...(query.priceMin ? { gte: query.priceMin } : {}),
+              ...(query.priceMax ? { lte: query.priceMax } : {}),
+            },
+          }
+        : {}),
       ...(query.q
         ? {
             OR: [
@@ -131,7 +152,8 @@ export async function listVehicles(query: VehicleQuery): Promise<VehicleListResu
         : {}),
     };
 
-    const [rows, total, makes] = await Promise.all([
+    const activeOnly = { status: 'active' as const };
+    const [rows, total, makes, bodyStyles, fuelTypes, transmissions] = await Promise.all([
       prisma.vehicle.findMany({
         where,
         select: CARD_SELECT,
@@ -141,10 +163,28 @@ export async function listVehicles(query: VehicleQuery): Promise<VehicleListResu
       }),
       prisma.vehicle.count({ where }),
       prisma.vehicle.findMany({
-        where: { status: 'active' },
+        where: activeOnly,
         select: { make: true },
         distinct: ['make'],
         orderBy: { make: 'asc' },
+      }),
+      prisma.vehicle.findMany({
+        where: activeOnly,
+        select: { bodyStyle: true },
+        distinct: ['bodyStyle'],
+        orderBy: { bodyStyle: 'asc' },
+      }),
+      prisma.vehicle.findMany({
+        where: activeOnly,
+        select: { fuelType: true },
+        distinct: ['fuelType'],
+        orderBy: { fuelType: 'asc' },
+      }),
+      prisma.vehicle.findMany({
+        where: activeOnly,
+        select: { transmission: true },
+        distinct: ['transmission'],
+        orderBy: { transmission: 'asc' },
       }),
     ]);
 
@@ -154,11 +194,37 @@ export async function listVehicles(query: VehicleQuery): Promise<VehicleListResu
       page: query.page,
       perPage: query.perPage,
       pages: Math.max(1, Math.ceil(total / query.perPage)),
-      makes: makes.map((row) => row.make),
+      facets: {
+        makes: makes.map((row) => row.make),
+        bodyStyles: bodyStyles.map((row) => row.bodyStyle),
+        fuelTypes: fuelTypes.map((row) => row.fuelType),
+        transmissions: transmissions.map((row) => row.transmission),
+      },
       databaseReady: true,
     };
   } catch {
     return empty;
+  }
+}
+
+/**
+ * Resolve an explicit list of slugs (saved cars, the compare tray, recently
+ * viewed). Order follows the caller's list, not the database's.
+ */
+export async function getVehiclesBySlugs(slugs: string[]): Promise<VehicleCardData[]> {
+  const wanted = [...new Set(slugs.filter(Boolean))].slice(0, 24);
+  if (wanted.length === 0) return [];
+  try {
+    const rows = await prisma.vehicle.findMany({
+      where: { slug: { in: wanted }, status: { in: ['active', 'reserved', 'sold'] } },
+      select: CARD_SELECT,
+    });
+    const bySlug = new Map(rows.map((row) => [row.slug, toCard(row)]));
+    return wanted
+      .map((slug) => bySlug.get(slug))
+      .filter((vehicle): vehicle is VehicleCardData => Boolean(vehicle));
+  } catch {
+    return [];
   }
 }
 

@@ -5,6 +5,8 @@ import { InventoryFilters } from '@/components/vehicle/inventory-filters';
 import { VehicleCard } from '@/components/vehicle/vehicle-card';
 import { EmptyState, ErrorState, Section, SectionHeading } from '@/components/ui/section';
 import { ButtonLink } from '@/components/ui/button';
+import { Reveal } from '@/components/ui/reveal';
+import { RecentlyViewed } from '@/components/vehicle/recently-viewed';
 import { listVehicles } from '@/lib/vehicles';
 import { vehicleQuerySchema } from '@/lib/validation';
 
@@ -28,6 +30,12 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
   const parsed = vehicleQuerySchema.safeParse({
     q: firstValue(raw.q) || undefined,
     make: firstValue(raw.make) || undefined,
+    bodyStyle: firstValue(raw.bodyStyle) || undefined,
+    fuelType: firstValue(raw.fuelType) || undefined,
+    transmission: firstValue(raw.transmission) || undefined,
+    yearMin: firstValue(raw.yearMin) || undefined,
+    mileageMax: firstValue(raw.mileageMax) || undefined,
+    priceMin: firstValue(raw.priceMin) || undefined,
     priceMax: firstValue(raw.priceMax) || undefined,
     sort: firstValue(raw.sort) || undefined,
     page: firstValue(raw.page) || undefined,
@@ -47,7 +55,18 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
   const result = await listVehicles(parsed.data);
   const buildPageHref = (page: number) => {
     const search = new URLSearchParams();
-    for (const key of ['q', 'make', 'priceMax', 'sort'] as const) {
+    for (const key of [
+      'q',
+      'make',
+      'bodyStyle',
+      'fuelType',
+      'transmission',
+      'yearMin',
+      'mileageMax',
+      'priceMin',
+      'priceMax',
+      'sort',
+    ] as const) {
       const value = raw[key];
       const single = firstValue(value);
       if (single) search.set(key, single);
@@ -58,15 +77,16 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
   };
 
   return (
-    <Section>
-      <SectionHeading as="h1"
-        eyebrow="Inventory"
+    <>
+      <Section>
+        <SectionHeading as="h1"
+          eyebrow="Inventory"
         title="Every car, with its history attached"
         description="Filter by make, budget or mileage. Prices are shown in each listing's own currency and are never converted at display time."
       />
 
       <div className="mt-8 space-y-5">
-        <InventoryFilters makes={result.makes} />
+        <InventoryFilters facets={result.facets} />
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
           <p aria-live="polite">
@@ -95,13 +115,15 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
             action={<ButtonLink href="/inventory" variant="outline">Clear all filters</ButtonLink>}
           />
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {result.items.map((vehicle) => (
-              <li key={vehicle.id}>
-                <VehicleCard vehicle={vehicle} />
-              </li>
-            ))}
-          </ul>
+          <Reveal>
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {result.items.map((vehicle) => (
+                <li key={vehicle.id}>
+                  <VehicleCard vehicle={vehicle} />
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         )}
 
         {result.pages > 1 && (
@@ -143,7 +165,10 @@ export default async function InventoryPage({ searchParams }: { searchParams: Se
             )}
           </nav>
         )}
-      </div>
-    </Section>
+        </div>
+      </Section>
+
+      <RecentlyViewed />
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BrandMark } from '@/components/brand/brand-mark';
+import { NewsletterForm } from '@/components/layout/newsletter-form';
 
 const columns = [
   {
@@ -63,6 +64,10 @@ export function SiteFooter() {
                 +1 (555) 019-2834
               </a>
             </p>
+
+            <div className="mt-6 max-w-xs">
+              <NewsletterForm />
+            </div>
           </div>
 
           {columns.map((column) => (

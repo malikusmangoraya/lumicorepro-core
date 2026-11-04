@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Gauge, MapPin, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { SaveButton } from '@/components/vehicle/save-button';
+import { CompareButton } from '@/components/vehicle/compare-button';
 import { formatCurrency, formatMileage } from '@/lib/utils';
 import type { VehicleCardData } from '@/lib/vehicles';
 
@@ -9,7 +11,14 @@ export function VehicleCard({ vehicle }: { vehicle: VehicleCardData }) {
   const cover = vehicle.media[0];
 
   return (
-    <article className="group overflow-hidden rounded-panel border border-line bg-surface/70 transition-colors hover:border-primary/50">
+    <article className="group relative overflow-hidden rounded-panel border border-line bg-surface/70 transition-colors hover:border-primary/50">
+      {/* Actions sit outside the Link: a button nested inside an anchor is
+          invalid HTML and swallows the click on touch devices. */}
+      <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
+        <SaveButton slug={vehicle.slug} title={vehicle.title} />
+        <CompareButton slug={vehicle.slug} title={vehicle.title} />
+      </div>
+
       <Link href={`/inventory/${vehicle.slug}`} className="block focus-visible:outline-none">
         <div className="relative aspect-[16/10] overflow-hidden bg-canvas">
           {cover ? (

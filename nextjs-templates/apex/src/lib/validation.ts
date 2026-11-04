@@ -35,10 +35,23 @@ export const inquirySchema = z.object({
 export const vehicleQuerySchema = z.object({
   q: z.string().trim().max(120).optional(),
   make: z.string().trim().max(60).optional(),
+  bodyStyle: z.string().trim().max(60).optional(),
+  fuelType: z.string().trim().max(40).optional(),
+  transmission: z.string().trim().max(40).optional(),
+  priceMin: z.coerce.number().nonnegative().optional(),
   priceMax: z.coerce.number().positive().optional(),
-  sort: z.enum(['newest', 'price-asc', 'price-desc', 'mileage-asc']).default('newest'),
+  yearMin: z.coerce.number().int().min(1900).max(2100).optional(),
+  mileageMax: z.coerce.number().int().nonnegative().optional(),
+  sort: z.enum(['newest', 'price-asc', 'price-desc', 'mileage-asc', 'year-desc']).default('newest'),
   page: z.coerce.number().int().min(1).max(500).default(1),
   perPage: z.coerce.number().int().min(1).max(48).default(9),
+  /** Comma-separated slugs, used by the saved and compare trays. */
+  slugs: z.string().trim().max(600).optional(),
+});
+
+export const newsletterSchema = z.object({
+  email: z.email('Enter a valid email address').max(160).toLowerCase(),
+  source: z.string().trim().max(40).default('footer'),
 });
 
 export const vehicleCreateSchema = z.object({
@@ -68,4 +81,5 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type InquiryInput = z.infer<typeof inquirySchema>;
 export type VehicleQuery = z.infer<typeof vehicleQuerySchema>;
+export type NewsletterInput = z.infer<typeof newsletterSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;

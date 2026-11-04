@@ -13,7 +13,10 @@ API run as **one deployable Next.js application** — no separate Express proces
 
 | Area | Detail |
 |------|--------|
-| **Pages** | Home, Inventory, Vehicle detail, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Admin, 404 |
+| **Pages** | Home, Inventory, Vehicle detail, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Admin, 404 |
+| **Discovery** | Favourites, 3-way compare with a spec table, eight-way filtering (search, make, body, fuel, gearbox, year, mileage, price), five sort orders, pagination, recently viewed |
+| **Vehicle detail** | Multi-photo gallery with a keyboard-driven lightbox, finance estimator, share (Web Share + clipboard), `Car` JSON-LD, breadcrumbs with `BreadcrumbList` schema |
+| **Polish** | Toast notifications, scroll reveal (reduced-motion safe), loading skeletons, back-to-top, newsletter capture |
 | **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries` |
 | **Auth API** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/account/export`, `DELETE /api/auth/account` |
 | **Auth** | JWT access token (15 min) + refresh token (30 day) in HttpOnly cookies, bcrypt (12 rounds), admin role gate |

@@ -138,6 +138,38 @@
 }
 
 @layer utilities {
+  /* Scroll reveal. Visible by default so a visitor without JS or with reduced
+     motion never sees a blank section; the transition only applies when the
+     observer has marked the node ready. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal[data-reveal=''] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.7s ease-out,
+      transform 0.7s ease-out;
+  }
+
+  .reveal[data-reveal='shown'] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.7s ease-out,
+      transform 0.7s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal[data-reveal=''] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   .text-balance {
     text-wrap: balance;
   }

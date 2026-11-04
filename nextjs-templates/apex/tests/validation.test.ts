@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { inquirySchema, loginSchema, registerSchema, vehicleQuerySchema } from '@/lib/validation';
+import {
+  inquirySchema,
+  loginSchema,
+  newsletterSchema,
+  registerSchema,
+  vehicleQuerySchema,
+} from '@/lib/validation';
 
 describe('registerSchema', () => {
   const valid = { name: 'Avery Admin', email: 'Avery@Example.com', password: 'Passw0rd!' };
@@ -72,5 +78,34 @@ describe('vehicleQuerySchema', () => {
 
   it('caps perPage so a caller cannot ask for the whole table', () => {
     expect(vehicleQuerySchema.safeParse({ perPage: '5000' }).success).toBe(false);
+  });
+
+  it('accepts the advanced filters', () => {
+    const parsed = vehicleQuerySchema.parse({
+      bodyStyle: 'Coupe',
+      fuelType: 'Petrol',
+      transmission: '6-speed manual',
+      yearMin: '2019',
+      mileageMax: '30000',
+    });
+    expect(parsed.yearMin).toBe(2019);
+    expect(parsed.mileageMax).toBe(30000);
+  });
+
+  it('accepts a slug list for the saved and compare trays', () => {
+    const parsed = vehicleQuerySchema.parse({ slugs: 'a,b,c' });
+    expect(parsed.slugs).toBe('a,b,c');
+  });
+});
+
+describe('newsletterSchema', () => {
+  it('accepts and lowercases a valid address', () => {
+    const parsed = newsletterSchema.parse({ email: 'Reader@Example.com' });
+    expect(parsed.email).toBe('reader@example.com');
+    expect(parsed.source).toBe('footer');
+  });
+
+  it('rejects a malformed address', () => {
+    expect(newsletterSchema.safeParse({ email: 'nope' }).success).toBe(false);
   });
 });

@@ -2,28 +2,26 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useState, useTransition } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input, Select } from '@/components/ui/field';
+import type { VehicleFacets } from '@/lib/vehicles';
 
 const SORTS = [
   { value: 'newest', label: 'Newest first' },
   { value: 'price-asc', label: 'Price: low to high' },
   { value: 'price-desc', label: 'Price: high to low' },
   { value: 'mileage-asc', label: 'Lowest mileage' },
+  { value: 'year-desc', label: 'Newest model year' },
 ];
 
-export function InventoryFilters({ makes }: { makes: string[] }) {
+const YEARS = ['2015', '2017', '2019', '2021'];
+
+export function InventoryFilters({ facets }: { facets: VehicleFacets }) {
   const router = useRouter();
   const params = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState(params.get('q') ?? '');
-
-  const current = {
-    make: params.get('make') ?? '',
-    priceMax: params.get('priceMax') ?? '',
-    sort: params.get('sort') ?? 'newest',
-  };
 
   const apply = useCallback(
     (next: Record<string, string>) => {
@@ -40,9 +38,9 @@ export function InventoryFilters({ makes }: { makes: string[] }) {
     [params, router],
   );
 
-  const activeCount = [current.make, current.priceMax, params.get('q'), params.get('sort')].filter(
-    Boolean,
-  ).length;
+  const value = (key: string) => params.get(key) ?? '';
+  const activeCount = ['q', 'make', 'bodyStyle', 'fuelType', 'transmission', 'yearMin', 'mileageMax', 'priceMax', 'sort']
+    .filter((key) => params.get(key)).length;
 
   return (
     <form
@@ -74,18 +72,20 @@ export function InventoryFilters({ makes }: { makes: string[] }) {
             />
           </div>
         </div>
+        <Button type="submit" aria-busy={isPending}>
+          <SlidersHorizontal className="size-4" aria-hidden="true" />
+          Search
+        </Button>
+      </div>
 
-        <div className="sm:w-44">
-          <label htmlFor="inventory-make" className="mb-1.5 block text-xs font-medium text-muted">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label htmlFor="f-make" className="mb-1.5 block text-xs font-medium text-muted">
             Make
           </label>
-          <Select
-            id="inventory-make"
-            value={current.make}
-            onChange={(event) => apply({ make: event.target.value })}
-          >
+          <Select id="f-make" value={value('make')} onChange={(e) => apply({ make: e.target.value })}>
             <option value="">All makes</option>
-            {makes.map((make) => (
+            {facets.makes.map((make) => (
               <option key={make} value={make}>
                 {make}
               </option>
@@ -93,33 +93,118 @@ export function InventoryFilters({ makes }: { makes: string[] }) {
           </Select>
         </div>
 
-        <div className="sm:w-44">
-          <label
-            htmlFor="inventory-price"
-            className="mb-1.5 block text-xs font-medium text-muted"
+        <div>
+          <label htmlFor="f-body" className="mb-1.5 block text-xs font-medium text-muted">
+            Body style
+          </label>
+          <Select
+            id="f-body"
+            value={value('bodyStyle')}
+            onChange={(e) => apply({ bodyStyle: e.target.value })}
           >
-            Max price (USD)
+            <option value="">Any body</option>
+            {facets.bodyStyles.map((style) => (
+              <option key={style} value={style}>
+                {style}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="f-fuel" className="mb-1.5 block text-xs font-medium text-muted">
+            Fuel
+          </label>
+          <Select
+            id="f-fuel"
+            value={value('fuelType')}
+            onChange={(e) => apply({ fuelType: e.target.value })}
+          >
+            <option value="">Any fuel</option>
+            {facets.fuelTypes.map((fuel) => (
+              <option key={fuel} value={fuel}>
+                {fuel}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="f-transmission" className="mb-1.5 block text-xs font-medium text-muted">
+            Transmission
+          </label>
+          <Select
+            id="f-transmission"
+            value={value('transmission')}
+            onChange={(e) => apply({ transmission: e.target.value })}
+          >
+            <option value="">Any gearbox</option>
+            {facets.transmissions.map((transmission) => (
+              <option key={transmission} value={transmission}>
+                {transmission}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="f-year" className="mb-1.5 block text-xs font-medium text-muted">
+            From year
+          </label>
+          <Select
+            id="f-year"
+            value={value('yearMin')}
+            onChange={(e) => apply({ yearMin: e.target.value })}
+          >
+            <option value="">Any year</option>
+            {YEARS.map((year) => (
+              <option key={year} value={year}>
+                {year} or newer
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label htmlFor="f-mileage" className="mb-1.5 block text-xs font-medium text-muted">
+            Max mileage
           </label>
           <Input
-            id="inventory-price"
+            id="f-mileage"
             type="number"
             min={0}
-            step={5000}
+            step={1000}
             inputMode="numeric"
-            defaultValue={current.priceMax}
-            onBlur={(event) => apply({ priceMax: event.target.value })}
+            defaultValue={value('mileageMax')}
+            onBlur={(e) => apply({ mileageMax: e.target.value })}
             placeholder="Any"
           />
         </div>
 
-        <div className="sm:w-52">
-          <label htmlFor="inventory-sort" className="mb-1.5 block text-xs font-medium text-muted">
+        <div>
+          <label htmlFor="f-price" className="mb-1.5 block text-xs font-medium text-muted">
+            Max price (USD)
+          </label>
+          <Input
+            id="f-price"
+            type="number"
+            min={0}
+            step={5000}
+            inputMode="numeric"
+            defaultValue={value('priceMax')}
+            onBlur={(e) => apply({ priceMax: e.target.value })}
+            placeholder="Any"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="f-sort" className="mb-1.5 block text-xs font-medium text-muted">
             Sort
           </label>
           <Select
-            id="inventory-sort"
-            value={current.sort}
-            onChange={(event) => apply({ sort: event.target.value })}
+            id="f-sort"
+            value={value('sort') || 'newest'}
+            onChange={(e) => apply({ sort: e.target.value })}
           >
             {SORTS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -128,15 +213,10 @@ export function InventoryFilters({ makes }: { makes: string[] }) {
             ))}
           </Select>
         </div>
-
-        <Button type="submit" className="sm:mb-0" aria-busy={isPending}>
-          <SlidersHorizontal className="size-4" aria-hidden="true" />
-          Apply
-        </Button>
       </div>
 
       {activeCount > 0 && (
-        <div className="mt-3 flex items-center gap-2 text-xs text-muted">
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-line/60 pt-3 text-xs text-muted">
           <span>
             {activeCount} filter{activeCount === 1 ? '' : 's'} active
           </span>
@@ -146,10 +226,10 @@ export function InventoryFilters({ makes }: { makes: string[] }) {
               setQuery('');
               startTransition(() => router.push('/inventory', { scroll: false }));
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-heading transition-colors hover:border-primary/60"
+            className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-heading transition-colors hover:border-primary/60"
           >
-            <X className="size-3" aria-hidden="true" />
-            Clear
+            <RotateCcw className="size-3" aria-hidden="true" />
+            Clear all
           </button>
         </div>
       )}
