@@ -71,13 +71,22 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
 The app **refuses to sign tokens** without them — there is no insecure fallback.
 
-### 4. Create and seed the database
+### 4. Point `DATABASE_URL` at a Postgres server
+
+Neon, Supabase, RDS, Railway or a local container all work. TLS is required by most
+managed providers:
+
+```
+DATABASE_URL="postgresql://user:password@host:5432/apex?sslmode=require"
+```
+
+### 5. Create and seed the database
 
 ```bash
 npm run db:setup
 ```
 
-This runs `prisma db push` (creates `prisma/dev.db`) and seeds:
+This runs `prisma db push` (creates the tables) and seeds:
 
 | Account | Password | Role |
 |---------|----------|------|
@@ -86,7 +95,7 @@ This runs `prisma db push` (creates `prisma/dev.db`) and seeds:
 
 It also seeds 6 vehicles, 3 membership plans, 3 products and one enquiry.
 
-### 5. Run
+### 6. Run
 
 ```bash
 npm run dev
@@ -153,27 +162,27 @@ apex/
 
 ---
 
-## Switching to Postgres
+## Switching to SQLite
+
+Postgres is the default because the template deploys to serverless, where a SQLite file
+is read-only and not shared between instances. For single-machine development without a
+database server:
 
 1. Change the provider in `prisma/schema.prisma`:
 
    ```prisma
    datasource db {
-     provider = "postgresql"
+     provider = "sqlite"
      url      = env("DATABASE_URL")
    }
    ```
 
-2. Point `DATABASE_URL` at your server (Neon, Supabase, RDS, Railway, …):
-
-   ```
-   DATABASE_URL="postgresql://user:password@host:5432/apex?sslmode=require"
-   ```
-
+2. Set `DATABASE_URL="file:./dev.db"` in `.env`.
 3. `npm run db:push && npm run db:seed`
 
-Nothing else changes — the schema avoids SQLite-only types by storing status columns as
-`String` and structured payloads as JSON text, both of which map cleanly to Postgres.
+Nothing else changes — the schema avoids engine-specific types by storing status columns
+as `String` and structured payloads as JSON text, both of which map cleanly to SQLite and
+Postgres.
 
 ---
 

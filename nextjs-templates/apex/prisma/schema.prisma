@@ -1,19 +1,23 @@
 // Apex Motor Collective — data model
 //
-// SQLite is the zero-setup default. To run on Postgres, change `provider` to
-// "postgresql" and point DATABASE_URL at your server.
+// Postgres is the default because this template deploys to serverless, where a
+// local SQLite file is read-only and not shared between instances. Neon,
+// Supabase, RDS, Railway and a local `postgres` container all work.
 //
-// SQLite has no native enum or JSON column, so status columns are String and
-// are validated by the Zod schemas in src/lib/validation.ts; structured
-// payloads (media, addresses, order items) are stored as JSON text and read
-// through the typed helpers in src/lib/serialize.ts.
+// To run on SQLite instead (single-machine dev), change `provider` to "sqlite"
+// and set DATABASE_URL="file:./dev.db".
+//
+// Status columns are String rather than native enums and structured payloads
+// are JSON text, so the same schema runs unchanged on both engines. Values are
+// validated by the Zod schemas in src/lib/validation.ts and read through the
+// typed helpers in src/lib/utils.ts.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
