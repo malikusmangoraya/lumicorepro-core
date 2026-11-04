@@ -78,7 +78,7 @@ describe('navigation and headings', () => {
     const nav = await import('../src/components/layout/nav-links');
     const home = nav.NAV_LINKS.find((link) => link.href === '/');
     expect(home, 'the primary nav must contain a Home link').toBeDefined();
-    expect(home?.label).toBe('Home');
+    expect(home?.key).toBe('nav.home');
   });
 
   it('renders every page with exactly one h1', () => {

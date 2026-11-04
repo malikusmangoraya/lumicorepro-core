@@ -28,9 +28,60 @@
   --shadow-glow: 0 0 0 1px rgb(183 92 246 / 0.35), 0 18px 50px -20px rgb(183 92 246 / 0.55);
 }
 
+/*
+ * Light theme. Tailwind 4 utilities read these variables at use time, so
+ * redefining them on the root element is enough to re-skin the whole app
+ * without duplicating a single class.
+ */
+[data-theme='light'] {
+  --color-canvas: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-body: #101828;
+  --color-heading: #0b1020;
+  --color-muted: #5b6478;
+  --color-line: #e2e8f0;
+  --color-footer: #eceff6;
+  --color-primary: #7c3aed;
+  --color-secondary: #6d28d9;
+  --color-accent: #6d28d9;
+  --shadow-panel: 0 6px 18px rgb(15 23 42 / 0.06);
+}
+
+/* White overlays are the dark theme's hover surface; on light they need ink. */
+[data-theme='light'] .hover\:bg-white\/5:hover,
+[data-theme='light'] .bg-white\/5 {
+  background-color: rgb(15 23 42 / 0.05);
+}
+
+[data-theme='light'] .bg-white\/10,
+[data-theme='light'] .animate-pulse.bg-white\/10 {
+  background-color: rgb(15 23 42 / 0.08);
+}
+
+[data-theme='light'] .border-white\/15,
+[data-theme='light'] .border-white\/10 {
+  border-color: rgb(15 23 42 / 0.12);
+}
+
+[data-theme='light'] .surface-grid {
+  background-image:
+    linear-gradient(to right, rgb(15 23 42 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(15 23 42 / 0.06) 1px, transparent 1px);
+}
+
+[data-theme='light'] .hero-aurora::before {
+  background:
+    radial-gradient(50% 55% at 22% 30%, rgb(124 58 237 / 0.12), transparent 70%),
+    radial-gradient(45% 50% at 78% 18%, rgb(109 40 217 / 0.1), transparent 72%);
+}
+
 @layer base {
   :root {
     color-scheme: dark;
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
   }
 
   html {
@@ -120,20 +171,26 @@
     color: var(--color-accent);
   }
 
+  /* Hidden by moving it out of view *vertically*, never with left: -9999px:
+     in RTL the document's scroll origin flips and an off-screen-left element
+     becomes 10,000px of horizontal overflow. */
   .skip-link {
-    position: absolute;
-    left: -9999px;
+    position: fixed;
     top: 0;
+    inset-inline-start: 0;
     z-index: 100;
     padding: 0.75rem 1.25rem;
     background: var(--color-primary);
     color: #0b0616;
-    border-radius: 0 0 var(--radius-control) 0;
+    border-start-start-radius: 0;
+    border-end-start-radius: var(--radius-control);
     font-weight: 600;
+    transform: translateY(-150%);
+    transition: transform 0.15s ease-out;
   }
 
   .skip-link:focus {
-    left: 0;
+    transform: translateY(0);
   }
 }
 

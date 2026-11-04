@@ -81,3 +81,27 @@ export function setList(key: StoreKey, next: string[]) {
 }
 
 export { EMPTY as EMPTY_LIST };
+
+/**
+ * Small string values (locale, theme) for useSyncExternalStore.
+ *
+ * These return primitives, so React's Object.is comparison is stable without a
+ * cache, and reading localStorage on each call is cheap.
+ */
+export function getString(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+export function setString(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore: the value still applies for this session through the event below.
+  }
+  emit();
+}

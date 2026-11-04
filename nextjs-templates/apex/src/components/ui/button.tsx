@@ -58,12 +58,14 @@ export function ButtonLink({
   href,
   variant = 'primary',
   size = 'md',
+  fullWidth,
   className,
   children,
 }: {
   href: string;
   variant?: Variant;
   size?: Size;
+  fullWidth?: boolean;
   className?: string;
   children: ReactNode;
 }) {
@@ -74,6 +76,7 @@ export function ButtonLink({
         'inline-flex items-center justify-center gap-2 rounded-control font-semibold transition-colors',
         variants[variant],
         sizes[size],
+        fullWidth && 'w-full',
         className,
       )}
     >

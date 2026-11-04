@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Loader2, Mail } from 'lucide-react';
+import { useSite } from '@/components/providers/site-provider';
 
 export function NewsletterForm() {
+  const { t } = useSite();
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
@@ -54,7 +56,7 @@ export function NewsletterForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-2" noValidate>
       <label htmlFor="newsletter-email" className="block text-xs font-semibold uppercase tracking-[0.18em] text-heading">
-        New arrivals
+        {t('footer.newArrivals')}
       </label>
       <p className="text-xs leading-relaxed text-muted">
         One email when a car worth seeing lands. No newsletter churn.

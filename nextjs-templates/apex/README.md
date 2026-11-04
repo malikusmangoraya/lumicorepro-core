@@ -13,19 +13,23 @@ API run as **one deployable Next.js application** — no separate Express proces
 
 | Area | Detail |
 |------|--------|
-| **Pages** | Home, Inventory, Vehicle detail, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Admin, 404 |
+| **Pages** | Home, Inventory, Vehicle detail, Shop, Cart, Checkout, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Account orders, Admin, 404 |
 | **Discovery** | Favourites, 3-way compare with a spec table, eight-way filtering (search, make, body, fuel, gearbox, year, mileage, price), five sort orders, pagination, recently viewed |
 | **Vehicle detail** | Multi-photo gallery with a keyboard-driven lightbox, finance estimator, share (Web Share + clipboard), `Car` JSON-LD, breadcrumbs with `BreadcrumbList` schema |
 | **Polish** | Toast notifications, scroll reveal (reduced-motion safe), loading skeletons, back-to-top, newsletter capture |
-| **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries` |
+| **Commerce** | Shop with stock, cart persisted in the browser, guest or signed-in checkout, server-side price and stock recomputation, customer order history |
+| **Public API** | `GET /api/health`, `GET /api/vehicles`, `GET /api/vehicles/[slug]`, `POST /api/inquiries`, `POST /api/checkout`, `GET /api/media/[id]` |
 | **Auth API** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/auth/account/export`, `DELETE /api/auth/account` |
 | **Admin** | `/admin` overview, `/admin/vehicles` (list, create, edit, withdraw), `/admin/orders` (list, detail, status pipeline, tracking, notes, manual order), `/admin/inquiries` (status pipeline + internal notes), `/admin/newsletter` (subscriber list + unsubscribe). Admin-only at the layout and at every mutating route. |
 | **Auth** | JWT access token (15 min) + refresh token (30 day) in HttpOnly cookies, bcrypt (12 rounds), admin role gate |
 | **Data** | Prisma schema with 17 models: users, vehicles, enquiries, products, carts, orders, payments, coupons, plans, subscriptions, addresses, notifications, audit log |
 | **Validation** | Zod schemas on every write, shared shape between client and server |
 | **Responses** | One envelope everywhere: `{ success, status, message, data, timestamp }` |
-| **Safety** | Per-IP rate limits on login, register and enquiries; idempotent enquiry submission; no account enumeration on login |
-| **Tests** | Vitest unit tests for formatters, validation, the API envelope and the rate limiter |
+| **Uploads** | Admin image upload stored in Postgres (`MediaAsset`) and served from `/api/media/[id]` — no writable disk needed |
+| **Theming** | Dark and light palettes from the same tokens, persisted, applied before first paint |
+| **i18n** | English, Urdu and Arabic UI with RTL. Navigation, cart, checkout and shared actions are translated; listing content stays as the operator wrote it |
+| **Safety** | Per-IP rate limits on login, register, enquiries, checkout and newsletter; idempotent enquiry submission; no account enumeration; conditional stock claim |
+| **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals and template integrity (63 tests) |
 | **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml`, `robots.txt`, security headers |
 
 ### Design system
@@ -40,6 +44,8 @@ API run as **one deployable Next.js application** — no separate Express proces
 | Border | `#1e293b` |
 | Display font | Syne |
 | Body font | Inter |
+| Light canvas | `#f5f6fa` |
+| Light surface | `#ffffff` |
 
 Dark-first, single palette, WCAG-conscious contrast, visible focus rings, a skip link and
 `prefers-reduced-motion` support. Tokens live in `src/app/globals.css` under `@theme`.

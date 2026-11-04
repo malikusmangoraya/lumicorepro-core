@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Section, SectionHeading } from '@/components/ui/section';
 import { Panel } from '@/components/ui/card';
@@ -75,6 +76,24 @@ export default async function AccountPage() {
               <code className="rounded bg-canvas px-1.5 py-0.5">npm run db:setup</code>.
             </p>
           )}
+        </Panel>
+
+        <Panel className="p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-display text-lg font-600 text-heading">Your orders</h2>
+            <Link href="/account/orders" className="text-xs font-medium text-accent hover:underline">
+              View all
+            </Link>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            Shop purchases and vehicle reservations are recorded against this account.
+          </p>
+          <Link
+            href="/account/orders"
+            className="mt-4 inline-flex h-9 items-center rounded-control border border-line px-3.5 text-sm font-semibold text-heading transition-colors hover:border-primary/60"
+          >
+            Open orders
+          </Link>
         </Panel>
 
         <Panel className="p-6">

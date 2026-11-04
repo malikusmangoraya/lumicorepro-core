@@ -3,15 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useSite } from '@/components/providers/site-provider';
+import type { MessageKey } from '@/lib/i18n/dictionaries';
 
-export const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/inventory', label: 'Inventory' },
-  { href: '/services', label: 'Services' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-] as const;
+export const NAV_LINKS: { href: string; key: MessageKey }[] = [
+  { href: '/', key: 'nav.home' },
+  { href: '/inventory', key: 'nav.inventory' },
+  { href: '/shop', key: 'nav.shop' },
+  { href: '/services', key: 'nav.services' },
+  { href: '/pricing', key: 'nav.pricing' },
+  { href: '/about', key: 'nav.about' },
+  { href: '/contact', key: 'nav.contact' },
+];
 
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/';
@@ -20,6 +23,7 @@ function isActive(pathname: string, href: string) {
 
 export function NavLinks({ variant }: { variant: 'desktop' | 'mobile' }) {
   const pathname = usePathname();
+  const { t } = useSite();
 
   // The mobile row wraps instead of scrolling: a horizontally scrolled row
   // hides the last link with no affordance, which is how a visitor loses their
@@ -41,7 +45,7 @@ export function NavLinks({ variant }: { variant: 'desktop' | 'mobile' }) {
                     : 'text-body/80 hover:bg-white/5 hover:text-heading',
                 )}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             </li>
           );
@@ -64,7 +68,7 @@ export function NavLinks({ variant }: { variant: 'desktop' | 'mobile' }) {
               active ? 'bg-white/5 text-heading' : 'text-body/80 hover:bg-white/5 hover:text-heading',
             )}
           >
-            {link.label}
+            {t(link.key)}
           </Link>
         );
       })}

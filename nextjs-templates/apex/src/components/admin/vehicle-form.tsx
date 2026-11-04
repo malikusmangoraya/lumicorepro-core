@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Select, Textarea } from '@/components/ui/field';
+import { ImageUploader } from '@/components/admin/image-uploader';
 import { useSite } from '@/components/providers/site-provider';
 
 export type VehicleFormValues = {
@@ -261,6 +262,11 @@ export function VehicleForm({
       <section className="rounded-panel border border-line bg-surface/50 p-6">
         <h2 className="font-display text-lg font-600 text-heading">Photos and provenance</h2>
         <div className="mt-5 space-y-4">
+          <ImageUploader
+            onUploaded={(url) =>
+              setMediaText((current) => (current.trim() ? `${current.trim()}\n${url}` : url))
+            }
+          />
           <Field id="media" label="Photo URLs" hint="One per line; /vehicles/name.webp or https://…">
             <Textarea
               id="media"

@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -12,10 +13,28 @@ import { CheckCircle2, X } from 'lucide-react';
 import {
   getServerSnapshot,
   getSnapshot,
+  getString,
   setList,
+  setString,
   subscribe,
   type StoreKey,
 } from '@/lib/local-store';
+import {
+  isLocale,
+  LOCALE_META,
+  translate,
+  type Locale,
+  type MessageKey,
+} from '@/lib/i18n/dictionaries';
+import {
+  cartCount,
+  cartSubtotal,
+  getServerSnapshot as getCartServerSnapshot,
+  getSnapshot as getCartSnapshot,
+  setCart,
+  subscribe as subscribeCart,
+  type CartItem,
+} from '@/lib/cart-store';
 
 const LIMITS = { saved: 60, compare: 3, recent: 6 } as const;
 
@@ -34,6 +53,18 @@ type SiteContextValue = {
   clearCompare: () => void;
   addRecent: (slug: string) => void;
   notify: (message: string) => void;
+  cart: readonly CartItem[];
+  cartCount: number;
+  cartSubtotal: number;
+  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
+  setQuantity: (slug: string, quantity: number) => void;
+  removeFromCart: (slug: string) => void;
+  clearCart: () => void;
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+  theme: 'dark' | 'light';
+  setTheme: (theme: 'dark' | 'light') => void;
+  t: (key: MessageKey) => string;
 };
 
 const SiteContext = createContext<SiteContextValue | null>(null);
@@ -49,6 +80,37 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
   const compare = useList('compare');
   const recent = useList('recent');
   const hydrated = useHydrated();
+  const cart = useSyncExternalStore(subscribeCart, getCartSnapshot, getCartServerSnapshot);
+
+  const storedLocale = useSyncExternalStore(
+    subscribe,
+    () => getString('apex:locale') ?? 'en',
+    () => 'en',
+  );
+  const locale: Locale = isLocale(storedLocale) ? storedLocale : 'en';
+  const theme = useSyncExternalStore(
+    subscribe,
+    () => getString('apex:theme') ?? 'dark',
+    () => 'dark',
+  ) as 'dark' | 'light';
+
+  // Both of these only touch the document, never React state.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.documentElement.dir = LOCALE_META[locale].dir;
+  }, [locale]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+
+  const setLocale = useCallback((next: Locale) => setString('apex:locale', next), []);
+  const setTheme = useCallback(
+    (next: 'dark' | 'light') => setString('apex:theme', next),
+    [],
+  );
+  const t = useCallback((key: MessageKey) => translate(locale, key), [locale]);
 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -96,6 +158,44 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
     [recent],
   );
 
+  const addToCart = useCallback(
+    (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
+      const current = cart;
+      const existing = current.find((entry) => entry.slug === item.slug);
+      const next = existing
+        ? current.map((entry) =>
+            entry.slug === item.slug
+              ? { ...entry, quantity: Math.min(99, entry.quantity + quantity) }
+              : entry,
+          )
+        : [...current, { ...item, quantity: Math.min(99, Math.max(1, quantity)) }];
+      setCart(next);
+    },
+    [cart],
+  );
+
+  const setQuantity = useCallback(
+    (slug: string, quantity: number) => {
+      if (quantity < 1) {
+        setCart(cart.filter((entry) => entry.slug !== slug));
+        return;
+      }
+      setCart(
+        cart.map((entry) =>
+          entry.slug === slug ? { ...entry, quantity: Math.min(99, quantity) } : entry,
+        ),
+      );
+    },
+    [cart],
+  );
+
+  const removeFromCart = useCallback(
+    (slug: string) => setCart(cart.filter((entry) => entry.slug !== slug)),
+    [cart],
+  );
+
+  const clearCart = useCallback(() => setCart([]), []);
+
   const value = useMemo<SiteContextValue>(
     () => ({
       saved,
@@ -109,8 +209,40 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
       clearCompare,
       addRecent,
       notify,
+      cart,
+      cartCount: cartCount(cart),
+      cartSubtotal: cartSubtotal(cart),
+      addToCart,
+      setQuantity,
+      removeFromCart,
+      clearCart,
+      locale,
+      setLocale,
+      theme,
+      setTheme,
+      t,
     }),
-    [saved, compare, recent, hydrated, toggleSaved, toggleCompare, clearCompare, addRecent, notify],
+    [
+      locale,
+      setLocale,
+      theme,
+      setTheme,
+      t,
+      saved,
+      compare,
+      recent,
+      hydrated,
+      toggleSaved,
+      toggleCompare,
+      clearCompare,
+      addRecent,
+      notify,
+      cart,
+      addToCart,
+      setQuantity,
+      removeFromCart,
+      clearCart,
+    ],
   );
 
   return (

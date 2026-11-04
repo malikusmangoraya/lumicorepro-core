@@ -47,13 +47,13 @@ export function SessionMenu() {
       <div className="flex items-center gap-2">
         <Link
           href="/login"
-          className="hidden rounded-control px-3 py-2 text-sm font-medium text-body/80 transition-colors hover:text-heading sm:block"
+          className="hidden whitespace-nowrap rounded-control px-2.5 py-2 text-sm font-medium text-body/80 transition-colors hover:text-heading sm:block"
         >
           Sign in
         </Link>
         <Link
           href="/inventory"
-          className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-[#0b0616] transition-colors hover:bg-accent"
+          className="whitespace-nowrap rounded-control bg-primary px-3.5 py-2 text-sm font-semibold text-[#0b0616] transition-colors hover:bg-accent"
         >
           Browse inventory
         </Link>
@@ -66,7 +66,7 @@ export function SessionMenu() {
       {session.role === 'admin' && (
         <Link
           href="/admin"
-          className="hidden rounded-control px-3 py-2 text-sm font-medium text-body/80 transition-colors hover:text-heading sm:block"
+          className="hidden whitespace-nowrap rounded-control px-2.5 py-2 text-sm font-medium text-body/80 transition-colors hover:text-heading sm:block"
         >
           Admin
         </Link>

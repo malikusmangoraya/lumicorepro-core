@@ -231,9 +231,33 @@ const categories = [
 ];
 
 const products = [
-  { title: 'Ceramic coating kit', slug: 'ceramic-coating-kit', price: 189, stock: 24, categorySlug: 'care-kits', description: 'Two-stage ceramic kit with applicator and cure cloths.' },
-  { title: 'Leather driving gloves', slug: 'leather-driving-gloves', price: 129, stock: 40, categorySlug: 'driving-gear', description: 'Perforated lambskin, unlined, with a snap wrist.' },
-  { title: 'Aluminium race jack', slug: 'aluminium-race-jack', price: 349, stock: 8, categorySlug: 'garage', description: 'Low-profile 1.8-tonne jack with a rubber saddle.' },
+  {
+    title: 'Ceramic coating kit',
+    slug: 'ceramic-coating-kit',
+    price: 189,
+    stock: 24,
+    categorySlug: 'care-kits',
+    description: 'Two-stage ceramic kit with applicator and cure cloths. Nine months of protection from one application.',
+    image: '/products/ceramic-coating-kit.webp',
+  },
+  {
+    title: 'Leather driving gloves',
+    slug: 'leather-driving-gloves',
+    price: 129,
+    stock: 40,
+    categorySlug: 'driving-gear',
+    description: 'Perforated lambskin, unlined, with a snap wrist. Cut short so the wheel is still in your hands.',
+    image: '/products/leather-driving-gloves.webp',
+  },
+  {
+    title: 'Aluminium race jack',
+    slug: 'aluminium-race-jack',
+    price: 349,
+    stock: 8,
+    categorySlug: 'garage',
+    description: 'Low-profile 1.8-tonne jack with a rubber saddle. Fits under a car with 95 mm of clearance.',
+    image: '/products/aluminium-race-jack.webp',
+  },
 ];
 
 async function main() {
@@ -265,14 +289,18 @@ async function main() {
 
   for (const product of products) {
     const category = await prisma.category.findUnique({ where: { slug: product.categorySlug } });
-    const { categorySlug: _categorySlug, ...data } = product;
+    const { categorySlug: _categorySlug, image: productImage, ...data } = product;
     await prisma.product.upsert({
       where: { slug: data.slug },
-      update: {},
+      update: {
+        images: JSON.stringify([productImage]),
+        thumbnail: productImage,
+      },
       create: {
         ...data,
         categoryId: category?.id,
-        images: JSON.stringify([]),
+        images: JSON.stringify([productImage]),
+        thumbnail: productImage,
         rating: 4.8,
         reviewCount: 12,
       },

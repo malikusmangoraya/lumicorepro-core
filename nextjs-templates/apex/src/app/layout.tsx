@@ -66,6 +66,18 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${syne.variable} ${inter.variable}`}>
+      <head>
+        {/*
+          Applies the saved theme and locale before the first paint. Without it a
+          visitor who chose light would see a dark flash on every navigation.
+          It reads two localStorage keys and writes two attributes; no data.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('apex:theme');var l=localStorage.getItem('apex:locale');var d=document.documentElement;if(t==='light'||t==='dark'){d.dataset.theme=t;d.style.colorScheme=t;}if(l){d.lang=l;d.dir=(l==='ur'||l==='ar')?'rtl':'ltr';}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-dvh bg-canvas text-body antialiased">{children}</body>
     </html>
   );

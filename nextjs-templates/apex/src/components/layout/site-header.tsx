@@ -2,6 +2,7 @@ import { BrandLockup } from '@/components/brand/brand-mark';
 import { SessionMenu } from '@/components/layout/session-menu';
 import { NavLinks } from '@/components/layout/nav-links';
 import { TrayLinks } from '@/components/layout/tray-links';
+import { SiteSettings } from '@/components/layout/site-settings';
 
 export function SiteHeader() {
   return (
@@ -14,6 +15,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1">
+          <SiteSettings />
           <TrayLinks />
           <SessionMenu />
         </div>

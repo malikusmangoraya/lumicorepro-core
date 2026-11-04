@@ -35,7 +35,9 @@ export function VehicleCard({ vehicle }: { vehicle: VehicleCardData }) {
             </div>
           )}
           <div className="absolute left-3 top-3 flex gap-2">
-            <Badge tone="neutral">{vehicle.year}</Badge>
+            <Badge tone="neutral" className="border-white/20 bg-canvas/85 text-heading backdrop-blur">
+              {vehicle.year}
+            </Badge>
             {vehicle.provenanceVerified && (
               <Badge tone="success">
                 <ShieldCheck className="size-3" aria-hidden="true" />

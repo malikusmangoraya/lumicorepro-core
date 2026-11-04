@@ -302,6 +302,21 @@ model Notification {
   @@index([userId, isRead])
 }
 
+/// Uploaded images live in the database because a serverless deployment has no
+/// writable disk. Bytes are served back by /api/media/[id] with a long cache.
+model MediaAsset {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique

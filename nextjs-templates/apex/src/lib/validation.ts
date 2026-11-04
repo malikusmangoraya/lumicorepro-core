@@ -91,6 +91,28 @@ export const orderCreateSchema = z
     path: ['vehicleSlug'],
   });
 
+export const checkoutItemSchema = z.object({
+  kind: z.enum(['product', 'vehicle']),
+  slug: z.string().trim().min(1).max(180),
+  quantity: z.coerce.number().int().min(1).max(99).default(1),
+});
+
+export const checkoutSchema = z.object({
+  email: z.email('Enter a valid email address').max(160).toLowerCase(),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
+  phone: z.string().trim().max(40).optional().or(z.literal('')),
+  address: z.object({
+    line1: z.string().trim().min(3, 'Address is required').max(160),
+    line2: z.string().trim().max(160).optional().or(z.literal('')),
+    city: z.string().trim().min(1, 'City is required').max(80),
+    region: z.string().trim().max(80).optional().or(z.literal('')),
+    postalCode: z.string().trim().max(24).optional().or(z.literal('')),
+    country: z.string().trim().min(2, 'Country is required').max(60),
+  }),
+  notes: z.string().trim().max(2000).optional(),
+  items: z.array(checkoutItemSchema).min(1, 'Your cart is empty').max(20),
+});
+
 export const newsletterSchema = z.object({
   email: z.email('Enter a valid email address').max(160).toLowerCase(),
   source: z.string().trim().max(40).default('footer'),
@@ -168,4 +190,5 @@ export type OrderStatusValue = z.infer<typeof orderStatusSchema>;
 export type OrderQuery = z.infer<typeof orderQuerySchema>;
 export type OrderUpdateInput = z.infer<typeof orderUpdateSchema>;
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
+export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;

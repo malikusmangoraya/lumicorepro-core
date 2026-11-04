@@ -11,6 +11,7 @@ import { FinanceCalculator } from '@/components/vehicle/finance-calculator';
 import { SaveButton } from '@/components/vehicle/save-button';
 import { CompareButton } from '@/components/vehicle/compare-button';
 import { ShareButton } from '@/components/vehicle/share-button';
+import { ReserveVehicleButton } from '@/components/vehicle/reserve-vehicle-button';
 import { InquiryForm } from '@/components/vehicle/inquiry-form';
 import { RecentlyViewed } from '@/components/vehicle/recently-viewed';
 import { RecentlyViewedTracker } from '@/components/vehicle/recently-viewed-tracker';
@@ -195,7 +196,17 @@ export default async function VehicleDetailPage({ params }: { params: Params }) 
                 Taxes and registration are shown at checkout, never bundled into the listed price.
               </p>
 
-              <div className="mt-5 grid grid-cols-2 gap-2">
+              <div className="mt-5">
+                <ReserveVehicleButton
+                  slug={vehicle.slug}
+                  title={vehicle.title}
+                  price={vehicle.price}
+                  currency={vehicle.currency}
+                  image={vehicle.media[0]?.url ?? null}
+                />
+              </div>
+
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 <SaveButton slug={vehicle.slug} title={vehicle.title} variant="full" />
                 <CompareButton slug={vehicle.slug} title={vehicle.title} variant="full" />
               </div>
