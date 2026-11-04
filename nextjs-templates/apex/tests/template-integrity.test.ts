@@ -96,12 +96,27 @@ describe('navigation and headings', () => {
     };
     walk(app);
 
+    // A page may inherit its h1 from a layout (the admin shell renders the
+    // page title), so a page only needs its own when no ancestor provides one.
+    const layoutProvidesH1 = (file: string) => {
+      let dir = path.dirname(file);
+      while (dir.startsWith(app)) {
+        const layout = path.join(dir, 'layout.tsx');
+        if (existsSync(layout) && /<h1[\s>]/.test(readFileSync(layout, 'utf8'))) return true;
+        dir = path.dirname(dir);
+      }
+      return false;
+    };
+
     expect(pages.length).toBeGreaterThan(10);
     for (const page of pages) {
       const source = readFileSync(page, 'utf8');
       const hasH1 =
         /<h1[\s>]/.test(source) || /as="h1"/.test(source) || /as=\{['"]h1['"]\}/.test(source);
-      expect(hasH1, `${path.relative(app, page)} has no h1`).toBe(true);
+      expect(
+        hasH1 || layoutProvidesH1(page),
+        `${path.relative(app, page)} has no h1`,
+      ).toBe(true);
     }
   });
 });

@@ -1,31 +1,60 @@
 import { prisma } from '@/lib/prisma';
-import { created, fail, ok, serverError, tooMany, unauthorized, validate } from '@/lib/api';
+import { created, fail, ok, serverError, unauthorized, validate } from '@/lib/api';
 import { getSession } from '@/lib/auth';
-import { inquirySchema } from '@/lib/validation';
+import { inquiryQuerySchema, inquirySchema } from '@/lib/validation';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
-/** GET /api/inquiries — the signed-in user's own enquiries. */
-export async function GET() {
+/**
+ * GET /api/inquiries
+ *   default  — the signed-in user's own enquiries
+ *   ?scope=all — every enquiry, admin only (the queue behind /admin/inquiries)
+ */
+export async function GET(request: Request) {
   const session = await getSession().catch(() => null);
   if (!session) return unauthorized();
 
+  const { searchParams } = new URL(request.url);
+  const parsed = inquiryQuerySchema.safeParse(Object.fromEntries(searchParams));
+  if (!parsed.success) return validate(parsed.error.flatten());
+
+  const { scope, status, page, perPage } = parsed.data;
+  if (scope === 'all' && session.role !== 'admin') {
+    return unauthorized('Only an admin can read the enquiry queue');
+  }
+
+  const where = {
+    ...(scope === 'all' ? {} : { userId: session.id }),
+    ...(status ? { status } : {}),
+  };
+
   try {
-    const rows = await prisma.inquiry.findMany({
-      where: { userId: session.id },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        status: true,
-        message: true,
-        createdAt: true,
-        vehicle: { select: { slug: true, title: true } },
-      },
-    });
-    return ok(rows);
+    const [items, total] = await Promise.all([
+      prisma.inquiry.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * perPage,
+        take: perPage,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          message: true,
+          status: true,
+          adminNotes: true,
+          createdAt: true,
+          vehicle: { select: { slug: true, title: true } },
+          user: { select: { id: true, email: true } },
+        },
+      }),
+      prisma.inquiry.count({ where }),
+    ]);
+
+    return ok({ items, total, page, perPage, pages: Math.max(1, Math.ceil(total / perPage)) });
   } catch {
-    return serverError('Could not read your enquiries');
+    return serverError('Could not read enquiries');
   }
 }
 
@@ -34,7 +63,7 @@ export async function POST(request: Request) {
   const ip = clientIp(request.headers);
   const limit = rateLimit(`inquiries:${ip}`, 5, 10 * 60 * 1000);
   if (!limit.allowed) {
-    const response = tooMany('Too many enquiries from this address. Try again in a few minutes.');
+    const response = fail('RATE_LIMITED', 'Too many enquiries from this address.', 429);
     response.headers.set('Retry-After', String(limit.retryAfter));
     return response;
   }
@@ -58,7 +87,6 @@ export async function POST(request: Request) {
   try {
     const existing = await prisma.inquiry.findUnique({ where: { idempotencyKey } });
     if (existing) {
-      // A replay is a success: the client's retry did not create a duplicate.
       return ok({ id: existing.id, status: existing.status }, 'Enquiry already received');
     }
 

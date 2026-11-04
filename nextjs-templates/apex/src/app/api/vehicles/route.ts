@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       data: {
         ...input,
         media: JSON.stringify(input.media),
-        inspectionReferences: JSON.stringify([]),
+        inspectionReferences: JSON.stringify(input.inspectionReferences),
         slug,
       },
     });

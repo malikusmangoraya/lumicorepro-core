@@ -71,15 +71,55 @@ export const vehicleCreateSchema = z.object({
   locationRegion: z.string().trim().min(1).max(80),
   status: z.enum(['draft', 'active', 'reserved', 'sold', 'withdrawn']).default('draft'),
   media: z.array(z.object({ url: z.url(), alt: z.string().max(160).default('') })).default([]),
+  inspectionReferences: z.array(z.string().trim().max(200)).max(20).default([]),
   provenanceVerified: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
   conditionNotes: z.string().max(2000).optional(),
   conditionReportUrl: z.url().optional().or(z.literal('')),
   vin: z.string().max(32).optional(),
+});
+
+export const vehicleStatusSchema = z.enum([
+  'draft',
+  'active',
+  'reserved',
+  'sold',
+  'withdrawn',
+]);
+
+/** Every field optional: a PATCH sends only what changed. */
+export const vehicleUpdateSchema = vehicleCreateSchema
+  .partial()
+  .extend({ status: vehicleStatusSchema.optional() });
+
+export const inquiryStatusSchema = z.enum([
+  'new',
+  'contacted',
+  'viewing_scheduled',
+  'closed',
+  'spam',
+]);
+
+export const inquiryUpdateSchema = z.object({
+  status: inquiryStatusSchema.optional(),
+  adminNotes: z.string().trim().max(4000).optional(),
+});
+
+export const inquiryQuerySchema = z.object({
+  scope: z.enum(['mine', 'all']).default('mine'),
+  status: inquiryStatusSchema.optional(),
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  perPage: z.coerce.number().int().min(1).max(100).default(25),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type InquiryInput = z.infer<typeof inquirySchema>;
 export type VehicleQuery = z.infer<typeof vehicleQuerySchema>;
+export type VehicleUpdateInput = z.infer<typeof vehicleUpdateSchema>;
+export type VehicleStatus = z.infer<typeof vehicleStatusSchema>;
+export type InquiryStatus = z.infer<typeof inquiryStatusSchema>;
+export type InquiryUpdateInput = z.infer<typeof inquiryUpdateSchema>;
+export type InquiryQuery = z.infer<typeof inquiryQuerySchema>;
 export type NewsletterInput = z.infer<typeof newsletterSchema>;
 export type VehicleCreateInput = z.infer<typeof vehicleCreateSchema>;
