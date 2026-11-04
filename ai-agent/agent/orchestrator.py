@@ -1431,6 +1431,8 @@ class AgentOrchestrator:
                 "animations_count": len(selected_assets.get("animations", [])),
                 "backend": selected_backend.get("name") if selected_backend else "Default Express",
                 "database_schemas": [s.get("name") for s in selected_schemas],
+                "backend_stack": tech_stack.get("backend_stack"),
+                "technology_choices": tech_stack.get("technology_choices", {}),
                 "tech_stack": tech_stack,
                 "trending_features": trending_result.get("feature_ids", []),
             },
@@ -1870,7 +1872,13 @@ class AgentOrchestrator:
             tech_stack = self._run_phase_safe(
                 "Phase 3 - Tech Stack Selection",
                 self.tech_stack_selector.select,
-                func_args=[spec, selected_backend, selected_schemas],
+                func_args=[
+                    {**spec, "prompt": prompt},
+                    selected_backend,
+                    selected_schemas,
+                    spec.get("backend_stack"),
+                    spec.get("technology_choices"),
+                ],
                 fallback={}
             )
             phase_log["phase_3_tech_stack"] = tech_stack
@@ -1924,7 +1932,7 @@ class AgentOrchestrator:
 
             plan = self.planner.create_plan(
                 spec, selected_template, selected_components,
-                selected_assets, selected_backend, selected_schemas,
+                selected_assets, selected_backend, selected_schemas, tech_stack,
             )
             plan["spec"] = spec
             plan["rag_context"] = rag_context

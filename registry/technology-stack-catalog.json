@@ -1,0 +1,435 @@
+{
+  "version": "2.0.0",
+  "languages": {
+    "nodejs": {
+      "id": "nodejs",
+      "label": "Node.js",
+      "scaffold_supported": true,
+      "frameworks": [
+        {
+          "id": "express",
+          "label": "Express",
+          "scaffold_supported": true,
+          "orms": ["prisma", "sequelize", "typeorm", "drizzle", "mongoose"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "nestjs",
+          "label": "NestJS",
+          "scaffold_supported": false,
+          "orms": ["prisma", "typeorm", "mongoose"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "fastify",
+          "label": "Fastify",
+          "scaffold_supported": false,
+          "orms": ["prisma", "sequelize", "typeorm", "drizzle", "mongoose"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "hono",
+          "label": "Hono",
+          "scaffold_supported": false,
+          "orms": ["prisma", "drizzle", "mongoose"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "mongodb"]
+        },
+        {
+          "id": "adonisjs",
+          "label": "AdonisJS",
+          "scaffold_supported": false,
+          "orms": ["prisma", "sequelize", "typeorm"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server"]
+        }
+      ]
+    },
+    "python": {
+      "id": "python",
+      "label": "Python",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "fastapi",
+          "label": "FastAPI",
+          "orms": ["sqlalchemy", "sqlmodel", "tortoise-orm", "pymongo"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "django",
+          "label": "Django",
+          "orms": ["django-orm"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server"]
+        },
+        {
+          "id": "flask",
+          "label": "Flask",
+          "orms": ["sqlalchemy", "pymongo"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "litestar",
+          "label": "Litestar",
+          "orms": ["sqlalchemy", "sqlmodel", "pymongo"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    },
+    "php": {
+      "id": "php",
+      "label": "PHP",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "laravel",
+          "label": "Laravel",
+          "orms": ["eloquent", "doctrine", "mongodb-laravel"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "symfony",
+          "label": "Symfony",
+          "orms": ["doctrine", "mongodb-odm"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "slim",
+          "label": "Slim",
+          "orms": ["doctrine", "illuminate-database"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server"]
+        },
+        {
+          "id": "api-platform",
+          "label": "API Platform",
+          "orms": ["doctrine"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server"]
+        }
+      ]
+    },
+    "java": {
+      "id": "java",
+      "label": "Java",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "spring-boot",
+          "label": "Spring Boot",
+          "orms": ["hibernate", "spring-data-jpa", "mybatis"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "quarkus",
+          "label": "Quarkus",
+          "orms": ["hibernate-orm", "panache", "mongodb-panache"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "micronaut",
+          "label": "Micronaut",
+          "orms": ["micronaut-data", "hibernate"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    },
+    "go": {
+      "id": "go",
+      "label": "Go",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "gin",
+          "label": "Gin",
+          "orms": ["gorm", "sqlc", "ent", "mongo-driver"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "echo",
+          "label": "Echo",
+          "orms": ["gorm", "sqlc", "ent", "mongo-driver"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "fiber",
+          "label": "Fiber",
+          "orms": ["gorm", "sqlc", "ent", "mongo-driver"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "chi",
+          "label": "Chi",
+          "orms": ["gorm", "sqlc", "ent", "mongo-driver"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    },
+    "dotnet": {
+      "id": "dotnet",
+      "label": "C# / .NET",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "aspnet-core",
+          "label": "ASP.NET Core",
+          "orms": ["entity-framework-core", "dapper", "mongodb-driver"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    },
+    "ruby": {
+      "id": "ruby",
+      "label": "Ruby",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "rails",
+          "label": "Rails",
+          "orms": ["activerecord", "mongoid"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        },
+        {
+          "id": "sinatra",
+          "label": "Sinatra",
+          "orms": ["activerecord", "sequel", "mongoid"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    },
+    "rust": {
+      "id": "rust",
+      "label": "Rust",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "axum",
+          "label": "Axum",
+          "scaffold_supported": false,
+          "orms": ["sqlx", "diesel"],
+          "databases": ["postgresql", "mysql", "sqlite"]
+        },
+        {
+          "id": "actix-web",
+          "label": "Actix Web",
+          "scaffold_supported": false,
+          "orms": ["sqlx", "diesel"],
+          "databases": ["postgresql", "mysql", "sqlite"]
+        }
+      ]
+    },
+    "elixir": {
+      "id": "elixir",
+      "label": "Elixir",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "phoenix",
+          "label": "Phoenix",
+          "scaffold_supported": false,
+          "orms": ["ecto"],
+          "databases": ["postgresql", "mysql", "sqlite"]
+        }
+      ]
+    },
+    "kotlin": {
+      "id": "kotlin",
+      "label": "Kotlin",
+      "scaffold_supported": false,
+      "frameworks": [
+        {
+          "id": "micronaut",
+          "label": "Micronaut",
+          "scaffold_supported": false,
+          "orms": ["micronaut-data", "hibernate"],
+          "databases": ["postgresql", "mysql", "mariadb", "sqlite", "sql-server", "mongodb"]
+        }
+      ]
+    }
+  },
+  "orm_database_types": {
+    "prisma": ["relational", "document"],
+    "sequelize": ["relational"],
+    "typeorm": ["relational", "document"],
+    "drizzle": ["relational"],
+    "mongoose": ["document"],
+    "sqlalchemy": ["relational"],
+    "sqlmodel": ["relational"],
+    "tortoise-orm": ["relational"],
+    "pymongo": ["document"],
+    "django-orm": ["relational"],
+    "eloquent": ["relational"],
+    "doctrine": ["relational"],
+    "mongodb-laravel": ["document"],
+    "mongodb-odm": ["document"],
+    "illuminate-database": ["relational"],
+    "hibernate": ["relational"],
+    "spring-data-jpa": ["relational"],
+    "mybatis": ["relational"],
+    "hibernate-orm": ["relational"],
+    "panache": ["relational"],
+    "mongodb-panache": ["document"],
+    "micronaut-data": ["relational", "document"],
+    "gorm": ["relational"],
+    "sqlc": ["relational"],
+    "ent": ["relational"],
+    "mongo-driver": ["document"],
+    "entity-framework-core": ["relational"],
+    "dapper": ["relational"],
+    "mongodb-driver": ["document"],
+    "activerecord": ["relational"],
+    "mongoid": ["document"],
+    "sequel": ["relational"],
+    "sqlx": ["relational"],
+    "diesel": ["relational"],
+    "ecto": ["relational"]
+  },
+  "databases": [
+    {"id": "postgresql", "label": "PostgreSQL", "type": "relational"},
+    {"id": "mysql", "label": "MySQL", "type": "relational"},
+    {"id": "mariadb", "label": "MariaDB", "type": "relational"},
+    {"id": "sqlite", "label": "SQLite", "type": "relational"},
+    {"id": "sql-server", "label": "SQL Server", "type": "relational"},
+    {"id": "mongodb", "label": "MongoDB", "type": "document"}
+  ],
+  "api_styles": [
+    {"id": "rest", "label": "REST"},
+    {"id": "graphql", "label": "GraphQL"},
+    {"id": "grpc", "label": "gRPC"}
+  ],
+  "architectures": [
+    {"id": "modular-monolith", "label": "Modular monolith"},
+    {"id": "microservices", "label": "Microservices"},
+    {"id": "serverless", "label": "Serverless"}
+  ],
+  "authentication": [
+    {"id": "jwt", "label": "JWT"},
+    {"id": "oauth2-oidc", "label": "OAuth2 / OIDC"},
+    {"id": "session", "label": "Session authentication"}
+  ],
+  "cache_options": [
+    {"id": "none", "label": "No cache"},
+    {"id": "redis", "label": "Redis"},
+    {"id": "in-memory", "label": "In-memory"}
+  ],
+  "queue_options": [
+    {"id": "none", "label": "No queue"},
+    {"id": "redis", "label": "Redis"},
+    {"id": "rabbitmq", "label": "RabbitMQ"},
+    {"id": "kafka", "label": "Apache Kafka"},
+    {"id": "aws-sqs", "label": "AWS SQS"}
+  ],
+  "testing_options": [
+    {"id": "unit-integration", "label": "Unit and integration tests"},
+    {"id": "contract", "label": "Contract tests"},
+    {"id": "end-to-end", "label": "End-to-end tests"},
+    {"id": "load", "label": "Load tests"}
+  ],
+  "observability_options": [
+    {"id": "structured-logging", "label": "Structured logging"},
+    {"id": "metrics-tracing", "label": "Metrics and distributed tracing"},
+    {"id": "opentelemetry", "label": "OpenTelemetry"}
+  ],
+  "deployment_options": [
+    {"id": "docker", "label": "Docker container"},
+    {"id": "kubernetes", "label": "Kubernetes"},
+    {"id": "managed-container", "label": "Managed container platform"},
+    {"id": "serverless", "label": "Serverless platform"}
+  ],
+  "frontend_frameworks": [
+    {"id": "react-vite", "label": "React + Vite", "category": "frontend_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "cloudflare-pages", "status": "compatible"}, {"group": "hosting_providers", "id": "netlify", "status": "compatible"}, {"group": "hosting_providers", "id": "vercel", "status": "compatible"}, {"group": "hosting_providers", "id": "github-pages", "status": "compatible"}]},
+    {"id": "nextjs", "label": "Next.js", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "compatible"}, {"group": "hosting_providers", "id": "netlify", "status": "unknown"}, {"group": "hosting_providers", "id": "cloudflare-pages", "status": "unknown"}]},
+    {"id": "sveltekit", "label": "SvelteKit", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "compatible"}, {"group": "hosting_providers", "id": "cloudflare-pages", "status": "compatible"}, {"group": "hosting_providers", "id": "netlify", "status": "compatible"}]},
+    {"id": "nuxt", "label": "Nuxt", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "compatible"}, {"group": "hosting_providers", "id": "netlify", "status": "compatible"}, {"group": "hosting_providers", "id": "cloudflare-pages", "status": "unknown"}]},
+    {"id": "astro", "label": "Astro", "category": "frontend_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "compatible"}, {"group": "hosting_providers", "id": "netlify", "status": "compatible"}, {"group": "hosting_providers", "id": "cloudflare-pages", "status": "compatible"}, {"group": "hosting_providers", "id": "github-pages", "status": "compatible"}]},
+    {"id": "tanstack-start", "label": "TanStack Start", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "unknown"}, {"group": "hosting_providers", "id": "netlify", "status": "unknown"}]},
+    {"id": "react-router-framework", "label": "React Router Framework", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "unknown"}, {"group": "hosting_providers", "id": "netlify", "status": "unknown"}]},
+    {"id": "qwik-city", "label": "Qwik City", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "cloudflare-pages", "status": "compatible"}, {"group": "hosting_providers", "id": "vercel", "status": "unknown"}]},
+    {"id": "solidstart", "label": "SolidStart", "category": "fullstack_framework", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "hosting_providers", "id": "vercel", "status": "unknown"}, {"group": "hosting_providers", "id": "netlify", "status": "unknown"}]}
+  ],
+  "admin_platforms": [
+    {"id": "payload", "label": "Payload CMS", "category": "cms", "capability_status": "catalog_only_not_generated", "compatibility": [{"group": "frontend_frameworks", "id": "nextjs", "status": "compatible"}]},
+    {"id": "strapi", "label": "Strapi", "category": "headless_cms", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "directus", "label": "Directus", "category": "database_admin", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "appsmith", "label": "Appsmith", "category": "internal_tools", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "budibase", "label": "Budibase", "category": "internal_tools", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "hosting_providers": [
+    {"id": "cloudflare-pages", "label": "Cloudflare Pages", "category": "frontend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://developers.cloudflare.com/pages/", "compatibility": []},
+    {"id": "netlify", "label": "Netlify", "category": "frontend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://docs.netlify.com/", "compatibility": []},
+    {"id": "vercel", "label": "Vercel", "category": "frontend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://vercel.com/docs", "compatibility": []},
+    {"id": "github-pages", "label": "GitHub Pages", "category": "frontend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://docs.github.com/pages", "compatibility": []},
+    {"id": "cloudflare-workers", "label": "Cloudflare Workers", "category": "backend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://developers.cloudflare.com/workers/", "compatibility": []},
+    {"id": "render", "label": "Render", "category": "backend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://render.com/docs", "compatibility": []},
+    {"id": "vercel-functions", "label": "Vercel Functions", "category": "backend_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://vercel.com/docs/functions", "compatibility": []},
+    {"id": "firebase", "label": "Firebase", "category": "backend_and_database_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://firebase.google.com/docs", "compatibility": []},
+    {"id": "docker-self-hosted", "label": "Docker self-hosted", "category": "backend_host", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "supabase", "label": "Supabase", "category": "database_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://supabase.com/docs", "compatibility": []},
+    {"id": "mongodb-atlas", "label": "MongoDB Atlas", "category": "database_host", "capability_status": "catalog_only_not_generated", "docs_url": "https://www.mongodb.com/docs/atlas/", "compatibility": []}
+  ],
+  "testing_tools": [
+    {"id": "vitest", "label": "Vitest", "category": "frontend_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "react-testing-library", "label": "React Testing Library", "category": "frontend_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "jest", "label": "Jest", "category": "testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "playwright", "label": "Playwright", "category": "end_to_end_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "cypress", "label": "Cypress", "category": "end_to_end_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "lighthouse", "label": "Lighthouse", "category": "web_quality", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "bruno", "label": "Bruno", "category": "api_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "postman", "label": "Postman", "category": "api_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "supertest", "label": "Supertest", "category": "api_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "pytest", "label": "pytest", "category": "python_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "phpunit", "label": "PHPUnit", "category": "php_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "junit", "label": "JUnit", "category": "jvm_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "xunit", "label": "xUnit", "category": "dotnet_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "curl", "label": "curl", "category": "api_testing", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "quality_tools": [
+    {"id": "k6", "label": "k6", "category": "performance_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "owasp-zap", "label": "OWASP ZAP", "category": "security_testing", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "npm-audit", "label": "npm audit", "category": "dependency_audit", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "composer-audit", "label": "composer audit", "category": "dependency_audit", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "pip-audit", "label": "pip-audit", "category": "dependency_audit", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "dependabot", "label": "Dependabot", "category": "dependency_updates", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "chrome-devtools", "label": "Chrome DevTools", "category": "browser_diagnostics", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "ci_providers": [
+    {"id": "github-actions", "label": "GitHub Actions", "category": "continuous_integration", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "source_control_providers": [
+    {"id": "github", "label": "GitHub", "category": "source_control", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "authentication_profiles": [
+    {"id": "secure-cookie-session", "label": "Secure cookies and server sessions", "category": "session_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "jwt", "label": "JWT bearer authentication", "category": "token_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "oauth2-oidc", "label": "OAuth 2.0 / OIDC", "category": "delegated_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "social-login", "label": "Social login", "category": "federated_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "authentication_libraries": [
+    {"id": "authjs", "label": "Auth.js", "category": "javascript_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "better-auth", "label": "Better Auth", "category": "javascript_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "passportjs", "label": "Passport.js", "category": "javascript_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "laravel-socialite", "label": "Laravel Socialite", "category": "php_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "spring-security-oauth2-client", "label": "Spring Security OAuth2 Client", "category": "java_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "aspnet-oidc", "label": "ASP.NET Core OIDC handlers", "category": "dotnet_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "django-allauth", "label": "Django allauth", "category": "python_authentication", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ],
+  "engineering_topics": [
+    {"id": "password-security", "label": "Password security", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "rbac-abac", "label": "RBAC and ABAC authorization", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "csrf-xss", "label": "CSRF and XSS defenses", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "sql-injection", "label": "SQL injection prevention", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "input-validation", "label": "Input validation", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "rate-limiting", "label": "Rate limiting", "category": "security", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "file-uploads", "label": "Secure file uploads", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "email", "label": "Email delivery", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "webhooks", "label": "Webhooks", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "background-queues", "label": "Background queues", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "caching", "label": "Caching", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "database-transactions", "label": "Database transactions", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "search", "label": "Search", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "real-time-systems", "label": "Real-time systems", "category": "backend", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "observability", "label": "Observability", "category": "operations", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "internationalization", "label": "Internationalization, timezones, and currency", "category": "product_quality", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "accessibility", "label": "Accessibility", "category": "product_quality", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "seo", "label": "Search engine optimization", "category": "product_quality", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "backups", "label": "Backup and restore", "category": "operations", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "architecture", "label": "Software architecture", "category": "architecture", "capability_status": "catalog_only_not_generated", "compatibility": []},
+    {"id": "scalability", "label": "Scalability", "category": "architecture", "capability_status": "catalog_only_not_generated", "compatibility": []}
+  ]
+}

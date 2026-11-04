@@ -21,6 +21,84 @@ export const AI_AGENT_TIMEOUTS = {
   extension: 120000,
 };
 
+const BACKEND_STACK_FIELDS = new Set([
+  'language',
+  'framework',
+  'database',
+  'orm',
+  'api_style',
+  'architecture',
+  'authentication',
+  'cache',
+  'queue',
+  'testing',
+  'observability',
+  'deployment',
+]);
+
+const TECHNOLOGY_CHOICE_FIELDS = new Set([
+  'frontend_framework',
+  'admin_platform',
+  'frontend_host',
+  'backend_host',
+  'database_host',
+  'source_control_provider',
+  'testing_tools',
+  'quality_tools',
+  'ci_provider',
+  'authentication_profile',
+]);
+const TECHNOLOGY_CHOICE_LIST_FIELDS = new Set(['testing_tools', 'quality_tools']);
+
+export function validateTechnologyChoicesPayload(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError('technology_choices must be an object.');
+  }
+
+  for (const [key, choice] of Object.entries(value)) {
+    if (!TECHNOLOGY_CHOICE_FIELDS.has(key)) {
+      throw new TypeError(`Unknown technology_choices field: ${key}.`);
+    }
+    if (TECHNOLOGY_CHOICE_LIST_FIELDS.has(key)) {
+      if (
+        !Array.isArray(choice) ||
+        choice.some((item) => typeof item !== 'string' || !item.trim())
+      ) {
+        throw new TypeError(`technology_choices.${key} must be a list of non-empty IDs.`);
+      }
+    } else if (typeof choice !== 'string' || !choice.trim()) {
+      throw new TypeError(`technology_choices.${key} must be a non-empty catalog ID.`);
+    }
+  }
+
+  return { ...value };
+}
+
+export function validateBackendStackPayload(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError('backend_stack must be an object.');
+  }
+
+  for (const key of Object.keys(value)) {
+    if (key !== 'mode' && !BACKEND_STACK_FIELDS.has(key)) {
+      throw new TypeError(`Unknown backend_stack field: ${key}.`);
+    }
+  }
+
+  if (value.mode !== undefined && !['auto', 'manual'].includes(value.mode)) {
+    throw new TypeError("backend_stack.mode must be 'auto' or 'manual'.");
+  }
+  for (const key of BACKEND_STACK_FIELDS) {
+    if (value[key] !== undefined && (typeof value[key] !== 'string' || !value[key].trim())) {
+      throw new TypeError(`backend_stack.${key} must be a non-empty catalog ID.`);
+    }
+  }
+
+  return { ...value };
+}
+
 export function agentBaseUrl(value = process.env.AI_AGENT_URL || 'http://localhost:8000') {
   let url;
   try {

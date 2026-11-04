@@ -107,6 +107,9 @@ from utils import tracing as trace_util
 from agent import run_status as rs
 from agent.memory_retriever import MemoryRetriever
 from agent.orchestrator import PipelineCancelled
+from agent.tech_stack_selector import resolve_backend_stack, validate_backend_stack
+from agent.technology_choices import resolve_technology_choices
+from agent.technology_catalog import get_seeded_catalog, initialize_technology_catalog
 from contextlib import asynccontextmanager
 
 
@@ -167,6 +170,8 @@ def _client_completion_result(report: Dict[str, Any]) -> Dict[str, Any]:
             "template": resources.get("template"),
             "components": (resources.get("components") or [])[:30],
             "backend": resources.get("backend"),
+            "backend_stack": resources.get("backend_stack"),
+            "technology_choices": resources.get("technology_choices") or {},
             "trending_features": resources.get("trending_features") or [],
         },
         "quality_gates": {
@@ -182,6 +187,33 @@ def _client_completion_result(report: Dict[str, Any]) -> Dict[str, Any]:
         "reason": report.get("reason"),
         "skipped_phases": report.get("skipped_phases") or [],
     }
+
+
+def _uses_default_backend_stack_cache(
+    backend_stack: Optional[Dict[str, Any]],
+    *,
+    prompt: str = "",
+    technology_choices: Optional[Dict[str, Any]] = None,
+) -> bool:
+    """Only use prompt-only cache entries when all technology choices are default."""
+    if technology_choices:
+        return False
+    default_stack = resolve_backend_stack({})
+    requested_stack = resolve_backend_stack({"prompt": prompt}, backend_stack)
+    return requested_stack == default_stack
+
+
+def _validate_request_technology_choices(
+    choices: Optional[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Validate catalog IDs and reject explicitly incompatible manual choices."""
+    if choices is None:
+        return None
+    try:
+        return resolve_technology_choices({}, choices, mode="manual")["choices"]
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
 
 # ── Lifespan handler (replaces deprecated @app.on_event) ──────────────────
 @asynccontextmanager
@@ -200,6 +232,7 @@ async def _lifespan(application: "FastAPI"):
         agent_logger.warning("Startup provider configuration issue: %s", provider_startup["error"])
     if not os.path.exists(AGENT_DB_PATH):
         init_database()
+    initialize_technology_catalog(AGENT_DB_PATH)
     interrupted = _pipeline_store.mark_interrupted(time.time())
     if interrupted:
         agent_logger.warning(f"Marked {len(interrupted)} stale pipeline run(s) as interrupted.")
@@ -739,6 +772,12 @@ class GenerateRequest(BaseModel):
     animation_intensity: Optional[str] = Field(None, description="Premium motion level injected post-build: high | medium | low | none. Defaults to 'high' (scroll-reveal + stagger + hover micro-motion).")
     image: Optional[str] = Field(None, description=_VISION_SOURCE_DOC + " Runs vision layout extraction (Phase 0) before generation.")
     files: Optional[List[FileAttachment]] = Field(default_factory=list, description="Extra attached files: images (screenshots) + documents (PDF/DOCX/XLSX/TXT/code) whose text is injected into the plan.")
+    backend_stack: Optional[Dict[str, Any]] = Field(
+        None, description="Optional backend stack selection from /api/technology-catalog."
+    )
+    technology_choices: Optional[Dict[str, Any]] = Field(
+        None, description="Optional catalog technology choices; these do not imply generation."
+    )
 
 
 class AutoRequest(BaseModel):
@@ -758,6 +797,12 @@ class DryRunRequest(BaseModel):
     prompt: str = Field(..., min_length=5, max_length=2000)
     provider: Optional[str] = "gemini"
     design_style: Optional[str] = Field(None, description="Named design style override (see GenerateRequest)")
+    backend_stack: Optional[Dict[str, Any]] = Field(
+        None, description="Optional backend stack selection from /api/technology-catalog."
+    )
+    technology_choices: Optional[Dict[str, Any]] = Field(
+        None, description="Optional catalog technology choices; these do not imply generation."
+    )
 
 
 class ReverseEngineerRequest(BaseModel):
@@ -817,7 +862,18 @@ class IterateRequest(BaseModel):
 
 
 # ── Background generation task ─────────────────────────────────────────────
-async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], design_style: Optional[str] = None, buyer_type: Optional[str] = None, image: Optional[str] = None, animation_intensity: Optional[str] = None, extra_spec: Optional[Dict[str, Any]] = None):
+async def _run_pipeline(
+    run_id: str,
+    prompt: str,
+    provider: Optional[str],
+    design_style: Optional[str] = None,
+    buyer_type: Optional[str] = None,
+    image: Optional[str] = None,
+    animation_intensity: Optional[str] = None,
+    extra_spec: Optional[Dict[str, Any]] = None,
+    backend_stack: Optional[Dict[str, Any]] = None,
+    technology_choices: Optional[Dict[str, Any]] = None,
+):
     """Execute the 15-phase pipeline in a thread and stream events."""
     run = _runs[run_id]
     async with _run_semaphore:
@@ -855,11 +911,15 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
         # ── Semantic cache: replay an identical/similar successful build ──
         # 30–50% of provider spend is repeat prompts; a hit skips the whole
         # 18-phase pipeline and returns the stored, quality-gated report.
-        try:
-            from agent.semantic_cache import get_semantic_cache
-            cache_hit = get_semantic_cache().lookup(prompt)
-        except Exception:  # noqa: BLE001
-            cache_hit = None
+        cache_hit = None
+        if _uses_default_backend_stack_cache(
+            backend_stack, prompt=prompt, technology_choices=technology_choices
+        ):
+            try:
+                from agent.semantic_cache import get_semantic_cache
+                cache_hit = get_semantic_cache().lookup(prompt)
+            except Exception:  # noqa: BLE001
+                cache_hit = None
         if cache_hit and isinstance(cache_hit.get("report"), dict) and os.path.isdir(
             str((cache_hit["report"] or {}).get("generated_project_dir") or "")
         ):
@@ -921,6 +981,10 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
                 if image:
                     extra_spec["screenshot"] = image
                 extra_spec["animation_intensity"] = animation_intensity or "high"
+                if backend_stack is not None:
+                    extra_spec["backend_stack"] = backend_stack
+                if technology_choices is not None:
+                    extra_spec["technology_choices"] = technology_choices
                 extra_spec = extra_spec or None
                 return orchestrator.run(
                     prompt,
@@ -974,7 +1038,14 @@ async def _run_pipeline(run_id: str, prompt: str, provider: Optional[str], desig
                 from agent.semantic_cache import get_semantic_cache
                 from agent.quality_trends import get_quality_tracker
                 _qscore = (report.get("quality_gates", {}) or {}).get("overall_score")
-                if report_status in ("succeeded", "succeeded_with_skips"):
+                if (
+                    report_status in ("succeeded", "succeeded_with_skips")
+                    and _uses_default_backend_stack_cache(
+                        backend_stack,
+                        prompt=prompt,
+                        technology_choices=technology_choices,
+                    )
+                ):
                     get_semantic_cache().store(prompt, report, quality_score=_qscore)
                 trend = get_quality_tracker().record(
                     _qscore,
@@ -1046,7 +1117,9 @@ def _persist_history(prompt: str, provider: str, report: dict):
 # ── Streaming pipeline (critical path + background parallel) ──────────────
 async def _run_stream_pipeline(run_id: str, prompt: str, provider: Optional[str],
                                 design_style: Optional[str] = None, buyer_type: Optional[str] = None,
-                                image: Optional[str] = None, animation_intensity: Optional[str] = None):
+                                image: Optional[str] = None, animation_intensity: Optional[str] = None,
+                                backend_stack: Optional[Dict[str, Any]] = None,
+                                technology_choices: Optional[Dict[str, Any]] = None):
     """Execute the DAG-aware parallel pipeline with critical path + background workers."""
     from agent.pipeline import StreamPipeline, PipelineCancelled as StreamCancelled
 
@@ -1124,6 +1197,10 @@ async def _run_stream_pipeline(run_id: str, prompt: str, provider: Optional[str]
                 if image:
                     extra_spec["screenshot"] = image
                 extra_spec["animation_intensity"] = animation_intensity or "high"
+                if backend_stack is not None:
+                    extra_spec["backend_stack"] = backend_stack
+                if technology_choices is not None:
+                    extra_spec["technology_choices"] = technology_choices
                 # Phase 1 already ran on the critical path — hand the result in
                 # so the orchestrator does not analyze the market twice.
                 if market_result:
@@ -1401,6 +1478,12 @@ async def memory_history(limit: int = 50):
 async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends(_verify_api_key),
                    x_api_key: Optional[str] = Header(default=None)):
     """Start a generation run. Returns run_id immediately; connect to /ws/generate/{run_id} for streaming."""
+    try:
+        backend_stack = validate_backend_stack(req.backend_stack)
+        technology_choices = _validate_request_technology_choices(req.technology_choices)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     client_ip = _get_client_ip(request)
     if not _check_rate_limit(client_ip):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Max 30 requests/minute per IP.")
@@ -1430,6 +1513,8 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         "task": None, "cancel_requested": False,
         "language": req.language or "en",
         "region": req.region,
+        "backend_stack": backend_stack,
+        "technology_choices": technology_choices,
         "created_at": datetime.utcnow().isoformat(),
         "owner_id": user["id"] if user else None,
     }
@@ -1489,7 +1574,10 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         _runs[run_id]["user_id"] = user["id"]
         _runs[run_id]["credits_reserved"] = credits_reserved
 
-    task = asyncio.create_task(_run_pipeline(run_id, effective_prompt, req.provider, req.design_style, req.buyer_type, screenshot, req.animation_intensity))
+    task = asyncio.create_task(_run_pipeline(
+        run_id, effective_prompt, req.provider, req.design_style, req.buyer_type,
+        screenshot, req.animation_intensity, backend_stack, technology_choices,
+    ))
     _runs[run_id]["task"] = task
     return {
         "run_id": run_id,
@@ -1497,6 +1585,7 @@ async def generate(req: GenerateRequest, request: Request, _auth: bool = Depends
         "ws_url": f"/ws/generate/{run_id}",
         "language": req.language,
         "region": req.region,
+        "technology_choices": technology_choices,
         "vision_mode": vision_mode,
         "credits_reserved": credits_reserved,
     }
@@ -1799,6 +1888,12 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
     Returns run_id + ws_url + sse_url immediately. Connect to /ws/generate/{run_id}
     or GET /api/generate/{run_id}/events for SSE fallback.
     """
+    try:
+        backend_stack = validate_backend_stack(req.backend_stack)
+        technology_choices = _validate_request_technology_choices(req.technology_choices)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     client_ip = _get_client_ip(request)
     if not _check_rate_limit(client_ip):
         raise HTTPException(status_code=429, detail="Rate limit exceeded.")
@@ -1809,6 +1904,8 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
         "status": "queued", "events": [], "result": None, "error": None,
         "task": None, "cancel_requested": False,
         "language": req.language or "en", "region": req.region,
+        "backend_stack": backend_stack,
+        "technology_choices": technology_choices,
         "created_at": datetime.utcnow().isoformat(), "pipeline_mode": "stream",
         "owner_id": user["id"] if user else None,
     }
@@ -1844,7 +1941,10 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
         _runs[run_id]["credits_reserved"] = credits_reserved
 
     task = asyncio.create_task(
-        _run_stream_pipeline(run_id, effective_prompt, req.provider, req.design_style, req.buyer_type, screenshot, req.animation_intensity)
+        _run_stream_pipeline(
+            run_id, effective_prompt, req.provider, req.design_style, req.buyer_type,
+            screenshot, req.animation_intensity, backend_stack, technology_choices,
+        )
     )
     _runs[run_id]["task"] = task
     return {
@@ -1855,6 +1955,7 @@ async def generate_stream(req: GenerateRequest, request: Request, _auth: bool = 
         "pipeline_mode": "stream",
         "language": req.language,
         "region": req.region,
+        "technology_choices": technology_choices,
         "credits_reserved": credits_reserved,
     }
 
@@ -2039,6 +2140,12 @@ async def dry_run(req: DryRunRequest, _auth: bool = Depends(_verify_api_key)):
     import asyncio
     from agent.orchestrator import AgentOrchestrator
 
+    try:
+        backend_stack_selection = validate_backend_stack(req.backend_stack)
+        technology_choices = _validate_request_technology_choices(req.technology_choices)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     loop = asyncio.get_event_loop()
 
     def _sync():
@@ -2051,7 +2158,16 @@ async def dry_run(req: DryRunRequest, _auth: bool = Depends(_verify_api_key)):
         assets = orchestrator.asset_selector.select_assets(spec)
         backend = orchestrator.backend_selector.select_backend(spec)
         schemas = orchestrator.database_selector.select_schemas(spec)
-        plan = orchestrator.planner.create_plan(spec, template, components, assets, backend, schemas)
+        tech_stack = orchestrator.tech_stack_selector.select(
+            {**spec, "prompt": req.prompt},
+            backend,
+            schemas,
+            backend_stack_selection,
+            technology_choices,
+        )
+        plan = orchestrator.planner.create_plan(
+            spec, template, components, assets, backend, schemas, tech_stack
+        )
         style = orchestrator.design_engine.resolve_style(spec)
         return {
             "project_name": plan.get("project_name"),
@@ -2061,6 +2177,10 @@ async def dry_run(req: DryRunRequest, _auth: bool = Depends(_verify_api_key)):
             "components_count": len(components),
             "components": [c["name"] for c in components],
             "backend": backend.get("name") if backend else "Default Express",
+            "backend_stack": tech_stack.get("backend_stack"),
+            "technology_choices": tech_stack.get("technology_choices", {}),
+            "technology_guidance": tech_stack.get("technology_guidance", ""),
+            "scaffold_status": tech_stack["backend_stack"]["scaffold_status"],
             "schemas": [s.get("name") for s in schemas],
             "assembly_steps": len(plan.get("assembly_steps", [])),
             "ai_tasks": len(plan.get("ai_tasks_required", [])),
@@ -2124,6 +2244,15 @@ async def reverse_engineer_repo(req: ReverseEngineerRequest,
     if not req.include_report:
         result.pop("report_markdown", None)
     return {"success": True, "path": str(target), **result}
+
+
+@app.get("/api/technology-catalog", tags=["System"])
+async def technology_catalog(_auth: bool = Depends(_verify_api_key)):
+    """Return the supported backend stack choices and advanced options."""
+    try:
+        return {"catalog": get_seeded_catalog(AGENT_DB_PATH)}
+    except RuntimeError as exc:
+        raise _internal_error(exc) from exc
 
 
 @app.get("/api/runs/{run_id}", tags=["Generation"])

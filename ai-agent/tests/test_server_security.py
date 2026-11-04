@@ -174,6 +174,7 @@ def test_client_completion_result_includes_workflow_roles_without_phase_log():
             "components": ["Header", "Catalog"],
             "backend": "Express",
             "trending_features": ["search"],
+            "backend_stack": {"language": "python", "framework": "fastapi"},
         },
         "quality_gates": {"overall_score": 91},
         "workflow_agents": {"qa_deployment": {"status": "ready"}},
@@ -185,7 +186,188 @@ def test_client_completion_result_includes_workflow_roles_without_phase_log():
     assert result["project_name"] == "shop"
     assert result["workflow_agents"] == report["workflow_agents"]
     assert result["selected_resources"]["components"] == ["Header", "Catalog"]
+    assert result["selected_resources"]["backend_stack"] == {
+        "language": "python",
+        "framework": "fastapi",
+    }
     assert "phase_results" not in result
+
+
+def test_generate_request_preserves_backend_stack_selection():
+    request = server_mod.GenerateRequest(
+        prompt="Build a bakery website",
+        backend_stack={"mode": "manual", "language": "python", "framework": "fastapi"},
+        technology_choices={"frontend_framework": "nextjs"},
+    )
+
+    assert request.backend_stack == {
+        "mode": "manual",
+        "language": "python",
+        "framework": "fastapi",
+    }
+    assert request.technology_choices == {"frontend_framework": "nextjs"}
+
+
+@pytest.mark.parametrize(
+    ("selection", "prompt", "should_use_default_cache"),
+    [
+        (None, "Build a bakery website", True),
+        ({"mode": "auto"}, "Build a bakery website", True),
+        ({"mode": "manual", "language": "python"}, "Build a bakery website", False),
+        ({"mode": "auto", "language": "python"}, "Build a bakery website", False),
+        (None, "Build a Python API with FastAPI", False),
+    ],
+)
+def test_non_default_backend_selection_does_not_reuse_default_stack_cache(
+    selection, prompt, should_use_default_cache
+):
+    assert (
+        server_mod._uses_default_backend_stack_cache(selection, prompt=prompt)
+        is should_use_default_cache
+    )
+
+
+def test_technology_choice_override_bypasses_prompt_only_cache():
+    assert not server_mod._uses_default_backend_stack_cache(
+        None,
+        prompt="Build a bakery website",
+        technology_choices={"frontend_framework": "nextjs"},
+    )
+
+
+def test_technology_catalog_endpoint_reads_seeded_database(dev_server, tmp_path):
+    from database.init_db import init_database
+
+    srv, client = dev_server
+    database_path = str(tmp_path / "catalog.db")
+    init_database(db_path=database_path)
+    srv.AGENT_DB_PATH = database_path
+
+    response = client.get("/api/technology-catalog")
+
+    assert response.status_code == 200
+    assert response.json()["catalog"]["languages"]["python"]["label"] == "Python"
+    assert response.json()["catalog"]["languages"]["php"]["frameworks"]
+
+
+@pytest.mark.parametrize("endpoint", ["/api/generate", "/api/generate/stream"])
+def test_invalid_backend_stack_is_rejected_before_generation_is_queued(
+    dev_server, monkeypatch, endpoint
+):
+    srv, client = dev_server
+    created_runs = []
+
+    class PipelineStore:
+        def create_run(self, run_id, **kwargs):
+            created_runs.append(run_id)
+
+    def discard_background_task(coroutine):
+        coroutine.close()
+
+    monkeypatch.setattr(srv, "_pipeline_store", PipelineStore())
+    monkeypatch.setattr(srv.asyncio, "create_task", discard_background_task)
+
+    response = client.post(
+        endpoint,
+        json={
+            "prompt": "Build a bakery website",
+            "backend_stack": {"mode": "manual", "language": "unknown"},
+        },
+    )
+
+    assert response.status_code == 422
+    assert created_runs == []
+
+
+@pytest.mark.parametrize(
+    "endpoint", ["/api/generate", "/api/generate/stream", "/api/dry-run"]
+)
+def test_invalid_technology_choices_are_rejected_before_side_effects(
+    dev_server, monkeypatch, endpoint
+):
+    srv, _ = dev_server
+    client = TestClient(srv.app, raise_server_exceptions=False)
+    created_runs = []
+    scheduled_tasks = []
+    spent_credits = []
+
+    class PipelineStore:
+        def create_run(self, run_id, **kwargs):
+            created_runs.append(run_id)
+
+    def record_scheduled_task(coroutine):
+        scheduled_tasks.append(coroutine)
+        coroutine.close()
+
+    monkeypatch.setattr(srv, "_pipeline_store", PipelineStore())
+    monkeypatch.setattr(srv.asyncio, "create_task", record_scheduled_task)
+    monkeypatch.setattr(srv, "_authenticate_user", lambda _: {"id": "test-user"})
+    monkeypatch.setattr(
+        srv._accounts,
+        "spend",
+        lambda *args, **kwargs: spent_credits.append(args) or True,
+    )
+
+    response = client.post(
+        endpoint,
+        json={
+            "prompt": "Build a bakery website",
+            "technology_choices": {"frontend_framework": "unknown-framework"},
+        },
+    )
+
+    assert response.status_code == 422
+    assert created_runs == []
+    assert scheduled_tasks == []
+    assert spent_credits == []
+
+
+@pytest.mark.parametrize("endpoint", ["/api/generate", "/api/generate/stream", "/api/dry-run"])
+@pytest.mark.parametrize("mode", [[], {}])
+def test_non_string_backend_stack_mode_returns_validation_error(dev_server, endpoint, mode):
+    srv, _ = dev_server
+    client = TestClient(srv.app, raise_server_exceptions=False)
+
+    response = client.post(
+        endpoint,
+        json={
+            "prompt": "Build a bakery website",
+            "backend_stack": {"mode": mode},
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_dry_run_returns_selected_backend_stack(dev_server):
+    _, client = dev_server
+
+    response = client.post(
+        "/api/dry-run",
+        json={
+            "prompt": "Build a Python API for a bakery",
+            "backend_stack": {"mode": "manual", "language": "python"},
+            "technology_choices": {
+                "frontend_framework": "nextjs",
+                "frontend_host": "netlify",
+            },
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["backend_stack"]["language"] == "python"
+    assert response.json()["backend_stack"]["framework"] == "fastapi"
+    assert response.json()["backend_stack"]["scaffold_status"] == "catalog_only_not_generated"
+    assert response.json()["scaffold_status"] == "catalog_only_not_generated"
+    choices = response.json()["technology_choices"]
+    assert choices["choices"] == {
+        "frontend_framework": "nextjs",
+        "frontend_host": "netlify",
+    }
+    assert any(
+        item["compatibility_status"] == "unverified"
+        for item in choices["resolved_options"]
+    )
 
 
 # --------------------------------------------------------------------------

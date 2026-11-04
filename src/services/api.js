@@ -256,6 +256,7 @@ export const aiAPI = {
 // Real AI Agent Generation Engine (FastAPI Pipeline)
 export const aiAgentAPI = {
   generate: (payload) => api.post('/ai/generate', payload),
+  getTechnologyCatalog: () => api.get('/ai/technology-catalog'),
   getRunStatus: (runId) => api.get(`/ai/runs/${runId}`),
   getDownloadUrl: (runId) => {
     const base = resolveApiBaseUrl(import.meta.env.VITE_API_URL, import.meta.env.DEV);

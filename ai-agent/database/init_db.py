@@ -14,12 +14,13 @@ from config.settings import AGENT_DB_PATH, REGISTRY_DIR, PROJECT_ROOT
 from utils.logger import agent_logger
 from utils.file_manager import FileManager
 
-def init_database() -> None:
+def init_database(db_path: str = None) -> None:
     """Initialize agent.db SQLite database tables and populate from registry JSON files."""
-    agent_logger.info(f"Initializing SQLite Agent Database at: {AGENT_DB_PATH}")
-    os.makedirs(os.path.dirname(AGENT_DB_PATH), exist_ok=True)
+    database_path = db_path or AGENT_DB_PATH
+    agent_logger.info(f"Initializing SQLite Agent Database at: {database_path}")
+    os.makedirs(os.path.dirname(database_path), exist_ok=True)
 
-    conn = sqlite3.connect(AGENT_DB_PATH)
+    conn = sqlite3.connect(database_path)
     cursor = conn.cursor()
 
     # Enable WAL mode and busy timeout for concurrent access robustness
@@ -127,6 +128,9 @@ def init_database() -> None:
     _ensure_column(cursor, "search_history", "session_id", "TEXT")
 
     # Seed data from registry files
+    from agent.technology_catalog import seed_technology_catalog
+
+    seed_technology_catalog(cursor)
     _seed_templates(cursor)
     _seed_components(cursor)
     _seed_assets(cursor)

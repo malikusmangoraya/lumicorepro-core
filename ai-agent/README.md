@@ -15,7 +15,48 @@ The agent analyzes natural language website generation prompts, queries the loca
 - 📦 **End-to-End Stack Generation**: React.js + Vite + Tailwind CSS frontend, Express.js backend, PostgreSQL database schema.
 - 🚀 **Evidence-Gated Delivery**: build → backend tests → browser QA → deploy → live verification → demo video, with `status: delivered` only when every stage produced verifiable evidence (`docs/FACTORY.md`).
 - 🎬 **Automated Demo Video**: a ~2-minute narrated tour of the real pages (Playwright capture + TTS + ffmpeg), ffprobe-verified before it is reported as ready.
+- 🧭 **Backend Stack Catalog**: Auto-recommended or manually selected Node.js, Python, PHP, Java, Go, C#/.NET, or Ruby frameworks, databases, and advanced architecture options.
+- 📦 **Honest Scaffold Reporting**: The current project generator scaffolds Node.js + Express only; other catalog selections are validated and reported but are not represented as generated backend code.
 - 🔍 **Deep Validation & Testing**: Deep validator checking NPM packages, env vars, component props, and SQL foreign keys; comprehensive `pytest` test suite.
+
+## Backend Stack Selection
+
+Generation requests may select a backend stack automatically from the prompt or
+provide compatible manual choices. The catalog covers:
+
+- **Languages/frameworks**: Node.js (Express, NestJS, Fastify), Python (FastAPI,
+  Django, Flask), PHP (Laravel, Symfony, Slim), Java (Spring Boot, Quarkus,
+  Micronaut), Go (Gin, Echo, Fiber), C#/.NET (ASP.NET Core), and Ruby (Rails,
+  Sinatra).
+- **Databases and ORMs**: PostgreSQL, MySQL, MariaDB, SQLite, SQL Server, and
+  MongoDB, with framework- and database-compatible ORM choices.
+- **Advanced options**: REST/GraphQL/gRPC, modular monolith/microservices/serverless,
+  authentication, caching, queues, testing, observability, and deployment targets.
+
+The FastAPI catalog endpoint is `GET /api/technology-catalog`. Include a
+`backend_stack` object in a generation request; for example:
+
+```json
+{
+  "mode": "manual",
+  "language": "python",
+  "framework": "fastapi",
+  "database": "postgresql",
+  "api_style": "rest",
+  "architecture": "modular-monolith"
+}
+```
+
+The API validates catalog IDs and framework/database/ORM compatibility before
+queueing a generation run. Omitted manual fields can still be recommended from
+the prompt. `mode: "auto"` lets the agent choose compatible options.
+
+**Scaffold limitation:** catalog availability is not native code generation.
+Only Node.js + Express is currently scaffold-supported. Other languages and
+frameworks are reported as catalog selections and do not produce Python, PHP,
+Java, Go, .NET, or Ruby backend files. A selected database likewise does not
+guarantee a database-specific schema or migrations. Check the generation report's
+`backend_stack.scaffold_status` before treating a stack as implemented.
 
 ---
 

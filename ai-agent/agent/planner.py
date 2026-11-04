@@ -50,6 +50,7 @@ class GenerationPlanner:
         selected_assets: Dict[str, List[Dict[str, Any]]],
         selected_backend: Dict[str, Any],
         selected_schemas: List[Dict[str, Any]],
+        tech_stack: Dict[str, Any] = None,
     ) -> Dict[str, Any]:
         """Construct structured generation plan with style configuration."""
         agent_logger.info("Constructing assembly & generation plan aligned with Master Prompt...")
@@ -112,6 +113,10 @@ class GenerationPlanner:
             "assets": selected_assets,
             "backend": selected_backend,
             "database_schemas": selected_schemas,
+            "tech_stack": tech_stack or {},
+            "backend_stack": (tech_stack or {}).get("backend_stack"),
+            "technology_choices": (tech_stack or {}).get("technology_choices", {}),
+            "technology_guidance": (tech_stack or {}).get("technology_guidance", ""),
             "style_preference": spec.get("style_preference", {}),
             "assembly_steps": [
                 f"1. Scaffold modular directory at generated-projects/{project_name} (frontend, backend, docs)",

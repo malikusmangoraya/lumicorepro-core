@@ -19,15 +19,29 @@ import {
   fetchAgentJson,
   fetchWithTimeout,
   slugifyProjectName,
+  validateBackendStackPayload,
+  validateTechnologyChoicesPayload,
 } from '../utils/aiAgent.js';
 
 const router = express.Router();
 const DEMO_MODE = (process.env.DEMO_MODE || 'false').toLowerCase() === 'true';
 
+function validateGenerationBackendStack(req, res, next) {
+  try {
+    req.backendStack = validateBackendStackPayload(req.body?.backend_stack);
+    req.technologyChoices = validateTechnologyChoicesPayload(req.body?.technology_choices);
+    return next();
+  } catch (err) {
+    return res.status(400).json({ success: false, error: err.message });
+  }
+}
+
 // Global AI-route rate limiting (defense against auth-less abuse)
 router.use(aiLimiter);
 
 // Cost-guard the expensive routes: circuit breaker → daily/user/IP limit → token cap
+router.post('/generate', validateGenerationBackendStack);
+router.post('/generate/stream', validateGenerationBackendStack);
 router.post('/generate', circuitBreaker(), dailyGenLimit(), tokenCap('generation'));
 router.post('/chat', circuitBreaker(), dailyChatLimit(), tokenCap('chat'));
 router.post('/vision/analyze', circuitBreaker(), dailyGenLimit(), tokenCap('vision'));
@@ -130,6 +144,47 @@ async function callAgent(endpoint, options = {}, { timeoutMs } = {}) {
   });
 }
 
+async function rejectIneligibleGeneration(req, res) {
+  if (!req.user?.id || DEMO_MODE) return null;
+
+  try {
+    const { default: UserModel } = await import('../models/User.js');
+    const account = await UserModel.findByPk(req.user.id, {
+      attributes: ['id', 'isVerified', 'betaStatus'],
+    });
+    if (!account) return null;
+    if (account.isVerified === false) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Please verify your email address before generating. Check your inbox for the verification link.',
+        },
+      });
+    }
+    const waitlistOn = process.env.WAITLIST_MODE === 'true';
+    if (waitlistOn && account.betaStatus === 'waitlist') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'WAITLIST_PENDING',
+          message: 'Your account is on the waitlist. You will be able to generate once approved.',
+        },
+      });
+    }
+    if (waitlistOn && account.betaStatus === 'denied') {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'WAITLIST_DENIED', message: 'This account is not authorized.' },
+      });
+    }
+  } catch (err) {
+    // DB offline — let the daily-limit guard handle cost protection.
+    logger.warn(`verified-email check skipped: ${err.message}`);
+  }
+  return null;
+}
+
 /**
  * @swagger
  * /api/generate:
@@ -138,53 +193,16 @@ async function callAgent(endpoint, options = {}, { timeoutMs } = {}) {
  *     tags: [AI Generation]
  */
 router.post('/generate', aiWriteLimiter, gateAI, enforcePlanLimit('ai_generation'), async (req, res, next) => {
-  const { prompt, provider = 'gemini', language = 'en', region, image, files } = req.body;
+  const { prompt, provider = 'gemini', language = 'en', region, image, files } = req.body || {};
+  const backendStack = req.backendStack;
   const attachments = sanitizeFiles(files);
 
   if (!prompt && !image && attachments.length === 0) {
     return res.status(400).json({ success: false, error: 'Prompt must be at least 5 characters long' });
   }
 
-  // Email-verified gate: unverified accounts must not burn AI quota. Skip for
-  // API-key-authenticated (service) calls — they're trusted partners.
-  if (req.user?.id && !DEMO_MODE) {
-    try {
-      const { default: UserModel } = await import('../models/User.js');
-      const account = await UserModel.findByPk(req.user.id, {
-        attributes: ['id', 'isVerified', 'betaStatus'],
-      });
-      if (account) {
-        if (account.isVerified === false) {
-          return res.status(403).json({
-            success: false,
-            error: {
-              code: 'EMAIL_NOT_VERIFIED',
-              message: 'Please verify your email address before generating. Check your inbox for the verification link.',
-            },
-          });
-        }
-        const waitlistOn = process.env.WAITLIST_MODE === 'true';
-        if (waitlistOn && account.betaStatus === 'waitlist') {
-          return res.status(403).json({
-            success: false,
-            error: {
-              code: 'WAITLIST_PENDING',
-              message: 'Your account is on the waitlist. You will be able to generate once approved.',
-            },
-          });
-        }
-        if (waitlistOn && account.betaStatus === 'denied') {
-          return res.status(403).json({
-            success: false,
-            error: { code: 'WAITLIST_DENIED', message: 'This account is not authorized.' },
-          });
-        }
-      }
-    } catch (err) {
-      // DB offline — let the daily-limit guard handle cost protection
-      logger.warn(`verified-email check skipped: ${err.message}`);
-    }
-  }
+  const accessFailure = await rejectIneligibleGeneration(req, res);
+  if (accessFailure) return accessFailure;
 
   try {
     // Demo mode: return instant simulated result WITHOUT calling the AI agent,
@@ -206,6 +224,7 @@ router.post('/generate', aiWriteLimiter, gateAI, enforcePlanLimit('ai_generation
           components: 12,
           backend: 'Express.js',
           database: 'PostgreSQL',
+          requestedBackendStack: backendStack || { mode: 'auto' },
           qualityScore: 94,
           launchReady: true,
           executionTime: '0.4',
@@ -216,6 +235,10 @@ router.post('/generate', aiWriteLimiter, gateAI, enforcePlanLimit('ai_generation
 
     // Attempt to call the Python FastAPI agent
     const body = { provider, language, region };
+    if (backendStack !== undefined) body.backend_stack = backendStack;
+    if (req.technologyChoices !== undefined) {
+      body.technology_choices = req.technologyChoices;
+    }
     if (['high', 'medium', 'low', 'none'].includes(req.body?.animation_intensity)) {
       body.animation_intensity = req.body.animation_intensity;
     }
@@ -300,6 +323,82 @@ router.post('/generate', aiWriteLimiter, gateAI, enforcePlanLimit('ai_generation
     });
   }
 });
+
+router.post(
+  '/generate/stream',
+  aiWriteLimiter,
+  gateAI,
+  enforcePlanLimit('ai_generation'),
+  async (req, res) => {
+    const { prompt, provider = 'gemini', language = 'en', region, image, files } = req.body || {};
+    const attachments = sanitizeFiles(files);
+    if (!prompt && !image && attachments.length === 0) {
+      return res.status(400).json({ success: false, error: 'Prompt must be at least 5 characters long' });
+    }
+
+    const accessFailure = await rejectIneligibleGeneration(req, res);
+    if (accessFailure) return accessFailure;
+    if (DEMO_MODE) {
+      return res.status(503).json({
+        success: false,
+        error: 'Streaming generation is unavailable in demo mode.',
+      });
+    }
+
+    const body = { provider, language, region };
+    if (req.backendStack !== undefined) body.backend_stack = req.backendStack;
+    if (req.technologyChoices !== undefined) {
+      body.technology_choices = req.technologyChoices;
+    }
+    if (['high', 'medium', 'low', 'none'].includes(req.body?.animation_intensity)) {
+      body.animation_intensity = req.body.animation_intensity;
+    }
+    if (typeof prompt === 'string' && prompt.trim()) body.prompt = prompt.trim();
+    if (typeof image === 'string' && image.trim()) body.image = image.trim();
+    if (attachments.length > 0) body.files = attachments;
+
+    try {
+      const data = await dispatchAI(
+        () => callAgent('/api/generate/stream', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        }, { timeoutMs: AI_AGENT_TIMEOUTS.generate }),
+        { queueKind: 'generation' }
+      );
+      const estimatedTokens = spendEstimator.estimateTokensForRequest('generation');
+      recordUsage({
+        userId: req.user?.id,
+        ip: req.ip,
+        endpoint: 'generation',
+        estimatedTokens,
+      }).catch(() => {});
+      spendLedger.recordRun({
+        userId: req.user?.id ?? null,
+        orgId: req.user?.orgId ?? null,
+        runId: data.run_id,
+        ip: req.ip,
+        endpoint: 'generation',
+        tokens: estimatedTokens,
+      }).catch(() => {});
+      recordPlanUsage(req.user?.id, 'ai_generation', 1);
+
+      return res.json({
+        success: true,
+        mode: 'live_agent',
+        run_id: data.run_id,
+        ws_url: agentWebSocketUrl(data.run_id),
+        download_url: `/api/ai/download/${data.run_id}`,
+        status: data.status || 'queued',
+        language: data.language || language,
+        region: data.region || region,
+        vision_mode: Boolean(data.vision_mode),
+      });
+    } catch (err) {
+      logger.warn(`AI Agent streaming request failed at ${agentBaseUrl().origin}: ${err.message}`);
+      return upstreamFailure(res, err);
+    }
+  }
+);
 
 /**
  * @swagger
@@ -512,6 +611,15 @@ router.get('/models', (req, res) => {
     offlineFallback: true,
     providers,
   });
+});
+
+router.get('/technology-catalog', gateAI, async (req, res) => {
+  try {
+    const catalog = await callAgent('/api/technology-catalog');
+    return res.json({ success: true, data: catalog });
+  } catch (err) {
+    return upstreamFailure(res, err);
+  }
 });
 
 /**

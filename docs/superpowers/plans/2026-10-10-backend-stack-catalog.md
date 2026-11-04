@@ -15,7 +15,7 @@
 - The catalog covers Node.js, Python, PHP, Java, Go, C#/.NET, and Ruby.
 - Database choices are PostgreSQL, MySQL/MariaDB, SQLite, SQL Server, and MongoDB; Redis is cache/queue infrastructure, not a primary database.
 - API styles are REST, GraphQL, and gRPC; architectures are modular monolith, microservices, and serverless.
-- Authentication choices are JWT, OAuth2/OIDC, and session authentication; compatibility is explicit and incompatible combinations are rejected.
+- Authentication choices are JWT, OAuth2/OIDC, and session authentication; ORM compatibility with database types is explicit and incompatible combinations are rejected.
 - Auto is the default; manual values override only the dimensions explicitly selected.
 - Non-Node backend scaffolds are not implemented in this phase; the existing project builder remains Node.js/Express-based and reports scaffold availability honestly.
 - Existing domain-specific SQL schema selection stays unchanged and is not represented as portable across database engines.
@@ -29,6 +29,7 @@
 - **Unknown or malformed values:** unknown IDs and non-object request values must fail before run creation/credit reservation; test in Task 3.
 - **Catalog availability outage:** UI reports catalog-load failure, keeps Auto usable where possible, and does not present stale/manual options as live; test in Task 4.
 - **Unsupported scaffold request:** selecting Python/PHP/Java/etc. must not claim their backend code was generated; test in Task 2 and Task 4.
+- **ORM/database mismatch:** reject an ORM that does not support the selected database, and recommend a compatible database when only an ORM is selected; test in Task 2 and Task 4.
 
 ---
 
@@ -41,7 +42,7 @@
 - Test: `ai-agent/tests/test_technology_catalog.py`
 
 **Interfaces:**
-- Catalog JSON top-level keys: `version`, `languages`, `databases`, `api_styles`, `architectures`, `authentication`, `cache_options`, `queue_options`, `testing_options`, `observability_options`, and `deployment_options`.
+- Catalog JSON top-level keys: `version`, `languages`, `databases`, `orm_database_types`, `api_styles`, `architectures`, `authentication`, `cache_options`, `queue_options`, `testing_options`, `observability_options`, and `deployment_options`.
 - Each language entry has `id`, `label`, `frameworks`, and `scaffold_supported`; framework entries have `id`, `label`, `orms`, and compatible `databases`.
 - `load_catalog() -> dict` loads and validates the canonical JSON.
 - `seed_technology_catalog(cursor, catalog=None) -> None` writes the catalog to a singleton row in `technology_catalog_index`, keyed by `catalog_id = 1`; store `version`, serialized `catalog_json`, and an update timestamp.
@@ -49,7 +50,7 @@
 
 - [ ] **Step 1: Write failing tests** in `test_technology_catalog.py` for catalog values, framework/database compatibility, singleton table seeding, re-seeding without duplicate rows, and preservation of unrelated registry rows.
 - [ ] **Step 2: Run** `python -m pytest ai-agent/tests/test_technology_catalog.py -q`; confirm failures identify the missing catalog/table/loader.
-- [ ] **Step 3: Add** the JSON catalog with the seven specified language families and framework choices: Express/NestJS/Fastify; FastAPI/Django/Flask; Laravel/Symfony/Slim; Spring Boot/Quarkus/Micronaut; Gin/Echo/Fiber; ASP.NET Core; Rails/Sinatra. Include common ORM, database, API, architecture, auth, cache/queue, test, observability, and deployment options with explicit compatibility metadata.
+- [ ] **Step 3: Add** the JSON catalog with the seven specified language families and framework choices: Express/NestJS/Fastify; FastAPI/Django/Flask; Laravel/Symfony/Slim; Spring Boot/Quarkus/Micronaut; Gin/Echo/Fiber; ASP.NET Core; Rails/Sinatra. Include common ORM, database, API, architecture, auth, cache/queue, test, observability, and deployment options with explicit ORM/database-type compatibility metadata.
 - [ ] **Step 4: Implement** catalog loading/shape validation and SQLite retrieval in `technology_catalog.py`; create and idempotently seed `technology_catalog_index` during existing `init_database()` startup without dropping or rewriting unrelated tables.
 - [ ] **Step 5: Run** `python -m pytest ai-agent/tests/test_technology_catalog.py ai-agent/tests/test_memory_retriever.py -q`; both catalog and existing registry retrieval tests pass.
 
@@ -66,12 +67,12 @@
 **Interfaces:**
 - `validate_backend_stack(selection: dict | None) -> dict` validates mode and catalog IDs, and returns normalized selection; `None` normalizes to legacy Auto behavior.
 - `resolve_backend_stack(spec: dict, selection: dict | None = None) -> dict` returns `mode`, `language`, `framework`, `database`, `orm`, `api_style`, `architecture`, `authentication`, `cache`, `queue`, `testing`, `observability`, `deployment`, `scaffold_supported`, and `scaffold_status`.
-- Set `scaffold_status` to `generated` when using the existing Node.js/Express backend path and `catalog_only_not_generated` for every other language; keep `scaffold_supported` as the matching boolean.
+- Set `scaffold_status` to `generated` only for the existing Node.js/Express combination and `catalog_only_not_generated` for every other combination; keep `scaffold_supported` as the matching boolean.
 - `TechStackSelector.select(spec, selected_backend, selected_schemas, backend_stack=None) -> dict` preserves its existing first three parameters and includes the resolved stack as `backend_stack`.
 - `GenerationPlanner.create_plan(..., selected_schemas, tech_stack=None) -> dict` preserves existing call compatibility and records `tech_stack` and `backend_stack` in the plan.
 - `AgentOrchestrator.run(..., extra_spec=None)` reads optional `extra_spec["backend_stack"]`, passes it through selection/planning, and includes resolved stack data in the report's selected resources.
 
-- [ ] **Step 1: Write failing tests** for Auto legacy default (Node/Express), each of the seven language families, partial manual override, language/framework/database incompatibility, unknown IDs, `scaffold_supported` true only for Node.js, and plan/report inclusion.
+- [ ] **Step 1: Write failing tests** for Auto legacy default (Node/Express), prompt-directed recommendation, each of the seven language families, partial manual override, language/framework/database incompatibility, unknown IDs, `scaffold_supported` true only for Node.js/Express, and plan/report inclusion.
 - [ ] **Step 2: Run** `python -m pytest ai-agent/tests/test_technology_catalog.py ai-agent/tests/test_orchestrator.py -q`; confirm the new resolution tests fail before implementation.
 - [ ] **Step 3: Implement** validation and deterministic recommendation in `tech_stack_selector.py` using the canonical catalog; prompt signals may recommend only valid catalog combinations, while supplied dimensions override their matching recommendations.
 - [ ] **Step 4: Wire** the optional stack through orchestration and planning; keep builder output Node/Express and mark non-Node selections `catalog_only_not_generated` in generated reports.
@@ -86,18 +87,18 @@
 - Test: `backend/tests/unit/aiAgent.test.js` (or a focused catalog route test beside it)
 
 **Interfaces:**
-- FastAPI `GET /api/technology-catalog` returns `{ "catalog": <catalog JSON> }`; follow current agent API authentication behavior.
+- FastAPI `GET /api/technology-catalog` returns `{ "catalog": <catalog JSON> }`; seed an existing agent DB on startup and follow current authentication behavior.
 - FastAPI `GenerateRequest.backend_stack: Optional[Dict[str, Any]] = None` and `DryRunRequest.backend_stack: Optional[Dict[str, Any]] = None`.
 - FastAPI `POST /api/generate` and `/api/generate/stream` validate the optional selection before creating a run, reserving credits, or scheduling generation; invalid input returns HTTP 422 with safe field-specific detail.
 - FastAPI `POST /api/dry-run` passes the same selection into stack resolution and returns `backend_stack` plus `scaffold_status`.
 - Express `GET /api/ai/technology-catalog` proxies to `/api/technology-catalog` and uses the established safe upstream-failure response.
-- Express `/api/ai/generate` and `/api/ai/generate/stream` forward only an object-valued `backend_stack`; reject malformed/non-object values with HTTP 400 before proxying.
+- Express `/api/ai/generate` and `/api/ai/generate/stream` forward only a valid object-valued `backend_stack`; reject malformed/non-object values with HTTP 400 before cost guards and proxying.
 
-- [ ] **Step 1: Write failing tests** proving catalog endpoint shape, valid selection forwarding, malformed selection rejection before agent dispatch, and dry-run resolved stack/scaffold status.
-- [ ] **Step 2: Run** `python -m pytest ai-agent/tests/test_server_security.py -q` and `cd backend; node --experimental-vm-modules ./node_modules/jest/bin/jest.js tests/unit/aiAgent.test.js --coverage=false --runInBand`; confirm the new route contracts initially fail.
-- [ ] **Step 3: Implement** catalog response and request fields in FastAPI; validate via `validate_backend_stack` at route entry and pass the normalized value into both standard and streaming pipeline calls and dry-run.
-- [ ] **Step 4: Implement** the Express catalog proxy and strict generation payload forwarding; keep upstream errors safe and do not turn a malformed value into an implicit Auto request.
-- [ ] **Step 5: Run** the focused Python and Jest tests above; valid and invalid paths pass without external provider calls.
+- [x] **Step 1: Write failing tests** proving catalog endpoint shape, valid selection forwarding, malformed selection rejection before agent dispatch, and dry-run resolved stack/scaffold status.
+- [x] **Step 2: Run** focused pytest and Jest tests; confirmed the new request, catalog, and stream-proxy contracts fail before implementation.
+- [x] **Step 3: Implement** catalog response and request fields in FastAPI; validate via `validate_backend_stack` at route entry and pass the normalized value into both standard and streaming pipeline calls and dry-run.
+- [x] **Step 4: Implement** the Express catalog proxy and strict generation payload forwarding; keep upstream errors safe and do not turn a malformed value into an implicit Auto request.
+- [x] **Step 5: Run** the focused Python and Jest tests; valid and invalid paths pass without external provider calls.
 
 ### Task 4: Add UI controls, API client, and user-facing documentation
 
@@ -115,17 +116,19 @@
 - Generation payload includes `backend_stack` with `mode` plus only explicitly selected catalog IDs.
 - UI default is Auto; the standard panel exposes backend language, framework, and database; an advanced panel exposes API style, architecture, authentication, cache, queue, testing, observability, and deployment.
 
-- [ ] **Step 1: Write failing tests** for catalog API client response, Auto default payload, manual language/framework/database payload, advanced options payload, disabled controls while generating, and accessible error/loading behavior.
-- [ ] **Step 2: Run** `npm run test -- src/__tests__/api.msw.test.js src/__tests__/Generate.test.jsx`; confirm new contract tests fail before implementation.
-- [ ] **Step 3: Add** `getTechnologyCatalog()` and load options in `Generate.jsx`; display clear loading/error state, keep Auto generation available if catalog fetch fails, and prevent stale catalog values from being submitted.
-- [ ] **Step 4: Add** accessible labeled manual and advanced selectors; submit only chosen values; include resolved stack and honest scaffold status in the result view without changing existing result behavior when the selection is Auto.
-- [ ] **Step 5: Document** supported catalog families, Auto/manual request behavior, endpoint fields, database/schema portability limits, and non-Node scaffold limitation in the agent README and master prompt; add matching labels to every locale JSON with English fallback text where a translated value is unavailable.
-- [ ] **Step 6: Run** `npm run test -- src/__tests__/api.msw.test.js src/__tests__/Generate.test.jsx`, `npm run lint -- --no-warn-ignored src/pages/Generate.jsx src/services/api.js`, and `npm run build`; resolve regressions before handoff.
+- [x] **Step 1: Write tests** for catalog API client response, Auto default payload, manual language/framework/database payload, advanced options payload, disabled controls while generating, and accessible error/loading behavior.
+- [x] **Step 2: Run** the focused API/UI tests; final result is 8 passed. (The initial install outage delayed execution until after implementation, so this was not a verified pre-implementation RED run.)
+- [x] **Step 3: Add** `getTechnologyCatalog()` and load options in `Generate.jsx`; show loading/error state, keep Auto usable after catalog failure, and submit no stale manual values.
+- [x] **Step 4: Add** accessible labeled manual and advanced selectors; submit only chosen IDs; display the resolved stack and honest scaffold status, and explicitly report when offline mode did not apply the request.
+- [x] **Step 5: Document** catalog families, Auto/manual requests, endpoint fields, schema portability limits, and scaffold limits; add English/Urdu copy and English fallback keys to all locale bundles.
+- [x] **Step 6: Verify** focused UI/API tests, changed-file ESLint, and production build. The focused tests pass and the build succeeds.
 
 ### Final integration verification
 
 - [ ] Run `python -m pytest ai-agent/tests -q`.
-- [ ] Run `cd backend; npm run test:unit`.
-- [ ] Run `npm run test -- src/__tests__/api.msw.test.js src/__tests__/Generate.test.jsx`.
-- [ ] Run `npm run lint` and `npm run build`.
-- [ ] Inspect an Auto dry run and a manual non-Node dry run; verify the selected stack is compatible, non-Node scaffold status is explicit, and no non-Node backend files are represented as generated.
+- [x] Run `cd backend; npm run test:unit` (32 suites, 312 tests passed).
+- [x] Run the frontend Vitest suite (15 files, 61 tests passed).
+- [ ] Run the full AI-agent pytest suite (focused catalog/security tests pass; full suite is still running after restoring the declared `mcp` dependency).
+- [ ] Run full repository `npm run lint` (it reports existing errors in unrelated `.backup/` and `products/` files; changed frontend files pass targeted ESLint).
+- [x] Run `npm run build` and verify bundle budgets.
+- [x] Inspect Auto and manual non-Node dry-run coverage; selected stack compatibility and `catalog_only_not_generated` status are asserted by the agent tests.

@@ -47,8 +47,11 @@ import Modal from '@/components/ui/Modal';
 import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/forms/Input';
 import Textarea from '@/components/forms/Textarea';
+import BackendStackSelector from '@/components/forms/BackendStackSelector';
+import TechnologyChoicesSelector from '@/components/forms/TechnologyChoicesSelector';
 import { aiAgentAPI, previewAPI, resolvePreviewUrl } from '@/services/api';
 import { useAppContext } from '@/context/AppContext';
+import { useTranslation } from 'react-i18next';
 import PageSEO from '@/components/common/PageSEO';
 import { cn } from '@/utils';
 import { normalizeGenerationContext } from '@/utils/generationContext';
@@ -211,6 +214,36 @@ function resolvePhaseIndex(phaseName = '') {
   return PHASES.findIndex((phase) => normalizedName.includes(PHASE_ALIASES[phase.id]));
 }
 
+function formatStackValue(value, field, catalog) {
+  if (!value) return '';
+  if (field === 'language') return catalog?.languages?.[value]?.label || value;
+
+  const catalogSections = {
+    database: catalog?.databases,
+    api_style: catalog?.api_styles,
+    apiStyle: catalog?.api_styles,
+    architecture: catalog?.architectures,
+    authentication: catalog?.authentication,
+    cache: catalog?.cache_options,
+    queue: catalog?.queue_options,
+    testing: catalog?.testing_options,
+    observability: catalog?.observability_options,
+    deployment: catalog?.deployment_options,
+  };
+  const entries = Object.values(catalog?.languages || {}).flatMap(
+    (language) => language.frameworks || []
+  );
+  const match = [...(catalogSections[field] || []), ...entries].find(
+    (entry) => entry.id === value
+  );
+  if (match) return match.label;
+
+  return value
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 /* ── AI Providers with rich metadata ─────────────────────────────── */
 const PROVIDERS = [
   {
@@ -348,9 +381,15 @@ function qualityColor(score) {
 ════════════════════════════════════════════════════════════════════ */
 export default function GeneratePage() {
   const { language: currentLang, user: appUser } = useAppContext();
+  const { t } = useTranslation();
 
   /* State ─────────────────────────────────────────────────────────── */
   const [prompt, setPrompt] = useState('');
+  const [technologyCatalog, setTechnologyCatalog] = useState(null);
+  const [technologyCatalogLoading, setTechnologyCatalogLoading] = useState(true);
+  const [technologyCatalogError, setTechnologyCatalogError] = useState(false);
+  const [backendStackSelection, setBackendStackSelection] = useState({ mode: 'auto' });
+  const [technologyChoicesSelection, setTechnologyChoicesSelection] = useState({});
   const [provider, setProvider] = useState('gemini');
   const [targetLang, setTargetLang] = useState(currentLang || 'en');
   const [targetRegion, setTargetRegion] = useState('GLOBAL');
@@ -396,6 +435,28 @@ export default function GeneratePage() {
   const wsRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  useEffect(() => {
+    let active = true;
+    aiAgentAPI
+      .getTechnologyCatalog()
+      .then((response) => {
+        const catalog = response?.data?.data?.catalog || response?.data?.catalog;
+        if (!catalog?.languages || typeof catalog.languages !== 'object') {
+          throw new Error('The backend technology catalog response is invalid.');
+        }
+        if (active) setTechnologyCatalog(catalog);
+      })
+      .catch(() => {
+        if (active) setTechnologyCatalogError(true);
+      })
+      .finally(() => {
+        if (active) setTechnologyCatalogLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   /* Auto-scroll logs ──────────────────────────────────────────────── */
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -410,6 +471,11 @@ export default function GeneratePage() {
 
   const addLog = useCallback((msg) => {
     setLogs((l) => [...l, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  }, []);
+
+  const handleBackendStackChange = useCallback((selection) => {
+    setBackendStackSelection(selection);
+    if (selection.mode === 'auto') setTechnologyChoicesSelection({});
   }, []);
 
   const resetAll = () => {
@@ -556,6 +622,10 @@ export default function GeneratePage() {
           'npm run dev',
           'node backend/server.js',
         ],
+        requestedBackendStack: fallbackMeta.requestedBackendStack || null,
+        requestedTechnologyChoices: fallbackMeta.requestedTechnologyChoices || null,
+        backendStackNotApplied: true,
+        technologyChoicesNotApplied: Boolean(fallbackMeta.requestedTechnologyChoices),
       });
     },
     [addLog]
@@ -565,6 +635,14 @@ export default function GeneratePage() {
   const handleGenerate = useCallback(async () => {
     const txt = prompt.trim();
     if (!txt || status === 'running') return;
+    const backendStackPayload = Object.fromEntries(
+      Object.entries(backendStackSelection).filter(([, value]) => value !== undefined && value !== '')
+    );
+    const technologyChoicesPayload = Object.fromEntries(
+      Object.entries(technologyChoicesSelection).filter(([, value]) =>
+        Array.isArray(value) ? value.length > 0 : value !== undefined && value !== ''
+      )
+    );
     resetAll();
     setStatus('running');
     addLog(`Initiating generation: "${txt.slice(0, 50)}…"`);
@@ -576,12 +654,21 @@ export default function GeneratePage() {
         language: targetLang,
         region: targetRegion !== 'GLOBAL' ? targetRegion : undefined,
         animation_intensity: animationIntensity,
+        backend_stack: backendStackPayload,
       };
+      if (Object.keys(technologyChoicesPayload).length > 0) {
+        payload.technology_choices = technologyChoicesPayload;
+      }
       if (screenshot) payload.image = screenshot;
       trackEvent(AnalyticsEvents.GENERATE_CLICK, { provider, language: targetLang });
       const res = await aiAgentAPI.generate(payload);
 
       const data = res.data;
+      const offlineFallbackMeta = {
+        ...(data.fallback_data || {}),
+        requestedBackendStack: backendStackPayload,
+        requestedTechnologyChoices: technologyChoicesPayload,
+      };
 
       if (data.mode === 'live_agent' && data.ws_url) {
         setEngineMode('live_agent');
@@ -645,6 +732,8 @@ export default function GeneratePage() {
                   components: rep.selected_resources?.components?.length ?? 0,
                   backend: rep.selected_resources?.backend || 'Not reported',
                   database: rep.selected_resources?.database_schemas?.join(', ') || 'Not reported',
+                  backendStack: rep.selected_resources?.backend_stack || null,
+                  technologyChoices: rep.selected_resources?.technology_choices || null,
                   qualityScore: rep.quality_gates?.overall_score ?? null,
                   launchReady: handoff.release_ready,
                   provenance: handoff.provenance,
@@ -672,13 +761,13 @@ export default function GeneratePage() {
 
           ws.onerror = () => {
             addLog('WebSocket disconnected — switching to offline engine.');
-            runOfflinePipeline(txt, data.fallback_data);
+            runOfflinePipeline(txt, offlineFallbackMeta);
           };
         } catch {
-          runOfflinePipeline(txt, data.fallback_data);
+          runOfflinePipeline(txt, offlineFallbackMeta);
         }
       } else {
-        await runOfflinePipeline(txt, data.fallback_data);
+        await runOfflinePipeline(txt, offlineFallbackMeta);
       }
     } catch (err) {
       const isDailyLimit = err?.response?.status === 429 && /daily|limit|quota/i.test(JSON.stringify(err?.response?.data || ''));
@@ -690,9 +779,23 @@ export default function GeneratePage() {
       }
       addLog('Backend agent unreachable — running local offline engine.');
       trackEvent(AnalyticsEvents.GENERATE_FAIL, { fallback: true });
-      await runOfflinePipeline(txt);
+      await runOfflinePipeline(txt, {
+        requestedBackendStack: backendStackPayload,
+        requestedTechnologyChoices: technologyChoicesPayload,
+      });
     }
-  }, [prompt, status, provider, targetLang, targetRegion, screenshot, runOfflinePipeline, addLog]);
+  }, [
+    prompt,
+    status,
+    provider,
+    targetLang,
+    targetRegion,
+    screenshot,
+    backendStackSelection,
+    technologyChoicesSelection,
+    runOfflinePipeline,
+    addLog,
+  ]);
 
   /* ── Download handler ────────────────────────────────────────────── */
   const handleDownload = useCallback(() => {
@@ -1135,6 +1238,24 @@ export default function GeneratePage() {
           </div>
         </div>
 
+        <BackendStackSelector
+          catalog={technologyCatalog}
+          selection={backendStackSelection}
+          onChange={handleBackendStackChange}
+          loading={technologyCatalogLoading}
+          error={technologyCatalogError}
+          disabled={status === 'running'}
+        />
+        <TechnologyChoicesSelector
+          catalog={technologyCatalog}
+          selection={technologyChoicesSelection}
+          onChange={setTechnologyChoicesSelection}
+          manual={backendStackSelection.mode === 'manual'}
+          loading={technologyCatalogLoading}
+          error={technologyCatalogError}
+          disabled={status === 'running'}
+        />
+
         {/* Language + Region */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -1448,6 +1569,104 @@ export default function GeneratePage() {
               );
             })}
           </div>
+
+          {result.backendStack && (
+            <section
+              className="space-y-3 rounded-xl border border-border/60 bg-background/50 p-4"
+              aria-labelledby="resolved-backend-stack-heading"
+            >
+              <h3
+                id="resolved-backend-stack-heading"
+                className="text-sm font-semibold text-foreground"
+              >
+                {t('backendStack.resultTitle')}
+              </h3>
+              <dl className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  ['language', result.backendStack.language],
+                  ['framework', result.backendStack.framework],
+                  ['database', result.backendStack.database],
+                  ['orm', result.backendStack.orm],
+                  ['apiStyle', result.backendStack.api_style],
+                  ['architecture', result.backendStack.architecture],
+                  ['authentication', result.backendStack.authentication],
+                  ['cache', result.backendStack.cache],
+                  ['queue', result.backendStack.queue],
+                  ['testing', result.backendStack.testing],
+                  ['observability', result.backendStack.observability],
+                  ['deployment', result.backendStack.deployment],
+                ]
+                  .filter(([, value]) => value)
+                  .map(([label, value]) => (
+                    <div key={label}>
+                      <dt className="text-xs text-muted-foreground">
+                        {t(`backendStack.${label}`)}
+                      </dt>
+                      <dd className="font-medium">
+                        {formatStackValue(value, label, technologyCatalog)}
+                      </dd>
+                    </div>
+                  ))}
+              </dl>
+              <p className="text-sm" role="status">
+                {result.backendStack.scaffold_status === 'generated'
+                  ? t('backendStack.scaffoldGenerated')
+                  : t('backendStack.scaffoldNotGenerated')}
+              </p>
+            </section>
+          )}
+
+          {result.backendStackNotApplied && (
+            <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-700 dark:text-amber-300" role="status">
+              {t('backendStack.offlineNotApplied')}
+            </p>
+          )}
+
+          {result.technologyChoices?.resolved_options?.length > 0 && (
+            <section
+              className="space-y-3 rounded-xl border border-border/60 bg-background/50 p-4"
+              aria-labelledby="resolved-technology-choices-heading"
+            >
+              <h3
+                id="resolved-technology-choices-heading"
+                className="text-sm font-semibold text-foreground"
+              >
+                {t('technologyChoices.resultTitle')}
+              </h3>
+              <ul className="grid gap-2 text-sm sm:grid-cols-2">
+                {result.technologyChoices.resolved_options.map((option) => (
+                  <li key={`${option.field}:${option.id}`} className="flex flex-wrap gap-1">
+                    <span className="font-medium">{option.label}:</span>
+                    <span>
+                      {option.capability_status === 'catalog_only_not_generated'
+                        ? t('technologyChoices.catalogOnlyResult', { name: option.label })
+                        : t(`technologyChoices.status_${option.capability_status}`)}
+                    </span>
+                    {option.compatibility_status === 'unverified' && (
+                      <span className="text-amber-700 dark:text-amber-200">
+                        {t('technologyChoices.unverifiedBadge')}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {(result.technologyChoices.warnings || []).map((warning, index) => (
+                <p
+                  key={`${warning}:${index}`}
+                  className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200"
+                  role="status"
+                >
+                  {warning}
+                </p>
+              ))}
+            </section>
+          )}
+
+          {result.technologyChoicesNotApplied && (
+            <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-700 dark:text-amber-300" role="status">
+              {t('technologyChoices.offlineNotApplied')}
+            </p>
+          )}
 
           {result.workflowAgents && (
             <section aria-labelledby="workflow-team-heading">
