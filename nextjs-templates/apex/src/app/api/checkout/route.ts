@@ -6,6 +6,7 @@ import { calculateTotals } from '@/lib/orders';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
 import { orderNumber } from '@/lib/utils';
 import { discountFor } from '@/lib/coupons';
+import { orderConfirmationEmail, sendEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -164,6 +165,16 @@ export async function POST(request: Request) {
         return fail('OUT_OF_STOCK', `${line.title} sold out while you were checking out`, 409);
       }
     }
+
+    // Fire-and-forget: a mail failure must never fail a placed order.
+    void sendEmail(
+      orderConfirmationEmail({
+        to: order.customerEmail,
+        orderNumber: order.orderNumber,
+        total: order.total,
+        currency: order.currency,
+      }),
+    );
 
     if (couponCode) {
       await prisma.coupon.update({

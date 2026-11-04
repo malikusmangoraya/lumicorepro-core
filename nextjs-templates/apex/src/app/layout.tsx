@@ -49,6 +49,7 @@ export const metadata: Metadata = {
     description: 'Your next car, found faster.',
   },
   alternates: { canonical: '/' },
+  verification: { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION },
   robots: { index: true, follow: true },
 };
 

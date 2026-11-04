@@ -3,56 +3,21 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-
-const tiers = [
-  {
-    name: 'Starter',
-    monthly: 29,
-    annual: 24,
-    description: 'For first-time buyers who want a second opinion before they commit.',
-    features: [
-      'Two vehicle history reports a month',
-      'Pre-purchase checklist library',
-      'Email support within 48 hours',
-      'Saved shortlist (up to 10 cars)',
-    ],
-  },
-  {
-    name: 'Pro',
-    monthly: 79,
-    annual: 64,
-    description: 'For collectors buying more than once a year, with inspection coordination.',
-    features: [
-      'Unlimited vehicle history reports',
-      'Independent inspection coordination',
-      'Private viewing scheduling',
-      'Price alerts on saved searches',
-      'Priority support within 4 hours',
-    ],
-    highlight: true,
-  },
-  {
-    name: 'Enterprise',
-    monthly: 199,
-    annual: 159,
-    description: 'For dealers and collections that need provenance research at volume.',
-    features: [
-      'Everything in Pro',
-      'Bulk provenance research',
-      'Dedicated account specialist',
-      'Enclosed transport booking',
-      'Custom reporting exports',
-    ],
-  },
-];
+import { cn, formatCurrency } from '@/lib/utils';
+import {
+  maxSavingPercent,
+  PRICING_CURRENCY,
+  PRICING_TIERS,
+  savingPercent,
+} from '@/lib/pricing';
 
 export function PricingTable() {
   const [annual, setAnnual] = useState(true);
+  const bestSaving = maxSavingPercent();
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-center gap-3">
+      <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
         <span className={cn('text-sm', !annual ? 'text-heading' : 'text-muted')}>Monthly</span>
         <button
           type="button"
@@ -75,14 +40,16 @@ export function PricingTable() {
         <span className={cn('text-sm', annual ? 'text-heading' : 'text-muted')}>
           Annual
           <span className="ml-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-300">
-            Save 20%
+            Save up to {bestSaving}%
           </span>
         </span>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        {tiers.map((tier) => {
-          const price = annual ? tier.annual : tier.monthly;
+        {PRICING_TIERS.map((tier) => {
+          const price = annual ? tier.annualMonthly : tier.monthly;
+          const saving = savingPercent(tier);
+
           return (
             <div
               key={tier.name}
@@ -98,16 +65,25 @@ export function PricingTable() {
                   Most popular
                 </span>
               )}
-              <h3 className="font-display text-xl font-700 text-heading">{tier.name}</h3>
-              <p className="mt-2 min-h-10 text-sm leading-relaxed text-muted">
-                {tier.description}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-display text-xl font-700 text-heading">{tier.name}</h3>
+                {annual && saving > 0 && (
+                  <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-300">
+                    −{saving}%
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 min-h-10 text-sm leading-relaxed text-muted">{tier.description}</p>
               <p className="mt-5 flex items-baseline gap-1.5">
-                <span className="font-display text-4xl font-700 text-heading">${price}</span>
+                <span className="font-display text-4xl font-700 text-heading">
+                  {formatCurrency(price, PRICING_CURRENCY)}
+                </span>
                 <span className="text-sm text-muted">/ month</span>
               </p>
               <p className="mt-1 text-xs text-muted">
-                {annual ? `Billed annually at $${price * 12}` : 'Billed monthly'}
+                {annual
+                  ? `Billed annually at ${formatCurrency(price * 12, PRICING_CURRENCY)} — ${saving}% less than monthly`
+                  : `Billed monthly at ${formatCurrency(price, PRICING_CURRENCY)}`}
               </p>
 
               <ul className="mt-6 flex-1 space-y-2.5">
@@ -124,10 +100,10 @@ export function PricingTable() {
                 fullWidth
                 className="mt-6"
                 onClick={() =>
-                  // A hosted checkout needs a configured store; the template
-                  // says so instead of pretending the button worked.
+                  // A hosted checkout needs a configured store; the template says
+                  // so instead of pretending the button worked.
                   window.alert(
-                    'Checkout is not configured in this template. Set LEMONSQUEEZY_STORE_ID and API key in .env to enable it.',
+                    'Membership checkout is not configured in this template. Connect your billing provider and wire this button to it.',
                   )
                 }
               >
@@ -137,6 +113,11 @@ export function PricingTable() {
           );
         })}
       </div>
+
+      <p className="mt-6 text-center text-xs text-muted">
+        Prices in {PRICING_CURRENCY}, set by the operator. Card payment is collected by the billing
+        provider you connect, never by this site.
+      </p>
     </div>
   );
 }

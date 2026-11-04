@@ -3,6 +3,8 @@ import { created, fail, ok, serverError, tooMany, validate } from '@/lib/api';
 import { getSession } from '@/lib/auth';
 import { leadSchema } from '@/lib/validation';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
+import { leadNotificationEmail, sendEmail } from '@/lib/email';
+import { site } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,6 +104,16 @@ export async function POST(request: Request) {
       },
       select: { id: true, type: true, status: true },
     });
+
+    void sendEmail(
+      leadNotificationEmail({
+        to: process.env.CONTACT_INBOX ?? site.email,
+        name: input.name,
+        email: input.email,
+        type: input.type,
+        message: input.message,
+      }),
+    );
 
     return created(lead, 'Thanks — a specialist will be in touch');
   } catch {

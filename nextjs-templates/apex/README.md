@@ -13,7 +13,7 @@ API run as **one deployable Next.js application** — no separate Express proces
 
 | Area | Detail |
 |------|--------|
-| **Pages** | Home, Inventory, Vehicle detail, Shop, Product detail, Cart, Checkout, Order tracking, Trade-in, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Account orders, Admin, 404 |
+| **Pages** | Home, Inventory, Vehicle detail, Shop, Product detail, Cart, Checkout, Order tracking, Trade-in, Saved, Compare, Services, Pricing, About, Contact, Insights, Privacy, Terms, Login, Register, Account, Account orders, Admin, Offline, 404 |
 | **Leads** | One endpoint, four intents: enquiry, test drive with a date, finance quote with a deposit, and part-exchange valuation. Type-specific fields are required, not optional |
 | **Discovery** | Favourites, 3-way compare with a spec table, eight-way filtering (search, make, body, fuel, gearbox, year, mileage, price), five sort orders, pagination, recently viewed |
 | **Vehicle detail** | Multi-photo gallery with a keyboard-driven lightbox, finance estimator, share (Web Share + clipboard), `Car` JSON-LD, breadcrumbs with `BreadcrumbList` schema |
@@ -36,7 +36,8 @@ API run as **one deployable Next.js application** — no separate Express proces
 | **Conversion** | Click-to-call and WhatsApp floats, business hours in the footer, optional promo strip driven by `NEXT_PUBLIC_PROMO` |
 | **Safety** | Per-IP rate limits on login, register, leads, checkout, reviews, coupons and newsletter; idempotent lead submission; no account enumeration; conditional stock claim |
 | **Tests** | Vitest unit tests for formatters, validation, the API envelope, rate limiter, finance maths, order transitions, totals, analytics bucketing, coupon maths, Stripe signature verification and template integrity (88 tests) |
-| **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml` covering every vehicle, `robots.txt`, `AutoDealer` + `Car` + `Product` + `BreadcrumbList` JSON-LD, security headers |
+| **SEO** | Metadata API, Open Graph, canonical URLs, `sitemap.xml` covering every vehicle, `robots.txt`, `AutoDealer` + `Car` + `Product` + `BreadcrumbList` JSON-LD, optional Search Console verification, security headers |
+| **PWA** | Installable manifest and a conservative service worker: network-first pages with an `/offline` fallback, cache-first hashed assets, `/api` never cached |
 
 ### Design system
 
@@ -265,6 +266,28 @@ CMD ["npm", "start"]
 Each of these is a deliberate boundary, not a missing feature that fails silently.
 
 ---
+
+## What you must supply
+
+The template ships the integration *point* for everything that needs a paid
+account. Each one is a no-op until you set its variable, and none of them fail
+the request while it is missing.
+
+| Feature | Where to plug it in | Variable |
+|---------|--------------------|----------|
+| Email (order + lead) | `src/lib/email.ts` — Resend by default, swap the fetch for your provider | `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_INBOX` |
+| VIN / history report | `src/lib/vin.ts` — never scraped, never guessed | `VIN_API_KEY`, `NEXT_PUBLIC_VIN_REPORT_BASE` |
+| Live chat | `src/components/layout/chat-widget.tsx` loads whatever embed URL you give it | `NEXT_PUBLIC_CHAT_SCRIPT_URL` |
+| Analytics | Consent-gated GA4 | `NEXT_PUBLIC_GA_ID` |
+| Search Console | Meta verification tag | `NEXT_PUBLIC_GSC_VERIFICATION` |
+| WhatsApp | Floating button, hidden when unset | `NEXT_PUBLIC_WHATSAPP` |
+| Promo strip | Hidden when unset — never an invented offer | `NEXT_PUBLIC_PROMO` |
+| Membership prices | `src/lib/pricing.ts` — the table and the saving % both read from it | — |
+
+Multi-currency is deliberately **not** implemented as a converter: a vehicle
+carries its own currency and the site never converts it at display time. If you
+need cross-currency display, that is where your FX source belongs — inventing a
+rate would show a buyer a price you cannot honour.
 
 ## Payments
 

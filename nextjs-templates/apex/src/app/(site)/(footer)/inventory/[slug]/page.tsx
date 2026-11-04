@@ -15,6 +15,7 @@ import { ReserveVehicleButton } from '@/components/vehicle/reserve-vehicle-butto
 import { VehicleLeadPanel } from '@/components/vehicle/vehicle-lead-panel';
 import { RecentlyViewed } from '@/components/vehicle/recently-viewed';
 import { ReviewsSection } from '@/components/reviews/reviews-section';
+import { VehicleHistory } from '@/components/vehicle/vehicle-history';
 import { RecentlyViewedTracker } from '@/components/vehicle/recently-viewed-tracker';
 import { getVehicleBySlug } from '@/lib/vehicles';
 import { formatCurrency, formatMileage } from '@/lib/utils';
@@ -181,6 +182,8 @@ export default async function VehicleDetailPage({ params }: { params: Params }) 
                 </a>
               )}
             </Panel>
+
+            <VehicleHistory vin={vehicle.vin} />
 
             <div className="mt-8">
               <FinanceCalculator price={vehicle.price} currency={vehicle.currency} />
