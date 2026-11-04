@@ -59,3 +59,56 @@ def test_ci_workflow_parses_as_yaml():
     yaml = pytest.importorskip("yaml")
     parsed = yaml.safe_load(_workflow_text())
     assert isinstance(parsed, dict) and "jobs" in parsed
+
+
+FIXTURE = ROOT / "generated-projects" / "blogforge"
+
+
+def test_ci_fixture_is_committed():
+    """A leg that runs npm ci on a gitignored path can never pass on CI."""
+    assert FIXTURE.is_dir(), f"the committed fixture is missing: {FIXTURE}"
+    assert (FIXTURE / "backend" / "package.json").is_file()
+    assert (FIXTURE / "frontend" / "package.json").is_file()
+    ignored = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert "generated-projects/" not in ignored, (
+        "the whole generated-projects/ tree is gitignored, so the fixture "
+        "cannot be committed; ignore the volatile subpaths instead"
+    )
+
+
+def test_ci_fixture_leg_uses_scripts_that_exist():
+    """Every npm script the workflow calls must exist in the target package."""
+    import json
+
+    commands = "\n".join(_run_commands())
+    calls = [
+        ("generated-projects/blogforge", "test:backend"),
+        ("generated-projects/blogforge/frontend", "test:e2e"),
+        ("generated-projects/blogforge/backend", "db:migrate"),
+        ("generated-projects/blogforge/frontend", "build"),
+    ]
+    for prefix, script in calls:
+        assert f"npm run {script} --prefix {prefix}" in commands, (
+            f"CI no longer calls {script} on {prefix}"
+        )
+        package = ROOT / prefix / "package.json"
+        assert package.is_file(), f"missing {package}"
+        scripts = json.loads(package.read_text(encoding="utf-8")).get("scripts", {})
+        assert script in scripts, f"{prefix}/package.json defines no {script} script"
+
+
+def test_ci_provides_a_database_for_the_fixture():
+    """db:migrate needs a reachable Postgres; a job without one cannot pass."""
+    yaml = pytest.importorskip("yaml")
+    parsed = yaml.safe_load(_workflow_text())
+    services = {}
+    for job in (parsed.get("jobs") or {}).values():
+        services.update(job.get("services") or {})
+    assert "postgres" in services, "the fixture job needs a postgres service container"
+    text = _workflow_text()
+    assert "DATABASE_URL" in text, "the fixture backend needs DATABASE_URL for migrations"
+    # The generated suite guards every test with `skip: !process.env.TEST_DATABASE_URL`,
+    # so DATABASE_URL alone runs zero assertions and still exits 0.
+    assert "TEST_DATABASE_URL" in text, (
+        "the generated backend suite skips every test unless TEST_DATABASE_URL is set"
+    )

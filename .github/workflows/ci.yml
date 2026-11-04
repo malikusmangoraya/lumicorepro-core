@@ -9,6 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: blogforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       CI: "1"
       FORCE_COLOR: "0"
@@ -88,16 +102,28 @@ jobs:
         run: npm ci --prefix generated-projects/blogforge/frontend
 
       - name: Run generated backend migrations
+        # The fixture talks to the postgres service container, not localhost:
+        # a migration step with no database proves nothing.
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/blogforge
+          DB_DIALECT: postgres
         run: npm run db:migrate --prefix generated-projects/blogforge/backend
 
       - name: Test generated backend
-        run: npm run test:backend --prefix generated-projects/blogforge/backend
+        # The root package.json forwards test:backend to backend/; calling the
+        # backend package directly asked for a script it does not define.
+        # The suite skips every test unless TEST_DATABASE_URL is set -- setting
+        # only DATABASE_URL leaves the leg green with zero assertions run.
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/blogforge
+        run: npm run test:backend --prefix generated-projects/blogforge
 
       - name: Build generated frontend
         run: npm run build --prefix generated-projects/blogforge/frontend
 
       - name: Run Playwright E2E for generated project
-        run: npm run test:e2e --prefix generated-projects/blogforge
+        # The Playwright config lives in frontend/, not at the fixture root.
+        run: npm run test:e2e --prefix generated-projects/blogforge/frontend
 
       - name: Verify build (optional)
         # The module lives at ai-agent/agent/quality_gate.py; the previous

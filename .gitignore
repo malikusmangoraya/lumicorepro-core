@@ -52,7 +52,15 @@ ai-agent/logs/
 # Local AI provider routing tiers (machine-specific ordering, written by
 # ai-agent/console.py). Commit only if you want to pin a default for the team.
 ai-agent/.router.json
-generated-projects/
+# Generated output stays local. The BlogForge fixture is committed because CI
+# builds and tests it; everything else under generated-projects/ is local
+# build output. A leg that runs npm ci against a gitignored path cannot pass
+# on a clean checkout, so the fixture itself must stay trackable.
+generated-projects/*
+!generated-projects/blogforge/
+generated-projects/**/frontend_node_modules_old/
+generated-projects/**/*.log
+generated-projects/*.zip
 backend-library/*/data/
 
 # Offline public-development benchmark corpus (large binaries: 129 *.tgz

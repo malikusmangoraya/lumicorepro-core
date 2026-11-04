@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /generate
+Disallow: /generate/
+
+Sitemap: https://blogforge-lumicorepro.vercel.app/sitemap.xml

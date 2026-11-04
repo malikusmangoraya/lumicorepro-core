@@ -1,0 +1,5 @@
+.vercel
+.env*
+
+# The env contract ships; only real values are secret.
+!.env.example

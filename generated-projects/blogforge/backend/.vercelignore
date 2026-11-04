@@ -1,0 +1,14 @@
+# Deployment source-tree cleanup. Vercel uploads the project folder; these
+# entries must never be published with the bundle.
+.git
+.gitignore
+node_modules
+uploads
+test
+tests
+coverage
+logs
+*.log
+.env
+.env.local
+.env.*.local
