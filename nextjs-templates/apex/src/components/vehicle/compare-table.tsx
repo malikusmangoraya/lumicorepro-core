@@ -106,11 +106,11 @@ export function CompareTable() {
       </div>
 
       <div className="overflow-x-auto rounded-panel border border-line">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <table className="w-full min-w-[640px] table-fixed border-collapse text-sm">
           <caption className="sr-only">Side-by-side vehicle comparison</caption>
           <thead>
             <tr>
-              <th scope="col" className="w-40 border-b border-line bg-surface/70 p-4 text-left text-xs uppercase tracking-wide text-muted">
+              <th scope="col" className="w-32 border-b border-line bg-surface/70 p-4 text-left text-xs uppercase tracking-wide text-muted sm:w-40">
                 Spec
               </th>
               {items.map((vehicle) => (
